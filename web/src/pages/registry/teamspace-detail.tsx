@@ -102,10 +102,10 @@ const ROLE_OPTIONS = [
 ];
 
 const COMPONENT_TYPES: { value: RegistryType; label: string }[] = [
-	{ value: "mcps", label: "MCPs" },
 	{ value: "skills", label: "Skills" },
-	{ value: "hooks", label: "Hooks" },
 	{ value: "prompts", label: "Prompts" },
+	{ value: "mcps", label: "MCPs" },
+	{ value: "hooks", label: "Hooks" },
 	{ value: "sandboxes", label: "Sandboxes" },
 ];
 

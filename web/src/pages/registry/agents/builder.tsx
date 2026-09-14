@@ -102,7 +102,7 @@ function AgentBuilderInner() {
   const [modelName, setModelName] = useState("");
   const [modelsByHarness, setModelsByIde] = useState<Record<string, string>>({});
   const [publishing, setPublishing] = useState(false);
-  const [activeTab, setActiveTab] = useState<RegistryType>("mcps");
+  const [activeTab, setActiveTab] = useState<RegistryType>("skills");
   const [teamId, setTeamId] = useState(teamParam ?? "");
   const [visibility, setVisibility] = useState<"public" | "team">("public");
   const selectedTeam = teams.find((team) => team.id === teamId);
@@ -143,10 +143,10 @@ function AgentBuilderInner() {
   const [selectedComponents, setSelectedComponents] = useState<
     Record<string, RegistryItem[]>
   >({
-    mcps: [],
     skills: [],
-    hooks: [],
     prompts: [],
+    mcps: [],
+    hooks: [],
     sandboxes: [],
   });
 
@@ -189,7 +189,7 @@ function AgentBuilderInner() {
     const agentComponents = (existingAgent as Record<string, unknown>).components;
     if (Array.isArray(agentComponents)) {
       const grouped: Record<string, RegistryItem[]> = {
-        mcps: [], skills: [], hooks: [], prompts: [], sandboxes: [],
+        skills: [], prompts: [], mcps: [], hooks: [], sandboxes: [],
       };
       for (const comp of agentComponents) {
         const c = comp as Record<string, unknown>;

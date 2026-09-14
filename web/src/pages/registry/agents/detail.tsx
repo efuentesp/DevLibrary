@@ -99,10 +99,10 @@ const FEATURE_LABELS: Record<string, string> = {
 };
 
 const COMPONENT_TYPES = [
-  { value: "mcps", singular: "mcp", label: "MCPs" },
   { value: "skills", singular: "skill", label: "Skills" },
-  { value: "hooks", singular: "hook", label: "Hooks" },
   { value: "prompts", singular: "prompt", label: "Prompts" },
+  { value: "mcps", singular: "mcp", label: "MCPs" },
+  { value: "hooks", singular: "hook", label: "Hooks" },
   { value: "sandboxes", singular: "sandbox", label: "Sandboxes" },
 ] as const;
 
