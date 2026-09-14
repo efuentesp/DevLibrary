@@ -80,7 +80,7 @@ export default function WikiPage() {
 				{!activePath ? (
 					<div className="mx-auto max-w-5xl">
 						<p className="mb-8 max-w-2xl text-sm leading-6 text-muted-foreground">
-							Practical Observal wiki pages for setup, operations, registry use, and self-hosting.
+							Practical Dev-Library wiki pages for setup, operations, registry use, and self-hosting.
 						</p>
 						<div className="divide-y divide-border rounded-xl border border-border bg-card/20 shadow-sm">
 							{sortedSections.map(([section, paths]) => (

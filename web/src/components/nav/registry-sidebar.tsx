@@ -239,14 +239,14 @@ export function RegistrySidebar() {
 									{brandingWordmark ? (
 										<img
 											src={brandingWordmark}
-											alt={brandingAppName || "Observal"}
+											alt={brandingAppName || "Dev-Library"}
 											width={140}
 											height={20}
 											className="h-5 max-w-35 object-contain object-left"
 										/>
 									) : (
 										<span className="text-base font-semibold tracking-tight font-display truncate max-w-35">
-											{brandingAppName || "Observal"}
+											{brandingAppName || "Dev-Library"}
 										</span>
 									)}
 								</div>

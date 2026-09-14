@@ -27,5 +27,5 @@ export function RegistryMark({ size = 16, className = "" }: { size?: number; cla
 /** The instance's display name, for use in sentences like "Already in X". */
 export function useRegistryName(): string {
 	const { brandingAppName } = useDeploymentConfig();
-	return brandingAppName || "Observal";
+	return brandingAppName || "Dev-Library";
 }

@@ -930,7 +930,7 @@ export default function SettingsPage() {
 								<Input
 									value={appNameDraft}
 									onChange={(e) => setAppNameOverride(e.target.value)}
-									placeholder="Observal"
+									placeholder="Dev-Library"
 									autoComplete="off"
 									maxLength={30}
 									className="h-8 text-sm w-48"
@@ -972,7 +972,7 @@ export default function SettingsPage() {
 									/>
 								) : (
 									<span className="text-sm font-semibold tracking-tight font-display text-sidebar-foreground truncate max-w-35">
-										{appNameDraft.trim() || "Observal"}
+										{appNameDraft.trim() || "Dev-Library"}
 									</span>
 								)}
 							</div>
@@ -1109,7 +1109,7 @@ export default function SettingsPage() {
 										Export, import, and validate instance data
 									</p>
 									<p className="text-xs text-muted-foreground mt-0.5">
-										Move registry data and telemetry between Observal instances. Start with the guide if this is your first run.
+										Move registry data and telemetry between Dev-Library instances. Start with the guide if this is your first run.
 									</p>
 								</div>
 								<div className="flex items-center gap-2">

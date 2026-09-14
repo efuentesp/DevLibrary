@@ -32,7 +32,7 @@ function RegisterContent() {
   const [alreadyAuthed] = useState(
     () => typeof window !== "undefined" && !!sessionStorage.getItem("observal_access_token"),
   );
-  const appName = brandingAppName || "Observal";
+  const appName = brandingAppName || "Dev-Library";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");

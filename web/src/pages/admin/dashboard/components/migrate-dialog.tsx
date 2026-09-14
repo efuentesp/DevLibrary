@@ -78,7 +78,7 @@ export function MigrateDialog({ open, onOpenChange }: MigrateDialogProps) {
 						<div className="space-y-1.5">
 							<DialogTitle>Data migration</DialogTitle>
 							<DialogDescription>
-								Move registry records and telemetry between Observal instances. Validate artifacts before importing.
+								Move registry records and telemetry between Dev-Library instances. Validate artifacts before importing.
 							</DialogDescription>
 						</div>
 						<Button type="button" variant="outline" size="sm" onClick={() => helpCtx.openHelp({ pageKey: "migration" })}>

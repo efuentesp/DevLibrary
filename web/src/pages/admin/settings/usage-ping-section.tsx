@@ -80,7 +80,7 @@ export function UsagePingSection({ settings, onChanged }: { settings: AdminSetti
       <div className="rounded-md border border-border bg-card px-4 py-4 space-y-4">
         <div className="flex items-start justify-between gap-6">
           <div className="max-w-2xl">
-            <p className="text-sm font-medium">Share aggregate product usage with Observal</p>
+            <p className="text-sm font-medium">Share aggregate product usage with Dev-Library</p>
             <p className="mt-1 text-xs font-medium text-foreground">Enabled by default · Every 6 hours</p>
             <p className="mt-1 text-xs leading-5 text-muted-foreground">
               Sends aggregate reports to usage.observal.io on the schedule you choose. Reports include company

@@ -320,8 +320,8 @@ export default function RegistryHome() {
         <section className="max-w-5xl">
           <h1 className="max-w-3xl text-balance text-2xl font-semibold tracking-[-0.03em] text-foreground sm:text-3xl">
             {isAuthenticated
-              ? `${displayName}, here is your day in ${brandingAppName || "Observal"}.`
-              : `Explore ${brandingAppName || "Observal"}'s public registry.`}
+              ? `${displayName}, here is your day in ${brandingAppName || "Dev-Library"}.`
+              : `Explore ${brandingAppName || "Dev-Library"}'s public registry.`}
           </h1>
           <p className="mt-2 max-w-2xl text-base leading-7 text-muted-foreground">
             {daySummary}

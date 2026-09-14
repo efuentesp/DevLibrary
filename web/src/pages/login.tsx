@@ -302,10 +302,10 @@ function LoginContent() {
                 <img loading="lazy" src="/observal-logo.svg" alt="" width={32} height={32} className="object-contain" />
               )}
               {brandingWordmark ? (
-                <img loading="lazy" src={brandingWordmark} alt={brandingAppName || "Observal"} width={192} height={24} className="h-6 max-w-48 object-contain" />
+                <img loading="lazy" src={brandingWordmark} alt={brandingAppName || "Dev-Library"} width={192} height={24} className="h-6 max-w-48 object-contain" />
               ) : (
                 <h1 className="text-2xl font-semibold tracking-tight font-[family-name:var(--font-display)]">
-                  {brandingAppName || "Observal"}
+                  {brandingAppName || "Dev-Library"}
                 </h1>
               )}
               <p className="text-sm text-muted-foreground">
@@ -391,10 +391,10 @@ function LoginContent() {
               <img loading="lazy" src="/observal-logo.svg" alt="" width={32} height={32} className="object-contain" />
             )}
             {brandingWordmark ? (
-              <img loading="lazy" src={brandingWordmark} alt={brandingAppName || "Observal"} width={192} height={24} className="h-6 max-w-48 object-contain" />
+              <img loading="lazy" src={brandingWordmark} alt={brandingAppName || "Dev-Library"} width={192} height={24} className="h-6 max-w-48 object-contain" />
             ) : (
               <h1 className="text-2xl font-semibold tracking-tight font-[family-name:var(--font-display)]">
-                {brandingAppName || "Observal"}
+                {brandingAppName || "Dev-Library"}
               </h1>
             )}
             <p className="text-sm text-muted-foreground">

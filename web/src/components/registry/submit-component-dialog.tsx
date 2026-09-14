@@ -893,7 +893,7 @@ export function SubmitComponentDialog({
 											placeholder="https://github.com/user/mcp-server"
 										/>
 										<p className="text-xs text-muted-foreground">
-											Observal still needs pasted MCP JSON. The git repo is only used to
+											Dev-Library still needs pasted MCP JSON. The git repo is only used to
 											detect Dockerfile, Containerfile, or compose build setup
 											instructions.
 										</p>

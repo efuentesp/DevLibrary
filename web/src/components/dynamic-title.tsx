@@ -10,7 +10,7 @@ export function DynamicTitle() {
   const { brandingAppName, brandingLogo } = useDeploymentConfig();
 
   useEffect(() => {
-    document.title = brandingAppName || "Observal";
+    document.title = brandingAppName || "Dev-Library";
   }, [brandingAppName]);
 
   useEffect(() => {
