@@ -39,6 +39,8 @@ from observal_cli.render import (
     status_badge,
 )
 from observal_cli.shared.utils import sanitize_name as _sanitize_name
+from observal_cli.skill_bundle import pack_extra_files, pack_skill_dir
+from observal_shared.skill_files import ExtraFileError, validate_extra_files
 
 skill_app = typer.Typer(
     help=(
@@ -138,6 +140,14 @@ def skill_submit(
     git_url: str | None = typer.Option(None, "--git-url", help="Git repository URL"),
     git_ref: str | None = typer.Option(None, "--git-ref", help="Branch or tag (default: main)"),
     script: str | None = typer.Option(None, "--script", help="Path to script file (registry_direct mode)"),
+    extra_file: list[str] | None = typer.Option(
+        None,
+        "--extra-file",
+        help="Extra file to ship (repeatable): path under the SKILL.md directory, or 'dest=path' for files elsewhere",
+    ),
+    from_dir: str | None = typer.Option(
+        None, "--from-dir", help="Skill directory to package (SKILL.md + all resources)"
+    ),
     delivery_mode: str | None = typer.Option(None, "--delivery-mode", help="Delivery: git_fetch or registry_direct"),
     name: str | None = typer.Option(None, "--name", "-n", help="Skill name"),
     version: str | None = typer.Option(None, "--version", "-v", help="Version (default: 1.0.0)"),
@@ -164,8 +174,10 @@ def skill_submit(
     for install unless using --delivery-mode registry_direct).
 
     Registry direct: use --delivery-mode registry_direct with --skill-md and
-    optionally --script to submit a skill with inline content (no git repo
-    needed). On install, the SKILL.md and script are written directly.
+    optionally --script / --extra-file to submit a skill with inline content
+    (no git repo needed). --from-dir packages a whole skill directory
+    (SKILL.md plus every script, template, and resource it contains). On
+    install, the SKILL.md, script, and extra files are written directly.
 
     Only submit skills you created or are the point-of-contact for.
 
@@ -174,6 +186,11 @@ def skill_submit(
         observal registry skill submit --skill-md ./SKILL.md --git-url https://github.com/org/repo
         observal registry skill submit --skill-md ./SKILL.md --script ./run.sh \
           --delivery-mode registry_direct --name my-skill --description "My skill" --output json
+        observal registry skill submit --from-dir ./my-skill --delivery-mode registry_direct \
+          --name my-skill --description "My skill" --output json
+        observal registry skill submit --skill-md ./SKILL.md --extra-file ./templates/x.md \
+          --extra-file "assets/logo.png=/tmp/logo.png" --delivery-mode registry_direct \
+          --name my-skill --description "My skill" --output json
     """
     human_output = output != "json"
     if human_output:
@@ -235,6 +252,20 @@ def skill_submit(
         skill_md_content: str | None = None
         script_content: str | None = None
         script_filename: str | None = None
+        extra_files_entries: list[dict] | None = None
+
+        if from_dir:
+            if skill_md:
+                fail(
+                    ErrorCategory.VALIDATION,
+                    "--from-dir and --skill-md cannot be combined.",
+                    operation="Submit skill",
+                    resource="submit options",
+                    remediation="Use --from-dir alone; it reads the directory's own SKILL.md.",
+                )
+            skill_md_content, dir_entries = pack_skill_dir(Path(from_dir))
+            skill_md = str(Path(from_dir) / "SKILL.md")
+            extra_files_entries = dir_entries
 
         if skill_md:
             try:
@@ -276,6 +307,20 @@ def skill_submit(
             if human_output:
                 rprint(f"[green]✓ Read script:[/green] {esc(script_filename)}")
 
+        if extra_file:
+            if not skill_md:
+                fail(
+                    ErrorCategory.VALIDATION,
+                    "--extra-file needs --skill-md or --from-dir to locate the skill directory.",
+                    operation="Submit skill",
+                    resource="submit options",
+                    remediation="Provide --skill-md (or --from-dir) alongside --extra-file.",
+                )
+            packed = pack_extra_files(extra_file, Path(skill_md), base_entries=extra_files_entries or [])
+            extra_files_entries = packed
+            if human_output:
+                rprint(f"[green]✓ Packed extra files:[/green] {len(packed)}")
+
         # Auto-detect delivery mode
         effective_delivery_mode = delivery_mode or (
             "registry_direct" if (skill_md_content and not git_url) else "git_fetch"
@@ -283,8 +328,8 @@ def skill_submit(
 
         flag_mode = any(
             x is not None
-            for x in (name, version, description, task_type, skill_path, slash_command, supported_harnesses)
-        ) or bool(target_agent)
+            for x in (name, version, description, task_type, skill_path, slash_command, supported_harnesses, from_dir)
+        ) or bool(target_agent or extra_file)
         if output == "json" and not flag_mode:
             fail(
                 ErrorCategory.VALIDATION,
@@ -347,6 +392,8 @@ def skill_submit(
         if script_content:
             payload["script_content"] = script_content
             payload["script_filename"] = script_filename
+        if extra_files_entries:
+            payload["extra_files"] = extra_files_entries
 
     client.add_publish_target(payload, team, visibility)
     endpoint = "/api/v1/skills/draft" if draft else "/api/v1/skills/submit"
@@ -709,6 +756,7 @@ def skill_install(
                     skill_md_content=skill_info.get("skill_md_content"),
                     script_content=skill_info.get("script_content"),
                     script_filename=skill_info.get("script_filename"),
+                    extra_files=skill_info.get("extra_files"),
                     harness=harness,
                     scope=scope,
                 )
@@ -817,16 +865,18 @@ def install_skill_registry_direct(
     skill_md_content: str | None,
     script_content: str | None = None,
     script_filename: str | None = None,
+    extra_files: list[dict] | None = None,
     harness: str = "claude-code",
     scope: str = "user",
     ide: str | None = None,
     cwd: Path | None = None,
     dest: Path | None = None,
 ) -> Path | None:
-    """Install a registry_direct skill: write SKILL.md and optional script.
+    """Install a registry_direct skill: write SKILL.md, optional script, and extra files.
 
-    Writes to <dest>/<name>/SKILL.md and <dest>/<name>/scripts/<script_filename>.
-    Returns the destination Path on success, None on failure.
+    Writes to <dest>/<name>/SKILL.md, <dest>/<name>/scripts/<script_filename>,
+    and <dest>/<name>/<path> for every extra file entry. Returns the
+    destination Path on success, None on failure.
     """
     skill_name = _sanitize_name(name)
     custom_dest = dest is not None
@@ -864,6 +914,31 @@ def install_skill_registry_direct(
 
                 os.chmod(script_path, 0o755)
             rprint(f"[green]\u2713 Wrote script:[/green] {esc(script_path)}")
+
+    if extra_files:
+        try:
+            entries = validate_extra_files(extra_files) or []
+        except ExtraFileError as exc:
+            rprint(f"[red]\u2717 Registry delivered invalid extra files:[/red] {esc(str(exc))}")
+            return None
+        for entry in entries:
+            rel = entry["path"]
+            target = dest / rel
+            if not _is_path_safe(target, dest):
+                rprint(f"[red]\u2717 Unsafe extra file path (traversal), skipped:[/red] {esc(rel)}")
+                continue
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if entry.get("encoding") == "base64":
+                import base64
+
+                target.write_bytes(base64.b64decode(entry["content"]))
+            else:
+                target.write_text(entry["content"], encoding="utf-8")
+                if target.suffix in (".sh", ".bash", ".py", ".rb"):
+                    import os
+
+                    os.chmod(target, 0o755)
+            rprint(f"[green]\u2713 Wrote extra file:[/green] {esc(target)}")
 
     if scope == "project" and not custom_dest:
         _symlink_for_harnesses(cwd or Path.cwd(), dest, skill_name)
