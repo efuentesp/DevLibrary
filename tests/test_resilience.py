@@ -180,7 +180,7 @@ class TestCliRetry:
     """Verify CLI _request_with_retry retries on 429/503/504."""
 
     def test_retries_on_429(self):
-        from observal_cli.client import _request_with_retry
+        from dev_library_cli.client import _request_with_retry
 
         mock_resp_429 = MagicMock(spec=httpx.Response)
         mock_resp_429.status_code = 429
@@ -196,7 +196,7 @@ class TestCliRetry:
             assert r.status_code == 200
 
     def test_retries_on_503(self):
-        from observal_cli.client import _request_with_retry
+        from dev_library_cli.client import _request_with_retry
 
         mock_resp_503 = MagicMock(spec=httpx.Response)
         mock_resp_503.status_code = 503
@@ -212,7 +212,7 @@ class TestCliRetry:
             assert r.status_code == 200
 
     def test_honors_retry_after_header(self):
-        from observal_cli.client import _request_with_retry
+        from dev_library_cli.client import _request_with_retry
 
         mock_resp_429 = MagicMock(spec=httpx.Response)
         mock_resp_429.status_code = 429
@@ -233,7 +233,7 @@ class TestCliRetry:
 
     def test_does_not_retry_on_400(self):
         """Non-retryable status codes should raise immediately."""
-        from observal_cli.client import _request_with_retry
+        from dev_library_cli.client import _request_with_retry
 
         mock_resp = MagicMock(spec=httpx.Response)
         mock_resp.status_code = 400

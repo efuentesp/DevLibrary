@@ -6,7 +6,7 @@
 
 ``observal support bundle`` collects configuration, health probes and recent
 log lines into an archive that operators hand to third parties for diagnosis.
-``observal_cli.support.redaction`` is the single point every value passes
+``dev_library_cli.support.redaction`` is the single point every value passes
 through on the way in, so a miss here leaks credentials outside the
 deployment. It is a separate implementation from the server-side ingest
 redactor: different patterns, plus a Shannon-entropy rule over tokenised
@@ -24,7 +24,7 @@ import atheris
 _paths.add_source_roots()
 
 with atheris.instrument_imports():
-    from observal_cli.support.redaction import REDACTED, redact_string
+    from dev_library_cli.support.redaction import REDACTED, redact_string
 
 # The entropy rule is quadratic in token count; cap input so slow cases are
 # reported as bugs rather than as libFuzzer timeouts.

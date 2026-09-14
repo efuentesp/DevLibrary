@@ -37,8 +37,8 @@ _KIRO_EVENT_MAP = {
 }
 
 # Session push hook command - reads JSONL incrementally, only needs 2 events.
-_SESSION_PUSH_CMD = "python3 -m observal_cli.hooks.session_push"
-_CURSOR_SESSION_PUSH_CMD = "python3 -m observal_cli.hooks.session_push --harness cursor"
+_SESSION_PUSH_CMD = "python3 -m dev_library_cli.hooks.session_push"
+_CURSOR_SESSION_PUSH_CMD = "python3 -m dev_library_cli.hooks.session_push --harness cursor"
 
 
 # The two events that drive JSONL-based telemetry collection.
@@ -124,7 +124,7 @@ def _cursor_hooks_config(platform: str = "") -> dict:
     (fires when the agent loop ends).
     """
     cmd = (
-        "python -m observal_cli.hooks.session_push --harness cursor"
+        "python -m dev_library_cli.hooks.session_push --harness cursor"
         if platform == "win32"
         else _CURSOR_SESSION_PUSH_CMD
     )
@@ -146,8 +146,8 @@ def _vscode_copilot_hooks_config() -> dict:
     - "timeoutSec" for timeout (not "timeout")
     - PascalCase event names for VS Code compatible payloads
     """
-    cmd = "python3 -m observal_cli.hooks.session_push --harness copilot --json-response"
-    ps_cmd = "python -m observal_cli.hooks.session_push --harness copilot --json-response"
+    cmd = "python3 -m dev_library_cli.hooks.session_push --harness copilot --json-response"
+    ps_cmd = "python -m dev_library_cli.hooks.session_push --harness copilot --json-response"
     return {
         "version": 1,
         "hooks": {
@@ -162,8 +162,8 @@ def _vscode_copilot_hooks_frontmatter_lines() -> list[str]:
 
     Uses the official Copilot hooks format with bash/powershell keys.
     """
-    cmd = "python3 -m observal_cli.hooks.session_push --harness copilot --json-response"
-    ps_cmd = "python -m observal_cli.hooks.session_push --harness copilot --json-response"
+    cmd = "python3 -m dev_library_cli.hooks.session_push --harness copilot --json-response"
+    ps_cmd = "python -m dev_library_cli.hooks.session_push --harness copilot --json-response"
     return [
         "hooks:",
         "  UserPromptSubmit:",
@@ -330,7 +330,7 @@ def _build_sandbox_mcp_entry(sandbox_listings: dict, harness: str) -> dict:
     return {
         "observal-sandbox": {
             "command": "python3",
-            "args": ["-m", "observal_cli.sandbox_mcp", "--sandboxes", _json.dumps(sandboxes_json)],
+            "args": ["-m", "dev_library_cli.sandbox_mcp", "--sandboxes", _json.dumps(sandboxes_json)],
         }
     }
 

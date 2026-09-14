@@ -86,7 +86,7 @@ curl http://localhost/health
 # {"status":"ok","initialized":true}
 ```
 
-Open the web UI at **http://localhost**.
+Open the web UI at **<http://localhost>**.
 
 ---
 
@@ -159,7 +159,7 @@ Or directly:
 
 ```bash
 cd observal-server && uv run --with pytest --with pytest-asyncio --with pyyaml \
-  pytest ../tests/ tests/ ../observal_cli/tests/ -q
+  pytest ../tests/ tests/ ../dev_library_cli/tests/ -q
 ```
 
 All tests mock external services. No Docker or live databases needed to run tests.

@@ -16,9 +16,9 @@ import string
 from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
-from observal_cli.cmd_support import CONFIG_ALLOWLIST
-from observal_cli.support.manifest import BundleManifest, FileEntry, compute_file_entry
-from observal_cli.support.redaction import (
+from dev_library_cli.cmd_support import CONFIG_ALLOWLIST
+from dev_library_cli.support.manifest import BundleManifest, FileEntry, compute_file_entry
+from dev_library_cli.support.redaction import (
     AWS_KEY_PATTERN,
     JWT_PATTERN,
     REDACTED,

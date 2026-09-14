@@ -12,14 +12,14 @@ from unittest.mock import MagicMock
 from typer.main import get_command
 from typer.testing import CliRunner
 
-from observal_cli.harness import SessionSource
-from observal_cli.main import app
+from dev_library_cli.harness import SessionSource
+from dev_library_cli.main import app
 
 runner = CliRunner()
 
 
 def test_public_reconcile_drains_outbox_then_all_detected_adapters(monkeypatch):
-    from observal_cli import cmd_reconcile_cli
+    from dev_library_cli import cmd_reconcile_cli
 
     calls: list[str] = []
 
@@ -68,7 +68,7 @@ def test_public_reconcile_drains_outbox_then_all_detected_adapters(monkeypatch):
 
 
 def test_public_reconcile_discovers_claude_and_kiro_fixtures(tmp_path: Path, monkeypatch):
-    from observal_cli import cmd_reconcile_cli
+    from dev_library_cli import cmd_reconcile_cli
 
     claude = tmp_path / ".claude" / "projects" / "-work" / "claude-session.jsonl"
     kiro = tmp_path / ".kiro" / "sessions" / "cli" / "kiro-session.jsonl"
@@ -92,7 +92,7 @@ def test_public_reconcile_discovers_claude_and_kiro_fixtures(tmp_path: Path, mon
 
 
 def test_background_recovery_uses_adapter_sources_and_shared_drain(tmp_path: Path, monkeypatch):
-    from observal_cli.hooks import session_push
+    from dev_library_cli.hooks import session_push
 
     old_source = tmp_path / "old.jsonl"
     old_source.write_text("{}\n")
@@ -147,7 +147,7 @@ def test_reconcile_is_a_leaf_command_with_json_output():
 
 
 def test_reconcile_dry_run_json_has_no_network_or_human_output(tmp_path, monkeypatch):
-    from observal_cli import cmd_reconcile_cli
+    from dev_library_cli import cmd_reconcile_cli
 
     transcript = tmp_path / "session.jsonl"
     transcript.write_text("{}\n")
@@ -184,7 +184,7 @@ def test_reconcile_dry_run_json_has_no_network_or_human_output(tmp_path, monkeyp
 
 
 def test_reconcile_json_validation_happens_before_outbox_side_effects(monkeypatch):
-    from observal_cli import cmd_reconcile_cli
+    from dev_library_cli import cmd_reconcile_cli
 
     monkeypatch.setattr(cmd_reconcile_cli, "load_config", lambda: {"user_id": "user"})
     monkeypatch.setattr(cmd_reconcile_cli, "ensure_loaded", lambda: None)
@@ -201,7 +201,7 @@ def test_reconcile_json_validation_happens_before_outbox_side_effects(monkeypatc
 
 
 def test_reconcile_json_requires_session_delivery_identity(monkeypatch):
-    from observal_cli import cmd_reconcile_cli
+    from dev_library_cli import cmd_reconcile_cli
 
     monkeypatch.setattr(cmd_reconcile_cli, "load_config", lambda: {"server_url": "http://server"})
 
@@ -213,7 +213,7 @@ def test_reconcile_json_requires_session_delivery_identity(monkeypatch):
 
 
 def test_reconcile_finalizes_fully_uploaded_unfinished_session(tmp_path, monkeypatch):
-    from observal_cli import cmd_reconcile_cli
+    from dev_library_cli import cmd_reconcile_cli
 
     transcript = tmp_path / "session.jsonl"
     transcript.write_text("{}\n")
@@ -238,7 +238,7 @@ def test_reconcile_finalizes_fully_uploaded_unfinished_session(tmp_path, monkeyp
 
 
 def test_reconcile_reports_permanent_rejection(tmp_path, monkeypatch):
-    from observal_cli import cmd_reconcile_cli
+    from dev_library_cli import cmd_reconcile_cli
 
     transcript = tmp_path / "session.jsonl"
     transcript.write_text("{}\n")

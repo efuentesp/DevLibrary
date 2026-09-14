@@ -37,7 +37,7 @@ def test_secret_file_rejects_ambiguous_missing_and_oversized_values(tmp_path):
 
 def test_server_boot_and_cli_tokens_use_secret_files(tmp_path, monkeypatch):
     from config import _secret_overrides
-    from observal_cli import config as cli_config
+    from dev_library_cli import config as cli_config
 
     app_secret = tmp_path / "app-secret"
     app_secret.write_text("a" * 32)

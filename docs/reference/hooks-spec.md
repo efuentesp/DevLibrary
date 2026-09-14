@@ -7,7 +7,7 @@
 
 The schema Observal uses for hook definitions -- both the registry hook type (`observal registry hook`) and hooks wired into harness configs by `observal agent pull` / `observal doctor patch`.
 
-Current version: `HOOKS_SPEC_VERSION = "5"` (see `observal_cli/hooks_spec.py`).
+Current version: `HOOKS_SPEC_VERSION = "5"` (see `dev_library_cli/hooks_spec.py`).
 
 ## Where hooks live
 
@@ -30,7 +30,7 @@ Both use the same event vocabulary.
 | `PostToolUse` | After a tool call (with result) |
 | `Notification` | harness surfaces a notification |
 
-Source: `observal_cli/constants.py:VALID_HOOK_EVENTS`.
+Source: `dev_library_cli/constants.py:VALID_HOOK_EVENTS`.
 
 ## Handler types
 
@@ -47,7 +47,7 @@ Source: `observal_cli/constants.py:VALID_HOOK_EVENTS`.
 | `sync` | harness waits for handler to return before continuing |
 | `blocking` | Handler can veto the event (e.g. block a tool call) |
 
-Source: `observal_cli/constants.py:VALID_HOOK_EXECUTION_MODES`.
+Source: `dev_library_cli/constants.py:VALID_HOOK_EXECUTION_MODES`.
 
 ## Scopes
 
@@ -144,12 +144,12 @@ When submitting a hook to the registry (`observal registry hook submit`):
 }
 ```
 
-Each field is validated server-side against the lists in `observal_cli/constants.py` (mirrored from `observal-server/schemas/constants.py`).
+Each field is validated server-side against the lists in `dev_library_cli/constants.py` (mirrored from `observal-server/schemas/constants.py`).
 
 ## Source of truth
 
-* `observal_cli/hooks_spec.py`: version, metadata marker, spec shape
-* `observal_cli/constants.py`: valid events, handler types, execution modes, scopes
+* `dev_library_cli/hooks_spec.py`: version, metadata marker, spec shape
+* `dev_library_cli/constants.py`: valid events, handler types, execution modes, scopes
 * `observal-server/schemas/constants.py`: server-side mirror
 
 A sync test (`tests/test_constants_sync.py`) ensures CLI and server stay in lockstep.

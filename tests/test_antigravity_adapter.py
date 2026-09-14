@@ -9,7 +9,7 @@ import json
 
 import pytest
 
-from observal_cli.harness import HookSpec, ScanResult, ensure_loaded, get_adapter
+from dev_library_cli.harness import HookSpec, ScanResult, ensure_loaded, get_adapter
 from observal_shared.harness_registry import HARNESS_REGISTRY
 
 
@@ -176,7 +176,7 @@ def test_detect_hooks_installed(tmp_path):
             "PreInvocation": [
                 {
                     "hooks": [
-                        {"type": "command", "command": "wsl.exe python3 -m observal_cli.hooks.antigravity_session_push"}
+                        {"type": "command", "command": "wsl.exe python3 -m dev_library_cli.hooks.antigravity_session_push"}
                     ]
                 }
             ]

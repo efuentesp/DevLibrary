@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2026 EuanTop <euan@mail.bnu.edu.cn>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for observal_cli.cmd_doctor helpers."""
+"""Tests for dev_library_cli.cmd_doctor helpers."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-from observal_cli.cmd_doctor import (
+from dev_library_cli.cmd_doctor import (
     _check_antigravity,
     _check_claude_code,
     _check_codex,
@@ -50,17 +50,17 @@ from observal_cli.cmd_doctor import (
     doctor_app,
     doctor_patch,
 )
-from observal_cli.shared.utils import is_observal_hook_entry, is_observal_matcher_group
+from dev_library_cli.shared.utils import is_observal_hook_entry, is_observal_matcher_group
 from observal_shared.opencode_plugin_source import OPENCODE_PLUGIN_SOURCE
 
 
 @pytest.fixture(autouse=True)
 def isolated_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setenv("HOME", str(tmp_path))
-    monkeypatch.setattr("observal_cli.settings_reconciler.CLAUDE_SETTINGS_PATH", tmp_path / ".claude/settings.json")
-    monkeypatch.setattr("observal_cli.settings_reconciler.config.save", lambda updates: None)
-    monkeypatch.setattr("observal_cli.lockfile.LOCKFILE_PATH", tmp_path / ".observal/lockfile.json")
-    monkeypatch.setattr("observal_cli.lockfile._LOCKFILE_LOCK", tmp_path / ".observal/lockfile.lock")
+    monkeypatch.setattr("dev_library_cli.settings_reconciler.CLAUDE_SETTINGS_PATH", tmp_path / ".claude/settings.json")
+    monkeypatch.setattr("dev_library_cli.settings_reconciler.config.save", lambda updates: None)
+    monkeypatch.setattr("dev_library_cli.lockfile.LOCKFILE_PATH", tmp_path / ".observal/lockfile.json")
+    monkeypatch.setattr("dev_library_cli.lockfile._LOCKFILE_LOCK", tmp_path / ".observal/lockfile.lock")
     return tmp_path
 
 
@@ -86,7 +86,7 @@ def goose_home(isolated_home: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 
 class TestHookIdentification:
     def test_identifies_observal_hook_entries_and_groups(self):
-        assert is_observal_hook_entry({"command": "python -m observal_cli.hooks.session_push"})
+        assert is_observal_hook_entry({"command": "python -m dev_library_cli.hooks.session_push"})
         assert is_observal_hook_entry({"command": "/tmp/observal-hook.sh"})
         assert not is_observal_hook_entry({"command": "/usr/bin/custom"})
         assert is_observal_matcher_group({"_observal": {"version": "1"}, "hooks": [{"command": "x"}]})
@@ -187,7 +187,7 @@ class TestChecks:
     def test_antigravity_warns_when_hooks_missing(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
         config_dir = tmp_path / ".gemini/antigravity-cli"
         config_dir.mkdir(parents=True)
-        monkeypatch.setattr("observal_cli.shared.utils.resolve_antigravity_config_dir", lambda: config_dir)
+        monkeypatch.setattr("dev_library_cli.shared.utils.resolve_antigravity_config_dir", lambda: config_dir)
         warnings: list[str] = []
 
         _check_antigravity([], warnings)
@@ -264,8 +264,8 @@ class TestChecks:
     def test_shared_observal_skill_satisfies_codex_and_pi(self, tmp_path: Path):
         (tmp_path / ".codex").mkdir()
         (tmp_path / ".pi").mkdir()
-        source = Path(__file__).parents[1] / "observal_cli/skills/observal/SKILL.md"
-        shared = tmp_path / ".agents/skills/observal/SKILL.md"
+        source = Path(__file__).parents[1] / "dev_library_cli/skills/dev-library/SKILL.md"
+        shared = tmp_path / ".agents/skills/dev-library/SKILL.md"
         shared.parent.mkdir(parents=True)
         shared.write_bytes(source.read_bytes())
 
@@ -284,7 +284,7 @@ class TestPatchFunctions:
         assert _patch_claude_code(dry_run=False) is False
 
     def test_patch_kiro_skips_without_locked_agents(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-        from observal_cli import config
+        from dev_library_cli import config
 
         monkeypatch.setattr(config, "load", lambda: {"server_url": "http://localhost:80"})
         write_json(tmp_path / ".kiro/agents/default.json", {})
@@ -293,7 +293,7 @@ class TestPatchFunctions:
         assert read_json(tmp_path / ".kiro/agents/default.json") == {}
 
     def test_patch_kiro_repairs_locked_agent_uuid_hooks(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-        from observal_cli import config, lockfile
+        from dev_library_cli import config, lockfile
 
         agent_id = "00000000-0000-0000-0000-000000000123"
         monkeypatch.setattr(
@@ -329,7 +329,7 @@ class TestPatchFunctions:
         assert _patch_cursor(dry_run=False) is False
 
     def test_patch_pi_installs_direct_extension_and_removes_legacy_package(self, tmp_path: Path):
-        from observal_cli.cmd_doctor import _pi_extension_source
+        from dev_library_cli.cmd_doctor import _pi_extension_source
 
         settings = tmp_path / ".pi/agent/settings.json"
         write_json(settings, {"packages": ["npm:@observal/pi-insights", "npm:observal-pi"]})
@@ -389,7 +389,7 @@ class TestPatchFunctions:
     def test_patch_antigravity_writes_hooks(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
         config_dir = tmp_path / ".gemini/antigravity-cli"
         config_dir.mkdir(parents=True)
-        monkeypatch.setattr("observal_cli.shared.utils.resolve_antigravity_config_dir", lambda: config_dir)
+        monkeypatch.setattr("dev_library_cli.shared.utils.resolve_antigravity_config_dir", lambda: config_dir)
 
         assert _patch_antigravity(dry_run=False) is True
 
@@ -423,13 +423,13 @@ class TestPatchFunctions:
     def test_doctor_yes_runs_supported_patch_command(self, tmp_path: Path):
         (tmp_path / ".cursor").mkdir()
         with (
-            patch("observal_cli.cmd_doctor._check_observal_config"),
+            patch("dev_library_cli.cmd_doctor._check_observal_config"),
             patch(
-                "observal_cli.lockfile_reconcile.plan_lockfile_reconciliation",
+                "dev_library_cli.lockfile_reconcile.plan_lockfile_reconciliation",
                 return_value=MagicMock(changes=[], warnings=[]),
             ),
-            patch("observal_cli.cmd_doctor._patch_targets", return_value={"changed": True}) as patch_targets,
-            patch("observal_cli.skill_installer.install_observal_skill"),
+            patch("dev_library_cli.cmd_doctor._patch_targets", return_value={"changed": True}) as patch_targets,
+            patch("dev_library_cli.skill_installer.install_observal_skill"),
         ):
             result = CliRunner().invoke(doctor_app, ["--yes"])
 
@@ -444,7 +444,7 @@ class TestPatchFunctions:
 
     def test_doctor_patch_rejects_unknown_harness(self):
         with (
-            patch("observal_cli.cmd_doctor.config.load", return_value={"server_url": "http://server"}),
+            patch("dev_library_cli.cmd_doctor.config.load", return_value={"server_url": "http://server"}),
             pytest.raises(typer.Exit) as exc,
         ):
             doctor_patch(all_harnesses=False, harness=["wat"], dry_run=False)
@@ -456,7 +456,7 @@ class TestCleanupFunctions:
     def test_cleanup_claude_preserves_foreign_hooks(self, tmp_path: Path):
         settings_path = tmp_path / ".claude/settings.json"
         foreign = {"hooks": [{"command": "foreign"}]}
-        managed = {"_observal": {"version": "1"}, "hooks": [{"command": "observal_cli.hooks.session_push"}]}
+        managed = {"_observal": {"version": "1"}, "hooks": [{"command": "dev_library_cli.hooks.session_push"}]}
         write_json(
             settings_path, {"hooks": {"Stop": [foreign, managed]}, "env": {"OBSERVAL_HOOKS_URL": "x", "KEEP": "y"}}
         )
@@ -470,7 +470,7 @@ class TestCleanupFunctions:
     def test_cleanup_kiro_preserves_foreign_hooks(self, tmp_path: Path):
         agent_path = tmp_path / ".kiro/agents/default.json"
         foreign = {"command": "foreign"}
-        managed = {"command": "python -m observal_cli.hooks.kiro_session_push"}
+        managed = {"command": "python -m dev_library_cli.hooks.kiro_session_push"}
         write_json(agent_path, {"hooks": {"userPromptSubmit": [foreign, managed]}})
 
         assert _cleanup_kiro(dry_run=False) is True
@@ -499,7 +499,7 @@ class TestCleanupFunctions:
     def test_cleanup_codex_preserves_foreign_groups(self, tmp_path: Path):
         hooks_path = tmp_path / ".codex/hooks.json"
         foreign = {"hooks": [{"command": "foreign"}]}
-        managed = {"hooks": [{"command": "python -m observal_cli.hooks.codex_session_push"}]}
+        managed = {"hooks": [{"command": "python -m dev_library_cli.hooks.codex_session_push"}]}
         write_json(hooks_path, {"hooks": {"Stop": [foreign, managed]}})
 
         assert _cleanup_codex(dry_run=False) is True

@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Behavioral tests for :mod:`observal_cli.cmd_auth`."""
+"""Behavioral tests for :mod:`dev_library_cli.cmd_auth`."""
 
 from __future__ import annotations
 
@@ -22,8 +22,8 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-import observal_cli.cmd_auth as auth
-from observal_cli.errors import CliError, ErrorCategory, ExitCode
+import dev_library_cli.cmd_auth as auth
+from dev_library_cli.errors import CliError, ErrorCategory, ExitCode
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -196,7 +196,7 @@ def test_version_check_skips_uninstalled_cli(
     cli_version: str,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import observal_cli.version_check as version_check
+    import dev_library_cli.version_check as version_check
 
     get = MagicMock()
     monkeypatch.setattr(version_check, "get_current_version", lambda: cli_version)
@@ -221,7 +221,7 @@ def test_version_check_allows_unavailable_or_compatible_server(
     server_response: object,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import observal_cli.version_check as version_check
+    import dev_library_cli.version_check as version_check
 
     monkeypatch.setattr(version_check, "get_current_version", lambda: "1.2.3")
     get = _responder(server_response)
@@ -244,8 +244,8 @@ def test_version_check_blocks_mismatch_with_correct_remediation(
     upgrade_result: str | None,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import observal_cli.install_detector as install_detector
-    import observal_cli.version_check as version_check
+    import dev_library_cli.install_detector as install_detector
+    import dev_library_cli.version_check as version_check
 
     monkeypatch.setattr(version_check, "get_current_version", lambda: cli_version)
     monkeypatch.setattr(auth.httpx, "get", lambda *_args, **_kwargs: _response(200, {"server_version": server_version}))
@@ -272,7 +272,7 @@ def _prepare_login(
     public_status: int = 200,
     previous_server: str = "",
 ) -> tuple[MagicMock, MagicMock, MagicMock]:
-    import observal_cli.lockfile as lockfile
+    import dev_library_cli.lockfile as lockfile
 
     responses = [
         _response(200, {"initialized": initialized}),
@@ -407,7 +407,7 @@ def test_human_login_prompts_with_blank_localhost_default(monkeypatch: pytest.Mo
     stale = "http://localhost:8000"
     selected = "http://localhost"
     monkeypatch.setattr(auth.config, "load", lambda: {"server_url": stale})
-    monkeypatch.setattr("observal_cli.lockfile.migrate_lockfile_v1", MagicMock())
+    monkeypatch.setattr("dev_library_cli.lockfile.migrate_lockfile_v1", MagicMock())
     monkeypatch.setattr(
         auth.httpx,
         "get",
@@ -430,7 +430,7 @@ def test_human_login_prompts_with_blank_localhost_default(monkeypatch: pytest.Mo
 def test_json_login_recovers_stale_local_port_without_prompt(monkeypatch: pytest.MonkeyPatch) -> None:
     stale = "http://localhost:8000"
     monkeypatch.setattr(auth.config, "load", lambda: {"server_url": stale})
-    monkeypatch.setattr("observal_cli.lockfile.migrate_lockfile_v1", MagicMock())
+    monkeypatch.setattr("dev_library_cli.lockfile.migrate_lockfile_v1", MagicMock())
     monkeypatch.setattr(
         auth.httpx,
         "get",
@@ -557,7 +557,7 @@ def test_quick_choice_restores_terminal_before_printing_selection(monkeypatch: p
 
     import rich
 
-    from observal_cli import prompts
+    from dev_library_cli import prompts
 
     events: list[object] = []
     stdin = SimpleNamespace(
@@ -765,9 +765,9 @@ def test_status_reports_health_and_auth_state(
     monkeypatch: pytest.MonkeyPatch,
     printed: list[str],
 ) -> None:
-    telemetry_buffer = ModuleType("observal_cli.telemetry_buffer")
+    telemetry_buffer = ModuleType("dev_library_cli.telemetry_buffer")
     telemetry_buffer.stats = lambda: {"total": 0}  # type: ignore[attr-defined]
-    monkeypatch.setitem(sys.modules, "observal_cli.telemetry_buffer", telemetry_buffer)
+    monkeypatch.setitem(sys.modules, "dev_library_cli.telemetry_buffer", telemetry_buffer)
     monkeypatch.setattr(auth.config, "load", lambda: {"server_url": SERVER_URL, "access_token": ACCESS_TOKEN})
     monkeypatch.setattr(auth.client, "health", lambda: (ok, latency))
 
@@ -804,14 +804,14 @@ def test_status_reports_pending_outbox(
     monkeypatch: pytest.MonkeyPatch,
     printed: list[str],
 ) -> None:
-    telemetry_buffer = ModuleType("observal_cli.telemetry_buffer")
+    telemetry_buffer = ModuleType("dev_library_cli.telemetry_buffer")
     telemetry_buffer.stats = lambda: {  # type: ignore[attr-defined]
         "total": 3,
         "pending": 2,
         "bytes": 2048,
         "oldest_pending": "2026-01-02 03:04:05",
     }
-    monkeypatch.setitem(sys.modules, "observal_cli.telemetry_buffer", telemetry_buffer)
+    monkeypatch.setitem(sys.modules, "dev_library_cli.telemetry_buffer", telemetry_buffer)
     monkeypatch.setattr(auth.config, "load", lambda: {"server_url": SERVER_URL, "access_token": ACCESS_TOKEN})
     monkeypatch.setattr(auth.client, "health", lambda: (True, 42.0))
 
@@ -827,13 +827,13 @@ def test_status_reports_broken_outbox_stats(
     monkeypatch: pytest.MonkeyPatch,
     printed: list[str],
 ) -> None:
-    telemetry_buffer = ModuleType("observal_cli.telemetry_buffer")
+    telemetry_buffer = ModuleType("dev_library_cli.telemetry_buffer")
 
     def broken_stats() -> dict[str, object]:
         raise RuntimeError("corrupt outbox")
 
     telemetry_buffer.stats = broken_stats  # type: ignore[attr-defined]
-    monkeypatch.setitem(sys.modules, "observal_cli.telemetry_buffer", telemetry_buffer)
+    monkeypatch.setitem(sys.modules, "dev_library_cli.telemetry_buffer", telemetry_buffer)
     monkeypatch.setattr(auth.config, "load", lambda: {"server_url": SERVER_URL, "access_token": ACCESS_TOKEN})
     monkeypatch.setattr(auth.client, "health", lambda: (True, 42.0))
 
@@ -1544,7 +1544,7 @@ def test_config_set_server_normalizes_and_migrates_previous_lockfile(
     config_cli: typer.Typer,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import observal_cli.lockfile as lockfile
+    import dev_library_cli.lockfile as lockfile
 
     migrate = MagicMock()
     save = MagicMock()
@@ -1564,7 +1564,7 @@ def test_config_set_server_categorizes_lockfile_migration_failure(
     config_cli: typer.Typer,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import observal_cli.lockfile as lockfile
+    import dev_library_cli.lockfile as lockfile
 
     save = MagicMock()
     monkeypatch.setattr(auth.config, "load_persisted", lambda: {"server_url": "https://old.example.test"})
@@ -1720,7 +1720,7 @@ def test_config_storage_is_atomic_private_and_rejects_malformed_json(
 def test_post_login_setup_installs_skills_snapshots_and_runs_doctor(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import observal_cli.cmd_doctor as cmd_doctor
+    import dev_library_cli.cmd_doctor as cmd_doctor
 
     install = MagicMock()
     snapshot = MagicMock()
@@ -1743,7 +1743,7 @@ def test_post_login_setup_contains_doctor_failures(
     monkeypatch: pytest.MonkeyPatch,
     printed: list[str],
 ) -> None:
-    import observal_cli.cmd_doctor as cmd_doctor
+    import dev_library_cli.cmd_doctor as cmd_doctor
 
     monkeypatch.setattr(auth, "_install_observal_skill", MagicMock())
     monkeypatch.setattr(auth, "_generate_initial_layer_snapshot", MagicMock())
@@ -1761,7 +1761,7 @@ def test_post_auth_onboarding_scans_detected_harnesses(
     monkeypatch: pytest.MonkeyPatch,
     printed: list[str],
 ) -> None:
-    import observal_cli.harness as harness
+    import dev_library_cli.harness as harness
 
     for directory in (".claude", ".kiro", ".cursor"):
         (tmp_path / directory).mkdir()
@@ -1809,7 +1809,7 @@ def test_post_auth_onboarding_contains_detection_errors(monkeypatch: pytest.Monk
 
 
 def test_snapshot_generation_is_best_effort(monkeypatch: pytest.MonkeyPatch) -> None:
-    import observal_cli.layer as layer
+    import dev_library_cli.layer as layer
 
     snapshot = MagicMock(side_effect=[None, RuntimeError("scan failed")])
     monkeypatch.setattr(layer, "ensure_local_snapshot", snapshot)
@@ -1821,7 +1821,7 @@ def test_snapshot_generation_is_best_effort(monkeypatch: pytest.MonkeyPatch) -> 
 
 
 def test_install_observal_skill_delegates_to_installer(monkeypatch: pytest.MonkeyPatch) -> None:
-    import observal_cli.skill_installer as skill_installer
+    import dev_library_cli.skill_installer as skill_installer
 
     install = MagicMock()
     monkeypatch.setattr(skill_installer, "install_observal_skill", install)
@@ -1842,7 +1842,7 @@ def test_run_doctor_patch_uses_isolated_subprocess_environment(
     auth._run_doctor_patch("cursor")
 
     command = run.call_args.args[0]
-    assert command[:4] == [sys.executable, "-m", "observal_cli.main", "doctor"]
+    assert command[:4] == [sys.executable, "-m", "dev_library_cli.main", "doctor"]
     assert command[-1] == "cursor"
     assert run.call_args.kwargs["capture_output"] is True
     assert run.call_args.kwargs["timeout"] == 30

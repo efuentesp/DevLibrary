@@ -17,9 +17,9 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-import observal_cli.cmd_scan as cmd_scan
-from observal_cli import client, config
-from observal_cli.harness import (
+import dev_library_cli.cmd_scan as cmd_scan
+from dev_library_cli import client, config
+from dev_library_cli.harness import (
     DiscoveredAgent,
     DiscoveredHook,
     DiscoveredMcp,

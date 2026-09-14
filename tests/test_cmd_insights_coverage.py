@@ -17,7 +17,7 @@ import typer
 from typer.main import get_command
 from typer.testing import CliRunner
 
-from observal_cli import cmd_insights as insights
+from dev_library_cli import cmd_insights as insights
 
 AGENT_ID = "c6185803-8c32-4c39-b347-78f8281e306e"
 REPORT_ID = "be5aa083-d84a-49e7-8a35-b37b3e687780"

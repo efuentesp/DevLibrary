@@ -15,8 +15,8 @@ import typer
 from typer.main import get_command
 from typer.testing import CliRunner
 
-import observal_cli.cmd_inbox as inbox
-from observal_cli.main import app as cli_app
+import dev_library_cli.cmd_inbox as inbox
+from dev_library_cli.main import app as cli_app
 
 ITEM_ID = "11111111-1111-1111-1111-111111111111"
 SECOND_ITEM_ID = "22222222-2222-2222-2222-222222222222"

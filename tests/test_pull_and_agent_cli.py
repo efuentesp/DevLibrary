@@ -21,8 +21,8 @@ import pytest
 import yaml
 from typer.testing import CliRunner
 
-from observal_cli.errors import CliError, ErrorCategory
-from observal_cli.main import app as cli_app
+from dev_library_cli.errors import CliError, ErrorCategory
+from dev_library_cli.main import app as cli_app
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -46,10 +46,10 @@ _FAKE_CONFIG = {"server_url": "http://localhost:8000", "api_key": "test-key"}
 def _patch_config():
     """Patch config access so the CLI doesn't need real credentials."""
     with (
-        patch("observal_cli.config.get_or_exit", return_value=_FAKE_CONFIG),
-        patch("observal_cli.config.load", return_value=_FAKE_CONFIG),
+        patch("dev_library_cli.config.get_or_exit", return_value=_FAKE_CONFIG),
+        patch("dev_library_cli.config.load", return_value=_FAKE_CONFIG),
         patch(
-            "observal_cli.cmd_pull.subprocess.run",
+            "dev_library_cli.cmd_pull.subprocess.run",
             return_value=subprocess.CompletedProcess(["claude"], 0, "", ""),
         ),
     ):
@@ -58,8 +58,8 @@ def _patch_config():
 
 @pytest.fixture(autouse=True)
 def isolated_lockfile(tmp_path, monkeypatch):
-    monkeypatch.setattr("observal_cli.lockfile.LOCKFILE_PATH", tmp_path / ".observal/lockfile.json")
-    monkeypatch.setattr("observal_cli.lockfile._LOCKFILE_LOCK", tmp_path / ".observal/lockfile.lock")
+    monkeypatch.setattr("dev_library_cli.lockfile.LOCKFILE_PATH", tmp_path / ".observal/lockfile.json")
+    monkeypatch.setattr("dev_library_cli.lockfile._LOCKFILE_LOCK", tmp_path / ".observal/lockfile.lock")
 
 
 @contextmanager
@@ -67,8 +67,8 @@ def _patch_post(return_value: dict):
     """Patch authenticated writes and public install requests with one mock."""
     request = MagicMock(return_value=return_value)
     with (
-        patch("observal_cli.client.post", request),
-        patch("observal_cli.client.post_public", request),
+        patch("dev_library_cli.client.post", request),
+        patch("dev_library_cli.client.post_public", request),
     ):
         yield request
 
@@ -84,7 +84,7 @@ _AGENT_DETAIL_NO_ENV = {
 
 def _patch_get_agent(detail: dict = _AGENT_DETAIL_NO_ENV):
     """Patch client.get to return a canned agent detail response."""
-    return patch("observal_cli.client.get", return_value=detail)
+    return patch("dev_library_cli.client.get", return_value=detail)
 
 
 # ── Fixtures for common server responses ─────────────────────
@@ -363,8 +363,8 @@ class TestPullKiro:
                         "name": "my-agent",
                         "tools": ["search"],
                         "hooks": {
-                            "userPromptSubmit": [{"command": "python3 -m observal_cli.hooks.kiro_session_push"}],
-                            "stop": [{"command": "python3 -m observal_cli.hooks.kiro_session_push"}],
+                            "userPromptSubmit": [{"command": "python3 -m dev_library_cli.hooks.kiro_session_push"}],
+                            "stop": [{"command": "python3 -m dev_library_cli.hooks.kiro_session_push"}],
                         },
                     },
                 }
@@ -635,7 +635,7 @@ class TestPullEdgeCases:
             _patch_config(),
             _patch_get_agent(),
             _patch_post(_codex_snippet()),
-            patch("observal_cli.cmd_pull.config.resolve_alias", return_value="real-uuid") as mock_resolve,
+            patch("dev_library_cli.cmd_pull.config.resolve_alias", return_value="real-uuid") as mock_resolve,
         ):
             result = runner.invoke(
                 cli_app, ["agent", "pull", "@myagent", "--harness", "codex", "--dir", str(tmp_path), "--no-prompt"]
@@ -678,7 +678,7 @@ class TestPullEnvVarPrompting:
 
         with (
             _patch_config(),
-            patch("observal_cli.client.get", side_effect=mock_get),
+            patch("dev_library_cli.client.get", side_effect=mock_get),
             _patch_post(_cursor_snippet()) as mock_post,
         ):
             result = runner.invoke(
@@ -712,7 +712,7 @@ class TestPullEnvVarPrompting:
                 return mcp_no_env
             return agent_no_env
 
-        with _patch_config(), patch("observal_cli.client.get", side_effect=mock_get), _patch_post(_cursor_snippet()):
+        with _patch_config(), patch("dev_library_cli.client.get", side_effect=mock_get), _patch_post(_cursor_snippet()):
             result = runner.invoke(
                 cli_app,
                 ["agent", "pull", "agent-uuid", "--harness", "cursor", "--dir", str(tmp_path), "--no-prompt"],
@@ -761,18 +761,18 @@ def _make_agent_yaml(tmp_path: Path, **overrides) -> Path:
 
 
 def _patch_get(return_value):
-    return patch("observal_cli.client.get", return_value=return_value)
+    return patch("dev_library_cli.client.get", return_value=return_value)
 
 
 def _patch_put(return_value):
-    return patch("observal_cli.client.put", return_value=return_value)
+    return patch("dev_library_cli.client.put", return_value=return_value)
 
 
 class TestAgentInit:
     def test_creates_yaml_with_correct_fields(self, tmp_path: Path):
         """Interactive prompts produce a valid YAML file."""
         inputs = "my-agent\n1.0.0\nA cool agent\nclaude-sonnet-4\nDo helpful things\n"
-        with patch("observal_cli.config.load", return_value={"username": "my-team"}):
+        with patch("dev_library_cli.config.load", return_value={"username": "my-team"}):
             result = runner.invoke(
                 cli_app,
                 ["agent", "init", "--dir", str(tmp_path)],
@@ -895,7 +895,7 @@ class TestAgentBuild:
 
         with (
             _patch_config(),
-            patch("observal_cli.client.get", side_effect=mock_get),
+            patch("dev_library_cli.client.get", side_effect=mock_get),
             _patch_post({"valid": True, "issues": []}) as mock_post_fn,
         ):
             result = runner.invoke(
@@ -924,7 +924,7 @@ class TestAgentBuild:
 
         with (
             _patch_config(),
-            patch("observal_cli.client.get", side_effect=mock_get),
+            patch("dev_library_cli.client.get", side_effect=mock_get),
             _patch_post({"valid": True, "issues": []}) as mock_post_fn,
         ):
             result = runner.invoke(
@@ -956,7 +956,7 @@ class TestAgentBuild:
 
         with (
             _patch_config(),
-            patch("observal_cli.client.get", side_effect=mock_get),
+            patch("dev_library_cli.client.get", side_effect=mock_get),
             _patch_post({"valid": True, "issues": []}),
         ):
             result = runner.invoke(
@@ -990,7 +990,7 @@ class TestAgentBuild:
         }
         with (
             _patch_config(),
-            patch("observal_cli.client.get", side_effect=mock_get),
+            patch("dev_library_cli.client.get", side_effect=mock_get),
             _patch_post(scope_result),
         ):
             result = runner.invoke(

@@ -4,7 +4,7 @@
 /**
  * Multi-file skill (extra_files) contract for the web frontend.
  *
- * Mirrors observal_shared.skill_files on the server and observal_cli.skill_bundle
+ * Mirrors observal_shared.skill_files on the server and dev_library_cli.skill_bundle
  * on the CLI: relative POSIX paths, traversal-free, no nested SKILL.md, no .git,
  * case-insensitive unique paths, no collision with the legacy script slot, and
  * count/size caps. Keep the three implementations in sync when the contract changes.

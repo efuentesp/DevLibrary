@@ -12,7 +12,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from observal_cli.harness import (
+from dev_library_cli.harness import (
     HookSpec,
     NotSupportedError,
     ScanResult,
@@ -202,7 +202,7 @@ class TestManagedLayerFiles:
         assert adapter.get_observal_managed_files(self._lockfile_for(harness_name)) == expected
 
     def test_layer_managed_files_delegates_to_adapter(self):
-        from observal_cli.layer import _get_observal_managed_files
+        from dev_library_cli.layer import _get_observal_managed_files
 
         lockfile = self._lockfile_for("codex")
         assert _get_observal_managed_files(lockfile, "codex", None) == {
@@ -247,7 +247,7 @@ class TestActiveIdeDetection:
         assert adapter.is_installed(tmp_path) is True
 
     def test_layer_detect_active_harnesses_delegates_to_adapters(self, tmp_path, monkeypatch):
-        from observal_cli.layer import _detect_active_harnesses
+        from dev_library_cli.layer import _detect_active_harnesses
 
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
         (tmp_path / ".cursor").mkdir()
@@ -257,11 +257,11 @@ class TestActiveIdeDetection:
         assert _detect_active_harnesses() == ["cursor", "codex", "pi"]
 
     def test_pi_layer_manifest_includes_isolated_agent_profiles(self, tmp_path, monkeypatch):
-        from observal_cli.layer import build_layer_manifest
+        from dev_library_cli.layer import build_layer_manifest
 
         monkeypatch.setenv("HOME", str(tmp_path))
-        monkeypatch.setattr("observal_cli.config.load", lambda: {"server_url": "http://localhost:80"})
-        monkeypatch.setattr("observal_cli.lockfile.LOCKFILE_PATH", tmp_path / ".observal/lockfile.json")
+        monkeypatch.setattr("dev_library_cli.config.load", lambda: {"server_url": "http://localhost:80"})
+        monkeypatch.setattr("dev_library_cli.lockfile.LOCKFILE_PATH", tmp_path / ".observal/lockfile.json")
         pi_home = tmp_path / ".pi" / "agent"
         (pi_home / "agents" / "my-agent" / "skills" / "pi-skill").mkdir(parents=True)
         (pi_home / "agents" / "my-agent" / "AGENTS.md").write_text("# Agent")
@@ -464,8 +464,8 @@ class TestOpenCodeAdapter:
         return [vars(item) for item in items]
 
     def test_adapter_owned_metadata_and_capability_gates(self, tmp_path, monkeypatch):
-        from observal_cli.harness.base import _check_feature
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli.harness.base import _check_feature
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         adapter = OpenCodeAdapter()
         spec = HARNESS_REGISTRY["opencode"]
@@ -493,7 +493,7 @@ class TestOpenCodeAdapter:
                 _check_feature(adapter.harness_name, method)
 
     def test_jsonc_comments_are_removed_without_changing_strings(self):
-        from observal_cli.harness.opencode import _strip_jsonc_comments
+        from dev_library_cli.harness.opencode import _strip_jsonc_comments
 
         parsed = json.loads(
             _strip_jsonc_comments(
@@ -516,7 +516,7 @@ class TestOpenCodeAdapter:
         }
 
     def test_scan_home_resolves_default_home_and_normalizes_all_components(self, tmp_path, monkeypatch):
-        import observal_cli.harness.opencode as opencode_module
+        import dev_library_cli.harness.opencode as opencode_module
 
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
         root = tmp_path / ".config" / "opencode"
@@ -631,7 +631,7 @@ class TestOpenCodeAdapter:
         assert all("environment" not in record and "headers" not in record for record in self._records(result.mcps))
 
     def test_scan_project_uses_root_config_and_project_component_directory(self, tmp_path, monkeypatch):
-        import observal_cli.harness.opencode as opencode_module
+        import dev_library_cli.harness.opencode as opencode_module
 
         (tmp_path / "opencode.json").write_text(
             json.dumps({"mcp": {"project-server": {"command": "python", "args": ["server.py"]}}})
@@ -684,7 +684,7 @@ class TestOpenCodeAdapter:
     def test_scan_json_deduplicates_with_global_scope_precedence(self, tmp_path, monkeypatch):
         from typer.testing import CliRunner
 
-        from observal_cli.main import app
+        from dev_library_cli.main import app
 
         home = tmp_path / "home"
         global_root = home / ".config" / "opencode"
@@ -721,7 +721,7 @@ class TestOpenCodeAdapter:
         }
 
     def test_missing_home_and_project_paths_return_empty_results(self, tmp_path):
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         adapter = OpenCodeAdapter()
 
@@ -739,7 +739,7 @@ class TestOpenCodeAdapter:
         assert vars(adapter.scan_project(project)) == {"mcps": [], "skills": [], "hooks": [], "agents": []}
 
     def test_global_json_has_precedence_over_jsonc_without_fallback_on_errors(self, tmp_path):
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         root = tmp_path / ".config" / "opencode"
         root.mkdir(parents=True)
@@ -762,7 +762,7 @@ class TestOpenCodeAdapter:
         ],
     )
     def test_malformed_or_unsupported_server_entries_fail_soft(self, tmp_path, content):
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         config = tmp_path / "opencode.json"
         config.write_text(content)
@@ -771,7 +771,7 @@ class TestOpenCodeAdapter:
 
     @pytest.mark.parametrize("content", ["[]", '{"mcp": []}'])
     def test_unsupported_non_object_config_fails_loudly(self, tmp_path, content):
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         (tmp_path / "opencode.json").write_text(content)
 
@@ -779,14 +779,14 @@ class TestOpenCodeAdapter:
             OpenCodeAdapter().scan_project(tmp_path)
 
     def test_config_read_filesystem_error_fails_soft(self, tmp_path):
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         (tmp_path / "opencode.json").mkdir()
 
         assert OpenCodeAdapter().scan_project(tmp_path).mcps == []
 
     def test_component_and_config_symlinks_are_followed(self, tmp_path, monkeypatch):
-        import observal_cli.harness.opencode as opencode_module
+        import dev_library_cli.harness.opencode as opencode_module
 
         root = tmp_path / ".config" / "opencode"
         root.mkdir(parents=True)
@@ -828,7 +828,7 @@ class TestOpenCodeAdapter:
         assert adapter.detect_hooks(root) == "installed"
 
     def test_agent_discovery_returns_the_shared_record_contract(self, tmp_path):
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         agent = tmp_path / ".opencode" / "agents" / "reviewer.md"
         agent.parent.mkdir(parents=True)
@@ -846,7 +846,7 @@ class TestOpenCodeAdapter:
         ]
 
     def test_component_read_errors_are_isolated(self, tmp_path, monkeypatch):
-        import observal_cli.harness.opencode as opencode_module
+        import dev_library_cli.harness.opencode as opencode_module
 
         root = tmp_path / ".config" / "opencode"
         config = root / "opencode.json"
@@ -877,7 +877,7 @@ class TestOpenCodeAdapter:
         assert adapter._scan_plugins_dir(plugin.parent, "scope") == []
 
     def test_plugin_discovery_keeps_duplicate_stems_and_supported_suffixes(self, tmp_path):
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         plugins = tmp_path / "plugins"
         plugins.mkdir()
@@ -898,7 +898,7 @@ class TestOpenCodeAdapter:
         ],
     )
     def test_detect_hooks_accepts_supported_plugin_markers(self, tmp_path, filename, content):
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         plugins = tmp_path / "plugins"
         plugins.mkdir()
@@ -907,7 +907,7 @@ class TestOpenCodeAdapter:
         assert OpenCodeAdapter().detect_hooks(tmp_path) == "installed"
 
     def test_detect_hooks_ignores_foreign_and_unsupported_files(self, tmp_path):
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         plugins = tmp_path / "plugins"
         plugins.mkdir()
@@ -919,7 +919,7 @@ class TestOpenCodeAdapter:
         assert OpenCodeAdapter().detect_hooks(tmp_path / "absent") == "missing"
 
     def test_detect_hooks_fails_loudly_when_plugins_path_is_not_a_directory(self, tmp_path):
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         (tmp_path / "plugins").write_text("not a directory")
 
@@ -941,12 +941,12 @@ class TestOpenCodeAdapter:
         ],
     )
     def test_frontmatter_field_parsing(self, content, field, expected):
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         assert OpenCodeAdapter()._extract_frontmatter_field(content, field) == expected
 
     def test_hook_spec_and_generated_config_are_exact(self):
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         adapter = OpenCodeAdapter()
 
@@ -971,8 +971,8 @@ class TestOpenCodeAdapter:
         }
 
     def test_patch_and_cleanup_delegate_to_doctor(self, monkeypatch):
-        from observal_cli import cmd_doctor
-        from observal_cli.harness.opencode import OpenCodeAdapter
+        from dev_library_cli import cmd_doctor
+        from dev_library_cli.harness.opencode import OpenCodeAdapter
 
         patch = Mock(return_value=True)
         cleanup = Mock(return_value=False)

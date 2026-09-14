@@ -6,10 +6,10 @@
 
 Run: python scripts/sync_observal_skill.py
 
-This walks the Typer command tree exposed by ``observal_cli.main:app`` and
+This walks the Typer command tree exposed by ``dev_library_cli.main:app`` and
 rewrites the section delimited by ``<!-- BEGIN AUTO-GENERATED ... -->`` and
 ``<!-- END AUTO-GENERATED ... -->`` sentinels in
-``observal_cli/skills/observal/SKILL.md`` so the bundled skill stays in sync
+``dev_library_cli/skills/observal/SKILL.md`` so the bundled skill stays in sync
 with the actual CLI surface.
 
 Enforced by ``tests/test_observal_skill_sync.py`` in CI. If the test fails,
@@ -21,15 +21,15 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Add project root to path so we can import observal_cli without installation.
+# Add project root to path so we can import dev_library_cli without installation.
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 import typer  # noqa: E402, TC002
 
-from observal_cli.main import app  # noqa: E402
+from dev_library_cli.main import app  # noqa: E402
 
-SKILL_PATH = ROOT / "observal_cli" / "skills" / "observal" / "references" / "commands.md"
+SKILL_PATH = ROOT / "dev_library_cli" / "skills" / "dev-library" / "references" / "commands.md"
 
 BEGIN_SENTINEL = "<!-- BEGIN AUTO-GENERATED COMMAND REFERENCE -->"
 END_SENTINEL = "<!-- END AUTO-GENERATED COMMAND REFERENCE -->"

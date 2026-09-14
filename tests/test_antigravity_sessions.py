@@ -9,12 +9,12 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
-from observal_cli.sessions.antigravity import (
+from dev_library_cli.sessions.antigravity import (
     find_antigravity_jsonl,
     find_sessions_dir,
     resolve_session_id,
 )
-from observal_cli.shared.utils import (
+from dev_library_cli.shared.utils import (
     resolve_antigravity_config_dir,
     resolve_antigravity_dir,
 )
@@ -33,7 +33,7 @@ class TestResolveAntigravityDir:
         result = resolve_antigravity_dir(tmp_path)
         assert result is None
 
-    @patch("observal_cli.shared.utils.resolve_wsl_windows_home")
+    @patch("dev_library_cli.shared.utils.resolve_wsl_windows_home")
     def test_falls_back_to_wsl(self, mock_wsl, tmp_path):
         # tmp_path doesn't have .gemini, but WSL home does
         wsl_home = tmp_path / "win_home"
@@ -43,7 +43,7 @@ class TestResolveAntigravityDir:
         result = resolve_antigravity_dir(tmp_path)
         assert result == ag_dir
 
-    @patch("observal_cli.shared.utils.resolve_wsl_windows_home")
+    @patch("dev_library_cli.shared.utils.resolve_wsl_windows_home")
     def test_wsl_fallback_returns_none_if_no_dir(self, mock_wsl, tmp_path):
         mock_wsl.return_value = None
         result = resolve_antigravity_dir(tmp_path)
@@ -64,7 +64,7 @@ class TestResolveAntigravityConfigDir:
         result = resolve_antigravity_config_dir(tmp_path)
         assert result is None
 
-    @patch("observal_cli.shared.utils.resolve_wsl_windows_home")
+    @patch("dev_library_cli.shared.utils.resolve_wsl_windows_home")
     def test_wsl_fallback(self, mock_wsl, tmp_path):
         wsl_home = tmp_path / "win_home"
         config_dir = wsl_home / ".gemini" / "config"
@@ -157,33 +157,33 @@ class TestResolveSessionId:
 
 class TestAntigravitySessionPush:
     def test_hook_response_stop_event(self):
-        from observal_cli.hooks.antigravity_session_push import _hook_response
+        from dev_library_cli.hooks.antigravity_session_push import _hook_response
 
         assert _hook_response("stop") == {"decision": ""}
         assert _hook_response("Stop") == {"decision": ""}
         assert _hook_response("session_end") == {"decision": ""}
 
     def test_hook_response_preinvocation(self):
-        from observal_cli.hooks.antigravity_session_push import _hook_response
+        from dev_library_cli.hooks.antigravity_session_push import _hook_response
 
         assert _hook_response("preinvocation") == {}
         assert _hook_response("PreInvocation") == {}
         assert _hook_response("") == {}
 
     def test_resolve_path_no_conversion_on_unix_path(self):
-        from observal_cli.hooks.antigravity_session_push import _resolve_path_for_platform
+        from dev_library_cli.hooks.antigravity_session_push import _resolve_path_for_platform
 
         assert _resolve_path_for_platform("/home/user/file.txt") == "/home/user/file.txt"
         assert _resolve_path_for_platform("") == ""
 
     @patch("os.name", "nt")
     def test_resolve_path_no_conversion_on_windows(self):
-        from observal_cli.hooks.antigravity_session_push import _resolve_path_for_platform
+        from dev_library_cli.hooks.antigravity_session_push import _resolve_path_for_platform
 
         assert _resolve_path_for_platform("C:\\Users\\test\\file.txt") == "C:\\Users\\test\\file.txt"
 
     def test_resolve_path_windows_to_wsl_manual_fallback(self):
-        from observal_cli.hooks.antigravity_session_push import _resolve_path_for_platform
+        from dev_library_cli.hooks.antigravity_session_push import _resolve_path_for_platform
 
         with patch("os.name", "posix"), patch("subprocess.run", side_effect=FileNotFoundError):
             result = _resolve_path_for_platform("C:\\Users\\test\\file.txt")
@@ -192,7 +192,7 @@ class TestAntigravitySessionPush:
     def test_main_writes_json_stdout(self, tmp_path, monkeypatch, capsys):
         """main() always writes valid JSON to stdout, even with no config."""
         monkeypatch.setattr("sys.stdin", __import__("io").StringIO("{}"))
-        from observal_cli.hooks.antigravity_session_push import main
+        from dev_library_cli.hooks.antigravity_session_push import main
 
         main(home=tmp_path)
         captured = capsys.readouterr()

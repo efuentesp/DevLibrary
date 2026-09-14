@@ -10,8 +10,8 @@ from unittest.mock import MagicMock
 
 from typer.testing import CliRunner
 
-from observal_cli import cmd_models
-from observal_cli.main import app
+from dev_library_cli import cmd_models
+from dev_library_cli.main import app
 
 runner = CliRunner()
 

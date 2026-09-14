@@ -64,7 +64,7 @@ jobs:
         with:
           filters: |
             python:
-              - 'observal_cli/**/*.py'
+              - 'dev_library_cli/**/*.py'
               - 'observal-server/**/*.py'
               - 'tests/**/*.py'
               - 'tools/**/*.py'
@@ -84,7 +84,7 @@ jobs:
               - '.github/workflows/release.yml'
             docker:
               - 'docker/**'
-              - 'observal_cli/**'
+              - 'dev_library_cli/**'
               - 'observal-server/**'
               - 'web/**'
               - 'pyproject.toml'
@@ -184,7 +184,7 @@ jobs:
             --with pytest-cov \
             --with pytest-xdist \
             pytest ../tests/ -q -n auto \
-              ${{ matrix.python-version == '3.13' && '--cov=../observal_cli --cov=. --cov-report=xml' || '' }}
+              ${{ matrix.python-version == '3.13' && '--cov=../dev_library_cli --cov=. --cov-report=xml' || '' }}
 
       - name: Upload coverage to Codecov
         if: needs.changes.outputs.python == 'true' && matrix.python-version == '3.13'

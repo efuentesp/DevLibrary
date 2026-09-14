@@ -13,7 +13,7 @@ hook instrumentation (telemetry), and session parsing (reconciliation).
 When a user runs `observal agent pull <agent>`, Observal writes harness-specific files:
 
 | Component | What gets written | Example |
-|-----------|------------------|---------|
+| ----------- | ------------------ | --------- |
 | MCP servers | Native JSON/TOML config with direct commands or URLs | `.cursor/mcp.json` |
 | Skills | Markdown skill files in harness's skill directory | `.claude/skills/my-skill/SKILL.md` |
 | Hooks | Telemetry hook config that fires on tool use, session start/stop | `settings.json` hooks section |
@@ -24,18 +24,18 @@ When a user runs `observal scan`, Observal reads those same locations to discove
 ## File Checklist
 
 | # | File | What it does |
-|---|------|-------------|
+| --- | ------ | ------------- |
 | 1 | `packages/observal-shared/observal_shared/harness_registry.py` | Shared harness metadata: paths, keys, event maps, formats |
-| 2 | `observal_cli/harness/<harness_name>.py` | CLI adapter: scanning, hook detection, session source resolution/discovery, managed file attribution |
-| 3 | `observal_cli/harness/load_all.py` | Add import line for auto-registration |
-| 4 | `observal_cli/harness/__init__.py` | Adapter registry and protocol validation |
+| 2 | `dev_library_cli/harness/<harness_name>.py` | CLI adapter: scanning, hook detection, session source resolution/discovery, managed file attribution |
+| 3 | `dev_library_cli/harness/load_all.py` | Add import line for auto-registration |
+| 4 | `dev_library_cli/harness/__init__.py` | Adapter registry and protocol validation |
 | 5 | `observal-server/services/harness/<harness_name>.py` | Server adapter: config generation for install |
 | 6 | `observal-server/services/harness/load_all.py` | Add import line for server adapter |
-| 7 | `observal_cli/harness_specs/<harness_name>_hooks_spec.py` | Hook spec: what hooks to install, event names |
-| 8 | `observal_cli/sessions/<harness_name>.py` | Session parser (if harness writes JSONL sessions) |
-| 9 | `observal_cli/hooks/<harness_name>_session_push.py` | Session push hook script |
-| 10 | `observal_cli/cmd_doctor.py` | Doctor diagnose, patch, and cleanup implementations for the new harness |
-| 11 | `observal_cli/layer.py` | Layer scanning globs (`HARNESS_LAYER_CONFIGS`) and active harness detection |
+| 7 | `dev_library_cli/harness_specs/<harness_name>_hooks_spec.py` | Hook spec: what hooks to install, event names |
+| 8 | `dev_library_cli/sessions/<harness_name>.py` | Session parser (if harness writes JSONL sessions) |
+| 9 | `dev_library_cli/hooks/<harness_name>_session_push.py` | Session push hook script |
+| 10 | `dev_library_cli/cmd_doctor.py` | Doctor diagnose, patch, and cleanup implementations for the new harness |
+| 11 | `dev_library_cli/layer.py` | Layer scanning globs (`HARNESS_LAYER_CONFIGS`) and active harness detection |
 | 12 | `tests/test_cli_harness_adapters.py` | Adapter unit tests |
 | 13 | `/api/v1/config/harnesses` consumers | Frontend uses server harness metadata through `useHarnesses()` |
 
@@ -44,17 +44,20 @@ When a user runs `observal scan`, Observal reads those same locations to discove
 Before writing code, document these for the target harness:
 
 **MCP configuration:**
+
 - Where does the harness look for MCP server config? (path, format: JSON/TOML/YAML)
 - What's the top-level key? (`mcpServers`, `servers`, `mcp`, etc.)
 - Does it support stdio, SSE, or both transports?
 - Home-level config path vs project-level config path?
 
 **Skills:**
+
 - Does the harness have a skill/rules/instruction file concept?
 - What format? (Markdown with YAML frontmatter, plain markdown, MDC, JSON)
 - Where do skill files live? (project path, user/global path)
 
 **Hooks:**
+
 - Does the harness fire lifecycle events? (tool use, session start/stop, errors)
 - How are hooks registered? (JSON config, settings file, plugin system)
 - What events are available? Map them to Observal's canonical events:
@@ -62,11 +65,13 @@ Before writing code, document these for the target harness:
 - Does the harness support command hooks, HTTP hooks, or plugin hooks?
 
 **Sessions:**
+
 - Does the harness write session logs? (JSONL, SQLite, custom format)
 - Where are session files stored?
 - What's the schema? (messages, tool calls, thinking blocks)
 
 **Sandboxes:**
+
 - Sandboxes are delivered as MCP servers, so if MCP works, sandboxes work.
 
 ## Step 2: Add Harness Registry Entry
@@ -128,13 +133,13 @@ Both the CLI and server import this shared registry.
 
 Before moving on, always wire the new harness into these shared paths:
 
-- `observal_cli/cmd_doctor.py`:
+- `dev_library_cli/cmd_doctor.py`:
   - Add `_check_<harness>()`, `_patch_<harness>()`, and `_cleanup_<harness>()` implementations
-- `observal_cli/harness/<harness_name>.py`:
+- `dev_library_cli/harness/<harness_name>.py`:
   - Delegate `patch_hooks()` and `cleanup_hooks()` to those implementations
-- `observal_cli/layer.py`:
+- `dev_library_cli/layer.py`:
   - Add user/project file globs under `HARNESS_LAYER_CONFIGS`
-- `observal_cli/harness/<harness_name>.py`:
+- `dev_library_cli/harness/<harness_name>.py`:
   - Add `home_markers` for active harness detection when the harness has a reliable home config marker. Glob patterns are supported.
   - Add `managed_agent_profiles`, `managed_skills`, and `managed_mcp_files` patterns for layer source attribution
   - Override `get_observal_managed_files()` only if simple `{name}` patterns are not enough
@@ -143,7 +148,7 @@ If these are skipped, the harness can appear supported in pull/scan while doctor
 
 ## Step 3: Create CLI Adapter (Scanning)
 
-Create `observal_cli/harness/my_harness.py`. This handles local discovery:
+Create `dev_library_cli/harness/my_harness.py`. This handles local discovery:
 
 ```python
 # SPDX-FileCopyrightText: 2026 Your Name <your@email.com>
@@ -157,7 +162,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from observal_cli.harness import (
+from dev_library_cli.harness import (
     DiscoveredAgent,
     DiscoveredHook,
     DiscoveredMcp,
@@ -166,8 +171,8 @@ from observal_cli.harness import (
     ScanResult,
     register_adapter,
 )
-from observal_cli.harness.base import BaseAdapter
-from observal_cli.shared.utils import (
+from dev_library_cli.harness.base import BaseAdapter
+from dev_library_cli.shared.utils import (
     _OBSERVAL_HOOK_MARKERS,
     extract_mcp_servers,
     first_content_line,
@@ -228,7 +233,7 @@ class MyHarnessAdapter(BaseAdapter):
     ) -> dict[str, Any]:
         """Generate the hooks config dict to write into settings."""
         # Import from your hook spec module
-        from observal_cli.harness_specs.my_harness_hooks_spec import build_hooks
+        from dev_library_cli.harness_specs.my_harness_hooks_spec import build_hooks
         return build_hooks()
 
     def detect_hooks(self, config_dir: Path) -> str:
@@ -353,7 +358,7 @@ register_adapter(MyHarnessAdapter())
 
 ## Step 5: Create Hook Spec
 
-Create `observal_cli/harness_specs/my_harness_hooks_spec.py`. This defines what
+Create `dev_library_cli/harness_specs/my_harness_hooks_spec.py`. This defines what
 hooks `observal doctor patch` installs:
 
 ```python
@@ -374,19 +379,19 @@ def build_hooks() -> dict:
             "preToolUse": [
                 {
                     "type": "command",
-                    "command": "python -m observal_cli.hooks.session_push --harness my-harness",
+                    "command": "python -m dev_library_cli.hooks.session_push --harness my-harness",
                 }
             ],
             "postToolUse": [
                 {
                     "type": "command",
-                    "command": "python -m observal_cli.hooks.session_push --harness my-harness",
+                    "command": "python -m dev_library_cli.hooks.session_push --harness my-harness",
                 }
             ],
             "sessionEnd": [
                 {
                     "type": "command",
-                    "command": "python -m observal_cli.hooks.session_push --harness my-harness",
+                    "command": "python -m dev_library_cli.hooks.session_push --harness my-harness",
                 }
             ],
         }
@@ -397,7 +402,7 @@ def build_hooks() -> dict:
 
 Transport and parsing are intentionally separate. The CLI adapter locates raw source records; it must not normalize them. The server parser remains harness-specific and converts stored raw rows into frontend events.
 
-For a JSONL harness, implement the session methods on the existing `HarnessAdapter` in `observal_cli/harness/my_harness.py`:
+For a JSONL harness, implement the session methods on the existing `HarnessAdapter` in `dev_library_cli/harness/my_harness.py`:
 
 ```python
 def resolve_session_source(self, event: dict, home: Path | None = None) -> SessionSource | None:
@@ -412,7 +417,7 @@ def is_session_final(self, event: dict) -> bool:
     ...
 ```
 
-Use `related_session_sources()` for separately stored subagents, `session_extra_fields()` for durable metadata such as credits, and `session_extra_records()` only for actual synthetic source records. Reuse `observal_cli.hooks.session_push --harness my-harness`; create a bridge module only when the host requires special stdout or runtime behavior. Do not add another cursor, direct POST path, or harness-specific reconcile scanner.
+Use `related_session_sources()` for separately stored subagents, `session_extra_fields()` for durable metadata such as credits, and `session_extra_records()` only for actual synthetic source records. Reuse `dev_library_cli.hooks.session_push --harness my-harness`; create a bridge module only when the host requires special stdout or runtime behavior. Do not add another cursor, direct POST path, or harness-specific reconcile scanner.
 
 The shared engine reads complete records, spools them before network delivery, retries stable source indexes, advances only after a contiguous acknowledgement, recovers from the server checkpoint, and hashes full history only during final audit.
 
@@ -425,26 +430,29 @@ For a non-JSONL host, add a native source/exporter only when the supported harne
 Point generated hook commands at:
 
 ```text
-python -m observal_cli.hooks.session_push --harness my-harness
+python -m dev_library_cli.hooks.session_push --harness my-harness
 ```
 
 A thin compatibility bridge is acceptable for required host responses, but all recovery and delivery still route through the shared engine.
 
 ## Step 8: Register Everything
 
-1. `observal_cli/harness/load_all.py`:
+1. `dev_library_cli/harness/load_all.py`:
+
    ```python
-   from observal_cli.harness import my_harness as _my_harness  # noqa: F401
+   from dev_library_cli.harness import my_harness as _my_harness  # noqa: F401
    ```
 
-2. `observal_cli/harness/<harness_name>.py`: set `home_markers` and managed file attribution patterns used by layer snapshots.
+2. `dev_library_cli/harness/<harness_name>.py`: set `home_markers` and managed file attribution patterns used by layer snapshots.
 
 3. `observal-server/services/harness/load_all.py`:
+
    ```python
    from services.harness import my_harness as _my_harness  # noqa: F401
    ```
 
-4. `observal_cli/cmd_scan.py`: add to `_HARNESS_HOME_DIRS`:
+4. `dev_library_cli/cmd_scan.py`: add to `_HARNESS_HOME_DIRS`:
+
    ```python
    "my-harness": "~/.my-harness",
    ```
@@ -498,9 +506,9 @@ class TestMyHarnessAdapter:
     def test_detect_hooks_installed(self, tmp_path):
         (tmp_path / "settings.json").write_text(json.dumps({
             "hooks": {
-                "preToolUse": [{"command": "python -m observal_cli.hooks.session_push --harness my-harness"}],
-                "postToolUse": [{"command": "python -m observal_cli.hooks.session_push --harness my-harness"}],
-                "sessionEnd": [{"command": "python -m observal_cli.hooks.session_push --harness my-harness"}],
+                "preToolUse": [{"command": "python -m dev_library_cli.hooks.session_push --harness my-harness"}],
+                "postToolUse": [{"command": "python -m dev_library_cli.hooks.session_push --harness my-harness"}],
+                "sessionEnd": [{"command": "python -m dev_library_cli.hooks.session_push --harness my-harness"}],
             }
         }))
         adapter = MyHarnessAdapter()
@@ -566,8 +574,8 @@ Other notes:
 
 - Adapters are self-contained: one file handles scanning, hook detection, session source discovery, and managed file attribution
 - Server parsers remain format-specific; transport, recovery, acknowledgement, and final audit behavior stay shared
-- Shared utilities in `observal_cli/shared/utils.py`: `extract_mcp_servers`, `parse_frontmatter_field`, `_OBSERVAL_HOOK_MARKERS`
-- `BaseAdapter` in `observal_cli/harness/base.py` provides feature-gating via `_check_feature()`
+- Shared utilities in `dev_library_cli/shared/utils.py`: `extract_mcp_servers`, `parse_frontmatter_field`, `_OBSERVAL_HOOK_MARKERS`
+- `BaseAdapter` in `dev_library_cli/harness/base.py` provides feature-gating via `_check_feature()`
 - `ensure_loaded()` guarantees all adapters are registered before cross-adapter operations
 - MCP deduplication in scan uses first-discovered-wins
 - MCP commands and remote URLs are emitted directly in each harness's native format

@@ -31,26 +31,26 @@ from pathlib import Path
 import typer
 import yaml
 
-from observal_cli.main import app
+from dev_library_cli.main import app
 
-SKILL_PATH = Path(__file__).resolve().parent.parent / "observal_cli" / "skills" / "observal" / "SKILL.md"
+SKILL_PATH = Path(__file__).resolve().parent.parent / "dev_library_cli" / "skills" / "dev-library" / "SKILL.md"
 
-SKILLS_DIR = Path(__file__).resolve().parent.parent / "observal_cli" / "skills"
+SKILLS_DIR = Path(__file__).resolve().parent.parent / "dev_library_cli" / "skills"
 
-REFERENCE_PATH = SKILLS_DIR / "observal" / "references" / "commands.md"
+REFERENCE_PATH = SKILLS_DIR / "dev-library" / "references" / "commands.md"
 
 ALL_SKILL_PATHS = [
-    SKILLS_DIR / "observal" / "SKILL.md",
-    SKILLS_DIR / "observal-agents" / "SKILL.md",
-    SKILLS_DIR / "observal-registry" / "SKILL.md",
-    SKILLS_DIR / "observal-ops" / "SKILL.md",
-    SKILLS_DIR / "observal-admin" / "SKILL.md",
-    SKILLS_DIR / "observal-advanced" / "SKILL.md",
+    SKILLS_DIR / "dev-library" / "SKILL.md",
+    SKILLS_DIR / "dev-library-agents" / "SKILL.md",
+    SKILLS_DIR / "dev-library-registry" / "SKILL.md",
+    SKILLS_DIR / "dev-library-ops" / "SKILL.md",
+    SKILLS_DIR / "dev-library-admin" / "SKILL.md",
+    SKILLS_DIR / "dev-library-advanced" / "SKILL.md",
 ]
 ALL_SKILL_MARKDOWN_PATHS = sorted(path for skill_path in ALL_SKILL_PATHS for path in skill_path.parent.rglob("*.md"))
 
 REQUIRED_FRONTMATTER_FIELDS = ("name", "description", "version")
-EXPECTED_COMMAND = "observal"
+EXPECTED_COMMAND = "dev-library"
 
 BEGIN_SENTINEL = "<!-- BEGIN AUTO-GENERATED COMMAND REFERENCE -->"
 END_SENTINEL = "<!-- END AUTO-GENERATED COMMAND REFERENCE -->"
@@ -126,7 +126,7 @@ def _parse_observal_invocations(body: str) -> list[ParsedCommand]:
                 if not tokens or tokens[0] != "dev-library":
                     continue
 
-                # Walk tokens after `observal` accumulating the command path
+                # Walk tokens after `dev-library` accumulating the command path
                 # until we hit a flag (after which everything is args/values).
                 path: list[str] = []
                 flags: list[str] = []
@@ -284,7 +284,7 @@ class TestSkillFile:
         assert REFERENCE_PATH.exists(), f"{REFERENCE_PATH} is missing"
 
     def test_installer_preserves_all_skill_references(self, tmp_path, monkeypatch):
-        from observal_cli import skill_installer
+        from dev_library_cli import skill_installer
         from observal_shared import harness_registry
 
         monkeypatch.setenv("HOME", str(tmp_path))
@@ -311,7 +311,7 @@ class TestSkillFile:
                     target = installed_dir / source.relative_to(source_dir)
                     assert target.read_bytes() == source.read_bytes()
 
-        installed_core = tmp_path / ".pi/agent/skills/observal"
+        installed_core = tmp_path / ".pi/agent/skills/dev-library"
         reference = installed_core / "references/commands.md"
         reference.unlink()
         (installed_core / "SKILL.md").write_text("stale", encoding="utf-8")
@@ -381,35 +381,35 @@ class TestAgentBehaviorContracts:
             assert "--help" in text
 
     def test_team_visibility_pending_state_is_explicit(self):
-        text = (SKILLS_DIR / "observal/references/teamspaces.md").read_text(encoding="utf-8")
+        text = (SKILLS_DIR / "dev-library/references/teamspaces.md").read_text(encoding="utf-8")
         assert "visibility_request_status: pending" in text
         assert "team visibility approve" in text
 
     def test_automation_uses_canonical_identifiers(self):
-        for skill in ("observal-agents", "observal-registry"):
+        for skill in ("dev-library-agents", "dev-library-registry"):
             text = (SKILLS_DIR / skill / "SKILL.md").read_text(encoding="utf-8")
             assert "qualified_name" in text
             assert "Never automate with row numbers" in text
 
     def test_insight_reuse_requires_validated_component_reference(self):
-        text = (SKILLS_DIR / "observal-ops/references/insight-reports.md").read_text(encoding="utf-8")
+        text = (SKILLS_DIR / "dev-library-ops/references/insight-reports.md").read_text(encoding="utf-8")
         assert "only when it contains a validated `component_ref`" in text
         assert "do not invent a matching identity" in text
 
     def test_admin_reviews_use_uuids_and_redact_secrets(self):
-        text = (SKILLS_DIR / "observal-admin/references/governance-and-identity.md").read_text(encoding="utf-8")
+        text = (SKILLS_DIR / "dev-library-admin/references/governance-and-identity.md").read_text(encoding="utf-8")
         assert "List and select by UUID" in text
         assert "Treat the entire response as secret" in text
 
     def test_local_fallback_requires_an_explicit_failure(self):
-        text = (SKILLS_DIR / "observal-advanced/references/recovery-workflows.md").read_text(encoding="utf-8")
+        text = (SKILLS_DIR / "dev-library-advanced/references/recovery-workflows.md").read_text(encoding="utf-8")
         assert "`Connection failed` or `Not configured`" in text
         assert "user confirms" in text
         assert '"tools":["read"]' in text
         assert 'tools` to `["*"]` only after separate confirmation' in text
 
     def test_pull_secrets_are_not_documented_as_command_arguments(self):
-        text = (SKILLS_DIR / "observal-agents/references/agent-workflows.md").read_text(encoding="utf-8")
+        text = (SKILLS_DIR / "dev-library-agents/references/agent-workflows.md").read_text(encoding="utf-8")
         assert "expose values in shell history and process arguments" in text
         assert "enter values through the interactive prompts" in text
 

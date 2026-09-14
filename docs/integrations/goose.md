@@ -26,7 +26,7 @@ other key — providers, models, global settings — untouched.
 Session telemetry uses a Goose hook plugin. `observal doctor patch --harness
 goose` writes `~/.agents/plugins/observal/`, containing a `plugin.json` manifest
 and a `hooks/hooks.json` file. The hooks run
-`observal_cli.hooks.session_push --harness goose`, which reads Goose's SQLite
+`dev_library_cli.hooks.session_push --harness goose`, which reads Goose's SQLite
 session store and pushes new records through Observal's shared acknowledged
 delivery pipeline.
 
@@ -35,7 +35,7 @@ delivery pipeline.
 ## Supported capabilities
 
 | Capability | Support |
-|---|---|
+| --- | --- |
 | Agent profiles | Project and user scope |
 | Hook bridge | Goose plugin (`hooks/hooks.json`) |
 | Hook events | `SessionStart`, `UserPromptSubmit`, `Stop`, `SessionEnd` |
@@ -100,7 +100,7 @@ observal doctor
 ## Config paths
 
 | Purpose | Project scope | User scope |
-|---|---|---|
+| --- | --- | --- |
 | Agent profile | `.agents/agents/{name}.md` | `~/.agents/agents/{name}.md` |
 | MCP extensions | — | `~/.config/goose/config.yaml` |
 | Skill definition | `.agents/skills/{name}/SKILL.md` | `~/.agents/skills/{name}/SKILL.md` |
@@ -219,7 +219,7 @@ observal doctor cleanup --harness goose
 Verified against goose 1.45.0:
 
 | Event | `working_dir` | Notes |
-|---|---|---|
+| --- | --- | --- |
 | `SessionStart` | no | Fires once per session |
 | `UserPromptSubmit` | no | Carries the prompt in `message` |
 | `Stop` | yes | Fires at the end of **every turn**, not the session |
@@ -255,7 +255,7 @@ SHA-256 audit — is the shared engine used by every other harness.
 Mirror records:
 
 | Record | Meaning |
-|---|---|
+| --- | --- |
 | `{"type": "session", ...}` | Session metadata: name, working directory, provider, model, parent session |
 | `{"type": "message", ...}` | One `messages` row: role, content blocks, per-message token usage |
 | `{"type": "session_end", ...}` | Final boundary with accumulated token and cost totals |

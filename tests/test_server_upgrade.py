@@ -21,8 +21,8 @@ from rich.console import Console
 from typer.main import get_command
 from typer.testing import CliRunner
 
-from observal_cli import client, cmd_server
-from observal_cli.main import app
+from dev_library_cli import client, cmd_server
+from dev_library_cli.main import app
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -73,8 +73,8 @@ def completed(returncode: int = 0, *, stderr: str = "") -> SimpleNamespace:
 
 @pytest.fixture(autouse=True)
 def isolated(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace:
-    from observal_cli import upgrade_lock, version_check
-    from observal_cli.server import backup, deps, orchestrator, updater
+    from dev_library_cli import upgrade_lock, version_check
+    from dev_library_cli.server import backup, deps, orchestrator, updater
 
     root = tmp_path / ".observal"
     console = RecordingConsole()
@@ -110,7 +110,7 @@ def test_every_server_leaf_has_json_output() -> None:
 
 def test_start_json_requires_background(monkeypatch: pytest.MonkeyPatch) -> None:
     orchestrator = MagicMock()
-    monkeypatch.setattr("observal_cli.server.orchestrator.Orchestrator", orchestrator)
+    monkeypatch.setattr("dev_library_cli.server.orchestrator.Orchestrator", orchestrator)
 
     result = runner.invoke(app, ["server", "start", "--output", "json"])
 

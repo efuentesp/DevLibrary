@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import json
 
-from observal_cli.render import list_envelope, output_json
+from dev_library_cli.render import list_envelope, output_json
 
 
 def test_list_envelope_is_universal_and_empty_safe(capsys):

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Deterministic behavioral tests for ``observal_cli.version_check``."""
+"""Deterministic behavioral tests for ``dev_library_cli.version_check``."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ import pytest
 import rich
 import typer
 
-from observal_cli import version_check
+from dev_library_cli import version_check
 
 FIXED_NOW = datetime(2026, 7, 8, 9, 10, 11, tzinfo=UTC)
 FIXED_ISO = FIXED_NOW.isoformat()
@@ -1317,7 +1317,7 @@ def test_check_version_compatibility_prints_exact_upgrade_guidance_and_exits(
     messages: list[str],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from observal_cli import install_detector
+    from dev_library_cli import install_detector
 
     upgrade_command = MagicMock(return_value="install exact version 2.0.0")
     monkeypatch.setattr(version_check, "get_current_version", lambda: "1.0.0")

@@ -1,14 +1,14 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for observal_cli.install_detector."""
+"""Tests for dev_library_cli.install_detector."""
 
 from __future__ import annotations
 
 from pathlib import Path
 from unittest.mock import patch
 
-from observal_cli.install_detector import (
+from dev_library_cli.install_detector import (
     InstallInfo,
     InstallMethod,
     _detect_from_path,
@@ -85,8 +85,8 @@ class TestDetectFromPath:
         path = Path("/home/user/.venv/bin/observal")
         with (
             patch("os.access", return_value=True),
-            patch("observal_cli.install_detector._check_uv_tool_list", return_value=False),
-            patch("observal_cli.install_detector._check_pipx_list", return_value=False),
+            patch("dev_library_cli.install_detector._check_uv_tool_list", return_value=False),
+            patch("dev_library_cli.install_detector._check_pipx_list", return_value=False),
         ):
             result = _detect_from_path(path, str(path).lower())
         assert result.method == InstallMethod.PIP
@@ -98,8 +98,8 @@ class TestWritableCheck:
         path = Path("/tmp/observal")
         with (
             patch("os.access", return_value=True),
-            patch("observal_cli.install_detector._check_uv_tool_list", return_value=False),
-            patch("observal_cli.install_detector._check_pipx_list", return_value=False),
+            patch("dev_library_cli.install_detector._check_uv_tool_list", return_value=False),
+            patch("dev_library_cli.install_detector._check_pipx_list", return_value=False),
         ):
             result = _detect_from_path(path, str(path).lower())
         assert result.writable is True

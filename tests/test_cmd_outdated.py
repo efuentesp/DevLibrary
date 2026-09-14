@@ -13,9 +13,9 @@ import typer
 from click import unstyle
 from typer.testing import CliRunner
 
-from observal_cli import cmd_outdated
-from observal_cli.cmd_outdated import register_outdated
-from observal_cli.errors import CliError, ErrorCategory, ErrorHandlingGroup, ExitCode
+from dev_library_cli import cmd_outdated
+from dev_library_cli.cmd_outdated import register_outdated
+from dev_library_cli.errors import CliError, ErrorCategory, ErrorHandlingGroup, ExitCode
 
 _AGENT_ID = "11111111-1111-4111-8111-111111111111"
 _MCP_ID = "22222222-2222-4222-8222-222222222222"
@@ -61,7 +61,7 @@ def _mcp(*, version: str = "1.0.0") -> dict:
 
 
 def _set_entries(monkeypatch: pytest.MonkeyPatch, entries: list[dict]) -> None:
-    from observal_cli import lockfile
+    from dev_library_cli import lockfile
 
     monkeypatch.setattr(lockfile, "get_all_entries", lambda harness=None: entries)
 
@@ -147,7 +147,7 @@ def test_outdated_ignores_empty_or_inactive_registries(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from observal_cli import config, lockfile
+    from dev_library_cli import config, lockfile
 
     path = tmp_path / "lockfile.json"
     path.write_text(json.dumps({"lock_version": 2, "registries": registries}))
@@ -296,7 +296,7 @@ def test_invalid_harness_is_a_validation_error(
     cli: typer.Typer,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from observal_cli import lockfile
+    from dev_library_cli import lockfile
 
     get_entries = MagicMock()
     monkeypatch.setattr(lockfile, "get_all_entries", get_entries)
@@ -325,7 +325,7 @@ def test_invalid_lockfile_entries_are_validation_errors(
     cli: typer.Typer,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from observal_cli import lockfile
+    from dev_library_cli import lockfile
 
     monkeypatch.setattr(lockfile, "get_all_entries", lambda harness=None: [entry])
 
@@ -340,7 +340,7 @@ def test_nonempty_lockfile_without_active_registry_requires_authentication(
     cli: typer.Typer,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from observal_cli import lockfile
+    from dev_library_cli import lockfile
 
     monkeypatch.setattr(lockfile, "get_all_entries", MagicMock(side_effect=ValueError("missing server")))
 
@@ -355,7 +355,7 @@ def test_malformed_and_unreadable_lockfiles_are_categorized(
     cli: typer.Typer,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from observal_cli import lockfile
+    from dev_library_cli import lockfile
 
     monkeypatch.setattr(
         lockfile,

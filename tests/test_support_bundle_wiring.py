@@ -19,8 +19,8 @@ from unittest.mock import patch
 
 from typer.testing import CliRunner
 
-from observal_cli.errors import CliError, ErrorCategory
-from observal_cli.main import app
+from dev_library_cli.errors import CliError, ErrorCategory
+from dev_library_cli.main import app
 
 runner = CliRunner()
 
@@ -147,7 +147,7 @@ class TestBundleDirectoryStructure:
         server_resp = _make_server_response()
 
         with (
-            patch("observal_cli.cmd_support.client.post", return_value=server_resp),
+            patch("dev_library_cli.cmd_support.client.post", return_value=server_resp),
         ):
             result = runner.invoke(app, ["doctor", "support", "bundle", "--file", str(output_path)])
 
@@ -182,7 +182,7 @@ class TestBundleDirectoryStructure:
         server_resp = _make_server_response()
 
         with (
-            patch("observal_cli.cmd_support.client.post", return_value=server_resp),
+            patch("dev_library_cli.cmd_support.client.post", return_value=server_resp),
         ):
             result = runner.invoke(app, ["doctor", "support", "bundle", "--file", str(output_path)])
 
@@ -208,7 +208,7 @@ class TestBundleDirectoryStructure:
         server_resp = _make_server_response()
 
         with (
-            patch("observal_cli.cmd_support.client.post", return_value=server_resp),
+            patch("dev_library_cli.cmd_support.client.post", return_value=server_resp),
         ):
             result = runner.invoke(
                 app,
@@ -236,7 +236,7 @@ class TestPartialFailure:
         server_resp = _make_server_response(versions_ok=False)
 
         with (
-            patch("observal_cli.cmd_support.client.post", return_value=server_resp),
+            patch("dev_library_cli.cmd_support.client.post", return_value=server_resp),
         ):
             result = runner.invoke(app, ["doctor", "support", "bundle", "--file", str(output_path)])
 
@@ -262,7 +262,7 @@ class TestPartialFailure:
         server_resp = _make_server_response(health_ok=False)
 
         with (
-            patch("observal_cli.cmd_support.client.post", return_value=server_resp),
+            patch("dev_library_cli.cmd_support.client.post", return_value=server_resp),
         ):
             result = runner.invoke(app, ["doctor", "support", "bundle", "--file", str(output_path)])
 
@@ -274,7 +274,7 @@ class TestPartialFailure:
         output_path = tmp_path / "test-bundle.tar.gz"
 
         # Simulate server unreachable by raising ConnectError
-        with patch("observal_cli.cmd_support.client.post", side_effect=_unavailable()):
+        with patch("dev_library_cli.cmd_support.client.post", side_effect=_unavailable()):
             result = runner.invoke(app, ["doctor", "support", "bundle", "--file", str(output_path)])
 
         assert result.exit_code == 0, f"Should exit 0 with local-only data: {result.output}"
@@ -294,7 +294,7 @@ class TestPartialFailure:
         server_resp = _make_server_response(versions_ok=False, health_ok=False)
 
         with (
-            patch("observal_cli.cmd_support.client.post", return_value=server_resp),
+            patch("dev_library_cli.cmd_support.client.post", return_value=server_resp),
         ):
             result = runner.invoke(app, ["doctor", "support", "bundle", "--file", str(output_path)])
 
@@ -316,7 +316,7 @@ class TestTotalFailure:
 
     def test_all_collectors_fail_exits_1(self, tmp_path):
         """When all collectors fail and no data is available, exit code should be 1."""
-        from observal_cli.cmd_support import CollectorResult
+        from dev_library_cli.cmd_support import CollectorResult
 
         output_path = tmp_path / "test-bundle.tar.gz"
 
@@ -332,10 +332,10 @@ class TestTotalFailure:
 
         # Mock both local collectors to fail, and disable system import
         with (
-            patch("observal_cli.cmd_support.client.post", return_value=server_resp),
-            patch("observal_cli.cmd_support._config_allowlisted", return_value=failed_config),
+            patch("dev_library_cli.cmd_support.client.post", return_value=server_resp),
+            patch("dev_library_cli.cmd_support._config_allowlisted", return_value=failed_config),
             patch(
-                "observal_cli.support.collectors.system_info",
+                "dev_library_cli.support.collectors.system_info",
                 return_value=failed_system,
             ),
         ):
@@ -346,15 +346,15 @@ class TestTotalFailure:
 
     def test_empty_server_response_with_failed_local_exits_1(self, tmp_path):
         """Empty server response + failed local collectors = exit 1."""
-        from observal_cli.cmd_support import CollectorResult
+        from dev_library_cli.cmd_support import CollectorResult
 
         output_path = tmp_path / "test-bundle.tar.gz"
 
         failed_config = CollectorResult(name="config_allowlisted", ok=False, duration_ms=0, data=None, error="fail")
 
         with (
-            patch("observal_cli.cmd_support.client.post", side_effect=_unavailable()),
-            patch("observal_cli.cmd_support._config_allowlisted", return_value=failed_config),
+            patch("dev_library_cli.cmd_support.client.post", side_effect=_unavailable()),
+            patch("dev_library_cli.cmd_support._config_allowlisted", return_value=failed_config),
         ):
             result = runner.invoke(
                 app,
@@ -368,7 +368,7 @@ def test_bundle_json_returns_archive_metadata_without_human_output(tmp_path):
     output_path = tmp_path / "bundle.tar.gz"
     server_response = _make_server_response()
 
-    with patch("observal_cli.cmd_support.client.post", return_value=server_response):
+    with patch("dev_library_cli.cmd_support.client.post", return_value=server_response):
         result = runner.invoke(
             app,
             ["doctor", "support", "bundle", "--file", str(output_path), "--output", "json"],
@@ -386,7 +386,7 @@ def test_bundle_json_returns_archive_metadata_without_human_output(tmp_path):
 def test_bundle_json_reports_explicit_local_fallback(tmp_path):
     output_path = tmp_path / "local-bundle.tar.gz"
 
-    with patch("observal_cli.cmd_support.client.post", side_effect=_unavailable()):
+    with patch("dev_library_cli.cmd_support.client.post", side_effect=_unavailable()):
         result = runner.invoke(
             app,
             ["doctor", "support", "bundle", "--file", str(output_path), "--output", "json"],

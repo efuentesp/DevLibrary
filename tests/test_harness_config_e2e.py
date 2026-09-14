@@ -24,9 +24,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 from typer.testing import CliRunner
 
-from observal_cli.cmd_pull import _dict_to_toml, _write_file
-from observal_cli.constants import HARNESS_CAPABILITIES, VALID_HARNESSES
-from observal_cli.main import app as cli_app
+from dev_library_cli.cmd_pull import _dict_to_toml, _write_file
+from dev_library_cli.constants import HARNESS_CAPABILITIES, VALID_HARNESSES
+from dev_library_cli.main import app as cli_app
 from services.harness import generate_agent_config
 from services.harness.helpers import _check_harness_compatibility
 
@@ -633,8 +633,8 @@ _FAKE_CONFIG = {"server_url": "http://localhost:8000", "api_key": "test-key"}
 @contextmanager
 def _patch_config():
     with (
-        patch("observal_cli.config.get_or_exit", return_value=_FAKE_CONFIG),
-        patch("observal_cli.config.load", return_value=_FAKE_CONFIG),
+        patch("dev_library_cli.config.get_or_exit", return_value=_FAKE_CONFIG),
+        patch("dev_library_cli.config.load", return_value=_FAKE_CONFIG),
     ):
         yield
 
@@ -642,16 +642,16 @@ def _patch_config():
 @pytest.fixture(autouse=True)
 def isolated_lockfile(tmp_path, monkeypatch):
     state = tmp_path / ".observal"
-    monkeypatch.setattr("observal_cli.lockfile.LOCKFILE_PATH", state / "lockfile.json")
-    monkeypatch.setattr("observal_cli.lockfile._LOCKFILE_LOCK", state / "lockfile.lock")
-    monkeypatch.setattr("observal_cli.config.CONFIG_DIR", state)
-    monkeypatch.setattr("observal_cli.config.CONFIG_FILE", state / "config.json")
-    monkeypatch.setattr("observal_cli.config.ALIASES_FILE", state / "aliases.json")
-    monkeypatch.setattr("observal_cli.config.LAST_RESULTS_FILE", state / "last_results.json")
+    monkeypatch.setattr("dev_library_cli.lockfile.LOCKFILE_PATH", state / "lockfile.json")
+    monkeypatch.setattr("dev_library_cli.lockfile._LOCKFILE_LOCK", state / "lockfile.lock")
+    monkeypatch.setattr("dev_library_cli.config.CONFIG_DIR", state)
+    monkeypatch.setattr("dev_library_cli.config.CONFIG_FILE", state / "config.json")
+    monkeypatch.setattr("dev_library_cli.config.ALIASES_FILE", state / "aliases.json")
+    monkeypatch.setattr("dev_library_cli.config.LAST_RESULTS_FILE", state / "last_results.json")
 
 
 def _patch_post(return_value):
-    return patch("observal_cli.client.post_public", return_value=return_value)
+    return patch("dev_library_cli.client.post_public", return_value=return_value)
 
 
 _AGENT_DETAIL_NO_ENV = {
@@ -664,7 +664,7 @@ _AGENT_DETAIL_NO_ENV = {
 
 def _patch_get_agent(detail=None):
     detail = detail or _AGENT_DETAIL_NO_ENV
-    return patch("observal_cli.client.get", return_value=detail)
+    return patch("dev_library_cli.client.get", return_value=detail)
 
 
 class TestPullCodex:
@@ -1140,12 +1140,12 @@ class TestConfigGeneratorOpenCode:
 
 class TestPullOpenCodeScope:
     def test_opencode_in_scope_aware_harnesses(self):
-        from observal_cli.cmd_pull import _SCOPE_AWARE_HARNESSES
+        from dev_library_cli.cmd_pull import _SCOPE_AWARE_HARNESSES
 
         assert "opencode" in _SCOPE_AWARE_HARNESSES
 
     def test_opencode_scope_labels(self):
-        from observal_cli.cmd_pull import _SCOPE_AWARE_HARNESSES
+        from dev_library_cli.cmd_pull import _SCOPE_AWARE_HARNESSES
 
         project_label, user_label = _SCOPE_AWARE_HARNESSES["opencode"]
         assert "project" in project_label
@@ -1226,7 +1226,7 @@ class TestConfigGeneratorCodexFormat:
 
     def test_mcp_servers_toml_renders_correctly(self):
         """The mcp_servers dict should produce valid Codex TOML."""
-        from observal_cli.cmd_pull import _dict_to_toml
+        from dev_library_cli.cmd_pull import _dict_to_toml
 
         servers = {"mcp_servers": {"my-server": {"command": "npx", "args": ["-y", "my-server"]}}}
         toml = _dict_to_toml(servers)
@@ -1242,7 +1242,7 @@ class TestCodexInstallCliPathHint:
         import inspect
 
         # Read the cmd_mcp.py file and verify codex is in harness_config_paths
-        import observal_cli.cmd_mcp as cmd_mcp_module
+        import dev_library_cli.cmd_mcp as cmd_mcp_module
 
         # Find the harness_config_paths dict in the install function's source
         source = inspect.getsource(cmd_mcp_module)

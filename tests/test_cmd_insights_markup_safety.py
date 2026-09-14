@@ -15,7 +15,7 @@ from __future__ import annotations
 import pytest
 from typer.testing import CliRunner
 
-from observal_cli.cmd_insights import insights_app
+from dev_library_cli.cmd_insights import insights_app
 
 runner = CliRunner()
 
@@ -50,8 +50,8 @@ def _serve(monkeypatch, narrative: dict):
             }
         raise AssertionError(f"unexpected path: {path}")
 
-    monkeypatch.setattr("observal_cli.config.resolve_alias", lambda value: value)
-    monkeypatch.setattr("observal_cli.cmd_insights.client.get", fake_get)
+    monkeypatch.setattr("dev_library_cli.config.resolve_alias", lambda value: value)
+    monkeypatch.setattr("dev_library_cli.cmd_insights.client.get", fake_get)
 
 
 def _flat(output: str) -> str:

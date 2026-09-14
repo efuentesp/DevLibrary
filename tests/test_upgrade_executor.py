@@ -19,8 +19,8 @@ import pytest
 import typer
 from packaging.version import InvalidVersion
 
-from observal_cli import upgrade_executor as executor
-from observal_cli.install_detector import InstallInfo, InstallMethod
+from dev_library_cli import upgrade_executor as executor
+from dev_library_cli.install_detector import InstallInfo, InstallMethod
 
 LONG_OPTION = "-" * 2
 VERSION_OPTION = f"{LONG_OPTION}version"

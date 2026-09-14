@@ -15,7 +15,7 @@ Kiro agent profiles are JSON files. Project agents live in `.kiro/agents/`.
 User agents live in `~/.kiro/agents/`.
 
 When Observal installs a Kiro agent, it writes hook commands into that agent JSON.
-The default hooks run the shared `observal_cli.hooks.session_push --harness kiro`
+The default hooks run the shared `dev_library_cli.hooks.session_push --harness kiro`
 entry point for `userPromptSubmit` and `stop`.
 
 The hook reads Kiro session JSONL files from `~/.kiro/sessions/cli/`. It reads
@@ -26,7 +26,7 @@ only new lines since the last push and sends them to Observal.
 ## Supported capabilities
 
 | Capability | Support |
-|---|---|
+| --- | --- |
 | Agent profiles | Project and user scope |
 | Hook bridge | `userPromptSubmit` and `stop` by default |
 | Custom hooks | `agentSpawn`, `userPromptSubmit`, `preToolUse`, `postToolUse`, `stop` |
@@ -86,7 +86,7 @@ that agent's Observal UUID. `doctor patch` does not install generic Kiro hooks.
 ## Config paths
 
 | Purpose | Project scope | User scope |
-|---|---|---|
+| --- | --- | --- |
 | Agent profile | `.kiro/agents/{name}.json` | `~/.kiro/agents/{name}.json` |
 | Guidance files | `.kiro/steering/*.md`, `AGENTS.md` | `~/.kiro/steering/*.md` |
 | MCP config | `.kiro/settings/mcp.json` | `~/.kiro/settings/mcp.json` |
@@ -111,12 +111,12 @@ Observal writes the telemetry hooks inside each Kiro agent JSON:
   "hooks": {
     "userPromptSubmit": [
       {
-        "command": "OBSERVAL_AGENT_ID=<agent-uuid> python -m observal_cli.hooks.session_push --harness kiro"
+        "command": "OBSERVAL_AGENT_ID=<agent-uuid> python -m dev_library_cli.hooks.session_push --harness kiro"
       }
     ],
     "stop": [
       {
-        "command": "OBSERVAL_AGENT_ID=<agent-uuid> python -m observal_cli.hooks.session_push --harness kiro"
+        "command": "OBSERVAL_AGENT_ID=<agent-uuid> python -m dev_library_cli.hooks.session_push --harness kiro"
       }
     ]
   }
@@ -144,7 +144,7 @@ per-agent hook command is the source of truth.
 ### Event map
 
 | Observal event | Kiro event |
-|---|---|
+| --- | --- |
 | `SessionStart` | `agentSpawn` |
 | `UserPromptSubmit` | `userPromptSubmit` |
 | `PreToolUse` | `preToolUse` |
@@ -195,7 +195,7 @@ The `model` field is present when a model is resolved for the agent.
 Kiro skills live at:
 
 | Scope | Path |
-|---|---|
+| --- | --- |
 | Project | `.kiro/skills/{name}/SKILL.md` |
 | User | `~/.kiro/skills/{name}/SKILL.md` |
 

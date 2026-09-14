@@ -24,7 +24,7 @@ from pathlib import Path  # noqa: TC003
 
 from typer.testing import CliRunner
 
-from observal_cli.main import app
+from dev_library_cli.main import app
 
 runner = CliRunner()
 

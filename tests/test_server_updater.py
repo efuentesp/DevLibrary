@@ -18,7 +18,7 @@ from unittest.mock import MagicMock
 import httpx
 import pytest
 
-from observal_cli.server import updater
+from dev_library_cli.server import updater
 
 
 class RecordingConsole:
@@ -170,7 +170,7 @@ def test_fetch_latest_version_delegates_to_unified_version_check(
     expected: str | None,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from observal_cli import version_check
+    from dev_library_cli import version_check
 
     fetch = MagicMock(return_value=release)
     monkeypatch.setattr(version_check, "_fetch_from_github", fetch)
@@ -180,7 +180,7 @@ def test_fetch_latest_version_delegates_to_unified_version_check(
 
 
 def test_fetch_latest_version_preserves_malformed_release_error(monkeypatch: pytest.MonkeyPatch) -> None:
-    from observal_cli import version_check
+    from dev_library_cli import version_check
 
     monkeypatch.setattr(version_check, "_fetch_from_github", lambda: {"source": "github"})
 

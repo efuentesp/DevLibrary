@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from observal_cli.features import FEATURE_VERSIONS, available_set, is_available
+from dev_library_cli.features import FEATURE_VERSIONS, available_set, is_available
 
 
 class TestEffectiveVersionMin:
@@ -56,10 +56,10 @@ class TestFeatureGating:
 class TestServerSupports:
     def test_server_supports_checks_effective(self, monkeypatch):
         """server_supports() uses min(cli, server) for gating."""
-        monkeypatch.setattr("observal_cli.client._server_version_cache", "0.6.0")
-        monkeypatch.setattr("observal_cli.client._get_cli_version", lambda: "0.8.0")
+        monkeypatch.setattr("dev_library_cli.client._server_version_cache", "0.6.0")
+        monkeypatch.setattr("dev_library_cli.client._get_cli_version", lambda: "0.8.0")
 
-        from observal_cli.client import server_supports
+        from dev_library_cli.client import server_supports
 
         # agent_insights requires 0.7.0, effective is 0.6.0 → not available
         assert server_supports("agent_insights") is False

@@ -9,10 +9,10 @@ import json
 import sqlite3
 from typing import TYPE_CHECKING
 
-from observal_cli import telemetry_buffer
-from observal_cli.hooks import session_push
-from observal_cli.sessions import base
-from observal_cli.sessions import goose as goose_sessions
+from dev_library_cli import telemetry_buffer
+from dev_library_cli.hooks import session_push
+from dev_library_cli.sessions import base
+from dev_library_cli.sessions import goose as goose_sessions
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -114,7 +114,7 @@ def test_hook_recovers_the_working_dir_goose_omits(tmp_path: Path, monkeypatch):
     _configure(tmp_path, monkeypatch, tmp_path)
     monkeypatch.setattr(session_push, "_spawn_worker", lambda *_a, **_k: None)
 
-    from observal_cli.harness.goose import GooseAdapter
+    from dev_library_cli.harness.goose import GooseAdapter
 
     source = GooseAdapter().resolve_session_source(
         {"event": "SessionEnd", "session_id": "20260807_1"},
@@ -181,7 +181,7 @@ def test_second_drain_sends_only_new_goose_rows(tmp_path: Path, monkeypatch):
 
 
 def test_reconcile_discovers_goose_sessions_without_touching_the_database(tmp_path: Path, monkeypatch):
-    from observal_cli.harness.goose import GooseAdapter
+    from dev_library_cli.harness.goose import GooseAdapter
 
     _seed_goose(tmp_path)
     db_file = tmp_path / ".local" / "share" / "goose" / "sessions" / "sessions.db"
@@ -195,6 +195,6 @@ def test_reconcile_discovers_goose_sessions_without_touching_the_database(tmp_pa
 
 
 def _source(path: Path):
-    from observal_cli.harness import SessionSource
+    from dev_library_cli.harness import SessionSource
 
     return SessionSource("goose", "20260807_1", path, cwd="/project")

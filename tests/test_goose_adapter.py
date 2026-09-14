@@ -13,8 +13,8 @@ from unittest.mock import MagicMock
 import pytest
 import yaml
 
-from observal_cli.harness import ensure_loaded, get_adapter
-from observal_cli.harness.goose import GooseAdapter
+from dev_library_cli.harness import ensure_loaded, get_adapter
+from dev_library_cli.harness.goose import GooseAdapter
 from observal_shared.harness_registry import HARNESS_REGISTRY
 
 if TYPE_CHECKING:
@@ -146,7 +146,7 @@ def test_scan_home_discovers_skills_agents_and_plugin_hooks(tmp_path: Path):
     hooks = tmp_path / ".agents" / "plugins" / "observal" / "hooks"
     hooks.mkdir(parents=True)
     hooks.joinpath("hooks.json").write_text(
-        json.dumps({"hooks": {"SessionEnd": [{"hooks": [{"type": "command", "command": "observal_cli"}]}]}})
+        json.dumps({"hooks": {"SessionEnd": [{"hooks": [{"type": "command", "command": "dev_library_cli"}]}]}})
     )
 
     result = GooseAdapter().scan_home(tmp_path)
@@ -186,7 +186,7 @@ def test_detect_hooks_missing(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
 
 
 def test_detect_hooks_installed_and_partial(tmp_path: Path):
-    from observal_cli.harness_specs.goose_hooks_spec import GOOSE_HOOK_EVENTS, build_hooks
+    from dev_library_cli.harness_specs.goose_hooks_spec import GOOSE_HOOK_EVENTS, build_hooks
 
     hooks_dir = tmp_path / "plugins" / "observal" / "hooks"
     hooks_dir.mkdir(parents=True)
@@ -205,14 +205,14 @@ def test_detect_hooks_installed_and_partial(tmp_path: Path):
 
 
 def test_rewrite_hooks_repoints_pulled_commands_at_the_local_interpreter():
-    from observal_cli.harness_specs.goose_hooks_spec import hook_command
+    from dev_library_cli.harness_specs.goose_hooks_spec import hook_command
 
     pulled = {
         "hooks": {
             "Stop": [
                 {
                     "hooks": [
-                        {"type": "command", "command": "python3 -m observal_cli.hooks.session_push --harness goose"}
+                        {"type": "command", "command": "python3 -m dev_library_cli.hooks.session_push --harness goose"}
                     ]
                 },
                 {"hooks": [{"type": "command", "command": "/usr/local/bin/my-hook.sh"}]},
@@ -233,7 +233,7 @@ def test_hook_spec_uses_documented_goose_events():
 
 
 def test_generated_hook_rules_omit_matcher_and_never_write_stdout():
-    from observal_cli.harness_specs.goose_hooks_spec import build_hooks
+    from dev_library_cli.harness_specs.goose_hooks_spec import build_hooks
 
     hooks = build_hooks()["hooks"]
     for rules in hooks.values():
@@ -249,12 +249,12 @@ def test_hook_command_is_posix_shell_safe(monkeypatch: pytest.MonkeyPatch):
     """goose runs every hook through ``sh -c``, including on Windows."""
     import shlex
 
-    from observal_cli.harness_specs import goose_hooks_spec
+    from dev_library_cli.harness_specs import goose_hooks_spec
 
     monkeypatch.setattr(goose_hooks_spec.sys, "executable", "/opt/py 3.14/bin/python")
     command = goose_hooks_spec.hook_command()
 
-    assert shlex.split(command)[:3] == ["/opt/py 3.14/bin/python", "-m", "observal_cli.hooks.session_push"]
+    assert shlex.split(command)[:3] == ["/opt/py 3.14/bin/python", "-m", "dev_library_cli.hooks.session_push"]
     assert "&&" not in command  # cmd.exe syntax would never parse under sh -c
 
 
@@ -278,7 +278,7 @@ def test_managed_files_for_layer_source_attribution():
 
 
 def test_layer_scan_globs_registered():
-    from observal_cli.layer import HARNESS_LAYER_CONFIGS
+    from dev_library_cli.layer import HARNESS_LAYER_CONFIGS
 
     config = HARNESS_LAYER_CONFIGS["goose"]
     user_bases = {base for base, _patterns in config["user"]}

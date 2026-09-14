@@ -15,8 +15,8 @@ import json
 import pytest
 from typer.testing import CliRunner
 
-from observal_cli.cmd_recommend import recommend_app
-from observal_cli.main import app as cli_app
+from dev_library_cli.cmd_recommend import recommend_app
+from dev_library_cli.main import app as cli_app
 
 runner = CliRunner()
 
@@ -26,7 +26,7 @@ COMPONENT_ID = "0f2b8a1c-2f4d-4c0e-9f7a-1b2c3d4e5f60"
 @pytest.fixture(autouse=True)
 def _wide_terminal(monkeypatch):
     """Assert on copy, not on where Rich happens to wrap an 80-column table."""
-    from observal_cli import render
+    from dev_library_cli import render
 
     monkeypatch.setenv("COLUMNS", "200")
     monkeypatch.setattr(render.console, "_width", 200)
@@ -65,7 +65,7 @@ def _install(monkeypatch, payload: dict):
         captured["params"] = params
         return payload
 
-    monkeypatch.setattr("observal_cli.cmd_recommend.client.get", fake_get)
+    monkeypatch.setattr("dev_library_cli.cmd_recommend.client.get", fake_get)
     return captured
 
 
@@ -167,7 +167,7 @@ class TestListing:
         def explode(*args, **kwargs):
             raise AssertionError("must not reach the server")
 
-        monkeypatch.setattr("observal_cli.cmd_recommend.client.get", explode)
+        monkeypatch.setattr("dev_library_cli.cmd_recommend.client.get", explode)
 
         result = runner.invoke(recommend_app, ["--type", "../../etc/passwd"])
 
@@ -180,7 +180,7 @@ class TestDismiss:
         posted: dict = {}
 
         monkeypatch.setattr(
-            "observal_cli.cmd_recommend.client.resolve_registry_reference",
+            "dev_library_cli.cmd_recommend.client.resolve_registry_reference",
             lambda item_type, reference: (posted.setdefault("resolve", (item_type, reference)), COMPONENT_ID)[1],
         )
 
@@ -189,7 +189,7 @@ class TestDismiss:
             posted["body"] = body
             return {}
 
-        monkeypatch.setattr("observal_cli.cmd_recommend.client.post", fake_post)
+        monkeypatch.setattr("dev_library_cli.cmd_recommend.client.post", fake_post)
 
         result = runner.invoke(recommend_app, ["dismiss", "skill", "super/terraform-plan-review"])
 
@@ -207,11 +207,11 @@ class TestDismiss:
     def test_installed_action_is_reported_differently(self, monkeypatch):
         posted: dict = {}
         monkeypatch.setattr(
-            "observal_cli.cmd_recommend.client.resolve_registry_reference",
+            "dev_library_cli.cmd_recommend.client.resolve_registry_reference",
             lambda item_type, reference: COMPONENT_ID,
         )
         monkeypatch.setattr(
-            "observal_cli.cmd_recommend.client.post",
+            "dev_library_cli.cmd_recommend.client.post",
             lambda path, body=None: posted.update(body=body) or {},
         )
 
@@ -225,8 +225,8 @@ class TestDismiss:
         def explode(*args, **kwargs):
             raise AssertionError("must not reach the server")
 
-        monkeypatch.setattr("observal_cli.cmd_recommend.client.resolve_registry_reference", explode)
-        monkeypatch.setattr("observal_cli.cmd_recommend.client.post", explode)
+        monkeypatch.setattr("dev_library_cli.cmd_recommend.client.resolve_registry_reference", explode)
+        monkeypatch.setattr("dev_library_cli.cmd_recommend.client.post", explode)
 
         result = runner.invoke(recommend_app, ["dismiss", "skill", "super/x", "--action", "delete-everything"])
 
@@ -237,8 +237,8 @@ class TestDismiss:
         def explode(*args, **kwargs):
             raise AssertionError("must not reach the server")
 
-        monkeypatch.setattr("observal_cli.cmd_recommend.client.resolve_registry_reference", explode)
-        monkeypatch.setattr("observal_cli.cmd_recommend.client.post", explode)
+        monkeypatch.setattr("dev_library_cli.cmd_recommend.client.resolve_registry_reference", explode)
+        monkeypatch.setattr("dev_library_cli.cmd_recommend.client.post", explode)
 
         result = runner.invoke(recommend_app, ["dismiss", "sandbo", "super/x"])
 
@@ -249,11 +249,11 @@ class TestDismiss:
         # "sandbox".rstrip("s") == "sandbo"; the alias map exists to avoid that.
         posted: dict = {}
         monkeypatch.setattr(
-            "observal_cli.cmd_recommend.client.resolve_registry_reference",
+            "dev_library_cli.cmd_recommend.client.resolve_registry_reference",
             lambda item_type, reference: (posted.setdefault("resolve", item_type), COMPONENT_ID)[1],
         )
         monkeypatch.setattr(
-            "observal_cli.cmd_recommend.client.post",
+            "dev_library_cli.cmd_recommend.client.post",
             lambda path, body=None: posted.update(body=body) or {},
         )
 
@@ -288,10 +288,10 @@ class TestMarkupSafety:
 
 def test_dismiss_json_returns_stable_feedback(monkeypatch):
     monkeypatch.setattr(
-        "observal_cli.cmd_recommend.client.resolve_registry_reference",
+        "dev_library_cli.cmd_recommend.client.resolve_registry_reference",
         lambda item_type, reference: COMPONENT_ID,
     )
-    monkeypatch.setattr("observal_cli.cmd_recommend.client.post", lambda path, body=None: {})
+    monkeypatch.setattr("dev_library_cli.cmd_recommend.client.post", lambda path, body=None: {})
 
     result = runner.invoke(
         cli_app,
@@ -320,7 +320,7 @@ def test_recommend_json_validation_uses_shared_error_boundary(monkeypatch):
     def get(*_args, **_kwargs):
         raise AssertionError("must not request")
 
-    monkeypatch.setattr("observal_cli.cmd_recommend.client.get", get)
+    monkeypatch.setattr("dev_library_cli.cmd_recommend.client.get", get)
 
     result = runner.invoke(
         cli_app,

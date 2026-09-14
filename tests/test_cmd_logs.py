@@ -17,8 +17,8 @@ import typer
 from rich.text import Text
 from typer.testing import CliRunner
 
-from observal_cli import client, config
-from observal_cli import cmd_logs as logs
+from dev_library_cli import client, config
+from dev_library_cli import cmd_logs as logs
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -651,7 +651,7 @@ def test_user_facing_ops_logs_route_uses_defaults_and_returns_success(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     boundaries.log_path.write_text("".join(f"line {index}\n" for index in range(21)))
-    from observal_cli import main, optic
+    from dev_library_cli import main, optic
 
     setup_optic = MagicMock()
     migrate = MagicMock()

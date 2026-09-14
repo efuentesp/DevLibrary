@@ -32,7 +32,7 @@ Follow [docs/adding-a-harness.md](https://github.com/Observal/Observal/blob/main
 [Link the official documentation for configuration, MCP servers, skills, hooks, custom agents, and session storage.]
 
 | Feature | Path or behavior |
-|---------|------------------|
+| --------- | ------------------ |
 | Project MCP config | [Path] |
 | User MCP config | [Path] |
 | MCP key | [Key] |
@@ -70,13 +70,13 @@ See [docs/adding-a-harness.md, File Checklist](https://github.com/Observal/Obser
 - Implementation guide: [docs/adding-a-harness.md](https://github.com/Observal/Observal/blob/main/docs/adding-a-harness.md)
 - Official documentation: [Link]
 - Source repository: [Link]
-- First-class adapters for reference: `observal_cli/harness/claude_code.py`, `observal_cli/harness/kiro.py`
+- First-class adapters for reference: `dev_library_cli/harness/claude_code.py`, `dev_library_cli/harness/kiro.py`
 
 ## Implementation checklist for harness support
 
 Please include these updates in the same PR:
 
-- `observal_cli/cmd_doctor.py`: add diagnose, patch, and cleanup coverage for the harness
-- `observal_cli/layer.py`: update `HARNESS_LAYER_CONFIGS` and managed-file attribution paths
+- `dev_library_cli/cmd_doctor.py`: add diagnose, patch, and cleanup coverage for the harness
+- `dev_library_cli/layer.py`: update `HARNESS_LAYER_CONFIGS` and managed-file attribution paths
 - `README.md`: add the harness to the supported harness list
 - `docs/adding-a-harness.md`: keep checklist requirements aligned when needed

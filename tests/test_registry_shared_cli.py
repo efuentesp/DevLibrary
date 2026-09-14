@@ -11,9 +11,9 @@ from unittest.mock import MagicMock
 import pytest
 from typer.testing import CliRunner
 
-from observal_cli import client, config
-from observal_cli.errors import CliError, ErrorCategory, ExitCode
-from observal_cli.main import app
+from dev_library_cli import client, config
+from dev_library_cli.errors import CliError, ErrorCategory, ExitCode
+from dev_library_cli.main import app
 
 runner = CliRunner()
 
