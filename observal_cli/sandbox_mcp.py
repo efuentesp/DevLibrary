@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Observal Sandbox MCP Server.
+"""DevLibrary Sandbox MCP Server.
 
 A lightweight MCP server that exposes registered sandboxes as tools.
 When an agent has sandbox components, this server is auto-injected into
@@ -9,7 +9,7 @@ the agent's MCP config - giving the agent a `run_sandbox` tool it can
 call naturally without prompt engineering.
 
 Usage:
-    observal-sandbox-mcp --sandboxes '<json>'
+    dev-library-sandbox-mcp --sandboxes '<json>'
 
 The --sandboxes arg is a JSON array of sandbox specs:
     [{"id": "uuid", "name": "python-pytest", "image": "python:3.12-slim",
@@ -150,7 +150,7 @@ def main():
             try:
                 result = subprocess.run(
                     [
-                        "observal-sandbox-run",
+                        "dev-library-sandbox-run",
                         "--sandbox-id",
                         sandbox_id,
                         "--image",
@@ -204,7 +204,7 @@ def main():
                             "content": [
                                 {
                                     "type": "text",
-                                    "text": "observal-sandbox-run not found. Install: pip install 'observal-cli[sandbox]'",
+                                    "text": "dev-library-sandbox-run not found. Install: pip install 'dev-library-cli[sandbox]'",
                                 }
                             ],
                             "isError": True,

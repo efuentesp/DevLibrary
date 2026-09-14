@@ -43,7 +43,7 @@ from observal_cli.shared.utils import (
     resolve_goose_data_dir,
 )
 
-# goose extension types backed by an MCP server Observal can describe. `builtin`,
+# goose extension types backed by an MCP server DevLibrary can describe. `builtin`,
 # `platform` and `frontend` are in-process, and `inline_python` carries code, not a command.
 _COMMAND_TYPES = frozenset({"stdio"})
 _REMOTE_TYPES = frozenset({"streamable_http", "sse"})
@@ -207,7 +207,7 @@ class GooseAdapter(BaseAdapter):
         return build_hooks()
 
     def detect_hooks(self, config_dir: Path) -> str:
-        """Report whether the Observal goose hook plugin is installed.
+        """Report whether the DevLibrary goose hook plugin is installed.
 
         *config_dir* is treated as an optional ``.agents`` root so callers (and
         tests) can point at a sandbox; the real user plugin location is used as

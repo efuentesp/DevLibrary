@@ -1,7 +1,7 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
-"""Authenticated JSON escape hatch for Observal API endpoints."""
+"""Authenticated JSON escape hatch for DevLibrary API endpoints."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ def _api_path(value: str) -> str:
         fail(
             ErrorCategory.VALIDATION,
             "API path must be a canonical /api/v1 endpoint without a query string.",
-            operation="Call Observal API",
+            operation="Call DevLibrary API",
             resource="API path",
             remediation="Pass query values with --param KEY=VALUE.",
         )
@@ -45,7 +45,7 @@ def _params(values: list[str] | None) -> dict[str, str] | None:
             fail(
                 ErrorCategory.VALIDATION,
                 f"Invalid API parameter: {value}.",
-                operation="Call Observal API",
+                operation="Call DevLibrary API",
                 resource="API query parameters",
                 remediation="Use --param KEY=VALUE for every query parameter.",
             )
@@ -65,7 +65,7 @@ def _stdin_body() -> dict[str, Any] | None:
         fail(
             ErrorCategory.VALIDATION,
             "API standard input is not valid JSON.",
-            operation="Call Observal API",
+            operation="Call DevLibrary API",
             resource="API request body",
             remediation="Pipe one JSON object or use --from-file.",
             detail=repr(error),
@@ -74,7 +74,7 @@ def _stdin_body() -> dict[str, Any] | None:
         fail(
             ErrorCategory.VALIDATION,
             "API request body must be a JSON object.",
-            operation="Call Observal API",
+            operation="Call DevLibrary API",
             resource="API request body",
             remediation="Wrap request fields in a JSON object.",
         )
@@ -109,29 +109,29 @@ def api_request(
     param: list[str] | None = typer.Option(None, "--param", help="Query parameter as KEY=VALUE; repeatable."),
     output: OutputMode = typer.Option("table", "--output", "-o", help="Output format: table or json."),
 ):
-    """Call an authenticated Observal JSON API endpoint.
+    """Call an authenticated DevLibrary JSON API endpoint.
 
     JSON from standard input is used when --from-file is omitted. The command
     uses the configured bearer token and never accepts arbitrary auth headers.
 
     Examples:
-      observal api GET /api/v1/teams --output json
-      observal api GET /api/v1/agents --param limit=10 --output json
-      observal api POST /api/v1/teams --from-file team.json --output json
+      dev-library api GET /api/v1/teams --output json
+      dev-library api GET /api/v1/agents --param limit=10 --output json
+      dev-library api POST /api/v1/teams --from-file team.json --output json
     """
     method = method.strip().upper()
     if method not in _METHODS:
         fail(
             ErrorCategory.VALIDATION,
             f"Unsupported API method: {method}.",
-            operation="Call Observal API",
+            operation="Call DevLibrary API",
             resource="HTTP method",
             remediation=f"Choose from: {', '.join(sorted(_METHODS))}.",
         )
     endpoint = _api_path(path)
     query = _params(param)
     body = (
-        load_json_object(from_file, operation="Call Observal API", noun="API request file")
+        load_json_object(from_file, operation="Call DevLibrary API", noun="API request file")
         if from_file
         else _stdin_body()
     )
@@ -139,7 +139,7 @@ def api_request(
         fail(
             ErrorCategory.VALIDATION,
             "GET does not accept a request body in this command.",
-            operation="Call Observal API",
+            operation="Call DevLibrary API",
             resource="API request body",
             remediation="Remove the body or choose POST, PUT, PATCH, or DELETE.",
         )
@@ -149,8 +149,8 @@ def api_request(
         endpoint,
         params=query,
         json_data=body,
-        operation="Call Observal API",
-        resource="Observal API endpoint",
+        operation="Call DevLibrary API",
+        resource="DevLibrary API endpoint",
     )
 
     if output == "json":

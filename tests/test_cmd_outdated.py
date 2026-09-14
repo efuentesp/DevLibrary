@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
 """Contract tests for the outdated command."""
@@ -84,9 +84,9 @@ def test_help_has_canonical_examples(cli: typer.Typer, monkeypatch: pytest.Monke
     output = unstyle(result.output)
 
     assert result.exit_code == 0
-    assert "observal outdated" in output
-    assert "observal outdated --harness claude-code" in output
-    assert "observal outdated --output json --no-report" in output
+    assert "dev-library outdated" in output
+    assert "dev-library outdated --harness claude-code" in output
+    assert "dev-library outdated --output json --no-report" in output
 
 
 def test_invalid_output_mode_is_a_usage_error(cli: typer.Typer) -> None:
@@ -187,7 +187,7 @@ def test_json_reports_current_outdated_and_inbox_state(
     payload = json.loads(result.stdout)
     assert [item["status"] for item in payload["items"]] == ["outdated", "current"]
     assert payload["items"][0]["upgrade_command"] == (
-        "observal agent pull acme/reviewer --harness claude-code --no-prompt"
+        "dev-library agent pull acme/reviewer --harness claude-code --no-prompt"
     )
     assert payload["items"][1]["upgrade_command"] is None
     assert payload["summary"] == {"total": 2, "outdated": 1, "current": 1, "missing": 0}
@@ -238,7 +238,7 @@ def test_table_lists_every_status_and_escapes_registry_names(
     assert "outdated" in result.output
     assert "missing" in result.output
     assert "All installed items are up to date" not in result.output
-    assert "observal agent pull" in result.output
+    assert "dev-library agent pull" in result.output
 
 
 def test_not_found_is_an_item_status_with_request_context(
@@ -489,10 +489,10 @@ def test_no_report_prevents_inbox_write(
 @pytest.mark.parametrize(
     ("item_type", "expected"),
     [
-        ("agent", "observal agent pull acme/tool --harness pi --no-prompt"),
-        ("mcp", "observal registry mcp install acme/tool --harness pi --no-prompt"),
-        ("skill", "observal registry skill install acme/tool --harness pi"),
-        ("hook", "observal registry hook install acme/tool --harness pi"),
+        ("agent", "dev-library agent pull acme/tool --harness pi --no-prompt"),
+        ("mcp", "dev-library registry mcp install acme/tool --harness pi --no-prompt"),
+        ("skill", "dev-library registry skill install acme/tool --harness pi"),
+        ("hook", "dev-library registry hook install acme/tool --harness pi"),
     ],
 )
 def test_upgrade_commands_are_type_specific(item_type: str, expected: str) -> None:

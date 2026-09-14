@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Self-update mechanism for the Observal standalone binary.
+"""Self-update mechanism for the DevLibrary standalone binary.
 
 Downloads the latest release, verifies checksums, and atomically
 replaces the running binary. Supports version pinning and rollback.
@@ -22,11 +22,11 @@ from pathlib import Path
 import httpx
 from rich.console import Console
 
-from observal_cli.server.constants import GITHUB_REPO, OBSERVAL_HOME, detect_platform
+from observal_cli.server.constants import DEVLIBRARY_HOME, GITHUB_REPO, detect_platform
 
 console = Console()
 
-UPDATE_CHECK_CACHE = OBSERVAL_HOME / ".update-check"
+UPDATE_CHECK_CACHE = DEVLIBRARY_HOME / ".update-check"
 UPDATE_CHECK_INTERVAL = 86400  # 24 hours
 
 
@@ -35,7 +35,7 @@ def get_current_version() -> str:
     from importlib.metadata import version
 
     try:
-        return version("observal-cli")
+        return version("dev-library-cli")
     except Exception:
         return "0.0.0"
 
@@ -47,7 +47,7 @@ def _get_binary_path() -> Path:
 
 def _get_backup_path() -> Path:
     """Get the path for the rollback backup."""
-    return OBSERVAL_HOME / "bin" / "observal.bak"
+    return DEVLIBRARY_HOME / "bin" / "observal.bak"
 
 
 def fetch_latest_version() -> str | None:
@@ -101,7 +101,7 @@ def check_for_update(*, quiet: bool = False) -> str | None:
         if not quiet:
             console.print(
                 f"[yellow]Update available:[/yellow] {current} → [bold]{latest}[/bold]. "
-                f"Run: [cyan]observal self update[/cyan]"
+                f"Run: [cyan]dev-library self update[/cyan]"
             )
         return latest
 
@@ -219,7 +219,7 @@ def update(*, version: str | None = None) -> bool:
         console.print(f"  Backup: {backup_path}")
         console.print()
         console.print(
-            "  If the server is running, restart it: [cyan]observal server stop && observal server start[/cyan]"
+            "  If the server is running, restart it: [cyan]dev-library server stop && dev-library server start[/cyan]"
         )
 
         # Invalidate update check cache

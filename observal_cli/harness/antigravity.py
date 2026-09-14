@@ -157,7 +157,7 @@ class AntigravityAdapter(BaseAdapter):
         return build_antigravity_hooks()
 
     def detect_hooks(self, config_dir: Path) -> str:
-        """Check if Observal hooks are installed in ~/.gemini/config/hooks.json."""
+        """Check if DevLibrary hooks are installed in ~/.gemini/config/hooks.json."""
         from observal_cli.harness_specs.antigravity_hooks_spec import _OBSERVAL_HOOK_NAME
         from observal_cli.shared.utils import resolve_antigravity_config_dir
 

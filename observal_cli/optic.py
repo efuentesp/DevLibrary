@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Optic: developer debug logging for the Observal CLI.
+"""Optic: developer debug logging for the DevLibrary CLI.
 
 Call ``setup_optic()`` once in the CLI main callback.
 Then use ``from loguru import logger as optic`` in any module.

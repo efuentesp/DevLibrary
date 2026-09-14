@@ -222,10 +222,10 @@ def extract_mcp_servers(config: dict, harness: str = "") -> dict:
 # Hook marker detection
 # ---------------------------------------------------------------------------
 
-# Metadata key injected into every Observal-managed matcher group.
+# Metadata key injected into every DevLibrary-managed matcher group.
 OBSERVAL_METADATA_KEY = "_observal"
 
-# Comprehensive set of substrings that identify any Observal-injected hook.
+# Comprehensive set of substrings that identify any DevLibrary-injected hook.
 # Used for both scan detection and idempotent cleanup.
 _OBSERVAL_HOOK_MARKERS = (
     # Legacy marker names
@@ -265,7 +265,7 @@ def is_observal_hook_entry(entry: dict) -> bool:
 
 
 def is_observal_matcher_group(group: dict) -> bool:
-    """Return True if a matcher group is Observal-managed.
+    """Return True if a matcher group is DevLibrary-managed.
 
     Raises TypeError if *group* is not a dict.
     """

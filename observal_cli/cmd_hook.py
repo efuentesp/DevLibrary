@@ -46,9 +46,9 @@ hook_app = typer.Typer(
     help=(
         "Hook registry commands\n\n"
         "Examples:\n"
-        "  observal registry hook list\n"
-        "  observal registry hook show alice/my-hook\n"
-        "  observal registry hook install alice/my-hook --harness claude-code"
+        "  dev-library registry hook list\n"
+        "  dev-library registry hook show alice/my-hook\n"
+        "  dev-library registry hook install alice/my-hook --harness claude-code"
     )
 )
 
@@ -123,9 +123,9 @@ def hook_submit(
     Only submit hooks you created or are the point-of-contact for.
 
     Examples:
-      observal registry hook submit --script ./protect-files.sh
-      observal registry hook submit --source-url https://github.com/org/hooks --source-path hooks/guard/
-      observal registry hook submit --from-file hook.json --output json
+      dev-library registry hook submit --script ./protect-files.sh
+      dev-library registry hook submit --source-url https://github.com/org/hooks --source-path hooks/guard/
+      dev-library registry hook submit --from-file hook.json --output json
     """
     human_output = output != "json"
     if human_output:
@@ -338,7 +338,7 @@ def hook_submit(
         return
     message = "Draft saved" if draft else "Hook submitted"
     rprint(f"[green]✓ {message}![/green] ID: [bold]{esc(result['id'])}[/bold]")
-    rprint(f"  Install: [cyan]observal registry hook install {esc(client.canonical_name(result))}[/cyan]")
+    rprint(f"  Install: [cyan]dev-library registry hook install {esc(client.canonical_name(result))}[/cyan]")
 
 
 @hook_app.command(name="list")
@@ -356,9 +356,9 @@ def hook_list(
 
     \b
     Examples:
-      observal registry hook list
-      observal registry hook list --event Stop
-      observal registry hook list --search guard --output json
+      dev-library registry hook list
+      dev-library registry hook list --event Stop
+      dev-library registry hook list --search guard --output json
     """
     if event and event not in VALID_HOOK_EVENTS:
         fail(
@@ -425,9 +425,9 @@ def hook_show(
 
     \b
     Examples:
-      observal registry hook show my-hook
-      observal registry hook show @guard
-      observal registry hook show abc123 -o json
+      dev-library registry hook show my-hook
+      dev-library registry hook show @guard
+      dev-library registry hook show abc123 -o json
     """
     resolved = client.resolve_registry_reference("hook", hook_id)
     fetch_ctx = nullcontext() if output == "json" else spinner()
@@ -497,9 +497,9 @@ def hook_install(
 
     \b
     Examples:
-      observal registry hook install my-hook --harness claude-code
-      observal registry hook install @guard --harness kiro --dir ./project
-      observal registry hook install my-hook --harness cursor --raw
+      dev-library registry hook install my-hook --harness claude-code
+      dev-library registry hook install @guard --harness kiro --dir ./project
+      dev-library registry hook install my-hook --harness cursor --raw
     """
     if raw and output == "json":
         fail(
@@ -739,9 +739,9 @@ def hook_edit(
 
     \b
     Examples:
-      observal registry hook edit my-hook --description "Updated guard hook"
-      observal registry hook edit my-hook --event Stop --version 1.1.0
-      observal registry hook edit @guard --from-file updated-hook.json --output json
+      dev-library registry hook edit my-hook --description "Updated guard hook"
+      dev-library registry hook edit my-hook --event Stop --version 1.1.0
+      dev-library registry hook edit @guard --from-file updated-hook.json --output json
     """
     resolved = client.resolve_registry_reference("hook", hook_id)
     if from_file:

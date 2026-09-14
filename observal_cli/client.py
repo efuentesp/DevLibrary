@@ -37,7 +37,7 @@ def _get_cli_version() -> str:
     try:
         from importlib.metadata import version
 
-        return version("observal-cli")
+        return version("dev-library-cli")
     except Exception:
         return "0.0.0"
 
@@ -58,7 +58,7 @@ def _enforce_version_once(server_url: str) -> None:
     """Run version enforcement exactly once per CLI session.
 
     Checks if CLI version exactly matches server. Hard exits on mismatch.
-    Exempt: `observal self` and `observal server` subcommands.
+    Exempt: `dev-library self` and `dev-library server` subcommands.
     """
     global _version_enforced
     if _version_enforced:
@@ -107,9 +107,9 @@ def _browse_remediation(path: str) -> str:
     else:
         type_singular = type_plural
     if type_singular == "agent":
-        browse_cmd = "observal agent list"
+        browse_cmd = "dev-library agent list"
     elif type_singular in {"mcp", "skill", "hook", "prompt", "sandbox"}:
-        browse_cmd = f"observal registry {type_singular} list"
+        browse_cmd = f"dev-library registry {type_singular} list"
     else:
         return "Check the identifier and retry."
     return f"Check the identifier or run {browse_cmd} to browse available resources."
@@ -129,7 +129,7 @@ def _handle_error(
     detail = _safe_detail(response)
     context = {
         "operation": operation or f"Request {path or 'server resource'}",
-        "resource": resource or path or "Observal server",
+        "resource": resource or path or "DevLibrary server",
         "request_id": _request_id(response),
         "http_status": code,
         "detail": repr(error),
@@ -139,7 +139,7 @@ def _handle_error(
         fail(
             ErrorCategory.AUTH,
             "Authentication failed.",
-            remediation="Run observal auth login to authenticate again.",
+            remediation="Run dev-library auth login to authenticate again.",
             **context,
         )
     if code == 403:
@@ -182,7 +182,7 @@ def _handle_error(
         fail(
             ErrorCategory.UNAVAILABLE,
             f"The server returned HTTP {code}.",
-            remediation="Check server health and logs, then run observal doctor.",
+            remediation="Check server health and logs, then run dev-library doctor.",
             **context,
         )
     fail(
@@ -198,10 +198,10 @@ def _handle_connect(*, operation: str | None = None, resource: str | None = None
     server_url = config.load().get("server_url", "not set")
     fail(
         ErrorCategory.UNAVAILABLE,
-        "Cannot reach the Observal server.",
-        operation=operation or "Connect to Observal",
+        "Cannot reach the DevLibrary server.",
+        operation=operation or "Connect to DevLibrary",
         resource=resource or f"server {server_url}",
-        remediation="Check the server URL and service health, then run observal doctor.",
+        remediation="Check the server URL and service health, then run dev-library doctor.",
         detail=detail,
     )
 
@@ -220,8 +220,8 @@ def _handle_timeout(
         ErrorCategory.UNAVAILABLE,
         f"The request timed out after {timeout} seconds.",
         operation=operation or f"Request {path or 'server resource'}",
-        resource=resource or path or "Observal server",
-        remediation="Increase OBSERVAL_TIMEOUT if appropriate and check server health with observal doctor.",
+        resource=resource or path or "DevLibrary server",
+        remediation="Increase DEVLIBRARY_TIMEOUT if appropriate and check server health with dev-library doctor.",
         detail=detail,
     )
 

@@ -88,7 +88,7 @@ def isolated_runtime(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SimpleN
     console = FakeConsole()
 
     constants = {
-        "OBSERVAL_HOME": root,
+        "DEVLIBRARY_HOME": root,
         "CONFIG_DIR": root / "config",
         "DATA_DIR": root / "data",
         "KEYS_DIR": root / "keys",

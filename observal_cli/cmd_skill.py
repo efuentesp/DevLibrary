@@ -46,9 +46,9 @@ skill_app = typer.Typer(
     help=(
         "Skill registry commands\n\n"
         "Examples:\n"
-        "  observal registry skill list\n"
-        "  observal registry skill show alice/my-skill\n"
-        "  observal registry skill install alice/my-skill --harness claude-code"
+        "  dev-library registry skill list\n"
+        "  dev-library registry skill show alice/my-skill\n"
+        "  dev-library registry skill install alice/my-skill --harness claude-code"
     )
 )
 
@@ -182,13 +182,13 @@ def skill_submit(
     Only submit skills you created or are the point-of-contact for.
 
     Examples:
-        observal registry skill submit --git-url https://github.com/org/repo
-        observal registry skill submit --skill-md ./SKILL.md --git-url https://github.com/org/repo
-        observal registry skill submit --skill-md ./SKILL.md --script ./run.sh \
+        dev-library registry skill submit --git-url https://github.com/org/repo
+        dev-library registry skill submit --skill-md ./SKILL.md --git-url https://github.com/org/repo
+        dev-library registry skill submit --skill-md ./SKILL.md --script ./run.sh \
           --delivery-mode registry_direct --name my-skill --description "My skill" --output json
-        observal registry skill submit --from-dir ./my-skill --delivery-mode registry_direct \
+        dev-library registry skill submit --from-dir ./my-skill --delivery-mode registry_direct \
           --name my-skill --description "My skill" --output json
-        observal registry skill submit --skill-md ./SKILL.md --extra-file ./templates/x.md \
+        dev-library registry skill submit --skill-md ./SKILL.md --extra-file ./templates/x.md \
           --extra-file "assets/logo.png=/tmp/logo.png" --delivery-mode registry_direct \
           --name my-skill --description "My skill" --output json
     """
@@ -407,7 +407,7 @@ def skill_submit(
     validated = result.get("validated", False)
     validated_tag = "[green]✓ validated[/green]" if validated else "[yellow]unvalidated[/yellow]"
     rprint(f"[green]✓ {label.capitalize()} submitted![/green] ID: [bold]{esc(result['id'])}[/bold]  {validated_tag}")
-    rprint(f"  Install: [cyan]observal registry skill install {esc(client.canonical_name(result))}[/cyan]")
+    rprint(f"  Install: [cyan]dev-library registry skill install {esc(client.canonical_name(result))}[/cyan]")
 
 
 # ── List / My ─────────────────────────────────────────────────────────────────
@@ -430,9 +430,9 @@ def skill_list(
     as references in subsequent commands.
 
     Examples:
-        observal registry skill list
-        observal registry skill list --task-type code-generation
-        observal registry skill list --target-agent claude-code --output json
+        dev-library registry skill list
+        dev-library registry skill list --task-type code-generation
+        dev-library registry skill list --target-agent claude-code --output json
     """
     if task_type and task_type not in VALID_SKILL_TASK_TYPES:
         fail(
@@ -506,8 +506,8 @@ def skill_my(
     Useful for tracking the review status of your submissions.
 
     Examples:
-        observal registry skill my
-        observal registry skill my --output json
+        dev-library registry skill my
+        dev-library registry skill my --output json
     """
     fetch_ctx = nullcontext() if output == "json" else spinner("Fetching your skills...")
     with fetch_ctx:
@@ -557,9 +557,9 @@ def skill_show(
     row number from a previous list, or @alias.
 
     Examples:
-        observal registry skill show my-skill
-        observal registry skill show 1
-        observal registry skill show @refactor-skill --output json
+        dev-library registry skill show my-skill
+        dev-library registry skill show 1
+        dev-library registry skill show @refactor-skill --output json
     """
     resolved = client.resolve_registry_reference("skill", skill_id)
     fetch_ctx = nullcontext() if output == "json" else spinner()
@@ -669,9 +669,9 @@ def skill_install(
         symlinks into each harness config dir found in the project.
 
     Examples:
-        observal registry skill install my-skill --harness claude-code
-        observal registry skill install @sk --harness kiro --scope project
-        observal registry skill install 2 --harness cursor --raw > config.json
+        dev-library registry skill install my-skill --harness claude-code
+        dev-library registry skill install @sk --harness kiro --scope project
+        dev-library registry skill install 2 --harness cursor --raw > config.json
     """
     if raw and output == "json":
         fail(
@@ -961,7 +961,7 @@ def install_skill_from_git(
 ) -> Path | None:
     """Core skill install logic - clone full directory from git.
 
-    Used by both `observal skill install` and `observal pull` (for agent skills).
+    Used by both `observal skill install` and `dev-library pull` (for agent skills).
 
     Returns the destination Path on success, None on failure.
     """
@@ -1031,9 +1031,9 @@ def skill_edit(
     Acquires an edit lock to prevent concurrent modifications.
 
     Examples:
-        observal registry skill edit my-skill --description "Better desc"
-        observal registry skill edit abc123 --from-file updates.json
-        observal registry skill edit @sk --git-url https://github.com/org/new-repo --output json
+        dev-library registry skill edit my-skill --description "Better desc"
+        dev-library registry skill edit abc123 --from-file updates.json
+        dev-library registry skill edit @sk --git-url https://github.com/org/new-repo --output json
     """
     if from_file:
         try:

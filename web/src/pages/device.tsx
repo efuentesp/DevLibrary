@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
 import { Suspense, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearch } from "@tanstack/react-router";
 import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
@@ -14,12 +13,15 @@ import { Label } from "@/components/ui/label";
 
 function DeviceContent() {
   const router = useRouter();
-  const { code: codeParam, sso: ssoParam } = useSearch({ from: "/(auth)/device" });
+  const { code: codeParam, sso: ssoParam } = useSearch({
+    from: "/(auth)/device",
+  });
   const [userCode, setUserCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const { brandingAppName, brandingLogo, brandingWordmark } = useDeploymentConfig();
+  const { brandingAppName, brandingLogo, brandingWordmark } =
+    useDeploymentConfig();
 
   const formatCode = useCallback((raw: string): string => {
     const stripped = raw.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
@@ -40,7 +42,11 @@ function DeviceContent() {
       const returnPath = code
         ? `/device?code=${encodeURIComponent(code)}${directSso ? "&sso=1" : ""}`
         : `/device${directSso ? "?sso=1" : ""}`;
-      router.navigate({ to: "/login", search: { next: returnPath, ...(directSso ? { sso: "1" } : {}) }, replace: true });
+      router.navigate({
+        to: "/login",
+        search: { next: returnPath, ...(directSso ? { sso: "1" } : {}) },
+        replace: true,
+      });
     }
   }, [router, codeParam, ssoParam]);
 
@@ -80,7 +86,10 @@ function DeviceContent() {
   }
 
   // Don't render form until we know user is authenticated
-  if (typeof window !== "undefined" && !sessionStorage.getItem("observal_access_token")) {
+  if (
+    typeof window !== "undefined" &&
+    !sessionStorage.getItem("observal_access_token")
+  ) {
     return null;
   }
 
@@ -91,20 +100,39 @@ function DeviceContent() {
           {/* Brand header */}
           <div className="flex flex-col items-center gap-2 border-b px-8 pb-6 pt-8 animate-in">
             {brandingLogo ? (
-              <img loading="lazy" src={brandingLogo} alt="" width={32} height={32} className="object-contain" />
+              <img
+                loading="lazy"
+                src={brandingLogo}
+                alt=""
+                width={32}
+                height={32}
+                className="object-contain"
+              />
             ) : (
-              <img loading="lazy" src="/observal-logo.svg" alt="" width={32} height={32} className="object-contain" />
+              <img
+                loading="lazy"
+                src="/observal-logo.svg"
+                alt=""
+                width={32}
+                height={32}
+                className="object-contain"
+              />
             )}
             {brandingWordmark ? (
-              <img loading="lazy" src={brandingWordmark} alt={brandingAppName || "Dev-Library"} width={192} height={24} className="h-6 max-w-48 object-contain" />
+              <img
+                loading="lazy"
+                src={brandingWordmark}
+                alt={brandingAppName || "Dev-Library"}
+                width={192}
+                height={24}
+                className="h-6 max-w-48 object-contain"
+              />
             ) : (
               <h1 className="text-2xl font-semibold tracking-tight font-[family-name:var(--font-display)]">
                 {brandingAppName || "Dev-Library"}
               </h1>
             )}
-            <p className="text-sm text-muted-foreground">
-              Authorize Device
-            </p>
+            <p className="text-sm text-muted-foreground">Authorize Device</p>
           </div>
 
           {/* Content */}
@@ -113,7 +141,8 @@ function DeviceContent() {
               <div className="flex flex-col items-center gap-4 py-4 animate-in">
                 <CheckCircle2 className="h-12 w-12 text-success" />
                 <p className="text-center text-sm text-muted-foreground">
-                  Device authorized! You can close this tab and return to your terminal.
+                  Device authorized! You can close this tab and return to your
+                  terminal.
                 </p>
               </div>
             ) : (
@@ -126,7 +155,8 @@ function DeviceContent() {
               >
                 <div className="space-y-2 animate-in">
                   <Label htmlFor="user-code">
-                    Enter the code shown in your terminal to authorize this device.
+                    Enter the code shown in your terminal to authorize this
+                    device.
                   </Label>
                   <Input
                     id="user-code"

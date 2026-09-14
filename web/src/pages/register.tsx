@@ -3,9 +3,25 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { Link, useRouter, useSearch } from "@tanstack/react-router";
-import { ArrowRight, CheckCircle2, Eye, EyeOff, Loader2, ShieldCheck, AlertCircle } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  Loader2,
+  ShieldCheck,
+  AlertCircle,
+} from "lucide-react";
 import { toast } from "sonner";
-import { auth, setTokens, setUserRole, setUserName, setUserEmail, setUserUsername, setUserAvatar } from "@/lib/api";
+import {
+  auth,
+  setTokens,
+  setUserRole,
+  setUserName,
+  setUserEmail,
+  setUserUsername,
+  setUserAvatar,
+} from "@/lib/api";
 import { safeNext } from "@/lib/safe-next";
 import { useDeploymentConfig } from "@/hooks/use-deployment-config";
 import { Button } from "@/components/ui/button";
@@ -13,10 +29,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const PASSWORD_RULES = [
-  { id: "len", label: "At least 8 characters", test: (p: string) => p.length >= 8 },
-  { id: "upper", label: "One uppercase letter", test: (p: string) => /[A-Z]/.test(p) },
+  {
+    id: "len",
+    label: "At least 8 characters",
+    test: (p: string) => p.length >= 8,
+  },
+  {
+    id: "upper",
+    label: "One uppercase letter",
+    test: (p: string) => /[A-Z]/.test(p),
+  },
   { id: "digit", label: "One number", test: (p: string) => /[0-9]/.test(p) },
-  { id: "special", label: "One special character", test: (p: string) => /[^A-Za-z0-9]/.test(p) },
+  {
+    id: "special",
+    label: "One special character",
+    test: (p: string) => /[^A-Za-z0-9]/.test(p),
+  },
 ];
 
 function passwordIsStrong(password: string) {
@@ -26,11 +54,20 @@ function passwordIsStrong(password: string) {
 function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearch({ from: "/(auth)/register" });
-  const { selfRegistrationEnabled, ssoOnly, brandingAppName, brandingLogo, brandingWordmark, loading: configLoading } = useDeploymentConfig();
+  const {
+    selfRegistrationEnabled,
+    ssoOnly,
+    brandingAppName,
+    brandingLogo,
+    brandingWordmark,
+    loading: configLoading,
+  } = useDeploymentConfig();
   // Signed-in visitors are redirected by the effect below; rendering nothing in
   // the meantime avoids flashing the form at someone who cannot use it.
   const [alreadyAuthed] = useState(
-    () => typeof window !== "undefined" && !!sessionStorage.getItem("observal_access_token"),
+    () =>
+      typeof window !== "undefined" &&
+      !!sessionStorage.getItem("observal_access_token"),
   );
   const appName = brandingAppName || "Dev-Library";
   const [name, setName] = useState("");
@@ -108,7 +145,9 @@ function RegisterContent() {
       <div className="flex min-h-dvh items-center justify-center bg-surface-sunken p-6">
         <div className="w-full max-w-md rounded-lg border bg-card p-8 text-center shadow-sm">
           <ShieldCheck className="mx-auto h-10 w-10 text-muted-foreground" />
-          <h1 className="mt-4 text-2xl font-semibold tracking-tight">Registration is closed</h1>
+          <h1 className="mt-4 text-2xl font-semibold tracking-tight">
+            Registration is closed
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {ssoOnly
               ? "This server uses SSO sign-in. Your account is created automatically the first time you sign in with your identity provider."
@@ -129,21 +168,42 @@ function RegisterContent() {
           <div>
             <div className="flex items-center gap-3">
               {brandingLogo ? (
-                <img loading="lazy" src={brandingLogo} alt="" width={32} height={32} className="object-contain" />
+                <img
+                  loading="lazy"
+                  src={brandingLogo}
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               ) : (
-                <img loading="lazy" src="/observal-logo.svg" alt="" width={32} height={32} className="object-contain" />
+                <img
+                  loading="lazy"
+                  src="/observal-logo.svg"
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               )}
-              <span className="text-lg font-semibold tracking-tight">{appName}</span>
+              <span className="text-lg font-semibold tracking-tight">
+                {appName}
+              </span>
             </div>
             <h1 className="mt-10 max-w-sm text-3xl font-semibold tracking-tight text-balance">
               Governed agent access, without waiting on setup.
             </h1>
             <p className="mt-4 max-w-sm text-sm leading-6 text-muted-foreground">
-              Create a standard user account for browsing the registry, viewing traces, and using approved agent context.
+              Create a standard user account for browsing the registry, viewing
+              traces, and using approved agent context.
             </p>
           </div>
           <ul className="space-y-3 text-sm text-muted-foreground">
-            {["Standard access by default", "Registry browsing ready", "You can request more permissions later"].map((item) => (
+            {[
+              "Standard access by default",
+              "Registry browsing ready",
+              "You can request more permissions later",
+            ].map((item) => (
               <li key={item} className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-success" />
                 {item}
@@ -156,12 +216,25 @@ function RegisterContent() {
           <div className="mx-auto max-w-md">
             <div className="flex flex-col items-center gap-2 text-center md:items-start md:text-left">
               {brandingWordmark ? (
-                <img loading="lazy" src={brandingWordmark} alt={appName} width={192} height={24} className="h-6 max-w-48 object-contain md:hidden" />
+                <img
+                  loading="lazy"
+                  src={brandingWordmark}
+                  alt={appName}
+                  width={192}
+                  height={24}
+                  className="h-6 max-w-48 object-contain md:hidden"
+                />
               ) : (
-                <span className="text-xl font-semibold tracking-tight md:hidden">{appName}</span>
+                <span className="text-xl font-semibold tracking-tight md:hidden">
+                  {appName}
+                </span>
               )}
-              <h2 className="text-2xl font-semibold tracking-tight">Create your account</h2>
-              <p className="text-sm text-muted-foreground">You will start with standard user permissions.</p>
+              <h2 className="text-2xl font-semibold tracking-tight">
+                Create your account
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                You will start with standard user permissions.
+              </p>
             </div>
 
             <form
@@ -173,15 +246,37 @@ function RegisterContent() {
             >
               <div className="space-y-2">
                 <Label htmlFor="name">Full name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ada Lovelace" required autoFocus />
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Ada Lovelace"
+                  required
+                  autoFocus
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" required />
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@company.com"
+                  required
+                />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="username">Username <span className="text-muted-foreground">optional</span></Label>
-                <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="ada-lovelace" />
+                <Label htmlFor="username">
+                  Username{" "}
+                  <span className="text-muted-foreground">optional</span>
+                </Label>
+                <Input
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="ada-lovelace"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
@@ -210,7 +305,11 @@ function RegisterContent() {
                     className="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
                 {passwordTouched && password && (
@@ -221,7 +320,9 @@ function RegisterContent() {
                         <li
                           key={rule.id}
                           className={`flex items-center gap-1.5 text-xs ${
-                            ok ? "text-green-600 dark:text-green-400" : "text-muted-foreground"
+                            ok
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-muted-foreground"
                           }`}
                         >
                           <span>{ok ? "✓" : "○"}</span>
@@ -250,7 +351,9 @@ function RegisterContent() {
                   }
                 />
                 {confirmPassword && !passwordsMatch && (
-                  <p className="mt-1 text-xs text-destructive">Passwords do not match</p>
+                  <p className="mt-1 text-xs text-destructive">
+                    Passwords do not match
+                  </p>
                 )}
               </div>
 
@@ -285,7 +388,13 @@ function RegisterContent() {
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link to="/login" search={searchParams.next ? { next: searchParams.next } : undefined} className="font-medium text-foreground underline-offset-4 hover:underline">
+              <Link
+                to="/login"
+                search={
+                  searchParams.next ? { next: searchParams.next } : undefined
+                }
+                className="font-medium text-foreground underline-offset-4 hover:underline"
+              >
                 Sign in
               </Link>
             </p>

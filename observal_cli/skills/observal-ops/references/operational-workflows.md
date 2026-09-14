@@ -1,4 +1,4 @@
-<!-- SPDX-FileCopyrightText: 2026 Observal Contributors -->
+<!-- SPDX-FileCopyrightText: 2026 DevLibrary Contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
 # Operational workflows
@@ -13,17 +13,17 @@
 ## Rankings and feedback
 
 ```bash
-observal ops top --type agent --output json
-observal ops top --type mcp --output json
-observal ops feedback NAMESPACE/SLUG --type mcp --output json
+dev-library ops top --type agent --output json
+dev-library ops top --type mcp --output json
+dev-library ops feedback NAMESPACE/SLUG --type mcp --output json
 ```
 
 Ratings are user mutations. Verify the returned rating:
 
 ```bash
-observal ops rate NAMESPACE/SLUG --stars 5 --type mcp --comment 'Worked great' --output json
-observal ops rate-update NAMESPACE/SLUG --type mcp --stars 4 --output json
-observal ops rate-delete NAMESPACE/SLUG --type mcp --yes --output json
+dev-library ops rate NAMESPACE/SLUG --stars 5 --type mcp --comment 'Worked great' --output json
+dev-library ops rate-update NAMESPACE/SLUG --type mcp --stars 4 --output json
+dev-library ops rate-delete NAMESPACE/SLUG --type mcp --yes --output json
 ```
 
 Stars accept 1 through 5. Deletion requires confirmation in JSON mode.
@@ -33,10 +33,10 @@ Stars accept 1 through 5. Deletion requires confirmation in JSON mode.
 Start with a narrow window and increase it only if needed.
 
 ```bash
-observal ops traces --limit 20 --output json
-observal ops traces --platform kiro --days 7 --output json
-observal ops traces --turn --limit 5 --output json
-observal ops traces --span --limit 3 --output json
+dev-library ops traces --limit 20 --output json
+dev-library ops traces --platform kiro --days 7 --output json
+dev-library ops traces --turn --limit 5 --output json
+dev-library ops traces --span --limit 3 --output json
 ```
 
 Report filters, count, time range, platforms, and notable failure signals. Avoid reproducing raw prompts, tool arguments, or outputs unless they are needed and authorized.
@@ -44,7 +44,7 @@ Report filters, count, time range, platforms, and notable failure signals. Avoid
 ## Telemetry diagnosis
 
 ```bash
-observal ops telemetry status --output json
+dev-library ops telemetry status --output json
 ```
 
 Inspect server event counts, local outbox state, warnings, and health fields. Diagnose in this order:
@@ -58,8 +58,8 @@ Inspect server event counts, local outbox state, warnings, and health fields. Di
 Use core diagnosis before patching:
 
 ```bash
-observal doctor --output json
-observal doctor patch --harness kiro --dry-run --output json
+dev-library doctor --output json
+dev-library doctor patch --harness kiro --dry-run --output json
 ```
 
 Do not fabricate synthetic telemetry or telemetry environment variables.
@@ -69,8 +69,8 @@ Do not fabricate synthetic telemetry or telemetry environment variables.
 Use a finite read by default:
 
 ```bash
-observal ops logs --no-follow --output json
-observal ops logs --remote --level WARNING --output json
+dev-library ops logs --no-follow --output json
+dev-library ops logs --remote --level WARNING --output json
 ```
 
 Following logs emit JSON Lines. Remote logs require admin authority. Summarize relevant events and redact tokens, credentials, request bodies, and customer data.

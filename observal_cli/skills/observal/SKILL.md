@@ -4,12 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 name: observal
 command: observal
-description: "Operates the Observal CLI for authentication, configuration, setup diagnosis, teamspaces, inbox work, scans, update checks, and authenticated API access. Use when the user wants to log in, configure Observal, inspect local harness setup, manage a teamspace or invitation, process inbox items, check installed registry items, or call an endpoint without a dedicated command."
+description: "Operates the DevLibrary CLI for authentication, configuration, setup diagnosis, teamspaces, inbox work, scans, update checks, and authenticated API access. Use when the user wants to log in, configure DevLibrary, inspect local harness setup, manage a teamspace or invitation, process inbox items, check installed registry items, or call an endpoint without a dedicated command."
 version: 2.7.0
 owner: observal
 ---
 
-# Operating Observal
+# Operating DevLibrary
 
 Use this skill for core account, setup, local inventory, inbox, and teamspace work. Use the specialized `observal-agents`, `observal-registry`, `observal-ops`, `observal-admin`, or `observal-advanced` skill when its description matches more closely.
 
@@ -25,7 +25,7 @@ Use this skill for core account, setup, local inventory, inbox, and teamspace wo
 8. Treat tokens, invitation URLs, credentials, generated passwords, headers, and environment values as secrets. Do not echo them.
 9. Fail openly. Do not silently switch to direct API calls, database access, or local file writes.
 10. Automatic transient retries apply only to reads. After an uncertain mutation failure, verify state before retrying.
-11. Public registry reads need no login when the server setting `deployment.public_registry_enabled` is enabled; it is disabled by default on self-hosted deployments. Listing, showing, pulling, installing, and rendering approved public content use `https://public.observal.io` by default. Publishing, private resources, telemetry, feedback, and account operations still require `observal auth login`.
+11. Public registry reads need no login when the server setting `deployment.public_registry_enabled` is enabled; it is disabled by default on self-hosted deployments. Listing, showing, pulling, installing, and rendering approved public content use `https://public.observal.io` by default. Publishing, private resources, telemetry, feedback, and account operations still require `dev-library auth login`.
 
 ## Route the task
 
@@ -54,7 +54,7 @@ Read the selected reference completely before executing its workflow.
 
 | Result | Action |
 | --- | --- |
-| Authentication error | Run `observal auth whoami --output json`; log in only if needed |
+| Authentication error | Run `dev-library auth whoami --output json`; log in only if needed |
 | Permission denied | Report the required role or ownership; do not retry with broader authority |
 | Not found | Re-list in JSON and retry with the returned UUID or `qualified_name` |
 | Conflict | Read the server message and current state; choose update, version bump, or no-op deliberately |

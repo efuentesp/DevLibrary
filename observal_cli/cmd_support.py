@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Naraen Rammoorthi <naraen13@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""observal doctor support: generate and inspect diagnostic support bundles.
+"""dev-library doctor support: generate and inspect diagnostic support bundles.
 
 Bundles contain no customer data or row contents - only aggregate counts,
 version info, sanitised configuration, health probes, and optional system
@@ -45,8 +45,8 @@ support_app = typer.Typer(
     help=(
         "Generate and inspect diagnostic support bundles. Bundles contain no customer data or row contents.\n\n"
         "Examples:\n"
-        "  observal doctor support bundle\n"
-        "  observal doctor support inspect ./observal-support.tar.gz"
+        "  dev-library doctor support bundle\n"
+        "  dev-library doctor support inspect ./observal-support.tar.gz"
     ),
     no_args_is_help=True,
 )
@@ -213,7 +213,7 @@ def _get_cli_version() -> str:
     try:
         from importlib.metadata import version as pkg_version
 
-        return pkg_version("observal-cli")
+        return pkg_version("dev-library-cli")
     except Exception:
         return "dev"
 
@@ -252,9 +252,9 @@ def bundle(
     exposing sensitive data. Archive permissions are set to 0600.
 
     Examples:
-        observal doctor support bundle
-        observal doctor support bundle --file /tmp/diag.tar.gz --logs-since 2h
-        observal doctor support bundle --no-include-system --output json
+        dev-library doctor support bundle
+        dev-library doctor support bundle --file /tmp/diag.tar.gz --logs-since 2h
+        dev-library doctor support bundle --no-include-system --output json
     """
     output = _value(output)
     force = _value(force)
@@ -578,7 +578,7 @@ def bundle(
         output_json(result)
         return
     rprint(f"[green]✓[/green] Support bundle written to [bold]{esc(file)}[/bold] ({_human_size(archive_size)})")
-    rprint(f"[dim]  Review contents with: observal doctor support inspect {esc(file)}[/dim]")
+    rprint(f"[dim]  Review contents with: dev-library doctor support inspect {esc(file)}[/dim]")
 
 
 # ── Inspect helpers ──────────────────────────────────────────────────
@@ -620,9 +620,9 @@ def inspect(
     """Inspect a support bundle without extracting it.
 
     Examples:
-        observal doctor support inspect ./observal-support.tar.gz
-        observal doctor support inspect bundle.tar.gz --show health/postgres.json
-        observal doctor support inspect bundle.tar.gz --output json
+        dev-library doctor support inspect ./observal-support.tar.gz
+        dev-library doctor support inspect bundle.tar.gz --show health/postgres.json
+        dev-library doctor support inspect bundle.tar.gz --output json
     """
     output = _value(output)
     show = _value(show)

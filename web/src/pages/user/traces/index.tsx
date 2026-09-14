@@ -6,8 +6,12 @@
 // SPDX-FileCopyrightText: 2026 Shreem Seth <shreemseth26@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
-import { Link, useRouter, useSearch, useLocation } from "@tanstack/react-router";
+import {
+	Link,
+	useRouter,
+	useSearch,
+	useLocation,
+} from "@tanstack/react-router";
 import { useState, useMemo, useCallback, useRef } from "react";
 import {
 	Activity,
@@ -58,7 +62,10 @@ function truncateQuery(q: string, max = 50): string {
 
 // ── Search query parser (Discord-style: platform:kiro user:"John Doe") ───────
 
-function parseSearchQuery(query: string): { text: string; filters: Record<string, string> } {
+function parseSearchQuery(query: string): {
+	text: string;
+	filters: Record<string, string>;
+} {
 	const filters: Record<string, string> = {};
 	const tokens = query.match(/(\w+):(?:"([^"]*)"|([^\s]*))/g);
 	if (tokens) {
@@ -110,28 +117,22 @@ function applyParameterFilters(
 	}
 	if (filters.user) {
 		const u = filters.user.toLowerCase();
-		result = result.filter((s) =>
-			(s.user_name ?? "").toLowerCase().includes(u),
-		);
+		result = result.filter((s) => (s.user_name ?? "").toLowerCase().includes(u));
 	}
 	if (filters.agent) {
 		const a = filters.agent.toLowerCase();
-		result = result.filter((s) =>
-			(s.agent_name ?? "").toLowerCase().includes(a),
-		);
+		result = result.filter((s) => (s.agent_name ?? "").toLowerCase().includes(a));
 	}
 	if (filters.model) {
 		const m = filters.model.toLowerCase();
-		result = result.filter((s) =>
-			(s.model ?? "").toLowerCase().includes(m),
-		);
+		result = result.filter((s) => (s.model ?? "").toLowerCase().includes(m));
 	}
 	if (filters.days) {
 		const d = parseInt(filters.days, 10);
 		if (!isNaN(d) && d > 0) {
 			const cutoff = Date.now() - d * 86_400_000;
-			result = result.filter((s) =>
-				s.first_event_time && toDate(s.first_event_time).getTime() >= cutoff,
+			result = result.filter(
+				(s) => s.first_event_time && toDate(s.first_event_time).getTime() >= cutoff,
 			);
 		}
 	}
@@ -294,7 +295,8 @@ const columns: ColumnDef<Session>[] = [
 		header: "Session",
 		cell: ({ row }) => (
 			<Link
-				to="/traces/$traceId" params={{ traceId: row.original.session_id }}
+				to="/traces/$traceId"
+				params={{ traceId: row.original.session_id }}
 				className="text-[13px] font-medium text-foreground/90 hover:text-foreground transition-colors whitespace-nowrap"
 				onClick={(e) => e.stopPropagation()}
 			>
@@ -336,7 +338,9 @@ const columns: ColumnDef<Session>[] = [
 						</span>
 					);
 				}
-				return <span className="text-[13px] text-muted-foreground">{"\u2013"}</span>;
+				return (
+					<span className="text-[13px] text-muted-foreground">{"\u2013"}</span>
+				);
 			}
 			if (!r.total_input_tokens && !r.total_output_tokens) {
 				return (
@@ -378,10 +382,7 @@ const columns: ColumnDef<Session>[] = [
 		},
 		cell: ({ row }) => (
 			<span className="text-[13px] text-muted-foreground tabular-nums whitespace-nowrap">
-				{fmtDuration(
-					row.original.first_event_time,
-					row.original.last_event_time,
-				)}
+				{fmtDuration(row.original.first_event_time, row.original.last_event_time)}
 			</span>
 		),
 	},
@@ -431,7 +432,10 @@ export default function TracesPage() {
 	const [searchValue, setSearchValue] = useState(searchParam ?? "");
 	const [globalFilter, setGlobalFilter] = useState(searchParam ?? "");
 	const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-	const serverQuery = useMemo(() => parseSearchQuery(globalFilter), [globalFilter]);
+	const serverQuery = useMemo(
+		() => parseSearchQuery(globalFilter),
+		[globalFilter],
+	);
 
 	const {
 		data: sessions,
@@ -443,7 +447,10 @@ export default function TracesPage() {
 		refetchInterval: 5_000,
 		platform: serverQuery.filters.platform,
 		user: serverQuery.filters.user,
-		days: serverQuery.filters.days && !isNaN(parseInt(serverQuery.filters.days, 10)) ? parseInt(serverQuery.filters.days, 10) : undefined,
+		days:
+			serverQuery.filters.days && !isNaN(parseInt(serverQuery.filters.days, 10))
+				? parseInt(serverQuery.filters.days, 10)
+				: undefined,
 		limit: PAGE_SIZE,
 		offset: page * PAGE_SIZE,
 	});
@@ -495,7 +502,10 @@ export default function TracesPage() {
 
 	const allSessions = useMemo(() => (sessions ?? []) as Session[], [sessions]);
 
-	const parsedQuery = useMemo(() => parseSearchQuery(globalFilter), [globalFilter]);
+	const parsedQuery = useMemo(
+		() => parseSearchQuery(globalFilter),
+		[globalFilter],
+	);
 	const emptyStateKind = useMemo(
 		() => getTracesEmptyStateKind(allSessions, globalFilter),
 		[allSessions, globalFilter],
@@ -506,10 +516,7 @@ export default function TracesPage() {
 		return applyTextFilter(applyParameterFilters(allSessions, filters), text);
 	}, [allSessions, globalFilter]);
 
-	const data = useMemo(
-		() => filteredSessions,
-		[filteredSessions],
-	);
+	const data = useMemo(() => filteredSessions, [filteredSessions]);
 
 	const table = useReactTable({
 		data,
@@ -620,16 +627,24 @@ export default function TracesPage() {
 						{/* Filter hints */}
 						<div className="flex gap-1.5 flex-wrap">
 							<span className="text-[10px] text-muted-foreground">Filters:</span>
-							{["platform:", "user:", "agent:", "model:", "days:", "status:"].map((hint) => (
-								<button
-									key={hint}
-									type="button"
-									className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 font-mono transition-colors"
-									onClick={() => handleSearch(searchValue + (searchValue && !searchValue.endsWith(" ") ? " " : "") + hint)}
-								>
-									{hint}
-								</button>
-							))}
+							{["platform:", "user:", "agent:", "model:", "days:", "status:"].map(
+								(hint) => (
+									<button
+										key={hint}
+										type="button"
+										className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/80 font-mono transition-colors"
+										onClick={() =>
+											handleSearch(
+												searchValue +
+													(searchValue && !searchValue.endsWith(" ") ? " " : "") +
+													hint,
+											)
+										}
+									>
+										{hint}
+									</button>
+								),
+							)}
 						</div>
 
 						{/* ── Table ── */}
@@ -648,10 +663,7 @@ export default function TracesPage() {
 													onClick={header.column.getToggleSortingHandler()}
 												>
 													<span className="inline-flex items-center justify-center gap-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-														{flexRender(
-															header.column.columnDef.header,
-															header.getContext(),
-														)}
+														{flexRender(header.column.columnDef.header, header.getContext())}
 														<SortIcon sorted={header.column.getIsSorted()} />
 													</span>
 												</TableHead>
@@ -676,7 +688,10 @@ export default function TracesPage() {
 														idx % 2 === 1 ? "bg-muted/15" : ""
 													}`}
 													onClick={() =>
-														router.navigate({ to: "/traces/$traceId", params: { traceId: row.original.session_id } })
+														router.navigate({
+															to: "/traces/$traceId",
+															params: { traceId: row.original.session_id },
+														})
 													}
 												>
 													{row.getVisibleCells().map((cell, cellIdx) => (
@@ -690,10 +705,7 @@ export default function TracesPage() {
 																	aria-hidden="true"
 																/>
 															)}
-															{flexRender(
-																cell.column.columnDef.cell,
-																cell.getContext(),
-															)}
+															{flexRender(cell.column.columnDef.cell, cell.getContext())}
 														</TableCell>
 													))}
 												</TableRow>

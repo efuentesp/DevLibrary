@@ -6,8 +6,8 @@
 Used by:
   - CLI post-command hook (notification banner)
   - Version enforcement gate (hard block on mismatch)
-  - `observal self upgrade` (resolve latest)
-  - `observal server upgrade` (resolve latest)
+  - `dev-library self upgrade` (resolve latest)
+  - `dev-library server upgrade` (resolve latest)
   - Auto-update on startup (minor/patch only)
 
 Two check modes:
@@ -36,7 +36,7 @@ from observal_cli.config import CONFIG_DIR
 from observal_cli.config import load as load_config
 
 CACHE_FILE = CONFIG_DIR / "version_cache.json"
-GITHUB_REPO_DEFAULT = "Observal/Observal"
+GITHUB_REPO_DEFAULT = "Observal/DevLibrary"
 GITHUB_API_BASE = "https://api.github.com/repos"
 GHCR_API_BASE = "https://ghcr.io/v2/observal"
 CHECK_INTERVAL_DEFAULT = 86400  # 24 hours
@@ -65,7 +65,7 @@ def get_current_version() -> str:
     try:
         from importlib.metadata import version
 
-        return version("observal-cli")
+        return version("dev-library-cli")
     except Exception:
         return "0.0.0"
 
@@ -216,7 +216,7 @@ def _fetch_from_server(server_url: str, token: str) -> dict | None:
             timeout=CHECK_TIMEOUT,
             headers={
                 "Authorization": f"Bearer {token}",
-                "User-Agent": f"observal-cli/{get_current_version()}",
+                "User-Agent": f"dev-library-cli/{get_current_version()}",
             },
         )
         if resp.status_code != 200:
@@ -266,7 +266,7 @@ def _fetch_from_github(include_pre: bool = False) -> dict | None:
             timeout=CHECK_TIMEOUT,
             headers={
                 "Accept": "application/vnd.github+json",
-                "User-Agent": f"observal-cli/{get_current_version()}",
+                "User-Agent": f"dev-library-cli/{get_current_version()}",
                 "X-GitHub-Api-Version": "2022-11-28",
             },
             follow_redirects=False,
@@ -307,7 +307,7 @@ def _fetch_from_github(include_pre: bool = False) -> dict | None:
 def fetch_available_server_images() -> list[str]:
     """List available server image tags from GHCR.
 
-    Used by `observal server versions` and `server upgrade` to verify
+    Used by `dev-library server versions` and `server upgrade` to verify
     an image exists before attempting to pull.
     """
     try:
@@ -316,7 +316,7 @@ def fetch_available_server_images() -> list[str]:
         token_resp = httpx.get(
             "https://ghcr.io/token?scope=repository:observal/observal-api:pull",
             timeout=10,
-            headers={"User-Agent": f"observal-cli/{get_current_version()}"},
+            headers={"User-Agent": f"dev-library-cli/{get_current_version()}"},
         )
         if token_resp.status_code != 200:
             return []
@@ -331,7 +331,7 @@ def fetch_available_server_images() -> list[str]:
             headers={
                 "Authorization": f"Bearer {token}",
                 "Accept": "application/vnd.oci.image.index.v1+json",
-                "User-Agent": f"observal-cli/{get_current_version()}",
+                "User-Agent": f"dev-library-cli/{get_current_version()}",
             },
         )
         if resp.status_code != 200:
@@ -364,7 +364,7 @@ def verify_server_image_exists(version: str) -> bool:
         token_resp = httpx.get(
             "https://ghcr.io/token?scope=repository:observal/observal-api:pull",
             timeout=10,
-            headers={"User-Agent": f"observal-cli/{get_current_version()}"},
+            headers={"User-Agent": f"dev-library-cli/{get_current_version()}"},
         )
         if token_resp.status_code != 200:
             return False
@@ -376,7 +376,7 @@ def verify_server_image_exists(version: str) -> bool:
             headers={
                 "Authorization": f"Bearer {token}",
                 "Accept": "application/vnd.oci.image.index.v1+json",
-                "User-Agent": f"observal-cli/{get_current_version()}",
+                "User-Agent": f"dev-library-cli/{get_current_version()}",
             },
         )
         return resp.status_code == 200
@@ -420,7 +420,7 @@ def maybe_check() -> UpdateAvailable | None:
         cfg = load_config()
         if not cfg.get("update_check", True):
             return None
-        if os.environ.get("OBSERVAL_NO_UPDATE_CHECK"):
+        if os.environ.get("DEVLIBRARY_NO_UPDATE_CHECK"):
             return None
 
         interval = int(cfg.get("update_check_interval", CHECK_INTERVAL_DEFAULT))
@@ -514,7 +514,7 @@ def fetch_all_releases(include_pre: bool = False) -> list[dict]:
                 timeout=15,
                 headers={
                     "Accept": "application/vnd.github+json",
-                    "User-Agent": f"observal-cli/{get_current_version()}",
+                    "User-Agent": f"dev-library-cli/{get_current_version()}",
                     "X-GitHub-Api-Version": "2022-11-28",
                 },
             )
@@ -592,7 +592,7 @@ def check_version_compatibility(server_url: str) -> None:
     from observal_cli.install_detector import upgrade_command
 
     if cli_v > srv_v:
-        install_command = f"observal self downgrade --version {server_ver}"
+        install_command = f"dev-library self downgrade --version {server_ver}"
         rprint(
             f"\n[bold red]\u2716 CLI version {cli_ver_str} is ahead of server {server_ver}.[/bold red]\n"
             f"  Downgrade the CLI to match your server:\n\n"

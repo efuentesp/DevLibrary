@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: 2026 Hemalatha Madeswaran <hemalathamadeswaran@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Static validation for the bundled Observal skill.
+"""Static validation for the bundled DevLibrary skill.
 
-These tests exercise every bundled Observal skill without invoking an LLM.
+These tests exercise every bundled DevLibrary skill without invoking an LLM.
 They guarantee:
 
 - Skill trees exist at the paths the installer expects.
@@ -120,10 +120,10 @@ def _parse_observal_invocations(body: str) -> list[ParsedCommand]:
             # gets validated independently.
             for segment in re.split(r"\s+(?:\|\||&&|;|\|)\s+", line):
                 segment = segment.strip()
-                if not segment.startswith("observal"):
+                if not segment.startswith("dev-library"):
                     continue
                 tokens = _shell_tokens(segment)
-                if not tokens or tokens[0] != "observal":
+                if not tokens or tokens[0] != "dev-library":
                     continue
 
                 # Walk tokens after `observal` accumulating the command path
@@ -433,7 +433,7 @@ class TestAutoGenBlock:
         for grp in app.registered_groups:
             if not grp.name:
                 continue
-            assert f"observal {grp.name}" in block, (
+            assert f"dev-library {grp.name}" in block, (
                 f"auto-gen block does not mention top-level group {grp.name!r}. Run scripts/sync_observal_skill.py."
             )
 

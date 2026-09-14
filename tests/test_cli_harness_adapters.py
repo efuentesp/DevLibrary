@@ -959,7 +959,7 @@ class TestOpenCodeAdapter:
                 "tool.execute.after",
             ],
             "format": "plugin",
-            "markers": ["observal", "Observal", "ObservalPlugin"],
+            "markers": ["observal", "DevLibrary", "ObservalPlugin"],
             "env_vars": {},
         }
         assert adapter.generate_hook_config("https://observal.example.test", "secret", "agent-id") == {

@@ -96,7 +96,7 @@ def runtime(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace:
         temp_paths.append(Path(handle.name))
         return handle
 
-    monkeypatch.setattr(updater, "OBSERVAL_HOME", root)
+    monkeypatch.setattr(updater, "DEVLIBRARY_HOME", root)
     monkeypatch.setattr(updater, "UPDATE_CHECK_CACHE", cache)
     monkeypatch.setattr(updater, "console", console)
     monkeypatch.setattr(updater, "get_current_version", lambda: "1.0.0")
@@ -123,7 +123,7 @@ def test_version_and_path_helpers(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
     monkeypatch.setattr(importlib.metadata, "version", version)
 
     assert updater.get_current_version() == "2.3.4"
-    version.assert_called_once_with("observal-cli")
+    version.assert_called_once_with("dev-library-cli")
 
     monkeypatch.setattr(importlib.metadata, "version", MagicMock(side_effect=RuntimeError("metadata unavailable")))
     assert updater.get_current_version() == "0.0.0"
@@ -133,7 +133,7 @@ def test_version_and_path_helpers(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
     link = tmp_path / "observal"
     link.symlink_to(binary)
     monkeypatch.setattr(updater.sys, "executable", str(link))
-    monkeypatch.setattr(updater, "OBSERVAL_HOME", tmp_path / "home")
+    monkeypatch.setattr(updater, "DEVLIBRARY_HOME", tmp_path / "home")
 
     assert updater._get_binary_path() == binary.resolve()
     assert updater._get_backup_path() == tmp_path / "home" / "bin" / "observal.bak"
@@ -237,7 +237,9 @@ def test_network_update_writes_cache_and_honors_quiet(
     expected = (
         []
         if quiet
-        else ["[yellow]Update available:[/yellow] v1.0.0 → [bold]v2.0.0[/bold]. Run: [cyan]observal self update[/cyan]"]
+        else [
+            "[yellow]Update available:[/yellow] v1.0.0 → [bold]v2.0.0[/bold]. Run: [cyan]dev-library self update[/cyan]"
+        ]
     )
     assert runtime.console.messages == expected
 
@@ -469,7 +471,7 @@ def test_successful_update_resolves_downloads_verifies_backs_up_and_replaces_in_
         f"  Binary: {runtime.binary}",
         f"  Backup: {runtime.backup}",
         "",
-        "  If the server is running, restart it: [cyan]observal server stop && observal server start[/cyan]",
+        "  If the server is running, restart it: [cyan]dev-library server stop && dev-library server start[/cyan]",
     ]
 
 

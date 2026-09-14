@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
 """Isolated behavioral tests for the CLI upgrade executor."""
@@ -156,19 +156,19 @@ def test_execute_preserves_installer_failure_and_skips_verification(monkeypatch:
             "_install_via_uv",
             "upgrade",
             "Upgrading to v2.4.1...",
-            ["uv", "tool", "install", "observal-cli==2.4.1", f"{LONG_OPTION}force"],
+            ["uv", "tool", "install", "dev-library-cli==2.4.1", f"{LONG_OPTION}force"],
         ),
         (
             "_install_via_pipx",
             "downgrade",
             "Downgrading to v2.4.1...",
-            ["pipx", "install", "observal-cli==2.4.1", f"{LONG_OPTION}force"],
+            ["pipx", "install", "dev-library-cli==2.4.1", f"{LONG_OPTION}force"],
         ),
         (
             "_install_via_pip",
             "upgrade",
             "Upgrading to v2.4.1...",
-            ["/venv/bin/python", "-m", "pip", "install", "observal-cli==2.4.1", f"{LONG_OPTION}quiet"],
+            ["/venv/bin/python", "-m", "pip", "install", "dev-library-cli==2.4.1", f"{LONG_OPTION}quiet"],
         ),
     ],
 )
@@ -846,7 +846,7 @@ def test_replace_binary_temp_creation_error_propagates_after_backup(
         ("observal 2.4.1\n", "", "2.4.1", "upgrade", "[green]Upgraded to v2.4.1[/green]"),
         (
             "",
-            "Observal CLI v2.4.1+build.7\n",
+            "DevLibrary CLI v2.4.1+build.7\n",
             "2.4.1+build.7",
             "downgrade",
             "[green]Downgraded to v2.4.1+build.7[/green]",
@@ -948,7 +948,7 @@ def test_verify_install_rejects_unparseable_output(
     monkeypatch.setattr(
         executor.subprocess,
         "run",
-        MagicMock(return_value=completed(stdout="Observal development build\n")),
+        MagicMock(return_value=completed(stdout="DevLibrary development build\n")),
     )
 
     with pytest.raises(typer.Exit) as error:
@@ -956,7 +956,7 @@ def test_verify_install_rejects_unparseable_output(
 
     assert error.value.exit_code == 1
     assert messages == [
-        "[red]Upgrade verification failed:[/red] could not parse version from 'Observal development build'",
+        "[red]Upgrade verification failed:[/red] could not parse version from 'DevLibrary development build'",
         f"[dim]Executable: {path}[/dim]",
     ]
 
@@ -1002,5 +1002,5 @@ def test_verify_install_rejects_wrong_version_with_path_guidance(
     assert error.value.exit_code == 1
     assert messages == [
         f"[red]Downgrade verification failed:[/red] expected v2.4.1, but {path} reports v2.5.0.",
-        "[dim]Check for multiple Observal installations on PATH.[/dim]",
+        "[dim]Check for multiple DevLibrary installations on PATH.[/dim]",
     ]

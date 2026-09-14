@@ -47,17 +47,17 @@ _PKG_ROOT = str(Path(__file__).resolve().parent.parent.parent)
 
 
 def plugin_dir(home: Path | None = None) -> Path:
-    """Return the user-scope Observal plugin directory goose discovers."""
+    """Return the user-scope DevLibrary plugin directory goose discovers."""
     return resolve_goose_agents_home(home) / "plugins" / PLUGIN_NAME
 
 
 def hooks_file(home: Path | None = None) -> Path:
-    """Return the user-scope ``hooks/hooks.json`` path for the Observal plugin."""
+    """Return the user-scope ``hooks/hooks.json`` path for the DevLibrary plugin."""
     return plugin_dir(home) / "hooks" / "hooks.json"
 
 
 def manifest_file(home: Path | None = None) -> Path:
-    """Return the user-scope ``plugin.json`` path for the Observal plugin."""
+    """Return the user-scope ``plugin.json`` path for the DevLibrary plugin."""
     return plugin_dir(home) / "plugin.json"
 
 
@@ -79,27 +79,27 @@ def _python_cmd() -> str:
 
 
 def hook_command() -> str:
-    """Return the shell command goose runs for every Observal hook event."""
+    """Return the shell command goose runs for every DevLibrary hook event."""
     return f"{_python_cmd()} -m observal_cli.hooks.session_push --harness goose"
 
 
 def build_plugin_manifest() -> dict:
-    """Return the ``plugin.json`` manifest for the Observal goose plugin."""
+    """Return the ``plugin.json`` manifest for the DevLibrary goose plugin."""
     from importlib.metadata import PackageNotFoundError, version
 
     try:
-        plugin_version = version("observal-cli")
+        plugin_version = version("dev-library-cli")
     except PackageNotFoundError:
         plugin_version = "0.0.0"
     return {
         "name": PLUGIN_NAME,
         "version": plugin_version,
-        "description": "Observal session telemetry for goose",
+        "description": "DevLibrary session telemetry for goose",
     }
 
 
 def build_hooks() -> dict:
-    """Return the ``hooks/hooks.json`` content for the Observal goose plugin."""
+    """Return the ``hooks/hooks.json`` content for the DevLibrary goose plugin."""
     command = hook_command()
     return {
         "hooks": {

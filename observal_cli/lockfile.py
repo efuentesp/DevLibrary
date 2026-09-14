@@ -1,15 +1,15 @@
 # SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Lock file management for Observal CLI.
+"""Lock file management for DevLibrary CLI.
 
-Manages ~/.observal/lockfile.json, the canonical record of all agents,
-MCPs, skills, hooks, and sandboxes installed via Observal, organized by harness.
+Manages ~/.dev-library/lockfile.json, the canonical record of all agents,
+MCPs, skills, hooks, and sandboxes installed via DevLibrary, organized by harness.
 
 The lock file is:
-- Written by `observal agent pull` and component registry install commands
+- Written by `dev-library agent pull` and component registry install commands
 - Read on session push to resolve agent attribution and compute layer_hash
-- Read by `observal outdated` to compare pinned versions against registry latest
+- Read by `dev-library outdated` to compare pinned versions against registry latest
 """
 
 from __future__ import annotations
@@ -438,7 +438,7 @@ def get_all_entries(harness: str | None = None) -> list[dict]:
     """Get all lock file entries, optionally filtered by harness.
 
     Returns a flat list of entries with 'harness' and 'entry_type' fields added.
-    Used by `observal outdated`.
+    Used by `dev-library outdated`.
     """
     data = read_lockfile()
     if not data["registries"]:

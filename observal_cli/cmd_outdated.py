@@ -35,19 +35,19 @@ def register_outdated(app: typer.Typer):
         report: bool = typer.Option(
             True,
             "--report/--no-report",
-            help="Send findings to your Observal inbox so they persist between runs",
+            help="Send findings to your DevLibrary inbox so they persist between runs",
         ),
     ):
         """Show installed agents and standalone components with their registry status.
 
-        Reads ~/.observal/lockfile.json and checks the authenticated registry for
+        Reads ~/.dev-library/lockfile.json and checks the authenticated registry for
         each pinned agent and separately installed MCP, skill, or hook. Reporting
         findings to the Inbox is best-effort and can be disabled.
 
         Examples:
-          observal outdated
-          observal outdated --harness claude-code
-          observal outdated --output json --no-report
+          dev-library outdated
+          dev-library outdated --harness claude-code
+          dev-library outdated --output json --no-report
         """
         from observal_cli.config import CONFIG_FILE
         from observal_cli.lockfile import LOCKFILE_PATH, get_all_entries
@@ -75,10 +75,10 @@ def register_outdated(app: typer.Typer):
         except ValueError as error:
             fail(
                 ErrorCategory.AUTH,
-                "No active Observal registry is configured.",
+                "No active DevLibrary registry is configured.",
                 operation=_OPERATION,
                 resource=str(CONFIG_FILE),
-                remediation="Run observal auth login and retry.",
+                remediation="Run dev-library auth login and retry.",
                 detail=repr(error),
             )
         except (RuntimeError, AttributeError, TypeError) as error:
@@ -108,7 +108,7 @@ def register_outdated(app: typer.Typer):
                 output_json(payload)
             else:
                 rprint("[dim]No installed agents or standalone components found in the lockfile.[/dim]")
-                rprint("[dim]Run `observal agent pull` or a registry install command first.[/dim]")
+                rprint("[dim]Run `dev-library agent pull` or a registry install command first.[/dim]")
             return
 
         installed = [_prepare_entry(entry, str(LOCKFILE_PATH)) for entry in entries]
@@ -291,9 +291,9 @@ def _upgrade_command(item: dict) -> str:
     target = shlex.quote(item["qualified_name"])
     harness = shlex.quote(item["harness"])
     if item["type"] == "agent":
-        return f"observal agent pull {target} --harness {harness} --no-prompt"
+        return f"dev-library agent pull {target} --harness {harness} --no-prompt"
     prompt_flag = " --no-prompt" if item["type"] == "mcp" else ""
-    return f"observal registry {item['type']} install {target} --harness {harness}{prompt_flag}"
+    return f"dev-library registry {item['type']} install {target} --harness {harness}{prompt_flag}"
 
 
 def _error_payload(error: CliError) -> dict:
@@ -426,7 +426,7 @@ def _render_table(payload: dict) -> None:
     if report["attempted"] and report["succeeded"]:
         rprint(
             f"[dim]Inbox report accepted: {report['created']} added, {report['superseded']} superseded. "
-            "View with `observal inbox --kind update_available`.[/dim]"
+            "View with `dev-library inbox --kind update_available`.[/dim]"
         )
     elif report["attempted"]:
         category = report["error"]["category"] if report["error"] else "unexpected"

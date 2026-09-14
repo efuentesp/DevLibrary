@@ -82,8 +82,8 @@ def add_archive_commands(app: typer.Typer, entity_type: str) -> None:
     archive.__doc__ = f"""Archive this component.
 
     Examples:
-      observal registry {command} archive alice/my-component
-      observal registry {command} archive alice/my-component --yes --output json
+      dev-library registry {command} archive alice/my-component
+      dev-library registry {command} archive alice/my-component --yes --output json
     """
     app.command(name="archive")(archive)
 
@@ -97,7 +97,7 @@ def add_archive_commands(app: typer.Typer, entity_type: str) -> None:
     unarchive.__doc__ = f"""Restore an archived component.
 
     Examples:
-      observal registry {command} unarchive alice/my-component
-      observal registry {command} unarchive alice/my-component --yes --output json
+      dev-library registry {command} unarchive alice/my-component
+      dev-library registry {command} unarchive alice/my-component --yes --output json
     """
     app.command(name="unarchive")(unarchive)

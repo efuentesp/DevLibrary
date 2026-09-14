@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -551,7 +551,7 @@ def test_show_surfaces_http_failure(monkeypatch):
     assert result.exit_code == 1
     assert isinstance(result.exception, SystemExit)
     assert "Error (unexpected)" in result.output
-    assert "Run observal registry skill show" in result.output
+    assert "Run dev-library registry skill show" in result.output
 
 
 def test_sparse_clone_copies_requested_source_without_real_git(tmp_path, monkeypatch):
@@ -803,7 +803,7 @@ def test_install_command_surfaces_listing_failure(monkeypatch):
     assert result.exit_code == 1
     assert isinstance(result.exception, SystemExit)
     assert "Error (unexpected)" in result.output
-    assert "Run observal registry skill install" in result.output
+    assert "Run dev-library registry skill install" in result.output
     post.assert_not_called()
 
 

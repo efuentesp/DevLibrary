@@ -5,12 +5,31 @@
 // SPDX-FileCopyrightText: 2026 Vishnu Muthiah <vishnu.muthiah04@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
 import { Suspense, useState, useEffect, useRef } from "react";
 import { Link, useRouter, useSearch } from "@tanstack/react-router";
-import { Eye, EyeOff, ArrowRight, Loader2, AlertCircle, RefreshCw, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
-import { auth, config as configApi, setTokens, clearSession, setUserRole, getUserRole, setUserName, setUserEmail, setUserUsername, setUserAvatar } from "@/lib/api";
+import {
+  auth,
+  config as configApi,
+  setTokens,
+  clearSession,
+  setUserRole,
+  getUserRole,
+  setUserName,
+  setUserEmail,
+  setUserUsername,
+  setUserAvatar,
+} from "@/lib/api";
 import { isPublicRegistryPath } from "@/lib/public-registry";
 import { isSafeNext, safeNext } from "@/lib/safe-next";
 import type { SsoHealthResult, E2eStatusResult, HealthCheck } from "@/lib/api";
@@ -18,7 +37,12 @@ import { useDeploymentConfig } from "@/hooks/use-deployment-config";
 import { Button } from "@/components/ui/button";
 import { GoogleGIcon } from "@/components/ui/google-g-icon";
 import { GithubMarkIcon } from "@/components/ui/github-mark-icon";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -50,7 +74,9 @@ function LoginContent() {
   const [ssoHealth, setSsoHealth] = useState<SsoHealthResult | null>(null);
   const [ssoHealthLoading, setSsoHealthLoading] = useState(false);
   const directSsoStarted = useRef(false);
-  const [ssoErrorDiag, setSsoErrorDiag] = useState<E2eStatusResult | null>(null);
+  const [ssoErrorDiag, setSsoErrorDiag] = useState<E2eStatusResult | null>(
+    null,
+  );
   const [ssoErrorDiagExpanded, setSsoErrorDiagExpanded] = useState(true);
 
   useEffect(() => {
@@ -60,9 +86,13 @@ function LoginContent() {
     // diagnostics record. Fetch and render it so the user sees exactly which
     // step broke instead of a generic "SSO Authentication Failed".
     console.debug("[sso] fetching error diagnostics", corrId);
-    auth.ssoErrorDiagnostics(corrId)
+    auth
+      .ssoErrorDiagnostics(corrId)
       .then((diag) => {
-        console.info("[sso] error diagnostics", { ok: diag.ok, checks: diag.checks?.length });
+        console.info("[sso] error diagnostics", {
+          ok: diag.ok,
+          checks: diag.checks?.length,
+        });
         setSsoErrorDiag(diag);
         const firstFail = diag.checks?.find((c) => c.status === "fail");
         if (firstFail) {
@@ -84,7 +114,8 @@ function LoginContent() {
   useEffect(() => {
     if (!ssoEnabled && !samlEnabled) return;
     setSsoHealthLoading(true);
-    configApi.ssoHealth()
+    configApi
+      .ssoHealth()
       .then(setSsoHealth)
       .catch(() => {})
       .finally(() => setSsoHealthLoading(false));
@@ -94,7 +125,12 @@ function LoginContent() {
     if (typeof window === "undefined") return;
     // Don't redirect to "/" if a SAML token exchange is pending
     const params = new URLSearchParams(window.location.search);
-    if (params.get("saml_token") || params.get("code") || params.get("saml_code")) return;
+    if (
+      params.get("saml_token") ||
+      params.get("code") ||
+      params.get("saml_code")
+    )
+      return;
     const hasToken = !!sessionStorage.getItem("observal_access_token");
     if (hasToken && getUserRole()) {
       // Already signed in: honor a shared-link `next` instead of always going home.
@@ -110,9 +146,12 @@ function LoginContent() {
 
       (async () => {
         try {
-          const res = await fetch(`/api/v1/sso/saml/exchange?token_id=${samlTokenId}`, {
-            method: "POST",
-          });
+          const res = await fetch(
+            `/api/v1/sso/saml/exchange?token_id=${samlTokenId}`,
+            {
+              method: "POST",
+            },
+          );
           if (!res.ok) throw new Error("Exchange failed");
           const data = await res.json();
           clearSession();
@@ -138,7 +177,8 @@ function LoginContent() {
       setLoading(true);
       window.history.replaceState({}, "", "/login");
 
-      auth.exchangeCode({ code: ssoCode })
+      auth
+        .exchangeCode({ code: ssoCode })
         .then((data) => {
           setTokens(data.access_token, data.refresh_token);
           setUserRole(data.user.role);
@@ -152,7 +192,9 @@ function LoginContent() {
         .catch((err) => {
           const msg = err instanceof Error ? err.message : "SSO sign-in failed";
           setError(msg);
-          toast.error("SSO sign-in failed -- the code may have expired. Please try again.");
+          toast.error(
+            "SSO sign-in failed -- the code may have expired. Please try again.",
+          );
           setLoading(false);
         });
     } else if (searchParams.error) {
@@ -168,7 +210,10 @@ function LoginContent() {
       // returns the user to the page the expiry interrupted. Rewriting to a
       // bare "/login" here would drop `next` — TanStack re-parses the location
       // that replaceState sets, so the router's search state would lose it too.
-      const preserved = searchParams.next && isSafeNext(searchParams.next) ? `/login?next=${encodeURIComponent(searchParams.next)}` : "/login";
+      const preserved =
+        searchParams.next && isSafeNext(searchParams.next)
+          ? `/login?next=${encodeURIComponent(searchParams.next)}`
+          : "/login";
       window.history.replaceState({}, "", preserved);
     }
   }, [searchParams]);
@@ -196,10 +241,14 @@ function LoginContent() {
       window.location.replace(safeNext(searchParams.next));
     } catch (e) {
       const raw = e instanceof Error ? e.message : "Login failed";
-      const status = e instanceof Error ? (e as Error & { status?: number }).status : undefined;
+      const status =
+        e instanceof Error
+          ? (e as Error & { status?: number }).status
+          : undefined;
       let msg = raw;
       if (status === 429 || raw.toLowerCase().includes("rate limit")) {
-        msg = "Too many login attempts. Please wait a minute before trying again.";
+        msg =
+          "Too many login attempts. Please wait a minute before trying again.";
       }
       setError(msg);
       toast.error(msg);
@@ -220,7 +269,10 @@ function LoginContent() {
     }
     setLoading(true);
     try {
-      await auth.changePassword({ current_password: password, new_password: newPassword });
+      await auth.changePassword({
+        current_password: password,
+        new_password: newPassword,
+      });
       toast.success("Password changed successfully");
       const res = await auth.whoami();
       setUserRole(res.role);
@@ -240,7 +292,9 @@ function LoginContent() {
 
   function ssoStartUrl(base: string): string {
     const nextParam = searchParams.next;
-    return isSafeNext(nextParam) ? `${base}?next=${encodeURIComponent(nextParam)}` : base;
+    return isSafeNext(nextParam)
+      ? `${base}?next=${encodeURIComponent(nextParam)}`
+      : base;
   }
 
   function handleSsoLogin() {
@@ -267,13 +321,16 @@ function LoginContent() {
     clearSession();
     const requestedPath = safeNext(searchParams.next);
     const pathname = requestedPath.split(/[?#]/, 1)[0];
-    window.location.replace(isPublicRegistryPath(pathname) ? requestedPath : "/");
+    window.location.replace(
+      isPublicRegistryPath(pathname) ? requestedPath : "/",
+    );
   }
 
   useEffect(() => {
     if (searchParams.sso !== "1" || directSsoStarted.current) return;
     directSsoStarted.current = true;
-    configApi.public()
+    configApi
+      .public()
       .then((publicConfig) => {
         if (publicConfig.sso_enabled) {
           handleSsoLogin();
@@ -297,12 +354,33 @@ function LoginContent() {
           <div className="rounded-lg border bg-card shadow-sm">
             <div className="flex flex-col items-center gap-2 border-b px-8 pb-6 pt-8 animate-in">
               {brandingLogo ? (
-                <img loading="lazy" src={brandingLogo} alt="" width={32} height={32} className="object-contain" />
+                <img
+                  loading="lazy"
+                  src={brandingLogo}
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               ) : (
-                <img loading="lazy" src="/observal-logo.svg" alt="" width={32} height={32} className="object-contain" />
+                <img
+                  loading="lazy"
+                  src="/observal-logo.svg"
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               )}
               {brandingWordmark ? (
-                <img loading="lazy" src={brandingWordmark} alt={brandingAppName || "Dev-Library"} width={192} height={24} className="h-6 max-w-48 object-contain" />
+                <img
+                  loading="lazy"
+                  src={brandingWordmark}
+                  alt={brandingAppName || "Dev-Library"}
+                  width={192}
+                  height={24}
+                  className="h-6 max-w-48 object-contain"
+                />
               ) : (
                 <h1 className="text-2xl font-semibold tracking-tight font-[family-name:var(--font-display)]">
                   {brandingAppName || "Dev-Library"}
@@ -339,7 +417,11 @@ function LoginContent() {
                       className="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -386,19 +468,42 @@ function LoginContent() {
         <div className="rounded-lg border bg-card shadow-sm">
           <div className="flex flex-col items-center gap-2 border-b px-8 pb-6 pt-8 animate-in">
             {brandingLogo ? (
-              <img loading="lazy" src={brandingLogo} alt="" width={32} height={32} className="object-contain" />
+              <img
+                loading="lazy"
+                src={brandingLogo}
+                alt=""
+                width={32}
+                height={32}
+                className="object-contain"
+              />
             ) : (
-              <img loading="lazy" src="/observal-logo.svg" alt="" width={32} height={32} className="object-contain" />
+              <img
+                loading="lazy"
+                src="/observal-logo.svg"
+                alt=""
+                width={32}
+                height={32}
+                className="object-contain"
+              />
             )}
             {brandingWordmark ? (
-              <img loading="lazy" src={brandingWordmark} alt={brandingAppName || "Dev-Library"} width={192} height={24} className="h-6 max-w-48 object-contain" />
+              <img
+                loading="lazy"
+                src={brandingWordmark}
+                alt={brandingAppName || "Dev-Library"}
+                width={192}
+                height={24}
+                className="h-6 max-w-48 object-contain"
+              />
             ) : (
               <h1 className="text-2xl font-semibold tracking-tight font-[family-name:var(--font-display)]">
                 {brandingAppName || "Dev-Library"}
               </h1>
             )}
             <p className="text-sm text-muted-foreground">
-              {publicRegistryEnabled ? "Sign in or browse the public registry" : "Sign in to your account"}
+              {publicRegistryEnabled
+                ? "Sign in or browse the public registry"
+                : "Sign in to your account"}
             </p>
           </div>
 
@@ -442,7 +547,11 @@ function LoginContent() {
                         className="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -464,7 +573,12 @@ function LoginContent() {
                     className="w-full flex items-center justify-between"
                   >
                     <span className="font-medium text-destructive">
-                      SSO sign-in failed at "{ssoErrorDiag.checks.find((c) => c.status === "fail")?.label || ssoErrorDiag.summary || "unknown step"}"
+                      SSO sign-in failed at "
+                      {ssoErrorDiag.checks.find((c) => c.status === "fail")
+                        ?.label ||
+                        ssoErrorDiag.summary ||
+                        "unknown step"}
+                      "
                     </span>
                     <span className="text-muted-foreground ml-2">
                       {ssoErrorDiagExpanded ? "Hide steps" : "Show steps"}
@@ -473,7 +587,10 @@ function LoginContent() {
                   {ssoErrorDiagExpanded && (
                     <ul className="mt-2 divide-y divide-border">
                       {ssoErrorDiag.checks.map((c: HealthCheck) => (
-                        <li key={c.name} className="py-1.5 flex items-start gap-2">
+                        <li
+                          key={c.name}
+                          className="py-1.5 flex items-start gap-2"
+                        >
                           {c.status === "pass" ? (
                             <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 text-emerald-500 shrink-0" />
                           ) : c.status === "fail" ? (
@@ -482,9 +599,13 @@ function LoginContent() {
                             <RefreshCw className="h-3.5 w-3.5 mt-0.5 text-muted-foreground shrink-0" />
                           )}
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium text-foreground">{c.label}</div>
+                            <div className="font-medium text-foreground">
+                              {c.label}
+                            </div>
                             {c.message && (
-                              <div className="text-muted-foreground mt-0.5">{c.message}</div>
+                              <div className="text-muted-foreground mt-0.5">
+                                {c.message}
+                              </div>
                             )}
                             {c.hint && (
                               <div className="text-muted-foreground italic mt-0.5">
@@ -501,7 +622,11 @@ function LoginContent() {
 
               <div className="animate-in stagger-2 space-y-3">
                 {!ssoOnly && (
-                  <Button type="submit" disabled={loading || ssoLoading} className="w-full">
+                  <Button
+                    type="submit"
+                    disabled={loading || ssoLoading}
+                    className="w-full"
+                  >
                     {loading && !ssoLoading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
@@ -513,16 +638,22 @@ function LoginContent() {
                   </Button>
                 )}
 
-                {!ssoOnly && (ssoEnabled || googleSsoEnabled || githubSsoEnabled || samlEnabled) && (
-                  <div className="relative py-2">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
+                {!ssoOnly &&
+                  (ssoEnabled ||
+                    googleSsoEnabled ||
+                    githubSsoEnabled ||
+                    samlEnabled) && (
+                    <div className="relative py-2">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">
+                          Or
+                        </span>
+                      </div>
                     </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">Or</span>
-                    </div>
-                  </div>
-                )}
+                  )}
 
                 {googleSsoEnabled && (
                   <Button
@@ -575,25 +706,30 @@ function LoginContent() {
                       Sign in with SSO
                       {ssoHealthLoading ? (
                         <Loader2 className="absolute right-3 h-5 w-5 animate-spin text-muted-foreground" />
-                      ) : ssoHealth?.oidc && (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="absolute right-3">
-                                {ssoHealth.oidc.ok ? (
-                                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                                ) : (
-                                  <XCircle className="h-5 w-5 text-destructive" />
-                                )}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent side="right" className="max-w-xs text-xs">
-                              {ssoHealth.oidc.ok
-                                ? `OIDC config verified (${ssoHealth.oidc.latency_ms}ms), does not test a full user login`
-                                : ssoHealth.oidc.error}
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                      ) : (
+                        ssoHealth?.oidc && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="absolute right-3">
+                                  {ssoHealth.oidc.ok ? (
+                                    <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                                  ) : (
+                                    <XCircle className="h-5 w-5 text-destructive" />
+                                  )}
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="right"
+                                className="max-w-xs text-xs"
+                              >
+                                {ssoHealth.oidc.ok
+                                  ? `OIDC config verified (${ssoHealth.oidc.latency_ms}ms), does not test a full user login`
+                                  : ssoHealth.oidc.error}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )
                       )}
                     </Button>
                   </div>
@@ -611,25 +747,30 @@ function LoginContent() {
                       Sign in with SAML SSO
                       {ssoHealthLoading ? (
                         <Loader2 className="absolute right-3 h-5 w-5 animate-spin text-muted-foreground" />
-                      ) : ssoHealth?.saml && (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="absolute right-3">
-                                {ssoHealth.saml.ok ? (
-                                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                                ) : (
-                                  <XCircle className="h-5 w-5 text-destructive" />
-                                )}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent side="right" className="max-w-xs text-xs">
-                              {ssoHealth.saml.ok
-                                ? `SAML config verified (${ssoHealth.saml.latency_ms}ms), does not test a full user login`
-                                : ssoHealth.saml.error}
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                      ) : (
+                        ssoHealth?.saml && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="absolute right-3">
+                                  {ssoHealth.saml.ok ? (
+                                    <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                                  ) : (
+                                    <XCircle className="h-5 w-5 text-destructive" />
+                                  )}
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent
+                                side="right"
+                                className="max-w-xs text-xs"
+                              >
+                                {ssoHealth.saml.ok
+                                  ? `SAML config verified (${ssoHealth.saml.latency_ms}ms), does not test a full user login`
+                                  : ssoHealth.saml.error}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )
                       )}
                     </Button>
                   </div>
@@ -642,7 +783,9 @@ function LoginContent() {
                         <span className="w-full border-t" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">Public access</span>
+                        <span className="bg-card px-2 text-muted-foreground">
+                          Public access
+                        </span>
                       </div>
                     </div>
                     <Button
@@ -656,7 +799,8 @@ function LoginContent() {
                       <ArrowRight className="ml-1 h-4 w-4" />
                     </Button>
                     <p className="text-center text-xs leading-5 text-muted-foreground">
-                      Browse and install approved public registry content without an account.
+                      Browse and install approved public registry content
+                      without an account.
                     </p>
                   </>
                 )}
@@ -666,7 +810,14 @@ function LoginContent() {
                 <div className="animate-in stagger-3 space-y-3 text-center">
                   {selfRegistrationEnabled && !ssoOnly && (
                     <Button asChild variant="outline" className="w-full">
-                      <Link to="/register" search={searchParams.next ? { next: searchParams.next } : undefined}>
+                      <Link
+                        to="/register"
+                        search={
+                          searchParams.next
+                            ? { next: searchParams.next }
+                            : undefined
+                        }
+                      >
                         Register
                       </Link>
                     </Button>

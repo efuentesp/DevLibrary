@@ -12,7 +12,7 @@ from pathlib import Path
 def read_agent_marker(cwd: str, session_jsonl: Path | None = None) -> tuple[str | None, str | None]:
     """Return (agent_id, agent_version) from <cwd>/.observal/agent, or (None, None).
 
-    Written by ``observal pull`` so hooks can attribute sessions to the
+    Written by ``dev-library pull`` so hooks can attribute sessions to the
     pulled agent.  Only applies the pulled_at guard for brand-new sessions
     (cursor offset == 0).
     """

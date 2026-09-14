@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Database backup and restore for Observal server upgrades.
+"""Database backup and restore for DevLibrary server upgrades.
 
 Supports:
   - PostgreSQL: pg_dump (custom format) via Docker exec

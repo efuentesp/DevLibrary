@@ -38,7 +38,7 @@ def test_optional_client_omits_authorization_header():
 
     assert base_url == "https://public.observal.io"
     assert "Authorization" not in headers
-    assert "X-Observal-CLI-Version" in headers
+    assert "X-DevLibrary-CLI-Version" in headers
     get_or_exit.assert_called_once_with(require_auth=False)
 
 

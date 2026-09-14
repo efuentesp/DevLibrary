@@ -4,7 +4,7 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""observal-sandbox-run: local sandbox executor."""
+"""dev-library-sandbox-run: local sandbox executor."""
 
 from __future__ import annotations
 
@@ -69,7 +69,8 @@ def _docker_run(
         import docker
     except ImportError:
         print(
-            "local-runtime-missing: Docker SDK not found. Install: pip install 'observal-cli[sandbox]'", file=sys.stderr
+            "local-runtime-missing: Docker SDK not found. Install: pip install 'dev-library-cli[sandbox]'",
+            file=sys.stderr,
         )
         sys.exit(127)
 
@@ -246,7 +247,7 @@ def run_sandbox(
 
 
 def main():
-    """CLI entry point for observal-sandbox-run."""
+    """CLI entry point for dev-library-sandbox-run."""
     args = sys.argv[1:]
     sandbox_id = ""
     image = ""
@@ -296,7 +297,7 @@ def main():
 
     if not image and runtime_type in {"docker", "lxc", "wasm"} and not runtime_config.get("module"):
         print(
-            "Usage: observal-sandbox-run --sandbox-id <id> --image <image> [--runtime-type docker|lxc|firecracker|wasm] [--command <cmd>] [--timeout <s>]",
+            "Usage: dev-library-sandbox-run --sandbox-id <id> --image <image> [--runtime-type docker|lxc|firecracker|wasm] [--command <cmd>] [--timeout <s>]",
             file=sys.stderr,
         )
         sys.exit(1)

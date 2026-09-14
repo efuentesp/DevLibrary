@@ -53,7 +53,7 @@ def _run_hook(event: dict, *, harness: str, home: Path | None = None) -> None:
         return
     config = load_config(home=home)
     if config is None:
-        optic.warning("no Observal config found - session source remains local")
+        optic.warning("no DevLibrary config found - session source remains local")
         return
 
     hook_event = str(event.get("hook_event_name") or event.get("hookEventName") or event.get("event") or "")

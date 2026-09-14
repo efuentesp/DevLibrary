@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Lokesh Selvam <lokeshselvam7025@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""observal inbox: the signed-in user's work and event feed."""
+"""dev-library inbox: the signed-in user's work and event feed."""
 
 from __future__ import annotations
 
@@ -23,9 +23,9 @@ inbox_app = typer.Typer(
     help=(
         "Your work and event feed: reviews, decisions, and update notices\n\n"
         "Examples:\n"
-        "  observal inbox\n"
-        "  observal inbox --action-required\n"
-        "  observal inbox list --state open --output json"
+        "  dev-library inbox\n"
+        "  dev-library inbox --action-required\n"
+        "  dev-library inbox list --state open --output json"
     ),
     no_args_is_help=False,
     invoke_without_command=True,
@@ -104,7 +104,7 @@ def _item_id(value: str, *, operation: str) -> str:
             "Inbox item ID must be a UUID.",
             operation=operation,
             resource="inbox item",
-            remediation="Copy an item ID from `observal inbox list --output json`.",
+            remediation="Copy an item ID from `dev-library inbox list --output json`.",
         )
 
 
@@ -209,10 +209,10 @@ def _emit_list(params: dict[str, object], output: OutputMode | str) -> None:
     if total > len(items):
         rprint(f"\n[dim]Showing {first_row}-{last_row} of {total}.[/dim]")
         if last_row < total:
-            rprint(f"[dim]Next page: [cyan]observal inbox list --page {page + 1}[/cyan][/dim]")
+            rprint(f"[dim]Next page: [cyan]dev-library inbox list --page {page + 1}[/cyan][/dim]")
 
     first_id = items[0].get("id", "")
-    rprint(f"\n[dim]Detail: [cyan]observal inbox show {esc(first_id)}[/cyan][/dim]")
+    rprint(f"\n[dim]Detail: [cyan]dev-library inbox show {esc(first_id)}[/cyan][/dim]")
 
 
 @inbox_app.callback(invoke_without_command=True)
@@ -237,11 +237,11 @@ def inbox(
 
     Examples:
 
-        observal inbox
+        dev-library inbox
 
-        observal inbox --action-required
+        dev-library inbox --action-required
 
-        observal inbox --search postgres --sort oldest --output json
+        dev-library inbox --search postgres --sort oldest --output json
     """
     if ctx.invoked_subcommand is None:
         _emit_list(
@@ -271,7 +271,7 @@ def inbox_list(
 
     Examples:
 
-        observal inbox list --state open --subject-type mcp --output json
+        dev-library inbox list --state open --subject-type mcp --output json
     """
     _emit_list(
         _filter_params(state, kind, action_required, unread, page, page_size, subject_type, query, sort),
@@ -289,7 +289,7 @@ def inbox_count(
 
     Examples:
 
-        observal inbox count --facets --facet-state open --output json
+        dev-library inbox count --facets --facet-state open --output json
     """
     output = _option_value(output)
     facets = _option_value(facets)
@@ -347,7 +347,7 @@ def inbox_show(
 
     Examples:
 
-        observal inbox show 11111111-1111-1111-1111-111111111111 --output json
+        dev-library inbox show 11111111-1111-1111-1111-111111111111 --output json
     """
     item_id = _item_id(item_id, operation="Show inbox item")
     with _progress(output, "Fetching item..."):
@@ -393,7 +393,7 @@ def inbox_read(
 
     Examples:
 
-        observal inbox read 11111111-1111-1111-1111-111111111111 --output json
+        dev-library inbox read 11111111-1111-1111-1111-111111111111 --output json
     """
     _act(item_id, "read", "Marked read", output)
 
@@ -407,7 +407,7 @@ def inbox_unread(
 
     Examples:
 
-        observal inbox unread 11111111-1111-1111-1111-111111111111 --output json
+        dev-library inbox unread 11111111-1111-1111-1111-111111111111 --output json
     """
     _act(item_id, "unread", "Marked unread", output)
 
@@ -421,7 +421,7 @@ def inbox_done(
 
     Examples:
 
-        observal inbox done 11111111-1111-1111-1111-111111111111 --output json
+        dev-library inbox done 11111111-1111-1111-1111-111111111111 --output json
     """
     _act(item_id, "done", "Resolved", output)
 
@@ -435,7 +435,7 @@ def inbox_dismiss(
 
     Examples:
 
-        observal inbox dismiss 11111111-1111-1111-1111-111111111111 --output json
+        dev-library inbox dismiss 11111111-1111-1111-1111-111111111111 --output json
     """
     _act(item_id, "dismiss", "Dismissed", output)
 
@@ -449,7 +449,7 @@ def inbox_reopen(
 
     Examples:
 
-        observal inbox reopen 11111111-1111-1111-1111-111111111111 --output json
+        dev-library inbox reopen 11111111-1111-1111-1111-111111111111 --output json
     """
     _act(item_id, "reopen", "Reopened", output)
 
@@ -472,7 +472,7 @@ def inbox_read_all(
 
     Examples:
 
-        observal inbox read-all --kind update_available --yes --output json
+        dev-library inbox read-all --kind update_available --yes --output json
     """
     output = _option_value(output)
     yes = _option_value(yes)

@@ -9,7 +9,7 @@
 # SPDX-FileCopyrightText: 2026 Vishnu Muthiah <vishnu.muthiah04@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""observal pull: fetch agent config from the server and write harness files to disk."""
+"""dev-library pull: fetch agent config from the server and write harness files to disk."""
 
 from __future__ import annotations
 
@@ -52,7 +52,7 @@ def _component_conflicts(harness: str, agent_name: str, components: list[dict]) 
             ErrorCategory.UNAVAILABLE,
             "Could not read the local installation lockfile.",
             operation="Pull agent",
-            resource="Observal lockfile",
+            resource="DevLibrary lockfile",
             remediation="Repair or remove the malformed lockfile, then retry.",
             detail=repr(error),
         )
@@ -451,7 +451,7 @@ def _rewrite_kiro_hooks(content: dict, agent_id: str | None = None) -> dict:
     hooks_url = f"{cfg['server_url'].rstrip('/')}/api/v1/telemetry/hooks"
     desired_hooks = build_kiro_hooks(hooks_url, agent_id=agent_id or "")
 
-    # Replace only Observal hooks, preserve any user-added hooks
+    # Replace only DevLibrary hooks, preserve any user-added hooks
     for event, desired_entries in desired_hooks.items():
         existing = hooks.get(event, [])
         cleaned = [h for h in existing if "observal_cli" not in h.get("command", "")]
@@ -467,11 +467,11 @@ def _rewrite_copilot_cli_hooks(content: dict, agent_id: str | None = None) -> di
     The server emits a generic ``.github/hooks/observal.json`` whose commands
     carry no agent identity, so sessions fall back to best-effort cwd matching
     and go unattributed for user-scope installs or when the project moves.
-    Rebuilding the Observal hooks with ``build_copilot_cli_hooks(agent_id=...)``
+    Rebuilding the DevLibrary hooks with ``build_copilot_cli_hooks(agent_id=...)``
     prepends ``OBSERVAL_AGENT_ID`` (both bash and powershell forms), which the
     session push hook resolves to an exact agent+version via the lockfile.
 
-    User-added hooks in the file are preserved; only Observal's entries are
+    User-added hooks in the file are preserved; only DevLibrary's entries are
     replaced. Mirrors _rewrite_kiro_hooks().
     """
     hooks = content.get("hooks")
@@ -482,7 +482,7 @@ def _rewrite_copilot_cli_hooks(content: dict, agent_id: str | None = None) -> di
 
     desired_hooks = build_copilot_cli_hooks(agent_id=agent_id or "")["hooks"]
 
-    # Replace only Observal hooks, preserve any user-added hooks
+    # Replace only DevLibrary hooks, preserve any user-added hooks
     for event, desired_entries in desired_hooks.items():
         existing = hooks.get(event, [])
         cleaned = [
@@ -783,9 +783,9 @@ def register_pull(app: typer.Typer):
         --no-prompt is set, prompts are skipped and only flag values are used.
 
         Examples:
-          observal agent pull my-agent --harness claude-code --no-prompt
-          observal agent pull my-agent --harness claude-code --version 1.2.0
-          observal agent pull my-agent --harness cursor --no-prompt --dry-run
+          dev-library agent pull my-agent --harness claude-code --no-prompt
+          dev-library agent pull my-agent --harness claude-code --version 1.2.0
+          dev-library agent pull my-agent --harness cursor --no-prompt --dry-run
         """
         if output == "json" and not no_prompt:
             fail(
@@ -888,7 +888,7 @@ def register_pull(app: typer.Typer):
                 ErrorCategory.UNAVAILABLE,
                 "Could not read the local installation lockfile.",
                 operation="Pull agent",
-                resource="Observal lockfile",
+                resource="DevLibrary lockfile",
                 remediation="Repair or remove the malformed lockfile, then retry.",
                 detail=repr(error),
             )
@@ -1184,7 +1184,7 @@ def register_pull(app: typer.Typer):
                     ErrorCategory.UNAVAILABLE,
                     "Agent files were written, but installation tracking failed.",
                     operation="Pull agent",
-                    resource="Observal lockfile",
+                    resource="DevLibrary lockfile",
                     remediation="Repair the local lockfile and pull the agent again.",
                     detail=repr(error),
                 )
@@ -1194,7 +1194,7 @@ def register_pull(app: typer.Typer):
 
                 ensure_local_snapshot(project_dir=str(target_dir))
             except (OSError, RuntimeError, ValueError):
-                warnings_list.append("Local layer snapshot could not be refreshed; run `observal doctor`.")
+                warnings_list.append("Local layer snapshot could not be refreshed; run `dev-library doctor`.")
 
             try:
                 adapter.persist_active_agent(str(agent_uuid), agent_detail.get("name", resolved), agent_version)

@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: Apache-2.0
 name: observal-ops
 command: observal
-description: "Inspects Observal traces, sessions, rankings, feedback, telemetry health, logs, and Agent insight reports. Use when the user wants operational evidence, current activity, telemetry diagnosis, ratings, report generation, regression analysis, or recommendations grounded in Agent usage."
+description: "Inspects DevLibrary traces, sessions, rankings, feedback, telemetry health, logs, and Agent insight reports. Use when the user wants operational evidence, current activity, telemetry diagnosis, ratings, report generation, regression analysis, or recommendations grounded in Agent usage."
 version: 2.4.0
 owner: observal
 ---
 
-# Observing Observal
+# Observing DevLibrary
 
 ## Execution contract
 

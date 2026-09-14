@@ -49,7 +49,7 @@ def test_server_boot_and_cli_tokens_use_secret_files(tmp_path, monkeypatch):
     monkeypatch.delenv("SECRET_KEY", raising=False)
     monkeypatch.setenv("SECRET_KEY_FILE", str(app_secret))
     monkeypatch.setenv("GIT_CLONE_TOKEN_FILE", str(git_token))
-    monkeypatch.setenv("OBSERVAL_TOKEN_FILE", str(token))
+    monkeypatch.setenv("DEVLIBRARY_TOKEN_FILE", str(token))
     monkeypatch.setattr(cli_config, "CONFIG_FILE", tmp_path / "missing.json")
 
     overrides = _secret_overrides()

@@ -229,7 +229,8 @@ export default function RegistryHome() {
     refetchInterval: 30_000,
     enabled: isAuthenticated,
   });
-  const { data: myAgents, isLoading: myAgentsLoading } = useMyAgents(isAuthenticated);
+  const { data: myAgents, isLoading: myAgentsLoading } =
+    useMyAgents(isAuthenticated);
   const { data: topAgents, isLoading: topAgentsLoading } = useTopAgents(6);
   const {
     data: agents,
@@ -286,7 +287,10 @@ export default function RegistryHome() {
                 <Terminal className="h-4 w-4" />
               </div>
               <div>
-                <h2 id="guest-cli-title" className="text-base font-semibold text-foreground">
+                <h2
+                  id="guest-cli-title"
+                  className="text-base font-semibold text-foreground"
+                >
                   Use the public registry from your terminal
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
@@ -296,19 +300,25 @@ export default function RegistryHome() {
             </div>
             <ol className="mt-5 grid gap-4 text-sm md:grid-cols-3">
               <li className="min-w-0">
-                <p className="mb-1.5 font-medium text-foreground">1. Install the CLI</p>
+                <p className="mb-1.5 font-medium text-foreground">
+                  1. Install the CLI
+                </p>
                 <code className="block overflow-x-auto whitespace-nowrap rounded-md bg-background px-3 py-2 font-mono text-xs text-foreground">
                   uv tool install observal-cli
                 </code>
               </li>
               <li className="min-w-0">
-                <p className="mb-1.5 font-medium text-foreground">2. Find an agent</p>
+                <p className="mb-1.5 font-medium text-foreground">
+                  2. Find an agent
+                </p>
                 <code className="block overflow-x-auto whitespace-nowrap rounded-md bg-background px-3 py-2 font-mono text-xs text-foreground">
                   observal agent list
                 </code>
               </li>
               <li className="min-w-0">
-                <p className="mb-1.5 font-medium text-foreground">3. Pull it into your harness</p>
+                <p className="mb-1.5 font-medium text-foreground">
+                  3. Pull it into your harness
+                </p>
                 <code className="block overflow-x-auto whitespace-nowrap rounded-md bg-background px-3 py-2 font-mono text-xs text-foreground">
                   observal pull namespace/agent --harness pi
                 </code>
@@ -404,11 +414,20 @@ export default function RegistryHome() {
                 }
               />
               {agentsLoading ? (
-                <div className="p-3"><TableSkeleton rows={3} cols={2} /></div>
+                <div className="p-3">
+                  <TableSkeleton rows={3} cols={2} />
+                </div>
               ) : trustedAgents.length > 0 ? (
-                trustedAgents.slice(0, 3).map((agent) => <AvailableAgentRow key={agent.id} agent={agent} />)
+                trustedAgents
+                  .slice(0, 3)
+                  .map((agent) => (
+                    <AvailableAgentRow key={agent.id} agent={agent} />
+                  ))
               ) : (
-                <p className="p-6 text-sm text-muted-foreground">Approved agents will appear here when the registry starts publishing.</p>
+                <p className="p-6 text-sm text-muted-foreground">
+                  Approved agents will appear here when the registry starts
+                  publishing.
+                </p>
               )}
             </section>
           )}
@@ -416,7 +435,11 @@ export default function RegistryHome() {
           <section className="overflow-hidden rounded-md border border-border bg-card">
             <PanelHeader
               title={isAuthenticated ? "Your work" : "Start exploring"}
-              description={isAuthenticated ? "Publishing and maintenance that needs you." : "Browse the public catalog without signing in."}
+              description={
+                isAuthenticated
+                  ? "Publishing and maintenance that needs you."
+                  : "Browse the public catalog without signing in."
+              }
             />
             <WorkRow
               href="/agents"
@@ -456,7 +479,9 @@ export default function RegistryHome() {
 
           <section className="overflow-hidden rounded-md border border-border bg-card">
             <PanelHeader
-              title={topAgents?.length ? "Agents gaining adoption" : "Trusted agents"}
+              title={
+                topAgents?.length ? "Agents gaining adoption" : "Trusted agents"
+              }
               description={
                 topAgents?.length
                   ? "Frequently installed agents from across the registry."
@@ -476,7 +501,9 @@ export default function RegistryHome() {
                 <TableSkeleton rows={5} cols={4} />
               </div>
             ) : topAgents?.length ? (
-              topAgents.map((agent) => <AgentRow key={agent.id} agent={agent} />)
+              topAgents.map((agent) => (
+                <AgentRow key={agent.id} agent={agent} />
+              ))
             ) : agentsError ? (
               <div className="p-5">
                 <ErrorState
@@ -490,15 +517,22 @@ export default function RegistryHome() {
               ))
             ) : (
               <p className="p-6 text-sm text-muted-foreground">
-                Approved agents will appear here when your registry starts publishing.
+                Approved agents will appear here when your registry starts
+                publishing.
               </p>
             )}
           </section>
 
           <section className="overflow-hidden rounded-md border border-border bg-card">
             <PanelHeader
-              title={isAuthenticated ? "Recent execution" : "More public agents"}
-              description={isAuthenticated ? "Your latest captured coding sessions." : "Recently approved agents from the public registry."}
+              title={
+                isAuthenticated ? "Recent execution" : "More public agents"
+              }
+              description={
+                isAuthenticated
+                  ? "Your latest captured coding sessions."
+                  : "Recently approved agents from the public registry."
+              }
               action={
                 <Link
                   to={isAuthenticated ? "/traces" : "/agents"}
@@ -516,8 +550,8 @@ export default function RegistryHome() {
               ) : recentSessions.length === 0 ? (
                 <div className="flex gap-3 p-5 text-sm leading-6 text-muted-foreground">
                   <Activity className="mt-1 h-4 w-4 shrink-0" />
-                  Enable telemetry in a supported harness to connect registry assets
-                  with execution evidence.
+                  Enable telemetry in a supported harness to connect registry
+                  assets with execution evidence.
                 </div>
               ) : (
                 recentSessions.map((session) => (
@@ -525,9 +559,15 @@ export default function RegistryHome() {
                 ))
               )
             ) : agentsLoading ? (
-              <div className="p-3"><TableSkeleton rows={4} cols={2} /></div>
+              <div className="p-3">
+                <TableSkeleton rows={4} cols={2} />
+              </div>
             ) : (
-              approvedAgents.slice(5, 9).map((agent) => <AvailableAgentRow key={agent.id} agent={agent} />)
+              approvedAgents
+                .slice(5, 9)
+                .map((agent) => (
+                  <AvailableAgentRow key={agent.id} agent={agent} />
+                ))
             )}
           </section>
         </div>

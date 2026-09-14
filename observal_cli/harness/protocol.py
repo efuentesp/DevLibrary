@@ -243,7 +243,7 @@ class HarnessAdapter(Protocol):
         """Generate hook configuration for telemetry collection.
 
         Args:
-            observal_url: The Observal server URL.
+            observal_url: The DevLibrary server URL.
             api_key: User's API key.
             agent_id: Optional agent ID to tag telemetry.
 
@@ -256,7 +256,7 @@ class HarnessAdapter(Protocol):
         ...
 
     def detect_hooks(self, config_dir: Path) -> str:
-        """Detect whether Observal hooks are already installed.
+        """Detect whether DevLibrary hooks are already installed.
 
         Args:
             config_dir: harness-specific config directory to check.
@@ -358,13 +358,13 @@ class HarnessAdapter(Protocol):
         ...
 
     def get_observal_managed_files(self, lockfile_data: dict, project_dir: str | None = None) -> set[str]:
-        """Return layer snapshot display paths managed by Observal for this harness.
+        """Return layer snapshot display paths managed by DevLibrary for this harness.
 
         Args:
-            lockfile_data: Parsed Observal lockfile content.
+            lockfile_data: Parsed DevLibrary lockfile content.
             project_dir: Optional project directory for project-scoped installs.
 
         Returns:
-            Display paths that correspond to Observal-installed files.
+            Display paths that correspond to DevLibrary-installed files.
         """
         ...

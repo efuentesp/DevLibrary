@@ -4,12 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 name: observal-advanced
 command: observal
-description: "Recovers Observal session ingestion, manages CLI upgrades, downgrades and rollback, and performs explicit local Agent fallback when the server is unavailable. Use when the user asks to reconcile missed sessions, repair CLI version state, or continue locally after a confirmed connection or configuration failure."
+description: "Recovers DevLibrary session ingestion, manages CLI upgrades, downgrades and rollback, and performs explicit local Agent fallback when the server is unavailable. Use when the user asks to reconcile missed sessions, repair CLI version state, or continue locally after a confirmed connection or configuration failure."
 version: 2.2.0
 owner: observal
 ---
 
-# Recovering Observal
+# Recovering DevLibrary
 
 ## Execution contract
 

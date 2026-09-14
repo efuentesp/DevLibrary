@@ -1104,7 +1104,7 @@ def test_password_login_rejects_weak_noninteractive_password(
     monkeypatch.setattr(
         auth.httpx, "post", lambda *_args, **_kwargs: _response(200, _login_payload(must_change_password=True))
     )
-    monkeypatch.setenv("OBSERVAL_NEW_PASSWORD", "Short1!")
+    monkeypatch.setenv("DEVLIBRARY_NEW_PASSWORD", "Short1!")
     put = MagicMock()
     monkeypatch.setattr(auth.httpx, "put", put)
 
@@ -1483,7 +1483,7 @@ def test_config_show_defaults_to_table(
         ("update_check", "off", False),
         ("timeout", "60", 60),
         ("update_check_interval", "120", 120),
-        ("update_check_repo", "Observal/Observal", "Observal/Observal"),
+        ("update_check_repo", "Observal/DevLibrary", "Observal/DevLibrary"),
     ],
 )
 def test_config_set_normalizes_supported_values(

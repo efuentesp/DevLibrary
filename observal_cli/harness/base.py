@@ -229,7 +229,7 @@ class BaseAdapter:
         return False
 
     def get_observal_managed_files(self, lockfile_data: dict, project_dir: str | None = None) -> set[str]:
-        """Return layer snapshot display paths managed by Observal for this harness."""
+        """Return layer snapshot display paths managed by DevLibrary for this harness."""
         managed: set[str] = set()
         harness_section = lockfile_data.get("harnesses", {}).get(self.harness_name)
         if harness_section is None:

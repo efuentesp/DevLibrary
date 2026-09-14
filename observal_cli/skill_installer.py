@@ -7,7 +7,7 @@
 # SPDX-FileCopyrightText: 2026 EuanTop <euan@mail.bnu.edu.cn>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Install and synchronize the bundled Observal skills."""
+"""Install and synchronize the bundled DevLibrary skills."""
 
 from __future__ import annotations
 
@@ -122,7 +122,7 @@ def _bundled_sources() -> dict[str, Path]:
     sources = {name: _SKILLS_BASE / name for name in _SKILL_DIRS}
     missing = [str(path / "SKILL.md") for path in sources.values() if not (path / "SKILL.md").is_file()]
     if missing:
-        raise FileNotFoundError(f"Bundled Observal skills are incomplete: {', '.join(missing)}")
+        raise FileNotFoundError(f"Bundled DevLibrary skills are incomplete: {', '.join(missing)}")
     return sources
 
 
@@ -290,7 +290,7 @@ def install_observal_skill() -> None:
 
     if installed:
         display_names = [HARNESS_REGISTRY[name]["display_name"] for name in installed]
-        rprint(f"\n[green]✓ Observal skills synchronized for:[/green] {', '.join(display_names)}")
-        rprint('[dim]  LLMs can now use Observal commands directly (for example, "create a PR agent for kiro")[/dim]')
+        rprint(f"\n[green]✓ DevLibrary skills synchronized for:[/green] {', '.join(display_names)}")
+        rprint('[dim]  LLMs can now use DevLibrary commands directly (for example, "create a PR agent for kiro")[/dim]')
     for warning in warnings:
         rprint(f"[yellow]Warning:[/yellow] {warning}")

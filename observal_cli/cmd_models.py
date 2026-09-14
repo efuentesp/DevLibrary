@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""``observal registry models`` - list registry-backed harness models."""
+"""``dev-library registry models`` - list registry-backed harness models."""
 
 from __future__ import annotations
 
@@ -19,9 +19,9 @@ models_app = typer.Typer(
     help=(
         "Inspect registry-backed harness model data.\n\n"
         "Examples:\n"
-        "  observal registry models\n"
-        "  observal registry models --harness claude-code\n"
-        "  observal registry models list --output json"
+        "  dev-library registry models\n"
+        "  dev-library registry models --harness claude-code\n"
+        "  dev-library registry models list --output json"
     ),
     no_args_is_help=False,
 )
@@ -70,8 +70,8 @@ def list_models(
     """List registry-backed harness models.
 
     Examples:
-      observal registry models list
-      observal registry models list --harness pi
-      observal registry models list --output json
+      dev-library registry models list
+      dev-library registry models list --harness pi
+      dev-library registry models list --output json
     """
     _emit_models(harness, output)

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Reconcile local lockfile metadata with the active Observal registry."""
+"""Reconcile local lockfile metadata with the active DevLibrary registry."""
 
 from __future__ import annotations
 

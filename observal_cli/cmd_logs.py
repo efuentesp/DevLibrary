@@ -2,13 +2,13 @@
 # SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""observal ops logs: live log viewer.
+"""dev-library ops logs: live log viewer.
 
-observal ops logs                  # follow local dev.log
-observal ops logs --remote         # stream from hosted server via SSE
-observal ops logs --level WARNING  # only warnings and above
-observal ops logs --filter ingest  # grep for 'ingest'
-observal ops logs --no-color       # disable ANSI colors
+dev-library ops logs                  # follow local dev.log
+dev-library ops logs --remote         # stream from hosted server via SSE
+dev-library ops logs --level WARNING  # only warnings and above
+dev-library ops logs --filter ingest  # grep for 'ingest'
+dev-library ops logs --no-color       # disable ANSI colors
 
 """
 
@@ -32,9 +32,9 @@ logs_app = typer.Typer(
     help=(
         "Live log viewer (open in a separate tab)\n\n"
         "Examples:\n"
-        "  observal ops logs\n"
-        "  observal ops logs --remote\n"
-        "  observal ops logs --level WARNING --no-follow"
+        "  dev-library ops logs\n"
+        "  dev-library ops logs --remote\n"
+        "  dev-library ops logs --level WARNING --no-follow"
     ),
 )
 
@@ -186,7 +186,7 @@ def _stream_remote(
                     "Authentication failed while streaming logs.",
                     operation="Stream server logs",
                     resource="server log stream",
-                    remediation="Run `observal auth login` and retry.",
+                    remediation="Run `dev-library auth login` and retry.",
                     http_status=401,
                 )
             if resp.status_code == 403:
@@ -273,7 +273,7 @@ def logs(
     no_color: bool = typer.Option(False, "--no-color", help="Disable colored output"),
     output: OutputMode = typer.Option("table", "--output", "-o", help="Output format: table or json"),
 ):
-    """Live-follow Observal logs.
+    """Live-follow DevLibrary logs.
 
     By default reads the local dev.log file.  Use --remote to stream from
     a hosted server (requires admin access).
@@ -314,7 +314,7 @@ def logs(
             f"Local log file not found: {LOG_PATH}.",
             operation="Read local logs",
             resource=str(LOG_PATH),
-            remediation="Use `observal ops logs --remote` for a hosted server.",
+            remediation="Use `dev-library ops logs --remote` for a hosted server.",
         )
 
     min_rank = _level_rank(level)

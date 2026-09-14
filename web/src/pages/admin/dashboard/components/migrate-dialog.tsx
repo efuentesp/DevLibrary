@@ -2,7 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useHelp } from "@/components/wiki/help-context";
@@ -37,7 +43,10 @@ function JobProgress({ job }: { job: MigrationJob | undefined }) {
 			</div>
 			<div className="space-y-1.5">
 				<div className="h-2 overflow-hidden rounded-full bg-muted">
-					<div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+					<div
+						className="h-full rounded-full bg-primary transition-all"
+						style={{ width: `${pct}%` }}
+					/>
 				</div>
 				<div className="flex justify-between text-xs text-muted-foreground">
 					<span>Status: {job?.status || "starting"}</span>
@@ -51,11 +60,13 @@ function JobProgress({ job }: { job: MigrationJob | undefined }) {
 export function MigrateDialog({ open, onOpenChange }: MigrateDialogProps) {
 	const helpCtx = useHelp();
 	const [activeTab, setActiveTab] = useState<TabId>("export");
-	const [activeJobIds, setActiveJobIds] = useState<Record<TabId, string | null>>({
-		export: null,
-		import: null,
-		validate: null,
-	});
+	const [activeJobIds, setActiveJobIds] = useState<Record<TabId, string | null>>(
+		{
+			export: null,
+			import: null,
+			validate: null,
+		},
+	);
 
 	const currentJobId = activeJobIds[activeTab];
 	const { data: job } = useMigrationJob(currentJobId);
@@ -78,17 +89,26 @@ export function MigrateDialog({ open, onOpenChange }: MigrateDialogProps) {
 						<div className="space-y-1.5">
 							<DialogTitle>Data migration</DialogTitle>
 							<DialogDescription>
-								Move registry records and telemetry between Dev-Library instances. Validate artifacts before importing.
+								Move registry records and telemetry between Dev-Library instances.
+								Validate artifacts before importing.
 							</DialogDescription>
 						</div>
-						<Button type="button" variant="outline" size="sm" onClick={() => helpCtx.openHelp({ pageKey: "migration" })}>
+						<Button
+							type="button"
+							variant="outline"
+							size="sm"
+							onClick={() => helpCtx.openHelp({ pageKey: "migration" })}
+						>
 							<HelpCircle className="h-3.5 w-3.5" />
 							Guide
 						</Button>
 					</div>
 				</DialogHeader>
 
-				<Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabId)}>
+				<Tabs
+					value={activeTab}
+					onValueChange={(value) => setActiveTab(value as TabId)}
+				>
 					<TabsList className="grid w-full grid-cols-3">
 						<TabsTrigger value="export">Export</TabsTrigger>
 						<TabsTrigger value="import">Import</TabsTrigger>

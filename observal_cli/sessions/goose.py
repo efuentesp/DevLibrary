@@ -4,10 +4,10 @@
 """Goose session helpers: read ``sessions.db`` and mirror it as JSONL.
 
 Goose 1.10+ keeps every CLI and Desktop session in a single SQLite database at
-``<data-dir>/sessions/sessions.db``.  Observal's delivery engine
+``<data-dir>/sessions/sessions.db``.  DevLibrary's delivery engine
 (``observal_cli.sessions.base``) is byte-offset based, so this module projects
 each Goose session onto an append-only JSONL mirror under
-``~/.observal/sessions/goose/<session_id>.jsonl``.  The mirror is what the
+``~/.dev-library/sessions/goose/<session_id>.jsonl``.  The mirror is what the
 shared spool, acknowledgement, checkpoint-recovery and final-hash protocol
 operate on, so Goose needs no bespoke transport.
 
@@ -95,7 +95,7 @@ def find_sessions_db(home: Path | None = None) -> Path:
 
 
 def mirror_dir(home: Path | None = None) -> Path:
-    """Return the directory holding Observal's Goose session mirrors."""
+    """Return the directory holding DevLibrary's Goose session mirrors."""
     return (home or Path.home()) / ".observal" / "sessions" / "goose"
 
 

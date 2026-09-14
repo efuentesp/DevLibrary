@@ -184,7 +184,7 @@ def _load_agent_yaml(directory: Path, *, operation: str = "Read agent definition
             f"Agent definition not found: {path}.",
             operation=operation,
             resource=str(path),
-            remediation="Run `observal agent init` or pass the directory containing observal-agent.yaml.",
+            remediation="Run `dev-library agent init` or pass the directory containing observal-agent.yaml.",
         )
     try:
         text = path.read_text(encoding="utf-8")
@@ -288,9 +288,9 @@ agent_app = typer.Typer(
     help=(
         "Agent registry commands\n\n"
         "Examples:\n"
-        "  observal agent list\n"
-        "  observal agent show alice/my-agent\n"
-        "  observal agent pull alice/my-agent --harness claude-code"
+        "  dev-library agent list\n"
+        "  dev-library agent show alice/my-agent\n"
+        "  dev-library agent pull alice/my-agent --harness claude-code"
     )
 )
 
@@ -319,9 +319,9 @@ def agent_create(
       3. No flags: interactive wizard
 
     Examples:
-      observal agent create --from-file agent.json
-      observal agent create --name my-agent --prompt "You are..." --model claude-sonnet-4
-      observal agent create --name my-agent --prompt-file ./PROMPT.md --model claude-sonnet-4 --harness kiro --harness claude-code
+      dev-library agent create --from-file agent.json
+      dev-library agent create --name my-agent --prompt "You are..." --model claude-sonnet-4
+      dev-library agent create --name my-agent --prompt-file ./PROMPT.md --model claude-sonnet-4 --harness kiro --harness claude-code
     """
     optic.trace("from_file={}", from_file)
     if output == "json" and not (from_file or name or prompt or prompt_file):
@@ -584,9 +584,9 @@ def agent_bulk_create(
     Use --dry-run to validate without actually creating agents.
 
     Examples:
-      observal agent bulk-create --from-file agents.json
-      observal agent bulk-create --from-file agents.json --dry-run
-      observal agent bulk-create --from-file agents.json --yes
+      dev-library agent bulk-create --from-file agents.json
+      dev-library agent bulk-create --from-file agents.json --dry-run
+      dev-library agent bulk-create --from-file agents.json --yes
     """
     raw = _load_json_file(file_path, operation="Bulk create agents")
 
@@ -732,9 +732,9 @@ def agent_list(
     Results are cached locally for numeric shorthand in subsequent commands.
 
     Examples:
-      observal agent list
-      observal agent list --search my-agent
-      observal agent list --output json
+      dev-library agent list
+      dev-library agent list --search my-agent
+      dev-library agent list --output json
     """
     if interactive and output == "json":
         fail(
@@ -815,7 +815,7 @@ def agent_list(
     if total_pages > 1:
         if page < total_pages:
             rprint(
-                f"[dim]Next:[/dim] [bold]observal agent list --page {page + 1}[/bold]"
+                f"[dim]Next:[/dim] [bold]dev-library agent list --page {page + 1}[/bold]"
                 + (f" --limit {limit}" if limit != 50 else "")
             )
         else:
@@ -833,8 +833,8 @@ def agent_my(
     submissions.
 
     Examples:
-      observal agent my
-      observal agent my --output json
+      dev-library agent my
+      dev-library agent my --output json
     """
     with _progress(output, "Fetching your agents..."):
         data = client.get("/api/v1/agents/my")
@@ -879,9 +879,9 @@ def agent_show(
     or an @alias.
 
     Examples:
-      observal agent show my-agent
-      observal agent show @myalias
-      observal agent show alice/my-agent --output json
+      dev-library agent show my-agent
+      dev-library agent show @myalias
+      dev-library agent show alice/my-agent --output json
     """
     resolved = client.resolve_registry_reference("agent", agent_id)
     with _progress(output):
@@ -945,9 +945,9 @@ def agent_install(
     to a file.
 
     Examples:
-      observal agent install my-agent --harness claude-code
-      observal agent install my-agent --harness cursor --raw > config.json
-      observal agent install @myalias --harness opencode
+      dev-library agent install my-agent --harness claude-code
+      dev-library agent install my-agent --harness cursor --raw > config.json
+      dev-library agent install @myalias --harness opencode
     """
     harness = _validate_harnesses([harness], operation="Generate agent installation")[0]
     resolved = client.resolve_registry_reference("agent", agent_id)
@@ -971,7 +971,7 @@ def agent_install(
         rprint()
         console.print_json(_json.dumps(agent_profile["content"], indent=2))
         rprint(
-            f"\n[dim]Or pipe:[/dim] observal agent install {esc(agent_id)} --harness {esc(harness)} "
+            f"\n[dim]Or pipe:[/dim] dev-library agent install {esc(agent_id)} --harness {esc(harness)} "
             f"--raw | jq .agent_profile.content > {esc(agent_profile['path'])}"
         )
         return
@@ -1042,8 +1042,8 @@ def agent_archive(
     listings but can be restored with the unarchive command.
 
     Examples:
-      observal agent archive alice/my-agent
-      observal agent archive alice/my-agent --yes
+      dev-library agent archive alice/my-agent
+      dev-library agent archive alice/my-agent --yes
     """
     _archive_agent(agent_id, yes, output)
 
@@ -1057,8 +1057,8 @@ def agent_delete(
     """Archive an agent. Prefer the archive command.
 
     Examples:
-      observal agent delete alice/my-agent
-      observal agent delete alice/my-agent --yes
+      dev-library agent delete alice/my-agent
+      dev-library agent delete alice/my-agent --yes
     """
     _archive_agent(agent_id, yes, output)
 
@@ -1076,9 +1076,9 @@ def agent_unarchive(
     unless --yes is provided.
 
     Examples:
-      observal agent unarchive my-agent
-      observal agent unarchive my-agent --yes
-      observal agent unarchive a1b2c3d4-...
+      dev-library agent unarchive my-agent
+      dev-library agent unarchive my-agent --yes
+      dev-library agent unarchive a1b2c3d4-...
     """
     if output == "json" and not yes:
         fail(
@@ -1128,9 +1128,9 @@ def agent_init(
     at version 0.1.0 instead of 1.0.0.
 
     Examples:
-      observal agent init
-      observal agent init --dir ./my-agent
-      observal agent init --beta
+      dev-library agent init
+      dev-library agent init --dir ./my-agent
+      dev-library agent init --beta
     """
     dir_path = Path(directory)
     yaml_path = dir_path / YAML_FILE
@@ -1261,9 +1261,9 @@ def agent_add(
     UUID. Duplicates are rejected.
 
     Examples:
-      observal agent add mcp a1b2c3d4-e5f6-7890-abcd-ef1234567890
-      observal agent add skill b2c3d4e5-f6a7-8901-bcde-f12345678901
-      observal agent add hook c3d4e5f6-... --dir ./my-agent
+      dev-library agent add mcp a1b2c3d4-e5f6-7890-abcd-ef1234567890
+      dev-library agent add skill b2c3d4e5-f6a7-8901-bcde-f12345678901
+      dev-library agent add hook c3d4e5f6-... --dir ./my-agent
     """
     component_type = component_type.strip().lower()
     if component_type not in VALID_COMPONENT_TYPES:
@@ -1322,8 +1322,8 @@ def agent_build(
     Exits with code 1 if any component fails validation.
 
     Examples:
-      observal agent build
-      observal agent build --dir ./my-agent
+      dev-library agent build
+      dev-library agent build --dir ./my-agent
     """
     dir_path = Path(directory)
     data = _validate_agent_definition(
@@ -1439,9 +1439,9 @@ def agent_publish(
     save without submitting for review.
 
     Examples:
-      observal agent publish
-      observal agent publish --update
-      observal agent publish --draft
+      dev-library agent publish
+      dev-library agent publish --update
+      dev-library agent publish --draft
     """
     if draft and submit:
         fail(
@@ -1574,7 +1574,7 @@ def agent_publish(
             return
         status = result.get("status", "pending")
         rprint(f"[green]✓ Agent submitted![/green] ID: [bold]{esc(result['id'])}[/bold]")
-        rprint(f"  Pull: [cyan]observal agent pull {esc(client.canonical_name(result))}[/cyan]")
+        rprint(f"  Pull: [cyan]dev-library agent pull {esc(client.canonical_name(result))}[/cyan]")
         if status != "approved":
             rprint(f"[yellow]Status: {esc(status)} - an admin must approve it before it becomes visible.[/yellow]")
 
@@ -1593,9 +1593,9 @@ def agent_release(
     model_config_json: {} and external_mcps: [].
 
     Examples:
-      observal agent release my-agent --bump patch
-      observal agent release my-agent --bump minor --dir /tmp/my-agent
-      observal agent release my-agent --bump major
+      dev-library agent release my-agent --bump patch
+      dev-library agent release my-agent --bump minor --dir /tmp/my-agent
+      dev-library agent release my-agent --bump major
     """
     if bump not in ("patch", "minor", "major"):
         fail(
@@ -1683,9 +1683,9 @@ def agent_versions(
     Accepts a UUID, agent name, row number, or @alias.
 
     Examples:
-      observal agent versions my-agent
-      observal agent versions my-agent --output json
-      observal agent versions @myalias
+      dev-library agent versions my-agent
+      dev-library agent versions my-agent --output json
+      dev-library agent versions @myalias
     """
     resolved = client.resolve_registry_reference("agent", name)
 

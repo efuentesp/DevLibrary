@@ -89,7 +89,7 @@ def resolve_session_id(event: dict, home: Path | None = None) -> str:
     """Return the session_id (conversation ID) for an Antigravity hook event.
 
     Antigravity sends conversationId on pre_turn events but not on session_end.
-    Falls back to the value persisted by a previous hook in ~/.observal/.antigravity-session.
+    Falls back to the value persisted by a previous hook in ~/.dev-library/.antigravity-session.
     """
     session_id = event.get("conversationId", "") or event.get("conversation_id", "") or event.get("session_id", "")
     if session_id:

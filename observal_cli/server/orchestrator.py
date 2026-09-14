@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Process orchestrator for embedded Observal services.
+"""Process orchestrator for embedded DevLibrary services.
 
 Manages PostgreSQL, ClickHouse, and Redis as local subprocesses, then
 starts the FastAPI application server. Handles startup ordering,
@@ -32,9 +32,9 @@ from observal_cli.server.constants import (
     CLICKHOUSE_HTTP_PORT,
     CONFIG_DIR,
     DATA_DIR,
+    DEVLIBRARY_HOME,
     KEYS_DIR,
     LOG_DIR,
-    OBSERVAL_HOME,
     POSTGRES_PORT,
     REDIS_PORT,
     RUN_DIR,
@@ -72,7 +72,7 @@ class Orchestrator:
     # ── Secrets management ─────────────────────────────────────
 
     def _secrets_path(self) -> Path:
-        return OBSERVAL_HOME / ".secrets"
+        return DEVLIBRARY_HOME / ".secrets"
 
     def _load_or_create_secrets(self) -> dict[str, str]:
         """Load existing secrets or generate new ones on first run."""
@@ -487,8 +487,8 @@ class Orchestrator:
             "info",
         ]
 
-        console.print(f"[blue]==>[/blue] Starting Observal API on :{self.port}...")
-        optic.info("starting Observal API on port {}", self.port)
+        console.print(f"[blue]==>[/blue] Starting DevLibrary API on :{self.port}...")
+        optic.info("starting DevLibrary API on port {}", self.port)
 
         if foreground:
             proc = subprocess.Popen(
@@ -679,7 +679,7 @@ class Orchestrator:
     def _install_hooks(self) -> list[str]:
         """Install harness telemetry hooks (Claude Code, Kiro, etc.) if not already present.
 
-        Runs the equivalent of `observal doctor patch --all-harnesses` non-interactively.
+        Runs the equivalent of `dev-library doctor patch --all-harnesses` non-interactively.
         This ensures traces flow to the embedded server without manual setup.
         """
         warnings: list[str] = []
@@ -697,7 +697,7 @@ class Orchestrator:
                     console.print("[green]\u2713[/green] Claude Code hooks installed")
             except Exception as error:
                 optic.warning("Claude Code hook installation failed: {}", error)
-                warnings.append("Claude Code hooks were not installed; run observal doctor patch.")
+                warnings.append("Claude Code hooks were not installed; run dev-library doctor patch.")
 
         # Kiro hooks
         kiro_agents_dir = Path.home() / ".kiro" / "agents"
@@ -709,7 +709,7 @@ class Orchestrator:
                     console.print("[green]\u2713[/green] Kiro hooks installed")
             except Exception as error:
                 optic.warning("Kiro hook installation failed: {}", error)
-                warnings.append("Kiro hooks were not installed; run observal doctor patch.")
+                warnings.append("Kiro hooks were not installed; run dev-library doctor patch.")
         return warnings
 
     # ── Full lifecycle ─────────────────────────────────────────
@@ -748,7 +748,7 @@ class Orchestrator:
                 console.print(f"[yellow]Warning:[/yellow] {warning}")
 
             console.print()
-            console.print("[bold green]\u2713 Observal is running![/bold green]")
+            console.print("[bold green]\u2713 DevLibrary is running![/bold green]")
             console.print()
             console.print(f"  Dashboard:  [cyan]http://localhost:{self.port}[/cyan]")
             console.print(f"  API:        [cyan]http://localhost:{self.port}/api/v1/[/cyan]")
@@ -880,4 +880,4 @@ class Orchestrator:
         secrets_file = self._secrets_path()
         secrets_file.unlink(missing_ok=True)
 
-        console.print("[green]\u2713[/green] Reset complete. Run 'observal server start' to reinitialize.")
+        console.print("[green]\u2713[/green] Reset complete. Run 'dev-library server start' to reinitialize.")

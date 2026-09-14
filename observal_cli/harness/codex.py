@@ -177,7 +177,7 @@ class CodexAdapter(BaseAdapter):
         return build_codex_hooks()
 
     def detect_hooks(self, config_dir: Path) -> str:
-        """Check ~/.codex/hooks.json for Observal markers."""
+        """Check ~/.codex/hooks.json for DevLibrary markers."""
         home = Path.home()
         hooks_file = home / ".codex" / "hooks.json"
         if not hooks_file.exists():

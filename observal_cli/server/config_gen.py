@@ -48,7 +48,7 @@ def generate_postgres_conf() -> Path:
     conf_path = CONFIG_DIR / "postgresql.conf"
 
     content = dedent(f"""\
-        # Observal embedded PostgreSQL configuration
+        # DevLibrary embedded PostgreSQL configuration
         # Auto-generated - do not edit manually
 
         listen_addresses = '127.0.0.1'
@@ -86,7 +86,7 @@ def generate_pg_hba_conf() -> Path:
     hba_path = get_data_paths()["postgres"] / "pg_hba.conf"
 
     content = dedent("""\
-        # Observal embedded PostgreSQL HBA
+        # DevLibrary embedded PostgreSQL HBA
         # Auto-generated - do not edit manually
         # Trust-based auth is safe here: server binds to 127.0.0.1 only.
 
@@ -184,7 +184,7 @@ def generate_redis_conf() -> Path:
     pid_path = RUN_DIR / "redis.pid"
 
     content = dedent(f"""\
-        # Observal embedded Redis configuration
+        # DevLibrary embedded Redis configuration
         # Auto-generated - do not edit manually
 
         bind 127.0.0.1

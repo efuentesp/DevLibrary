@@ -78,7 +78,7 @@ def isolated(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace
 
     root = tmp_path / ".observal"
     console = RecordingConsole()
-    monkeypatch.setattr(cmd_server, "OBSERVAL_HOME", root)
+    monkeypatch.setattr(cmd_server, "DEVLIBRARY_HOME", root)
     monkeypatch.setattr(cmd_server, "CONFIG_DIR", root / "config")
     monkeypatch.setattr(cmd_server, "LOG_DIR", root / "logs")
     monkeypatch.setattr(cmd_server, "console", console)

@@ -81,10 +81,10 @@ def test_get_timeout_default():
 
 
 def test_get_timeout_env_override():
-    """OBSERVAL_TIMEOUT env var overrides config."""
+    """DEVLIBRARY_TIMEOUT env var overrides config."""
     from observal_cli.config import get_timeout
 
-    with patch.dict("os.environ", {"OBSERVAL_TIMEOUT": "60"}):
+    with patch.dict("os.environ", {"DEVLIBRARY_TIMEOUT": "60"}):
         assert get_timeout() == 60
 
 
@@ -325,7 +325,7 @@ def test_not_found_has_browse_remediation():
     with pytest.raises(CliError) as raised:
         client._handle_error(error, "/api/v1/sandboxes/id", operation="Show sandbox", resource="sandbox id")
 
-    assert "observal registry sandbox list" in raised.value.remediation
+    assert "dev-library registry sandbox list" in raised.value.remediation
 
 
 def test_rate_limit_uses_retry_after_header():
@@ -453,7 +453,7 @@ def test_root_boundary_emits_json_usage_error_to_stderr():
     assert result.stdout == ""
     payload = json.loads(result.stderr)
     assert payload["error"]["category"] == "usage"
-    assert payload["error"]["operation"] == "Run observal agent show"
+    assert payload["error"]["operation"] == "Run dev-library agent show"
 
 
 def test_missing_authentication_uses_stable_json_contract(monkeypatch):
@@ -887,7 +887,7 @@ def test_request_json_forwards_method_query_and_body(monkeypatch):
         "/api/v1/items/id",
         params={"notify": "true"},
         json_data={"name": "updated"},
-        operation="Call Observal API",
+        operation="Call DevLibrary API",
         resource="API endpoint",
     )
 

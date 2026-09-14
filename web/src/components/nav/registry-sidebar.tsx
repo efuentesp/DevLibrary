@@ -6,7 +6,6 @@
 // SPDX-FileCopyrightText: 2026 Vishnu Muthiah <vishnu.muthiah04@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
 import { Link, useLocation } from "@tanstack/react-router";
 import {
 	Sidebar,
@@ -126,7 +125,12 @@ const adminNav: NavItem[] = [
 		icon: Stethoscope,
 		minRole: "admin",
 	},
-	{ title: "Settings", href: "/settings", icon: Settings, minRole: "super_admin" },
+	{
+		title: "Settings",
+		href: "/settings",
+		icon: Settings,
+		minRole: "super_admin",
+	},
 ];
 
 export const allNavItems = [
@@ -161,23 +165,17 @@ export function RegistrySidebar() {
 	const snap = useSyncExternalStore(storeSub, getAuthSnap, getServerSnap);
 	const [token, role, userName, userEmail, userUsername] = snap.split("|");
 	const isAuthenticated = !!token;
-	const {
-		brandingLogo,
-		brandingAppName,
-		brandingWordmark,
-	} = useDeploymentConfig();
+	const { brandingLogo, brandingAppName, brandingWordmark } =
+		useDeploymentConfig();
 
 	function isActive(href: string) {
 		if (href === "/") return pathname === "/";
 		if (pathname === href) return true;
 		// Only treat as active if no *more-specific* sibling nav item matches.
 		// e.g. /agents should NOT be active when /agents/builder matches.
-		const allHrefs = [
-			...registryNav,
-			...reviewNav,
-			...userNav,
-			...adminNav,
-		].map((n) => n.href);
+		const allHrefs = [...registryNav, ...reviewNav, ...userNav, ...adminNav].map(
+			(n) => n.href,
+		);
 		const moreSpecific = allHrefs.some(
 			(h) => h !== href && h.startsWith(href + "/") && pathname.startsWith(h),
 		);
@@ -190,9 +188,7 @@ export function RegistrySidebar() {
 	);
 
 	const visibleReviewNav = isAuthenticated
-		? reviewNav.filter(
-				(item) => !item.minRole || hasMinRole(role, item.minRole),
-			)
+		? reviewNav.filter((item) => !item.minRole || hasMinRole(role, item.minRole))
 		: [];
 
 	const visibleUserNav = isAuthenticated

@@ -151,7 +151,7 @@ def read_new_lines(jsonl_path: Path, offset: int) -> tuple[list[str], int]:
 
 
 def load_config(home: Path | None = None) -> dict | None:
-    """Read server_url and access_token from ~/.observal/config.json.
+    """Read server_url and access_token from ~/.dev-library/config.json.
 
     Token priority: api_key (30-day) > access_token (1-hour).
     Returns None when the file is missing or required fields are absent.
@@ -777,7 +777,7 @@ def _maybe_upload_layer_snapshot(
     """Upload layer snapshot to server if the hash has changed since last upload.
 
     Fire-and-forget: never blocks session push on failure.
-    Saves the snapshot locally as ~/.observal/layer_snapshot.json (mirror of server).
+    Saves the snapshot locally as ~/.dev-library/layer_snapshot.json (mirror of server).
     """
     try:
         from observal_cli.layer import (
@@ -954,7 +954,7 @@ def _parse_agent_from_lines(lines: list[str]) -> str | None:
 
 
 def log_error(message: str, home: Path | None = None) -> None:
-    """Append a single-line error entry to ~/.observal/sync.log."""
+    """Append a single-line error entry to ~/.dev-library/sync.log."""
     if home is None:
         home = Path.home()
     log_dir = home / ".observal"

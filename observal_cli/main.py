@@ -8,7 +8,7 @@
 # SPDX-FileCopyrightText: 2026 Vishnu Muthiah <vishnu.muthiah04@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Observal CLI: MCP Server & Agent Registry."""
+"""DevLibrary CLI: MCP Server & Agent Registry."""
 
 import atexit
 import logging
@@ -30,7 +30,7 @@ from observal_cli.errors import ErrorHandlingGroup
 
 
 def _check_package_conflict() -> None:
-    """Warn if the legacy 'observal' package is installed alongside 'observal-cli'."""
+    """Warn if the legacy 'observal' package is installed alongside 'dev-library-cli'."""
     from importlib.metadata import PackageNotFoundError, metadata
 
     try:
@@ -41,14 +41,14 @@ def _check_package_conflict() -> None:
     # If we get here, a package literally named "observal" exists.
     # Check it's not just our own package under a different dist name.
     pkg_name = meta.get("Name", "")
-    if pkg_name.lower() == "observal-cli":
+    if pkg_name.lower() == "dev-library-cli":
         return
 
     from rich import print as rprint
 
     rprint(
         "[bold yellow]⚠ Package conflict detected:[/bold yellow] "
-        "Both [bold]observal[/bold] and [bold]observal-cli[/bold] are installed.\n"
+        "Both [bold]observal[/bold] and [bold]dev-library-cli[/bold] are installed.\n"
         "  The legacy [dim]observal[/dim] package is no longer maintained and conflicts with the CLI.\n"
         "  Please uninstall it:\n\n"
         "    [cyan]uv pip uninstall observal[/cyan]    [dim]# or: pip uninstall observal[/dim]\n"
@@ -68,14 +68,14 @@ def _version_option(value: bool):
 
 
 app = typer.Typer(
-    name="observal",
+    name="dev-library",
     cls=ErrorHandlingGroup,
     help=(
-        "Observal: MCP Server & Agent Registry CLI\n\n"
+        "DevLibrary: MCP Server & Agent Registry CLI\n\n"
         "Examples:\n"
-        "  observal scan\n"
-        "  observal agent list\n"
-        "  observal registry mcp list"
+        "  dev-library scan\n"
+        "  dev-library agent list\n"
+        "  dev-library registry mcp list"
     ),
     no_args_is_help=True,
     rich_markup_mode="rich",
@@ -96,7 +96,7 @@ def main(
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
     debug: bool = typer.Option(False, "--debug", help="Debug logging"),
 ):
-    """Observal: MCP Server & Agent Registry CLI"""
+    """DevLibrary: MCP Server & Agent Registry CLI"""
     from observal_cli.optic import setup_optic
 
     setup_optic(debug=debug, verbose=verbose)
@@ -141,9 +141,9 @@ def _sync_bundled_skills() -> None:
 
         fail(
             ErrorCategory.PERMISSION if isinstance(error, PermissionError) else ErrorCategory.UNEXPECTED,
-            "Bundled Observal skills could not be synchronized.",
+            "Bundled DevLibrary skills could not be synchronized.",
             operation="Synchronize bundled skills",
-            resource="installed Observal skills",
+            resource="installed DevLibrary skills",
             remediation="Reinstall the CLI or check harness skill-directory permissions, then retry.",
             detail=repr(error),
         )
@@ -206,9 +206,9 @@ registry_app = typer.Typer(
     help=(
         "Component registry (MCPs, skills, hooks, prompts, sandboxes)\n\n"
         "Examples:\n"
-        "  observal registry mcp list\n"
-        "  observal registry skill list\n"
-        "  observal registry recommend"
+        "  dev-library registry mcp list\n"
+        "  dev-library registry skill list\n"
+        "  dev-library registry recommend"
     ),
     no_args_is_help=True,
 )
@@ -252,7 +252,7 @@ register_scan(app)
 register_outdated(app)
 
 
-# ── Agent pull (full-featured, lives under `observal agent pull`) ──
+# ── Agent pull (full-featured, lives under `dev-library agent pull`) ──
 register_pull(agent_app)
 
 # ── Subgroups ─────────────────────────────────────────────
@@ -300,7 +300,7 @@ def _show_update_banner() -> None:
         return
     if len(_sys.argv) > 1 and _sys.argv[1] in ("self", "server"):
         return
-    if os.environ.get("CI") or os.environ.get("OBSERVAL_NO_UPDATE_CHECK"):
+    if os.environ.get("CI") or os.environ.get("DEVLIBRARY_NO_UPDATE_CHECK"):
         return
 
     try:

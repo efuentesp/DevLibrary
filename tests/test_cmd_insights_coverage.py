@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
 """Deterministic behavioral coverage for the insights CLI boundary."""
@@ -185,8 +185,8 @@ def test_list_table_resolves_agent_and_renders_exact_rows(cli):
     assert cli.console.renderables == [table]
     assert cli.messages() == [
         "",
-        "[dim]Open latest completed: [cyan]observal ops insights show @agent[/cyan][/dim]",
-        "[dim]Open row 1: [cyan]observal ops insights show @agent 1[/cyan][/dim]",
+        "[dim]Open latest completed: [cyan]dev-library ops insights show @agent[/cyan][/dim]",
+        "[dim]Open row 1: [cyan]dev-library ops insights show @agent 1[/cyan][/dim]",
     ]
 
 
@@ -472,8 +472,8 @@ def test_reuse_renderer_falls_back_to_personal_reason_and_default_type(cli, monk
         "      [bold]review-skill[/bold]",
         "      Review every diff",
         "      [dim]Frequent reviews[/dim]",
-        "      [cyan]observal registry skill show review-skill --output json[/cyan]",
-        "      [dim]Attach to an agent: observal agent add skill skill-id[/dim]",
+        "      [cyan]dev-library registry skill show review-skill --output json[/cyan]",
+        "      [dim]Attach to an agent: dev-library agent add skill skill-id[/dim]",
     ]
     cli.client_get.assert_not_called()
 
@@ -512,7 +512,7 @@ def test_generate_posts_exact_period_versions_and_renders_summary(cli):
         "  Compare: v1.9.0",
         "  Period: 2026-05-01 → 2026-05-31",
         "  Phase: queued for worker (5%)",
-        "[dim]  Run `observal ops insights show <agent>` when complete.[/dim]",
+        "[dim]  Run `dev-library ops insights show <agent>` when complete.[/dim]",
     ]
 
 
@@ -629,7 +629,7 @@ def test_generate_wait_polls_progress_until_terminal_status(cli, monkeypatch, te
             "  Version: v2.0.0",
             "  Period: 2026-05-01 → 2026-05-14",
             "  Phase: writing report (100%)",
-            "[dim]  Run `observal ops insights show <agent>` when complete.[/dim]",
+            "[dim]  Run `dev-library ops insights show <agent>` when complete.[/dim]",
         ]
 
 

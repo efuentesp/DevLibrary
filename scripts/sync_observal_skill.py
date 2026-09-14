@@ -100,7 +100,7 @@ def generate_reference() -> str:
     for cmd in sorted(app.registered_commands, key=lambda c: c.name or ""):
         name = cmd.name or (cmd.callback.__name__ if cmd.callback else "")
         summary = _command_help(cmd)
-        root_lines.append(f"- `observal {name}`: {summary}" if summary else f"- `observal {name}`")
+        root_lines.append(f"- `dev-library {name}`: {summary}" if summary else f"- `dev-library {name}`")
     if root_lines:
         lines.append("**Root commands**")
         lines.append("")
@@ -111,14 +111,14 @@ def generate_reference() -> str:
     for group in sorted(app.registered_groups, key=lambda g: g.name or ""):
         name = group.name or ""
         summary = _group_help(group)
-        header = f"**`observal {name}`**"
+        header = f"**`dev-library {name}`**"
         if summary:
             header = f"{header}: {summary}"
         lines.append(header)
         lines.append("")
         sub_lines: list[str] = []
         if group.typer_instance is not None:
-            _walk(f"observal {name}", group.typer_instance, sub_lines)
+            _walk(f"dev-library {name}", group.typer_instance, sub_lines)
         if sub_lines:
             lines.extend(sub_lines)
         else:

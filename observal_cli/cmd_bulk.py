@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
 """Mixed Registry component bulk submission."""
@@ -21,8 +21,8 @@ bulk_app = typer.Typer(
     help=(
         "Submit mixed Registry components from one JSON file.\n\n"
         "Examples:\n"
-        "  observal registry bulk submit --from-file components.json --dry-run --output json\n"
-        "  observal registry bulk submit --from-file components.json --yes --output json"
+        "  dev-library registry bulk submit --from-file components.json --dry-run --output json\n"
+        "  dev-library registry bulk submit --from-file components.json --yes --output json"
     ),
     no_args_is_help=True,
 )
@@ -188,8 +188,8 @@ def bulk_submit_components(
     reported per entry. Authentication and service failures stop the batch.
 
     Examples:
-      observal registry bulk submit --from-file components.json --dry-run --output json
-      observal registry bulk submit --from-file components.json --yes --output json
+      dev-library registry bulk submit --from-file components.json --dry-run --output json
+      dev-library registry bulk submit --from-file components.json --yes --output json
     """
     components = _load_components(file_path)
     if output == "json" and not (dry_run or yes):

@@ -29,10 +29,10 @@ function pathToTitle(path: string): string {
 
 function sectionLabel(key: string): string {
 	const labels: Record<string, string> = {
-		"general": "General",
+		general: "General",
 		"self-hosting": "Self-Hosting",
 		"getting-started": "Getting Started",
-		"reference": "Reference",
+		reference: "Reference",
 		"use-cases": "Use Cases",
 	};
 	return labels[key] || pathToTitle(key);
@@ -63,36 +63,53 @@ export default function WikiPage() {
 	}, [activePath]);
 
 	const sortedSections = Object.entries(sections).sort(([a], [b]) => {
-		const order = ["getting-started", "general", "self-hosting", "reference", "use-cases"];
-		return (order.indexOf(a) === -1 ? 99 : order.indexOf(a)) - (order.indexOf(b) === -1 ? 99 : order.indexOf(b));
+		const order = [
+			"getting-started",
+			"general",
+			"self-hosting",
+			"reference",
+			"use-cases",
+		];
+		return (
+			(order.indexOf(a) === -1 ? 99 : order.indexOf(a)) -
+			(order.indexOf(b) === -1 ? 99 : order.indexOf(b))
+		);
 	});
 
 	return (
 		<div className="min-h-full bg-background">
 			<PageHeader
 				title={activePath ? pathToTitle(activePath) : "Wiki"}
-				breadcrumbs={[
-					{ label: "Registry", href: "/" },
-					{ label: "Wiki" },
-				]}
+				breadcrumbs={[{ label: "Registry", href: "/" }, { label: "Wiki" }]}
 			/>
 			<main className="px-6 py-6 lg:px-10">
 				{!activePath ? (
 					<div className="mx-auto max-w-5xl">
 						<p className="mb-8 max-w-2xl text-sm leading-6 text-muted-foreground">
-							Practical Dev-Library wiki pages for setup, operations, registry use, and self-hosting.
+							Practical Dev-Library wiki pages for setup, operations, registry use, and
+							self-hosting.
 						</p>
 						<div className="divide-y divide-border rounded-xl border border-border bg-card/20 shadow-sm">
 							{sortedSections.map(([section, paths]) => (
-								<section key={section} className="grid gap-4 px-5 py-5 md:grid-cols-[180px_minmax(0,1fr)]">
+								<section
+									key={section}
+									className="grid gap-4 px-5 py-5 md:grid-cols-[180px_minmax(0,1fr)]"
+								>
 									<div>
-										<h2 className="text-sm font-semibold text-foreground">{sectionLabel(section)}</h2>
-										<p className="mt-1 text-xs text-muted-foreground">{paths.length} page{paths.length === 1 ? "" : "s"}</p>
+										<h2 className="text-sm font-semibold text-foreground">
+											{sectionLabel(section)}
+										</h2>
+										<p className="mt-1 text-xs text-muted-foreground">
+											{paths.length} page{paths.length === 1 ? "" : "s"}
+										</p>
 									</div>
 									<ul className="grid gap-x-6 gap-y-1 sm:grid-cols-2 xl:grid-cols-3">
 										{paths.sort().map((p) => (
 											<li key={p}>
-												<a href={docHref(p)} className="group flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground/75 transition-colors hover:bg-muted/50 hover:text-foreground">
+												<a
+													href={docHref(p)}
+													className="group flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground/75 transition-colors hover:bg-muted/50 hover:text-foreground"
+												>
 													<ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
 													<span className="min-w-0 flex-1 truncate">{pathToTitle(p)}</span>
 												</a>
@@ -109,7 +126,10 @@ export default function WikiPage() {
 					</div>
 				) : content ? (
 					<article className="mx-auto max-w-4xl">
-						<a href="/wiki" className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+						<a
+							href="/wiki"
+							className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+						>
 							<ArrowLeft className="h-4 w-4" />
 							Back to wiki
 						</a>
@@ -118,7 +138,12 @@ export default function WikiPage() {
 				) : (
 					<div className="py-12 text-center">
 						<p className="text-muted-foreground">Document not found.</p>
-						<a href="/wiki" className="mt-3 inline-flex text-sm text-primary hover:underline">Back to wiki</a>
+						<a
+							href="/wiki"
+							className="mt-3 inline-flex text-sm text-primary hover:underline"
+						>
+							Back to wiki
+						</a>
 					</div>
 				)}
 			</main>

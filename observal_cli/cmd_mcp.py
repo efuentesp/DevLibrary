@@ -47,9 +47,9 @@ mcp_app = typer.Typer(
     help=(
         "MCP server registry commands\n\n"
         "Examples:\n"
-        "  observal registry mcp list\n"
-        "  observal registry mcp show alice/my-server\n"
-        "  observal registry mcp install alice/my-server --harness claude-code"
+        "  dev-library registry mcp list\n"
+        "  dev-library registry mcp show alice/my-server\n"
+        "  dev-library registry mcp install alice/my-server --harness claude-code"
     )
 )
 
@@ -653,7 +653,7 @@ def _submit_impl(git_url, name, category, yes, direct_config=False, draft=False,
             result = client.post(endpoint, submit_payload)
         msg = "Draft saved!" if draft else "Submitted!"
         rprint(f"\n[green]{msg}[/green] ID: [bold]{result['id']}[/bold]")
-        rprint(f"  Install: [cyan]observal registry mcp install {client.canonical_name(result)}[/cyan]")
+        rprint(f"  Install: [cyan]dev-library registry mcp install {client.canonical_name(result)}[/cyan]")
         rprint(f"  Status: {status_badge(result.get('status', 'pending'))}")
         return result
 
@@ -961,7 +961,7 @@ def _submit_impl(git_url, name, category, yes, direct_config=False, draft=False,
         result = client.post(endpoint, submit_payload)
     msg = "Draft saved!" if draft else "Submitted!"
     rprint(f"\n[green]{msg}[/green] ID: [bold]{result['id']}[/bold]")
-    rprint(f"  Install: [cyan]observal registry mcp install {client.canonical_name(result)}[/cyan]")
+    rprint(f"  Install: [cyan]dev-library registry mcp install {client.canonical_name(result)}[/cyan]")
     if _framework:
         rprint(f"  Framework: [cyan]{_framework}[/cyan]")
     rprint(f"  Status: {status_badge(result.get('status', 'pending'))}")
@@ -1228,7 +1228,7 @@ def _install_impl(
     if config_path and not config_path.startswith("("):
         rprint(f"\n[dim]Add to:[/dim] [bold]{config_path}[/bold]")
         rprint(
-            f"[dim]Or pipe:[/dim] observal registry mcp install {esc(mcp_id)} "
+            f"[dim]Or pipe:[/dim] dev-library registry mcp install {esc(mcp_id)} "
             f"--harness {esc(harness)} --raw > {esc(config_path)}"
         )
 
@@ -1268,7 +1268,7 @@ def submit(
     """Submit an MCP server to the registry.
 
     Opens a JSON paste prompt where you provide the same config format used
-    in your harness (e.g. mcpServers block). Optionally pass --git so Observal
+    in your harness (e.g. mcpServers block). Optionally pass --git so DevLibrary
     clones the repo and detects local OCI setup instructions for Dockerfile,
     Containerfile, or compose build MCPs.
 
@@ -1280,9 +1280,9 @@ def submit(
     header values are auto-detected and become install-time prompts.
 
     Examples:
-        observal registry mcp submit
-        observal registry mcp submit --git https://github.com/org/mcp-server --yes
-        observal registry mcp submit --submit my-server --output json
+        dev-library registry mcp submit
+        dev-library registry mcp submit --git https://github.com/org/mcp-server --yes
+        dev-library registry mcp submit --submit my-server --output json
     """
     if draft and submit_draft:
         fail(
@@ -1362,9 +1362,9 @@ def list_mcps(
     displays full details of the selected server.
 
     Examples:
-        observal registry mcp list
-        observal registry mcp list --search postgres
-        observal registry mcp list --category ai-ml --output json
+        dev-library registry mcp list
+        dev-library registry mcp list --search postgres
+        dev-library registry mcp list --category ai-ml --output json
     """
     if category and category not in VALID_MCP_CATEGORIES:
         fail(
@@ -1397,10 +1397,10 @@ def mcp_my(
 
     Examples:
         # List your servers in a table
-        observal registry mcp my
+        dev-library registry mcp my
 
         # JSON output for scripting
-        observal registry mcp my --output json
+        dev-library registry mcp my --output json
     """
     optic.trace("output={}", output)
     fetch_ctx = nullcontext() if output == "json" else spinner("Fetching your MCPs...")
@@ -1448,9 +1448,9 @@ def show(
     row number from the last list command, or an @alias.
 
     Examples:
-        observal registry mcp show my-server
-        observal registry mcp show @fav
-        observal registry mcp show my-server --output json
+        dev-library registry mcp show my-server
+        dev-library registry mcp show @fav
+        dev-library registry mcp show my-server --output json
     """
     optic.trace("mcp_id={}, output={}", mcp_id, output)
     _show_impl(mcp_id, output)
@@ -1484,9 +1484,9 @@ def install(
     config files, with placeholder values for any missing env vars.
 
     Examples:
-        observal registry mcp install my-server --harness claude-code
-        observal registry mcp install my-server --harness claude-code --env-file .env --no-prompt
-        observal registry mcp install my-server --harness cursor --raw > .cursor/mcp.json
+        dev-library registry mcp install my-server --harness claude-code
+        dev-library registry mcp install my-server --harness claude-code --env-file .env --no-prompt
+        dev-library registry mcp install my-server --harness cursor --raw > .cursor/mcp.json
     """
     optic.trace("mcp_id={}, harness={}", mcp_id, harness)
     if raw and output == "json":
@@ -1558,9 +1558,9 @@ def edit_mcp(
     complete update from a JSON file with --from-file.
 
     Examples:
-        observal registry mcp edit my-server
-        observal registry mcp edit my-server -d "New description" -c databases
-        observal registry mcp edit my-server --from-file updates.json --output json
+        dev-library registry mcp edit my-server
+        dev-library registry mcp edit my-server -d "New description" -c databases
+        dev-library registry mcp edit my-server --from-file updates.json --output json
     """
     optic.trace("mcp_id={}, from_file={}", mcp_id, from_file)
     resolved = client.resolve_registry_reference("mcp", mcp_id)

@@ -90,7 +90,7 @@ class OpenCodeAdapter(BaseAdapter):
                 "tool.execute.after",
             ],
             format="plugin",
-            markers=["observal", "Observal", "ObservalPlugin"],
+            markers=["observal", "DevLibrary", "ObservalPlugin"],
         )
 
     def generate_hook_config(
@@ -104,10 +104,10 @@ class OpenCodeAdapter(BaseAdapter):
         return build_hooks()
 
     def detect_hooks(self, config_dir: Path) -> str:
-        """Detect if the Observal plugin is installed in OpenCode.
+        """Detect if the DevLibrary plugin is installed in OpenCode.
 
         Checks the global plugin directory (config_dir/plugins) which is
-        the canonical install location for `observal pull` with user scope.
+        the canonical install location for `dev-library pull` with user scope.
         """
         plugins_dir = config_dir / "plugins"
         if not plugins_dir.exists():

@@ -9,7 +9,7 @@
 # SPDX-FileCopyrightText: 2026 EuanTop <euan@mail.bnu.edu.cn>
 # SPDX-License-Identifier: Apache-2.0
 
-"""observal doctor: diagnose and patch harness settings for Observal session telemetry.
+"""dev-library doctor: diagnose and patch harness settings for DevLibrary session telemetry.
 
 Supports Claude Code and Kiro.  Injects 2 hooks (UserPromptSubmit + Stop) that
 push session JSONL incrementally to the server.
@@ -50,11 +50,11 @@ from observal_shared.harness_registry import get_valid_harnesses
 
 doctor_app = typer.Typer(
     help=(
-        "Diagnose and patch harness settings for Observal telemetry\n\n"
+        "Diagnose and patch harness settings for DevLibrary telemetry\n\n"
         "Examples:\n"
-        "  observal doctor\n"
-        "  observal doctor patch --all-harnesses\n"
-        "  observal doctor cleanup --harness claude-code --dry-run"
+        "  dev-library doctor\n"
+        "  dev-library doctor patch --all-harnesses\n"
+        "  dev-library doctor cleanup --harness claude-code --dry-run"
     )
 )
 
@@ -127,9 +127,9 @@ def doctor(
     patch_result: dict | None = None
 
     with _capture(output):
-        rprint("[bold]Observal Doctor[/bold]\n")
+        rprint("[bold]DevLibrary Doctor[/bold]\n")
         checks = (
-            ("Observal config", _check_observal_config),
+            ("DevLibrary config", _check_observal_config),
             ("Claude Code", _check_claude_code),
             ("Kiro", _check_kiro),
             ("Pi", _check_pi),
@@ -176,8 +176,8 @@ def doctor(
         skill_missing = _check_observal_skill_missing()
         if skill_missing:
             warnings.append(
-                f"Observal AI skill not installed for: {', '.join(skill_missing)}. "
-                "LLMs will not have Observal commands available."
+                f"DevLibrary AI skill not installed for: {', '.join(skill_missing)}. "
+                "LLMs will not have DevLibrary commands available."
             )
 
         rprint("")
@@ -211,7 +211,7 @@ def doctor(
 
             install_observal_skill()
         elif fixable and output != "json":
-            rprint("[dim]  Run [bold]observal doctor patch --all-harnesses[/bold] anytime to fix.[/dim]")
+            rprint("[dim]  Run [bold]dev-library doctor patch --all-harnesses[/bold] anytime to fix.[/dim]")
 
     result = {
         "healthy": not issues and not warnings,
@@ -240,19 +240,19 @@ def _check_observal_config(issues: list, warnings: list):
     optic.trace("issues={}, warnings={}", issues, warnings)
     config_path = Path.home() / ".observal" / "config.json"
     if not config_path.exists():
-        issues.append("~/.observal/config.json not found. Run `observal auth login` first.")
+        issues.append("~/.dev-library/config.json not found. Run `dev-library auth login` first.")
         return
 
     data = _load_json(config_path)
     if data is None:
-        issues.append("~/.observal/config.json is not valid JSON.")
+        issues.append("~/.dev-library/config.json is not valid JSON.")
         return
 
     if not data.get("access_token"):
-        issues.append("No access token in ~/.observal/config.json. Run `observal auth login`.")
+        issues.append("No access token in ~/.dev-library/config.json. Run `dev-library auth login`.")
 
     if not data.get("server_url"):
-        issues.append("No server_url in ~/.observal/config.json. Run `observal auth login`.")
+        issues.append("No server_url in ~/.dev-library/config.json. Run `dev-library auth login`.")
 
     server_url = data.get("server_url", "")
     if server_url:
@@ -261,9 +261,9 @@ def _check_observal_config(issues: list, warnings: list):
 
             resp = httpx.get(f"{server_url}/health", timeout=5)
             if resp.status_code != 200:
-                issues.append(f"Observal server at {server_url} returned status {resp.status_code}.")
+                issues.append(f"DevLibrary server at {server_url} returned status {resp.status_code}.")
         except Exception as e:
-            issues.append(f"Cannot reach Observal server at {server_url}: {e}")
+            issues.append(f"Cannot reach DevLibrary server at {server_url}: {e}")
 
 
 def _check_claude_code(issues: list, warnings: list):
@@ -279,7 +279,7 @@ def _check_claude_code(issues: list, warnings: list):
         return
 
     if data.get("disableAllHooks"):
-        issues.append(f"{settings_path}: `disableAllHooks` is true. Observal hooks will not fire.")
+        issues.append(f"{settings_path}: `disableAllHooks` is true. DevLibrary hooks will not fire.")
 
     # Check if session push hooks are installed
     hooks = data.get("hooks", {})
@@ -295,7 +295,7 @@ def _check_claude_code(issues: list, warnings: list):
     if not has_session_push:
         warnings.append(
             "Claude Code session push hooks not installed. "
-            "Run `observal doctor patch --harness claude-code` to inject them."
+            "Run `dev-library doctor patch --harness claude-code` to inject them."
         )
 
     # Check for stale legacy hooks
@@ -312,8 +312,8 @@ def _check_claude_code(issues: list, warnings: list):
 
     if has_legacy:
         warnings.append(
-            "Legacy Observal hooks detected (old hook scripts). "
-            "Run `observal doctor cleanup --harness claude-code` to remove them."
+            "Legacy DevLibrary hooks detected (old hook scripts). "
+            "Run `dev-library doctor cleanup --harness claude-code` to remove them."
         )
 
 
@@ -406,13 +406,13 @@ def _check_pi(issues: list, warnings: list):
 
     if current != expected:
         state = "stale" if current is not None else "not installed"
-        warnings.append(f"Observal Pi extension is {state}. Doctor can install {extension_path} directly.")
+        warnings.append(f"DevLibrary Pi extension is {state}. Doctor can install {extension_path} directly.")
     elif legacy_registered:
         warnings.append("Legacy npm:observal-pi registration remains. Doctor can remove it.")
 
 
 def _check_cursor(issues: list, warnings: list):
-    """Check if Observal session push hooks are installed in Cursor."""
+    """Check if DevLibrary session push hooks are installed in Cursor."""
     optic.debug("_check_cursor")
     hooks_path = Path.home() / ".cursor" / "hooks.json"
     if not (Path.home() / ".cursor").exists():
@@ -421,7 +421,7 @@ def _check_cursor(issues: list, warnings: list):
 
     if not hooks_path.exists():
         warnings.append(
-            "Cursor session push hooks not installed. Run `observal doctor patch --harness cursor` to inject them."
+            "Cursor session push hooks not installed. Run `dev-library doctor patch --harness cursor` to inject them."
         )
         return
 
@@ -441,12 +441,12 @@ def _check_cursor(issues: list, warnings: list):
 
     if not has_session_push:
         warnings.append(
-            "Cursor session push hooks not installed. Run `observal doctor patch --harness cursor` to inject them."
+            "Cursor session push hooks not installed. Run `dev-library doctor patch --harness cursor` to inject them."
         )
 
 
 def _check_codex(issues: list, warnings: list):
-    """Check if Observal session push hooks are installed in Codex."""
+    """Check if DevLibrary session push hooks are installed in Codex."""
     optic.debug("_check_codex")
     codex_dir = Path.home() / ".codex"
     if not codex_dir.exists():
@@ -473,7 +473,7 @@ def _check_codex(issues: list, warnings: list):
 
     if not has_session_push:
         warnings.append(
-            "Codex session push hooks not installed. Run `observal doctor patch --harness codex` to inject them."
+            "Codex session push hooks not installed. Run `dev-library doctor patch --harness codex` to inject them."
         )
 
     # Check codex_hooks flag
@@ -481,13 +481,13 @@ def _check_codex(issues: list, warnings: list):
         try:
             content = config_path.read_text()
             if "codex_hooks = false" in content:
-                issues.append(f"{config_path}: `codex_hooks = false`. Observal hooks will not fire.")
+                issues.append(f"{config_path}: `codex_hooks = false`. DevLibrary hooks will not fire.")
         except OSError as error:
             issues.append(f"{config_path}: cannot read Codex configuration: {error}")
 
 
 def _check_copilot(issues: list, warnings: list):
-    """Check if Observal session push hooks are installed for Copilot (VS Code agent mode)."""
+    """Check if DevLibrary session push hooks are installed for Copilot (VS Code agent mode)."""
     optic.debug("_check_copilot")
     # Copilot VS Code uses project-level hooks in .github/hooks/
     # and user-level hooks in ~/.copilot/hooks/
@@ -521,12 +521,12 @@ def _check_copilot(issues: list, warnings: list):
     if not has_hooks:
         warnings.append(
             "Copilot (VS Code) session push hooks not installed. "
-            "Run `observal doctor patch --harness copilot` to inject them."
+            "Run `dev-library doctor patch --harness copilot` to inject them."
         )
 
 
 def _check_copilot_cli(issues: list, warnings: list):
-    """Check if Observal session push hooks are installed for Copilot CLI."""
+    """Check if DevLibrary session push hooks are installed for Copilot CLI."""
     optic.debug("_check_copilot_cli")
     copilot_dir = Path.home() / ".copilot"
     if not copilot_dir.exists():
@@ -537,7 +537,7 @@ def _check_copilot_cli(issues: list, warnings: list):
     if not hooks_path.exists():
         warnings.append(
             "Copilot CLI session push hooks not installed. "
-            "Run `observal doctor patch --harness copilot-cli` to inject them."
+            "Run `dev-library doctor patch --harness copilot-cli` to inject them."
         )
         return
 
@@ -559,12 +559,12 @@ def _check_copilot_cli(issues: list, warnings: list):
     if not has_session_push:
         warnings.append(
             "Copilot CLI session push hooks not installed. "
-            "Run `observal doctor patch --harness copilot-cli` to inject them."
+            "Run `dev-library doctor patch --harness copilot-cli` to inject them."
         )
 
 
 def _check_opencode(issues: list, warnings: list):
-    """Check if Observal plugin is installed for OpenCode."""
+    """Check if DevLibrary plugin is installed for OpenCode."""
     optic.debug("_check_opencode")
     opencode_dir = Path.home() / ".config" / "opencode"
     if not opencode_dir.exists():
@@ -574,7 +574,7 @@ def _check_opencode(issues: list, warnings: list):
     plugin_path = opencode_dir / "plugins" / "observal-plugin.ts"
     if not plugin_path.exists():
         warnings.append(
-            "OpenCode observal plugin not installed. Run `observal doctor patch --harness opencode` to inject it."
+            "OpenCode observal plugin not installed. Run `dev-library doctor patch --harness opencode` to inject it."
         )
         return
 
@@ -589,20 +589,20 @@ def _check_opencode(issues: list, warnings: list):
         if "offline stub" in current or "event: async () => {}" in current:
             warnings.append(
                 "OpenCode observal plugin is an offline stub. "
-                "Run `observal doctor patch --harness opencode` to update it."
+                "Run `dev-library doctor patch --harness opencode` to update it."
             )
             return
         if f'OBSERVAL_PLUGIN_VERSION = "{OPENCODE_PLUGIN_VERSION}"' not in current or current_hash != desired_hash:
             warnings.append(
                 "OpenCode observal plugin is stale or modified. "
-                "Run `observal doctor patch --harness opencode` to update it."
+                "Run `dev-library doctor patch --harness opencode` to update it."
             )
     except OSError as e:
         issues.append(f"{plugin_path}: failed to read OpenCode plugin: {e}")
 
 
 def _check_antigravity(issues: list, warnings: list):
-    """Check if Observal hooks are installed for Antigravity CLI."""
+    """Check if DevLibrary hooks are installed for Antigravity CLI."""
     optic.debug("_check_antigravity")
     from observal_cli.shared.utils import resolve_antigravity_config_dir
 
@@ -615,7 +615,7 @@ def _check_antigravity(issues: list, warnings: list):
     if not hooks_path.exists():
         warnings.append(
             "Antigravity session push hooks not installed. "
-            "Run `observal doctor patch --harness antigravity` to inject them."
+            "Run `dev-library doctor patch --harness antigravity` to inject them."
         )
         return
 
@@ -628,7 +628,7 @@ def _check_antigravity(issues: list, warnings: list):
     if not isinstance(group, dict):
         warnings.append(
             "Antigravity session push hooks not installed. "
-            "Run `observal doctor patch --harness antigravity` to inject them."
+            "Run `dev-library doctor patch --harness antigravity` to inject them."
         )
         return
 
@@ -644,12 +644,12 @@ def _check_antigravity(issues: list, warnings: list):
     if not has_hook:
         warnings.append(
             "Antigravity session push hooks not installed. "
-            "Run `observal doctor patch --harness antigravity` to inject them."
+            "Run `dev-library doctor patch --harness antigravity` to inject them."
         )
 
 
 def _goose_event_current(installed_rules: object, desired_rules: list) -> bool:
-    """Return True when *installed_rules* already carries every desired Observal handler.
+    """Return True when *installed_rules* already carries every desired DevLibrary handler.
 
     ``_patch_goose`` keeps foreign rules alongside ours, so comparing the whole
     rule list would report a permanently stale hook.
@@ -668,7 +668,7 @@ def _goose_event_current(installed_rules: object, desired_rules: list) -> bool:
 
 
 def _check_goose(issues: list, warnings: list):
-    """Check that the Observal hook plugin is installed for Goose."""
+    """Check that the DevLibrary hook plugin is installed for Goose."""
     optic.debug("_check_goose")
     from observal_cli.harness_specs.goose_hooks_spec import GOOSE_HOOK_EVENTS, build_hooks, hooks_file
     from observal_cli.shared.utils import resolve_goose_config_dir, resolve_goose_data_dir
@@ -678,7 +678,7 @@ def _check_goose(issues: list, warnings: list):
         return
 
     hooks_path = hooks_file()
-    missing = "Goose session push hooks not installed. Run `observal doctor patch --harness goose` to inject them."
+    missing = "Goose session push hooks not installed. Run `dev-library doctor patch --harness goose` to inject them."
     if not hooks_path.exists():
         warnings.append(missing)
         return
@@ -694,7 +694,7 @@ def _check_goose(issues: list, warnings: list):
     if stale:
         warnings.append(
             f"Goose session push hooks are missing or stale for: {', '.join(stale)}. "
-            "Run `observal doctor patch --harness goose` to update them."
+            "Run `dev-library doctor patch --harness goose` to update them."
         )
 
 
@@ -795,12 +795,12 @@ def doctor_cleanup(
     yes: bool = typer.Option(False, "--yes", "-y", help="Skip confirmation"),
     output: OutputMode = typer.Option("table", "--output", "-o"),
 ):
-    """Remove Observal-managed telemetry artifacts while preserving user configuration.
+    """Remove DevLibrary-managed telemetry artifacts while preserving user configuration.
 
     Examples:
-      observal doctor cleanup --dry-run
-      observal doctor cleanup --harness claude-code --yes
-      observal doctor cleanup --yes --output json
+      dev-library doctor cleanup --dry-run
+      dev-library doctor cleanup --harness claude-code --yes
+      dev-library doctor cleanup --yes --output json
     """
     output = _value(output)
     yes = _value(yes)
@@ -830,17 +830,17 @@ def doctor_cleanup(
             remediation="Add --yes to confirm cleanup.",
         )
     if not dry_run and output != "json" and not yes:
-        typer.confirm("Remove Observal-managed telemetry instrumentation?", abort=True)
+        typer.confirm("Remove DevLibrary-managed telemetry instrumentation?", abort=True)
 
     with _capture(output):
-        rprint("[bold]Observal Doctor: Cleanup[/bold]\n")
+        rprint("[bold]DevLibrary Doctor: Cleanup[/bold]\n")
         result = _cleanup_targets(targets, dry_run=dry_run, output=output)
         if dry_run:
             rprint("\n[yellow]Dry run, no changes made.[/yellow]")
         elif result["changed"]:
             rprint("\n[green]✓ Cleanup complete.[/green] Restart your harness sessions to take effect.")
         else:
-            rprint("\n[dim]Nothing to clean up, no Observal artifacts found.[/dim]")
+            rprint("\n[dim]Nothing to clean up, no DevLibrary artifacts found.[/dim]")
     if output == "json":
         output_json(result)
 
@@ -857,7 +857,7 @@ def _cleanup_claude_code(dry_run: bool) -> bool:
 
     changed = False
 
-    # Remove Observal-managed env vars (OBSERVAL_*)
+    # Remove DevLibrary-managed env vars (OBSERVAL_*)
     env = data.get("env", {})
     removed_env = []
     for key in list(env):
@@ -870,7 +870,7 @@ def _cleanup_claude_code(dry_run: bool) -> bool:
         verb = "Would remove" if dry_run else "Removed"
         rprint(f"  {verb} env vars: {', '.join(removed_env)}")
 
-    # Remove Observal hooks from each event
+    # Remove DevLibrary hooks from each event
     hooks = data.get("hooks", {})
     removed_events = []
     for event, groups in list(hooks.items()):
@@ -899,7 +899,7 @@ def _cleanup_claude_code(dry_run: bool) -> bool:
         rprint(f"  [green]Written {esc(settings_path)}[/green]")
 
     if not changed:
-        rprint("  [dim]No Observal artifacts found[/dim]")
+        rprint("  [dim]No DevLibrary artifacts found[/dim]")
 
     return changed
 
@@ -918,7 +918,7 @@ def _cleanup_kiro(dry_run: bool) -> bool:
 
         agent_changed = False
 
-        # Remove hooks that reference Observal
+        # Remove hooks that reference DevLibrary
         hooks = agent_data.get("hooks", {})
         if isinstance(hooks, dict):
             for event, entries in list(hooks.items()):
@@ -941,7 +941,7 @@ def _cleanup_kiro(dry_run: bool) -> bool:
                 _atomic_write(agent_profile, json.dumps(agent_data, indent=2) + "\n")
 
     if not changed:
-        rprint("  [dim]No Observal artifacts found in Kiro agents[/dim]")
+        rprint("  [dim]No DevLibrary artifacts found in Kiro agents[/dim]")
 
     return changed
 
@@ -970,12 +970,12 @@ def _cleanup_pi(dry_run: bool) -> bool:
                 _atomic_write(settings_path, json.dumps(settings, indent=2) + "\n")
 
     if not changed:
-        rprint("  [dim]No Observal Pi extension found[/dim]")
+        rprint("  [dim]No DevLibrary Pi extension found[/dim]")
     return changed
 
 
 def _cleanup_cursor(dry_run: bool) -> bool:
-    """Remove Observal hooks from ~/.cursor/hooks.json."""
+    """Remove DevLibrary hooks from ~/.cursor/hooks.json."""
     rprint("[cyan]Cursor[/cyan]")
     hooks_path = Path.home() / ".cursor" / "hooks.json"
     if not hooks_path.exists():
@@ -1014,13 +1014,13 @@ def _cleanup_cursor(dry_run: bool) -> bool:
             _atomic_write(hooks_path, json.dumps(data, indent=2) + "\n")
             rprint(f"  [green]Written {esc(hooks_path)}[/green]")
     else:
-        rprint("  [dim]No Observal artifacts found[/dim]")
+        rprint("  [dim]No DevLibrary artifacts found[/dim]")
 
     return changed
 
 
 def _cleanup_codex(dry_run: bool) -> bool:
-    """Remove Observal hooks from ~/.codex/hooks.json."""
+    """Remove DevLibrary hooks from ~/.codex/hooks.json."""
     rprint("[cyan]Codex[/cyan]")
     codex_dir = Path.home() / ".codex"
     hooks_path = codex_dir / "hooks.json"
@@ -1061,13 +1061,13 @@ def _cleanup_codex(dry_run: bool) -> bool:
             _atomic_write(hooks_path, json.dumps(data, indent=2) + "\n")
             rprint(f"  [green]Written {esc(hooks_path)}[/green]")
     else:
-        rprint("  [dim]No Observal artifacts found[/dim]")
+        rprint("  [dim]No DevLibrary artifacts found[/dim]")
 
     return changed
 
 
 def _cleanup_copilot(dry_run: bool) -> bool:
-    """Remove Observal hooks from .github/hooks/observal.json and ~/.copilot/hooks/."""
+    """Remove DevLibrary hooks from .github/hooks/observal.json and ~/.copilot/hooks/."""
     rprint("[cyan]Copilot (VS Code)[/cyan]")
     changed = False
 
@@ -1095,13 +1095,13 @@ def _cleanup_copilot(dry_run: bool) -> bool:
             changed = True
 
     if not changed:
-        rprint("  [dim]No Observal artifacts found[/dim]")
+        rprint("  [dim]No DevLibrary artifacts found[/dim]")
 
     return changed
 
 
 def _cleanup_copilot_cli(dry_run: bool) -> bool:
-    """Remove Observal hooks from ~/.copilot/hooks/observal.json."""
+    """Remove DevLibrary hooks from ~/.copilot/hooks/observal.json."""
     rprint("[cyan]Copilot CLI[/cyan]")
     hooks_path = Path.home() / ".copilot" / "hooks" / "observal.json"
 
@@ -1118,7 +1118,7 @@ def _cleanup_copilot_cli(dry_run: bool) -> bool:
 
 
 def _cleanup_opencode(dry_run: bool) -> bool:
-    """Remove Observal plugin from ~/.config/opencode/plugins/."""
+    """Remove DevLibrary plugin from ~/.config/opencode/plugins/."""
     rprint("[cyan]OpenCode[/cyan]")
     plugin_path = Path.home() / ".config" / "opencode" / "plugins" / "observal-plugin.ts"
 
@@ -1135,7 +1135,7 @@ def _cleanup_opencode(dry_run: bool) -> bool:
 
 
 def _cleanup_goose(dry_run: bool) -> bool:
-    """Remove Observal hook rules from ~/.agents/plugins/observal/, keeping foreign ones."""
+    """Remove DevLibrary hook rules from ~/.agents/plugins/observal/, keeping foreign ones."""
     import shutil
 
     from observal_cli.harness_specs.goose_hooks_spec import hooks_file, plugin_dir
@@ -1172,7 +1172,7 @@ def _cleanup_goose(dry_run: bool) -> bool:
 
     if foreign:
         verb = "Would remove" if dry_run else "Removed"
-        rprint(f"  {verb} Observal hooks from {esc(hooks_path)} (kept {len(foreign)} foreign event(s))")
+        rprint(f"  {verb} DevLibrary hooks from {esc(hooks_path)} (kept {len(foreign)} foreign event(s))")
         if not dry_run:
             _atomic_write(hooks_path, json.dumps({**data, "hooks": foreign}, indent=2) + "\n")
         return True
@@ -1198,12 +1198,12 @@ def doctor_patch(
     dry_run: bool = typer.Option(False, "--dry-run", "-n", help="Preview without writing"),
     output: OutputMode = typer.Option("table", "--output", "-o"),
 ):
-    """Install Observal-managed session telemetry for selected harnesses.
+    """Install DevLibrary-managed session telemetry for selected harnesses.
 
     Examples:
-      observal doctor patch --all-harnesses --dry-run
-      observal doctor patch --harness claude-code
-      observal doctor patch --all-harnesses --output json
+      dev-library doctor patch --all-harnesses --dry-run
+      dev-library doctor patch --harness claude-code
+      dev-library doctor patch --all-harnesses --output json
     """
     output = _value(output)
     all_harnesses = _value(all_harnesses)
@@ -1231,14 +1231,14 @@ def doctor_patch(
     if not cfg.get("server_url"):
         fail(
             ErrorCategory.AUTH,
-            "Observal authentication is not configured.",
+            "DevLibrary authentication is not configured.",
             operation="Patch Doctor instrumentation",
             resource="CLI configuration",
-            remediation="Run `observal auth login` and retry.",
+            remediation="Run `dev-library auth login` and retry.",
         )
 
     with _capture(output):
-        rprint("[bold]Observal Doctor: Patch[/bold]\n")
+        rprint("[bold]DevLibrary Doctor: Patch[/bold]\n")
         result = _patch_targets(targets, dry_run=dry_run, output=output)
         if dry_run:
             rprint("\n[yellow]Dry run, no changes made.[/yellow]")
@@ -1263,7 +1263,7 @@ def _patch_claude_code(dry_run: bool) -> bool:
 
     desired_hooks = get_desired_hooks()
 
-    # No env vars needed for session push - config lives in ~/.observal/config.json
+    # No env vars needed for session push - config lives in ~/.dev-library/config.json
     changes = settings_reconciler.reconcile(desired_hooks, {}, dry_run=dry_run)
 
     if changes:
@@ -1363,11 +1363,11 @@ def _patch_cursor(dry_run: bool) -> bool:
         rprint("  [dim]Already up to date[/dim]")
         return False
 
-    # Merge: keep existing non-Observal hooks, add ours
+    # Merge: keep existing non-DevLibrary hooks, add ours
     merged_hooks = existing_hooks.copy()
     for event, desired_entries in desired["hooks"].items():
         current = merged_hooks.get(event, [])
-        # Remove old Observal hooks
+        # Remove old DevLibrary hooks
         cleaned = [
             h
             for h in current
@@ -1514,12 +1514,12 @@ def _patch_codex(dry_run: bool) -> bool:
         rprint("  [dim]Already up to date[/dim]")
         return False
 
-    # Merge hooks: preserve non-Observal hooks, add ours
+    # Merge hooks: preserve non-DevLibrary hooks, add ours
     if needs_update:
         merged_hooks = existing_hooks.copy()
         for event, desired_groups in desired["hooks"].items():
             current = merged_hooks.get(event, [])
-            # Remove old Observal hook groups
+            # Remove old DevLibrary hook groups
             cleaned = [
                 g
                 for g in current
@@ -1630,7 +1630,7 @@ def _patch_copilot(dry_run: bool) -> bool:
         python_path = _sys.executable
     else:
         # Running from WSL/Linux: resolve Windows uv tools path
-        # Standard location: %APPDATA%/uv/tools/observal-cli/Scripts/python.exe
+        # Standard location: %APPDATA%/uv/tools/dev-library-cli/Scripts/python.exe
         # In WSL this maps to /mnt/c/Users/<user>/AppData/Roaming/uv/tools/...
         import os
 
@@ -1642,12 +1642,14 @@ def _patch_copilot(dry_run: bool) -> bool:
             cwd_str = str(Path.cwd())
             if "/mnt/c/Users/" in cwd_str:
                 win_user = cwd_str.split("/mnt/c/Users/")[1].split("/")[0]
-                python_path = f"C:\\Users\\{win_user}\\AppData\\Roaming\\uv\\tools\\observal-cli\\Scripts\\python.exe"
+                python_path = (
+                    f"C:\\Users\\{win_user}\\AppData\\Roaming\\uv\\tools\\dev-library-cli\\Scripts\\python.exe"
+                )
             else:
                 # Fallback: use bare 'python' and hope it's on Windows PATH
                 python_path = "python"
         else:
-            python_path = f"{win_appdata}\\uv\\tools\\observal-cli\\Scripts\\python.exe"
+            python_path = f"{win_appdata}\\uv\\tools\\dev-library-cli\\Scripts\\python.exe"
 
     ps1_content = build_copilot_run_hook_ps1(python_path)
 
@@ -1700,11 +1702,11 @@ def _patch_copilot_cli(dry_run: bool) -> bool:
         rprint("  [dim]Already up to date[/dim]")
         return False
 
-    # Merge: keep existing non-Observal hooks, add ours
+    # Merge: keep existing non-DevLibrary hooks, add ours
     merged_hooks = existing_hooks.copy()
     for event, desired_entries in desired["hooks"].items():
         current = merged_hooks.get(event, [])
-        # Remove old Observal hooks
+        # Remove old DevLibrary hooks
         cleaned = [
             h
             for h in current
@@ -1760,7 +1762,7 @@ def _patch_opencode(dry_run: bool) -> bool:
 
 
 def _patch_goose(dry_run: bool) -> bool:
-    """Install the Observal hook plugin into ~/.agents/plugins/observal/."""
+    """Install the DevLibrary hook plugin into ~/.agents/plugins/observal/."""
     optic.debug("_patch_goose: dry_run={}", dry_run)
     from observal_cli.harness_specs.goose_hooks_spec import (
         build_hooks,

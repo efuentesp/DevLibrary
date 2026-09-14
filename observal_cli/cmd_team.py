@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""``observal team`` - teamspace creation, membership, and listing."""
+"""``dev-library team`` - teamspace creation, membership, and listing."""
 
 from __future__ import annotations
 
@@ -21,9 +21,9 @@ team_app = typer.Typer(
     help=(
         "Manage teamspaces: creation, membership, access, and visibility.\n\n"
         "Examples:\n"
-        "  observal team list\n"
-        "  observal team show platform-tools\n"
-        "  observal team members list platform-tools"
+        "  dev-library team list\n"
+        "  dev-library team show platform-tools\n"
+        "  dev-library team members list platform-tools"
     ),
     no_args_is_help=True,
 )
@@ -32,9 +32,9 @@ members_app = typer.Typer(
     help=(
         "Manage team membership.\n\n"
         "Examples:\n"
-        "  observal team members list platform-tools\n"
-        "  observal team members add platform-tools alice@example.com\n"
-        "  observal team members remove platform-tools @alice"
+        "  dev-library team members list platform-tools\n"
+        "  dev-library team members add platform-tools alice@example.com\n"
+        "  dev-library team members remove platform-tools @alice"
     ),
     no_args_is_help=True,
 )
@@ -43,9 +43,9 @@ invite_app = typer.Typer(
     help=(
         "Manage private-team invitation links.\n\n"
         "Examples:\n"
-        "  observal team invite list platform-tools\n"
-        "  observal team invite create platform-tools\n"
-        "  observal team invite preview INVITE_TOKEN"
+        "  dev-library team invite list platform-tools\n"
+        "  dev-library team invite create platform-tools\n"
+        "  dev-library team invite preview INVITE_TOKEN"
     ),
     no_args_is_help=True,
 )
@@ -54,9 +54,9 @@ visibility_app = typer.Typer(
     help=(
         "Manage and review teamspace visibility.\n\n"
         "Examples:\n"
-        "  observal team visibility set platform-tools private\n"
-        "  observal team visibility list-requests\n"
-        "  observal team visibility approve platform-tools"
+        "  dev-library team visibility set platform-tools private\n"
+        "  dev-library team visibility list-requests\n"
+        "  dev-library team visibility approve platform-tools"
     ),
     no_args_is_help=True,
 )
@@ -65,9 +65,9 @@ request_app = typer.Typer(
     help=(
         "Manage teamspace join requests.\n\n"
         "Examples:\n"
-        "  observal team request join platform-tools\n"
-        "  observal team request mine platform-tools\n"
-        "  observal team request list platform-tools"
+        "  dev-library team request join platform-tools\n"
+        "  dev-library team request mine platform-tools\n"
+        "  dev-library team request list platform-tools"
     ),
     no_args_is_help=True,
 )
@@ -197,11 +197,11 @@ def list_teams(
 
     Examples:
 
-        observal team list
+        dev-library team list
 
-        observal team list --all
+        dev-library team list --all
 
-        observal team list --output json
+        dev-library team list --output json
     """
     path = "/api/v1/teams/all" if all_teams else "/api/v1/teams"
     rows = client.get(path)
@@ -235,11 +235,11 @@ def show_team(
 
     Examples:
 
-        observal team show platform-tools
+        dev-library team show platform-tools
 
-        observal team show platform-tools --output json
+        dev-library team show platform-tools --output json
 
-        observal team show 36e0c516-7a7f-4fec-ad2c-b47eb426b8a7
+        dev-library team show 36e0c516-7a7f-4fec-ad2c-b47eb426b8a7
     """
     team_id = _resolve_team_id(team)
     detail = client.get(f"/api/v1/teams/{team_id}")
@@ -278,9 +278,9 @@ def create_team(
 
     Examples:
 
-        observal team create 'Platform Tools' --handle platform-tools --description 'Internal tooling'
+        dev-library team create 'Platform Tools' --handle platform-tools --description 'Internal tooling'
 
-        observal team create 'SRE' -h sre -d 'Site reliability' --visibility private
+        dev-library team create 'SRE' -h sre -d 'Site reliability' --visibility private
     """
     name = _validate_text(name, "teamspace name", 255, "Create teamspace")
     visibility = _validate_choice(visibility, _VISIBILITIES, "teamspace visibility", "Create teamspace")
@@ -311,9 +311,9 @@ def claim_personal_teamspace(
 
     Examples:
 
-        observal team claim-personal
+        dev-library team claim-personal
 
-        observal team claim-personal --output json
+        dev-library team claim-personal --output json
     """
     response = client.post("/api/v1/teams/claim-personal")
     if output == "json":
@@ -332,9 +332,9 @@ def set_visibility(
 
     Examples:
 
-        observal team visibility set platform-tools private
+        dev-library team visibility set platform-tools private
 
-        observal team visibility set sre public --output json
+        dev-library team visibility set sre public --output json
     """
     visibility = _validate_choice(visibility, _VISIBILITIES, "teamspace visibility", "Update teamspace visibility")
     team_id = _resolve_team_id(team)
@@ -353,9 +353,9 @@ def list_visibility_requests(
 
     Examples:
 
-        observal team visibility list-requests
+        dev-library team visibility list-requests
 
-        observal team visibility list-requests --output json
+        dev-library team visibility list-requests --output json
     """
     rows = client.get("/api/v1/teams/visibility-requests")
     if output == "json":
@@ -388,9 +388,9 @@ def approve_visibility_request(
 
     Examples:
 
-        observal team visibility approve platform-tools
+        dev-library team visibility approve platform-tools
 
-        observal team visibility approve platform-tools --output json
+        dev-library team visibility approve platform-tools --output json
     """
     team_id = _resolve_team_id(team)
     response = client.post(f"/api/v1/teams/{team_id}/visibility-request/approve")
@@ -410,9 +410,9 @@ def reject_visibility_request(
 
     Examples:
 
-        observal team visibility reject platform-tools
+        dev-library team visibility reject platform-tools
 
-        observal team visibility reject platform-tools --reason 'Needs a public description' --output json
+        dev-library team visibility reject platform-tools --reason 'Needs a public description' --output json
     """
     reason = _option_value(reason)
     reason = (
@@ -441,9 +441,9 @@ def delete_team(
 
     Examples:
 
-        observal team delete platform-tools --yes
+        dev-library team delete platform-tools --yes
 
-        observal team delete 36e0c516-7a7f-4fec-ad2c-b47eb426b8a7 -y
+        dev-library team delete 36e0c516-7a7f-4fec-ad2c-b47eb426b8a7 -y
     """
     yes = _require_confirmation(output, yes, "Delete teamspace")
     team_id = _resolve_team_id(team)
@@ -466,9 +466,9 @@ def leave_team(
 
     Examples:
 
-        observal team leave platform-tools
+        dev-library team leave platform-tools
 
-        observal team leave sre
+        dev-library team leave sre
     """
     yes = _require_confirmation(output, yes, "Leave teamspace")
     team_id = _resolve_team_id(team)
@@ -490,9 +490,9 @@ def list_members(
 
     Examples:
 
-        observal team members list platform-tools
+        dev-library team members list platform-tools
 
-        observal team members list sre --output json
+        dev-library team members list sre --output json
     """
     team_id = _resolve_team_id(team)
     rows = client.get(f"/api/v1/teams/{team_id}/members")
@@ -525,8 +525,8 @@ def create_invite(
     """Create a private-team invitation link. Owner or global admin only.
 
     Examples:
-      observal team invite create platform-tools
-      observal team invite create platform-tools --name onboarding --expires-days 30
+      dev-library team invite create platform-tools
+      dev-library team invite create platform-tools --name onboarding --expires-days 30
     """
     invite_name = _validate_text(name, "invite name", 100, "Create team invite") if name is not None else None
     team_id = _resolve_team_id(team)
@@ -550,8 +550,8 @@ def list_invites(
     """List invitation links for a private teamspace.
 
     Examples:
-      observal team invite list platform-tools
-      observal team invite list platform-tools --output json
+      dev-library team invite list platform-tools
+      dev-library team invite list platform-tools --output json
     """
     team_id = _resolve_team_id(team)
     rows = client.get(f"/api/v1/teams/{team_id}/invites")
@@ -593,7 +593,7 @@ def revoke_invite(
     """Revoke a private-team invitation link. Owner or global admin only.
 
     Examples:
-      observal team invite revoke platform-tools 550e8400-e29b-41d4-a716-446655440000
+      dev-library team invite revoke platform-tools 550e8400-e29b-41d4-a716-446655440000
     """
     invite_id = _validate_uuid(invite_id, "invite ID", "Revoke team invite")
     yes = _require_confirmation(output, yes, "Revoke team invite")
@@ -616,9 +616,9 @@ def preview_invite(
 
     Examples:
 
-        observal team invite preview INVITE_TOKEN
+        dev-library team invite preview INVITE_TOKEN
 
-        observal team invite preview INVITE_TOKEN --output json
+        dev-library team invite preview INVITE_TOKEN --output json
     """
     token = _validate_text(token, "invite token", 128, "Preview team invite")
     response = client.post(
@@ -658,9 +658,9 @@ def request_via_invite(
 
     Examples:
 
-        observal team invite request INVITE_TOKEN
+        dev-library team invite request INVITE_TOKEN
 
-        observal team invite request INVITE_TOKEN --message 'I maintain deployments' --output json
+        dev-library team invite request INVITE_TOKEN --message 'I maintain deployments' --output json
     """
     token = _validate_text(token, "invite token", 128, "Request teamspace access via invite")
     message = _option_value(message)
@@ -710,9 +710,9 @@ def delete_invite(
 
     Examples:
 
-        observal team invite delete platform-tools 550e8400-e29b-41d4-a716-446655440000
+        dev-library team invite delete platform-tools 550e8400-e29b-41d4-a716-446655440000
 
-        observal team invite delete platform-tools 550e8400-e29b-41d4-a716-446655440000 --yes --output json
+        dev-library team invite delete platform-tools 550e8400-e29b-41d4-a716-446655440000 --yes --output json
     """
     invite_id = _validate_uuid(invite_id, "invite ID", "Delete team invite")
     yes = _require_confirmation(output, yes, "Delete team invite")
@@ -736,9 +736,9 @@ def list_invite_requests(
 
     Examples:
 
-        observal team invite requests platform-tools 550e8400-e29b-41d4-a716-446655440000
+        dev-library team invite requests platform-tools 550e8400-e29b-41d4-a716-446655440000
 
-        observal team invite requests platform-tools 550e8400-e29b-41d4-a716-446655440000 --output json
+        dev-library team invite requests platform-tools 550e8400-e29b-41d4-a716-446655440000 --output json
     """
     invite_id = _validate_uuid(invite_id, "invite ID", "List team invite requests")
     team_id = _resolve_team_id(team)
@@ -762,9 +762,9 @@ def request_join(
 
     Examples:
 
-        observal team request join platform-tools
+        dev-library team request join platform-tools
 
-        observal team request join sre --message 'I maintain the pager rotation' --output json
+        dev-library team request join sre --message 'I maintain the pager rotation' --output json
     """
     message = _option_value(message)
     message = (
@@ -793,9 +793,9 @@ def list_join_requests(
 
     Examples:
 
-        observal team request list platform-tools
+        dev-library team request list platform-tools
 
-        observal team request list sre --status pending --output json
+        dev-library team request list sre --status pending --output json
     """
     status = _option_value(status)
     status = (
@@ -822,9 +822,9 @@ def list_my_join_requests(
 
     Examples:
 
-        observal team request mine platform-tools
+        dev-library team request mine platform-tools
 
-        observal team request mine platform-tools --output json
+        dev-library team request mine platform-tools --output json
     """
     team_id = _resolve_team_id(team)
     rows = client.get(f"/api/v1/teams/{team_id}/join-requests/mine")
@@ -847,9 +847,9 @@ def withdraw_join_request(
 
     Examples:
 
-        observal team request withdraw platform-tools
+        dev-library team request withdraw platform-tools
 
-        observal team request withdraw platform-tools --yes --output json
+        dev-library team request withdraw platform-tools --yes --output json
     """
     yes = _require_confirmation(output, yes, "Withdraw teamspace join request")
     team_id = _resolve_team_id(team)
@@ -898,9 +898,9 @@ def approve_join_request(
 
     Examples:
 
-        observal team request approve platform-tools @alice
+        dev-library team request approve platform-tools @alice
 
-        observal team request approve sre bob@example.com --output json
+        dev-library team request approve sre bob@example.com --output json
     """
     user = _validate_text(user, "requester identity", 320, "Approve team join request")
     team_id = _resolve_team_id(team)
@@ -923,9 +923,9 @@ def reject_join_request(
 
     Examples:
 
-        observal team request reject platform-tools @alice --reason 'Use the sre teamspace instead'
+        dev-library team request reject platform-tools @alice --reason 'Use the sre teamspace instead'
 
-        observal team request reject sre bob@example.com --output json
+        dev-library team request reject sre bob@example.com --output json
     """
     user = _validate_text(user, "requester identity", 320, "Reject team join request")
     reason = _option_value(reason)
@@ -955,9 +955,9 @@ def add_member(
 
     Examples:
 
-        observal team members add platform-tools alice@example.com --role reviewer
+        dev-library team members add platform-tools alice@example.com --role reviewer
 
-        observal team members add sre @bob -r owner
+        dev-library team members add sre @bob -r owner
     """
     user = _validate_text(user, "member identity", 320, "Add team member")
     role = _validate_choice(role, _ROLES, "team member role", "Add team member")
@@ -985,9 +985,9 @@ def remove_member(
 
     Examples:
 
-        observal team members remove platform-tools @bob --yes
+        dev-library team members remove platform-tools @bob --yes
 
-        observal team members remove sre alice@example.com -y
+        dev-library team members remove sre alice@example.com -y
     """
     user = _validate_text(user, "member identity", 320, "Remove team member")
     yes = _require_confirmation(output, yes, "Remove team member")

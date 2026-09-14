@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -499,7 +499,7 @@ def test_list_surfaces_http_failure(monkeypatch):
     assert result.exit_code == 1
     assert isinstance(result.exception, SystemExit)
     assert "Error (unexpected)" in result.output
-    assert "Run observal registry hook list" in result.output
+    assert "Run dev-library registry hook list" in result.output
 
 
 def test_show_renders_optional_metadata_and_json(monkeypatch):
@@ -540,7 +540,7 @@ def test_show_surfaces_http_failure(monkeypatch):
     assert result.exit_code == 1
     assert isinstance(result.exception, SystemExit)
     assert "Error (unexpected)" in result.output
-    assert "Run observal registry hook show" in result.output
+    assert "Run dev-library registry hook show" in result.output
 
 
 def test_install_raw_preserves_server_result_and_skips_writes(tmp_path, monkeypatch):
@@ -734,7 +734,7 @@ def test_install_surfaces_generation_failure_without_writing(tmp_path, monkeypat
     assert result.exit_code == 1
     assert isinstance(result.exception, SystemExit)
     assert "Error (unexpected)" in result.output
-    assert "Run observal registry hook install" in result.output
+    assert "Run dev-library registry hook install" in result.output
     assert not project.exists()
 
 

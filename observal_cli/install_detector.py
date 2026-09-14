@@ -45,7 +45,7 @@ def detect() -> InstallInfo:
     if _cached_info is not None:
         return _cached_info
 
-    binary_path = Path(shutil.which("observal") or sys.executable).resolve()
+    binary_path = Path(shutil.which("dev-library") or sys.executable).resolve()
     path_str = str(binary_path).lower()
 
     info = _detect_from_path(binary_path, path_str)
@@ -58,7 +58,7 @@ def detect() -> InstallInfo:
 def upgrade_command(target_version: str, install_info: InstallInfo | None = None) -> str:
     """Return the command users should run to install a specific CLI version."""
     info = install_info or detect()
-    package = f"observal-cli=={target_version}"
+    package = f"dev-library-cli=={target_version}"
 
     if info.method == InstallMethod.UV_TOOL:
         return f"uv tool install --force {shlex.quote(package)}"
@@ -69,15 +69,15 @@ def upgrade_command(target_version: str, install_info: InstallInfo | None = None
     if info.method == InstallMethod.BINARY and info.managed_by == "curl":
         return f"curl -fsSL {INSTALLER_URL} | bash -s -- --version {_release_tag(target_version)}"
     if info.method == InstallMethod.HOMEBREW:
-        return "brew upgrade observal"
+        return "brew upgrade dev-library"
     if info.method == InstallMethod.SYSTEM_PACKAGE and info.managed_by:
         return f"{info.managed_by} upgrade observal"
-    return f"observal self upgrade --version {target_version} --force"
+    return f"dev-library self upgrade --version {target_version} --force"
 
 
 def downgrade_command(target_version: str) -> str:
     """Return the command users should run to downgrade the CLI to a specific version."""
-    return f"observal self downgrade --version {target_version} --force"
+    return f"dev-library self downgrade --version {target_version} --force"
 
 
 def _detect_from_path(binary_path: Path, path_str: str) -> InstallInfo:
@@ -152,7 +152,7 @@ def _detect_from_path(binary_path: Path, path_str: str) -> InstallInfo:
 
 
 def _check_uv_tool_list() -> bool:
-    """Check if observal-cli is in uv tool list output."""
+    """Check if dev-library-cli is in uv tool list output."""
     try:
         r = subprocess.run(
             ["uv", "tool", "list"],
@@ -160,13 +160,13 @@ def _check_uv_tool_list() -> bool:
             text=True,
             timeout=5,
         )
-        return r.returncode == 0 and "observal-cli" in r.stdout
+        return r.returncode == 0 and "dev-library-cli" in r.stdout
     except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
         return False
 
 
 def _check_pipx_list() -> bool:
-    """Check if observal-cli is in pipx list output."""
+    """Check if dev-library-cli is in pipx list output."""
     try:
         r = subprocess.run(
             ["pipx", "list"],
@@ -174,7 +174,7 @@ def _check_pipx_list() -> bool:
             text=True,
             timeout=5,
         )
-        return r.returncode == 0 and "observal-cli" in r.stdout
+        return r.returncode == 0 and "dev-library-cli" in r.stdout
     except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
         return False
 
@@ -232,7 +232,7 @@ def _release_tag(version: str) -> str:
 def _detect_system_pkg_mgr() -> str | None:
     """Detect which system package manager owns the observal binary."""
     checks = [
-        (["dpkg", "-S", "observal"], "apt"),
+        (["dpkg", "-S", "dev-library"], "apt"),
         (["rpm", "-qf", "/usr/bin/observal"], "dnf"),
     ]
     for cmd, name in checks:

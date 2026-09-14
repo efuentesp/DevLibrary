@@ -58,7 +58,7 @@ class TestDetectFromPath:
         assert result.managed_by == "uv"
 
     def test_pipx_path_detected(self, monkeypatch, tmp_path):
-        pipx_dir = tmp_path / ".local" / "share" / "pipx" / "venvs" / "observal-cli" / "bin"
+        pipx_dir = tmp_path / ".local" / "share" / "pipx" / "venvs" / "dev-library-cli" / "bin"
         pipx_dir.mkdir(parents=True)
         binary = pipx_dir / "observal"
         binary.touch()
@@ -114,7 +114,7 @@ class TestWritableCheck:
 class TestUpgradeCommand:
     def test_pipx_command(self):
         info = InstallInfo(InstallMethod.PIPX, Path("/fake/observal"), True, "pipx")
-        assert upgrade_command("1.2.0", info) == "pipx install --force observal-cli==1.2.0"
+        assert upgrade_command("1.2.0", info) == "pipx install --force dev-library-cli==1.2.0"
 
     def test_curl_command_uses_installer(self):
         info = InstallInfo(InstallMethod.BINARY, Path("/fake/observal"), True, "curl")
@@ -125,4 +125,4 @@ class TestUpgradeCommand:
 
     def test_unknown_command_uses_noninteractive_self_upgrade(self):
         info = InstallInfo(InstallMethod.UNKNOWN, Path("/fake/observal"), True, None)
-        assert upgrade_command("1.2.0", info) == "observal self upgrade --version 1.2.0 --force"
+        assert upgrade_command("1.2.0", info) == "dev-library self upgrade --version 1.2.0 --force"

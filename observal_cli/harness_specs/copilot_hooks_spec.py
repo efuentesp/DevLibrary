@@ -58,7 +58,7 @@ def build_copilot_hooks(hooks_dir: str = ".github/hooks", bash_cmd: str | None =
 
 def build_copilot_run_hook_ps1(python_path: str) -> str:
     """Return the PowerShell bridge to the shared acknowledged session hook."""
-    return f"""# Observal session push hook for VS Code Copilot.
+    return f"""# DevLibrary session push hook for VS Code Copilot.
 $stdinData = [Console]::In.ReadToEnd()
 $python = "{python_path}"
 $stdinData | & $python -m observal_cli.hooks.session_push --harness copilot --json-response 2>$null

@@ -5,7 +5,7 @@
 # SPDX-FileCopyrightText: 2026 Shreem Seth <shreemseth26@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for the `observal pull` command."""
+"""Tests for the `dev-library pull` command."""
 
 from __future__ import annotations
 
@@ -1030,7 +1030,7 @@ class TestAgentPublish:
         assert result.exit_code == 0, result.output
         assert "Agent submitted!" in result.output
         assert "new-agent-uuid" in result.output
-        assert "observal agent pull tester/test-agent" in result.output
+        assert "dev-library agent pull tester/test-agent" in result.output
         # A public publish stays in the review queue, so the CLI must say so.
         assert "an admin must approve it" in result.output
 
@@ -1063,7 +1063,7 @@ class TestAgentPublish:
             )
         assert result.exit_code == 0, result.output
         assert "Agent submitted!" in result.output
-        assert "observal agent pull platform/test-agent" in result.output
+        assert "dev-library agent pull platform/test-agent" in result.output
         assert "must approve" not in result.output
 
         payload = mock_post_fn.call_args[0][1]

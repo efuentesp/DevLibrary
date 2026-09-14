@@ -121,7 +121,7 @@ class CopilotCliAdapter(BaseAdapter):
         return build_copilot_cli_hooks(agent_id=agent_id or "")
 
     def detect_hooks(self, config_dir: Path) -> str:
-        """Check for Observal hooks in both project and user-level hook dirs."""
+        """Check for DevLibrary hooks in both project and user-level hook dirs."""
         # Check user-level hooks
         home = Path.home()
         user_hooks_dir = home / ".copilot" / "hooks"
@@ -278,7 +278,7 @@ class CopilotCliAdapter(BaseAdapter):
         return hooks
 
     def _has_observal_hooks(self, hooks_dir: Path) -> bool:
-        """Check if any hook file in the directory contains Observal markers."""
+        """Check if any hook file in the directory contains DevLibrary markers."""
         if not hooks_dir.is_dir():
             return False
         for hook_file in hooks_dir.glob("*.json"):

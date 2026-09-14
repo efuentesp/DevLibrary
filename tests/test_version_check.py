@@ -82,7 +82,7 @@ def isolated_boundaries(tmp_path, monkeypatch: pytest.MonkeyPatch) -> SimpleName
     monkeypatch.setattr(version_check, "_machine_key", lambda: b"test-machine")
     monkeypatch.setattr(version_check.httpx, "get", http_get)
     monkeypatch.setattr(version_check.httpx, "head", http_head)
-    monkeypatch.delenv("OBSERVAL_NO_UPDATE_CHECK", raising=False)
+    monkeypatch.delenv("DEVLIBRARY_NO_UPDATE_CHECK", raising=False)
 
     return SimpleNamespace(
         config=config,
@@ -128,16 +128,16 @@ def test_get_current_version_reads_installed_distribution(monkeypatch: pytest.Mo
     monkeypatch.setattr(importlib.metadata, "version", metadata_version)
 
     assert version_check.get_current_version() == "2.4.1rc1"
-    metadata_version.assert_called_once_with("observal-cli")
+    metadata_version.assert_called_once_with("dev-library-cli")
 
 
 def test_get_current_version_uses_development_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
-    failure = importlib.metadata.PackageNotFoundError("observal-cli")
+    failure = importlib.metadata.PackageNotFoundError("dev-library-cli")
     metadata_version = MagicMock(side_effect=failure)
     monkeypatch.setattr(importlib.metadata, "version", metadata_version)
 
     assert version_check.get_current_version() == "0.0.0"
-    metadata_version.assert_called_once_with("observal-cli")
+    metadata_version.assert_called_once_with("dev-library-cli")
 
 
 @pytest.mark.parametrize(
@@ -419,7 +419,7 @@ def test_fetch_from_server_returns_canonical_version_with_exact_request(
         timeout=version_check.CHECK_TIMEOUT,
         headers={
             "Authorization": "Bearer secret-token",
-            "User-Agent": f"observal-cli/{current_version}",
+            "User-Agent": f"dev-library-cli/{current_version}",
         },
     )
 
@@ -489,7 +489,7 @@ GITHUB_RELEASE = {
 def github_headers(current: str) -> dict[str, str]:
     return {
         "Accept": "application/vnd.github+json",
-        "User-Agent": f"observal-cli/{current}",
+        "User-Agent": f"dev-library-cli/{current}",
         "X-GitHub-Api-Version": "2022-11-28",
     }
 
@@ -652,7 +652,7 @@ def test_fetch_available_server_images_authenticates_filters_and_sorts(
         call(
             "https://ghcr.io/token?scope=repository:observal/observal-api:pull",
             timeout=10,
-            headers={"User-Agent": f"observal-cli/{current_version}"},
+            headers={"User-Agent": f"dev-library-cli/{current_version}"},
         ),
         call(
             f"{version_check.GHCR_API_BASE}/observal-api/tags/list",
@@ -660,7 +660,7 @@ def test_fetch_available_server_images_authenticates_filters_and_sorts(
             headers={
                 "Authorization": "Bearer registry-token",
                 "Accept": "application/vnd.oci.image.index.v1+json",
-                "User-Agent": f"observal-cli/{current_version}",
+                "User-Agent": f"dev-library-cli/{current_version}",
             },
         ),
     ]
@@ -734,7 +734,7 @@ def test_verify_server_image_exists_uses_exact_manifest_request(
     get.assert_called_once_with(
         "https://ghcr.io/token?scope=repository:observal/observal-api:pull",
         timeout=10,
-        headers={"User-Agent": f"observal-cli/{current_version}"},
+        headers={"User-Agent": f"dev-library-cli/{current_version}"},
     )
     head.assert_called_once_with(
         f"{version_check.GHCR_API_BASE}/observal-api/manifests/2.4.1",
@@ -742,7 +742,7 @@ def test_verify_server_image_exists_uses_exact_manifest_request(
         headers={
             "Authorization": "Bearer registry-token",
             "Accept": "application/vnd.oci.image.index.v1+json",
-            "User-Agent": f"observal-cli/{current_version}",
+            "User-Agent": f"dev-library-cli/{current_version}",
         },
     )
 
@@ -877,7 +877,7 @@ def test_maybe_check_honors_nonempty_environment_opt_out(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     read_cache = MagicMock(side_effect=blocked("read cache"))
-    monkeypatch.setenv("OBSERVAL_NO_UPDATE_CHECK", value)
+    monkeypatch.setenv("DEVLIBRARY_NO_UPDATE_CHECK", value)
     monkeypatch.setattr(version_check, "_read_cache", read_cache)
 
     assert version_check.maybe_check() is None
@@ -1357,7 +1357,7 @@ def test_check_version_compatibility_prints_exact_downgrade_guidance_and_exits(
         version_check.check_version_compatibility("https://registry.example.test")
 
     assert error.value.exit_code == 1
-    expected_command = f"observal self downgrade {VERSION_OPTION} 1.0.0"
+    expected_command = f"dev-library self downgrade {VERSION_OPTION} 1.0.0"
     assert messages == [
         "\n[bold red]✖ CLI version 2.0.0 is ahead of server 1.0.0.[/bold red]\n"
         "  Downgrade the CLI to match your server:\n\n"

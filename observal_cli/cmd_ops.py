@@ -84,7 +84,7 @@ def _admin_user(email: str, output: OutputMode | str, operation: str) -> dict:
             f"User not found: {email}.",
             operation=operation,
             resource="user",
-            remediation="Run `observal admin users --output json` and retry with an existing email.",
+            remediation="Run `dev-library admin users --output json` and retry with an existing email.",
         )
     return match
 
@@ -128,9 +128,9 @@ ops_app = typer.Typer(
     help=(
         "Observability and operational commands (sessions, telemetry, rankings, feedback, insights)\n\n"
         "Examples:\n"
-        "  observal ops traces\n"
-        "  observal ops top --type agent\n"
-        "  observal ops telemetry status"
+        "  dev-library ops traces\n"
+        "  dev-library ops top --type agent\n"
+        "  dev-library ops telemetry status"
     ),
     no_args_is_help=True,
 )
@@ -142,9 +142,9 @@ review_app = typer.Typer(
     help=(
         "Submission review commands\n\n"
         "Examples:\n"
-        "  observal admin review list\n"
-        "  observal admin review show 1\n"
-        "  observal admin review approve 1"
+        "  dev-library admin review list\n"
+        "  dev-library admin review show 1\n"
+        "  dev-library admin review approve 1"
     )
 )
 
@@ -164,11 +164,11 @@ def review_list(
 
     Examples:
 
-        observal admin review list
+        dev-library admin review list
 
-        observal admin review list --type mcp
+        dev-library admin review list --type mcp
 
-        observal admin review list --tab agents --output json
+        dev-library admin review list --tab agents --output json
     """
     team_id = _command_value(team_id)
     params = {}
@@ -229,9 +229,9 @@ def review_show(
 
     Examples:
 
-        observal admin review show 1
+        dev-library admin review show 1
 
-        observal admin review show my-mcp-server --output json
+        dev-library admin review show my-mcp-server --output json
     """
     resolved = config.resolve_alias(review_id, expected_type="review")
     with _command_progress(output):
@@ -289,9 +289,9 @@ def review_approve(
 
     Examples:
 
-        observal admin review approve 1
+        dev-library admin review approve 1
 
-        observal admin review approve my-agent --agent --output json
+        dev-library admin review approve my-agent --agent --output json
     """
     path = _review_action_path(review_id, "approve", agent, bundle)
     with _command_progress(output, "Approving..."):
@@ -318,9 +318,9 @@ def review_reject(
 
     Examples:
 
-        observal admin review reject 2 --reason "Missing README"
+        dev-library admin review reject 2 --reason "Missing README"
 
-        observal admin review reject my-agent --agent --reason "Unsafe prompt" --output json
+        dev-library admin review reject my-agent --agent --reason "Unsafe prompt" --output json
     """
     reason = reason.strip()
     if not reason or len(reason) > 5000:
@@ -348,7 +348,7 @@ def review_reject(
 
 telemetry_app = typer.Typer(
     help=(
-        "Telemetry health commands\n\nExamples:\n  observal ops telemetry status\n  observal ops telemetry status --output json"
+        "Telemetry health commands\n\nExamples:\n  dev-library ops telemetry status\n  dev-library ops telemetry status --output json"
     )
 )
 
@@ -365,7 +365,7 @@ def telemetry_status(
 
     Examples:
 
-        observal ops telemetry status
+        dev-library ops telemetry status
     """
     with _command_progress(output, "Checking telemetry..."):
         server = client.get("/api/v1/telemetry/status")
@@ -412,11 +412,11 @@ def _top(
 
     Examples:
 
-        observal ops top
+        dev-library ops top
 
-        observal ops top --type agent
+        dev-library ops top --type agent
 
-        observal ops top --output json
+        dev-library ops top --output json
     """
     _top_impl(item_type, output)
 
@@ -460,15 +460,15 @@ def _rate(
     """Rate an MCP server, agent, or component.
 
     Submits a 1-5 star review. Each user can only submit one review per
-    item. Use `observal ops rate-update` to change it later.
+    item. Use `dev-library ops rate-update` to change it later.
 
     Examples:
 
-        observal ops rate my-mcp --stars 5
+        dev-library ops rate my-mcp --stars 5
 
-        observal ops rate my-agent --type agent -s 4 -c "Great tool usage"
+        dev-library ops rate my-agent --type agent -s 4 -c "Great tool usage"
 
-        observal ops rate my-mcp --stars 5 --anonymous
+        dev-library ops rate my-mcp --stars 5 --anonymous
     """
     _rate_impl(listing_id, stars, listing_type, comment, anonymous, output)
 
@@ -516,9 +516,9 @@ def _rate_update(
 
     Examples:
 
-        observal ops rate-update my-mcp --stars 4
+        dev-library ops rate-update my-mcp --stars 4
 
-        observal ops rate-update my-mcp --comment "Updated opinion" --anonymous
+        dev-library ops rate-update my-mcp --comment "Updated opinion" --anonymous
     """
     listing_type = _command_choice(listing_type, _FEEDBACK_TYPES, "feedback type", "Update registry feedback")
     body = {}
@@ -568,9 +568,9 @@ def _rate_delete(
 
     Examples:
 
-        observal ops rate-delete my-mcp
+        dev-library ops rate-delete my-mcp
 
-        observal ops rate-delete my-agent --type agent
+        dev-library ops rate-delete my-agent --type agent
     """
     listing_type = _command_choice(listing_type, _FEEDBACK_TYPES, "feedback type", "Delete registry feedback")
     yes = _command_value(yes)
@@ -628,11 +628,11 @@ def _feedback(
 
     Examples:
 
-        observal ops feedback my-mcp
+        dev-library ops feedback my-mcp
 
-        observal ops feedback my-agent --type agent
+        dev-library ops feedback my-agent --type agent
 
-        observal ops feedback my-mcp --output json
+        dev-library ops feedback my-mcp --output json
     """
     _feedback_impl(listing_id, listing_type, output)
 
@@ -668,9 +668,9 @@ admin_app = typer.Typer(
     help=(
         "Core administration and submission review commands\n\n"
         "Examples:\n"
-        "  observal admin diagnostics\n"
-        "  observal admin users\n"
-        "  observal admin review list"
+        "  dev-library admin diagnostics\n"
+        "  dev-library admin users\n"
+        "  dev-library admin review list"
     )
 )
 
@@ -683,9 +683,9 @@ def admin_settings(output: OutputMode = typer.Option("table", "--output", "-o"))
 
     Examples:
 
-        observal admin settings
+        dev-library admin settings
 
-        observal admin settings --output json
+        dev-library admin settings --output json
     """
     with _command_progress(output):
         data = client.get("/api/v1/admin/settings")
@@ -716,9 +716,9 @@ def admin_set(
 
     Examples:
 
-        observal admin set max_agents_per_user 10
+        dev-library admin set max_agents_per_user 10
 
-        observal admin set telemetry_retention_days 90
+        dev-library admin set telemetry_retention_days 90
     """
     with _command_progress(output):
         result = client.put(f"/api/v1/admin/settings/{quote(key, safe='')}", {"value": value})
@@ -737,9 +737,9 @@ def admin_users(output: OutputMode = typer.Option("table", "--output", "-o")):
 
     Examples:
 
-        observal admin users
+        dev-library admin users
 
-        observal admin users --output json
+        dev-library admin users --output json
     """
     with _command_progress(output):
         data = client.get("/api/v1/admin/users")
@@ -781,11 +781,11 @@ def admin_create_user(
 
     Examples:
 
-        observal admin create-user alice@example.com "Alice Smith"
+        dev-library admin create-user alice@example.com "Alice Smith"
 
-        observal admin create-user bob@example.com "Bob Jones" --role admin
+        dev-library admin create-user bob@example.com "Bob Jones" --role admin
 
-        observal admin create-user carol@example.com "Carol Lee" -u carol -r reviewer -p s3cret
+        dev-library admin create-user carol@example.com "Carol Lee" -u carol -r reviewer -p s3cret
     """
     role = _command_choice(role, _ADMIN_ROLES, "user role", "Create administrator-managed user")
     body: dict = {"email": email.strip().lower(), "name": name.strip(), "role": role}
@@ -824,9 +824,9 @@ def admin_reset_password(
 
     Examples:
 
-        observal admin reset-password alice@example.com
+        dev-library admin reset-password alice@example.com
 
-        observal admin reset-password alice@example.com --generate --output json
+        dev-library admin reset-password alice@example.com --generate --output json
     """
     output = _command_value(output)
     if output == "json" and not generate:
@@ -876,9 +876,9 @@ def admin_delete_user(
 
     Examples:
 
-        observal admin delete-user alice@example.com
+        dev-library admin delete-user alice@example.com
 
-        observal admin delete-user alice@example.com --force --output json
+        dev-library admin delete-user alice@example.com --force --output json
     """
     force = _command_value(force)
     output = _command_value(output)
@@ -920,9 +920,9 @@ def admin_diagnostics(output: OutputMode = typer.Option("table", "--output", "-o
 
     Examples:
 
-        observal admin diagnostics
+        dev-library admin diagnostics
 
-        observal admin diagnostics --output json
+        dev-library admin diagnostics --output json
     """
     with _command_progress(output):
         data = client.get("/api/v1/admin/diagnostics")
@@ -972,9 +972,9 @@ def admin_saml_config(output: OutputMode = typer.Option("table", "--output", "-o
 
     Examples:
 
-        observal admin saml-config
+        dev-library admin saml-config
 
-        observal admin saml-config --output json
+        dev-library admin saml-config --output json
     """
     with _command_progress(output):
         data = client.get("/api/v1/admin/saml-config")
@@ -983,7 +983,7 @@ def admin_saml_config(output: OutputMode = typer.Option("table", "--output", "-o
         return
     if not data or not data.get("configured"):
         rprint("[dim]SAML SSO is not configured.[/dim]")
-        rprint("Use [bold]observal admin saml-config-set[/bold] to configure.")
+        rprint("Use [bold]dev-library admin saml-config-set[/bold] to configure.")
         return
 
     rprint("\n[bold]SAML SSO Configuration[/bold]\n")
@@ -1010,7 +1010,7 @@ def admin_saml_config_set(
 
     Examples:
 
-        observal admin saml-config-set --idp-entity-id https://idp.example.com \\
+        dev-library admin saml-config-set --idp-entity-id https://idp.example.com \\
             --idp-sso-url https://idp.example.com/sso \\
             --idp-x509-cert "$(cat idp-cert.pem)"
     """
@@ -1066,9 +1066,9 @@ def admin_saml_config_delete(
 
     Examples:
 
-        observal admin saml-config-delete
+        dev-library admin saml-config-delete
 
-        observal admin saml-config-delete --force
+        dev-library admin saml-config-delete --force
     """
     force = _command_value(force)
     output = _command_value(output)
@@ -1102,9 +1102,9 @@ def admin_scim_tokens(output: OutputMode = typer.Option("table", "--output", "-o
 
     Examples:
 
-        observal admin scim-tokens
+        dev-library admin scim-tokens
 
-        observal admin scim-tokens --output json
+        dev-library admin scim-tokens --output json
     """
     with _command_progress(output):
         data = client.get("/api/v1/admin/scim-tokens")
@@ -1113,7 +1113,7 @@ def admin_scim_tokens(output: OutputMode = typer.Option("table", "--output", "-o
         return
     if not data:
         rprint("[dim]No SCIM tokens configured.[/dim]")
-        rprint("Use [bold]observal admin scim-token-create[/bold] to create one.")
+        rprint("Use [bold]dev-library admin scim-token-create[/bold] to create one.")
         return
     table = Table(title="SCIM Tokens", show_lines=False, padding=(0, 1))
     table.add_column("ID", style="dim", max_width=12)
@@ -1144,8 +1144,8 @@ def admin_scim_token_create(
     The token is shown once on creation. Save it securely.
 
     Examples:
-        observal admin scim-token-create
-        observal admin scim-token-create --description "Okta SCIM sync"
+        dev-library admin scim-token-create
+        dev-library admin scim-token-create --description "Okta SCIM sync"
     """
     body: dict = {}
     if description:
@@ -1175,9 +1175,9 @@ def admin_scim_token_revoke(
 
     Examples:
 
-        observal admin scim-token-revoke abc12345-uuid
+        dev-library admin scim-token-revoke abc12345-uuid
 
-        observal admin scim-token-revoke abc12345-uuid --force
+        dev-library admin scim-token-revoke abc12345-uuid --force
     """
     token_id = _uuid(token_id, "SCIM token ID", "Revoke SCIM token")
     force = _command_value(force)
@@ -1219,11 +1219,11 @@ def admin_security_events(
 
     Examples:
 
-        observal admin security-events
+        dev-library admin security-events
 
-        observal admin security-events --type auth.login --severity critical
+        dev-library admin security-events --type auth.login --severity critical
 
-        observal admin security-events --actor alice@example.com -n 100
+        dev-library admin security-events --actor alice@example.com -n 100
     """
     offset = _command_value(offset)
     params: dict = {"limit": limit, "offset": offset}
@@ -1290,9 +1290,9 @@ def admin_audit_log(
 
     Examples:
 
-        observal admin audit-log
+        dev-library admin audit-log
 
-        observal admin audit-log --action auth.login --limit 100 --output json
+        dev-library admin audit-log --action auth.login --limit 100 --output json
     """
     sensitivity = _command_value(sensitivity)
     outcome = _command_value(outcome)
@@ -1364,11 +1364,11 @@ def admin_audit_log_export(
 
     Examples:
 
-        observal admin audit-log-export
+        dev-library admin audit-log-export
 
-        observal admin audit-log-export --file audit.csv
+        dev-library admin audit-log-export --file audit.csv
 
-        observal admin audit-log-export --output json --file audit.json
+        dev-library admin audit-log-export --output json --file audit.json
     """
     output = _command_value(output)
     force = _command_value(force)
@@ -1448,7 +1448,7 @@ def admin_trace_privacy(
 
     Examples:
 
-        observal admin trace-privacy
+        dev-library admin trace-privacy
     """
     with _command_progress(output):
         data = client.get("/api/v1/admin/trace-privacy")
@@ -1472,9 +1472,9 @@ def admin_trace_privacy_set(
 
     Examples:
 
-        observal admin trace-privacy-set true
+        dev-library admin trace-privacy-set true
 
-        observal admin trace-privacy-set false
+        dev-library admin trace-privacy-set false
     """
     with _command_progress(output, "Updating trace privacy..."):
         result = client.put("/api/v1/admin/trace-privacy", {"trace_privacy": enabled})
@@ -1499,7 +1499,7 @@ def admin_cache_clear(
 
     Examples:
 
-        observal admin cache-clear
+        dev-library admin cache-clear
     """
     with _command_progress(output, "Clearing caches..."):
         result = client.post("/api/v1/admin/cache/clear")
@@ -1525,9 +1525,9 @@ def admin_set_role(
 
     Examples:
 
-        observal admin set-role alice@example.com admin
+        dev-library admin set-role alice@example.com admin
 
-        observal admin set-role bob@example.com reviewer
+        dev-library admin set-role bob@example.com reviewer
     """
     role = _command_choice(role, _ADMIN_ROLES, "user role", "Update user role")
     match = _admin_user(email, output, "Update user role")
@@ -1559,11 +1559,11 @@ def _traces(
 
     Examples:
 
-        observal ops traces
+        dev-library ops traces
 
-        observal ops traces --turn
+        dev-library ops traces --turn
 
-        observal ops traces --platform kiro --days 7
+        dev-library ops traces --platform kiro --days 7
     """
     _traces_impl(platform, days, limit, turn, span, output)
 
@@ -1721,9 +1721,9 @@ self_app = typer.Typer(
     help=(
         "CLI self-management commands (upgrade, downgrade, rollback, status)\n\n"
         "Examples:\n"
-        "  observal self status\n"
-        "  observal self upgrade\n"
-        "  observal self rollback"
+        "  dev-library self status\n"
+        "  dev-library self upgrade\n"
+        "  dev-library self rollback"
     ),
     no_args_is_help=True,
 )
@@ -1747,7 +1747,7 @@ def _do_install(install_info, target_version: str, direction: str, output: Outpu
         fail(
             ErrorCategory.UNAVAILABLE,
             f"CLI {direction} failed.",
-            operation=f"{direction.title()} Observal CLI",
+            operation=f"{direction.title()} DevLibrary CLI",
             resource="CLI installation",
             remediation="Review the release, install method, and filesystem permissions, then retry.",
             detail=repr(error),
@@ -1756,7 +1756,7 @@ def _do_install(install_info, target_version: str, direction: str, output: Outpu
         fail(
             ErrorCategory.UNAVAILABLE,
             f"CLI {direction} failed.",
-            operation=f"{direction.title()} Observal CLI",
+            operation=f"{direction.title()} DevLibrary CLI",
             resource="CLI installation",
             remediation="Check network access, the install method, and filesystem permissions, then retry.",
             detail=repr(error),
@@ -1771,7 +1771,7 @@ def _managed_install(install, operation: str) -> None:
     manager = install.managed_by or "the system package manager"
     fail(
         ErrorCategory.CONFLICT,
-        f"Observal is managed by {manager}.",
+        f"DevLibrary is managed by {manager}.",
         operation=operation,
         resource="CLI installation",
         remediation=f"Use `{manager} upgrade observal` or the equivalent package-manager command.",
@@ -1787,12 +1787,12 @@ def upgrade(
     force: bool = typer.Option(False, "--force", "-f", help="Skip interactive confirmation prompt"),
     output: OutputMode = typer.Option("table", "--output", "-o"),
 ):
-    """Upgrade the Observal CLI to the latest or specified version.
+    """Upgrade the DevLibrary CLI to the latest or specified version.
 
     Examples:
-        observal self upgrade --force
-        observal self upgrade --version 2.5.0 --force --output json
-        observal self upgrade --pre --force
+        dev-library self upgrade --force
+        dev-library self upgrade --version 2.5.0 --force --output json
+        dev-library self upgrade --pre --force
     """
     from packaging.version import InvalidVersion, Version
 
@@ -1803,7 +1803,7 @@ def upgrade(
     output = _command_value(output)
     current = version_check.get_current_version()
     install = install_detector.detect()
-    _managed_install(install, "Upgrade Observal CLI")
+    _managed_install(install, "Upgrade DevLibrary CLI")
 
     if version:
         try:
@@ -1812,7 +1812,7 @@ def upgrade(
             fail(
                 ErrorCategory.VALIDATION,
                 f"Invalid target version: {version}.",
-                operation="Upgrade Observal CLI",
+                operation="Upgrade DevLibrary CLI",
                 resource="target version",
                 remediation="Use a release version such as 2.5.0.",
             )
@@ -1823,7 +1823,7 @@ def upgrade(
             fail(
                 ErrorCategory.UNAVAILABLE,
                 "Could not fetch the latest CLI release from GitHub.",
-                operation="Upgrade Observal CLI",
+                operation="Upgrade DevLibrary CLI",
                 resource="GitHub releases",
                 remediation="Check network access and retry, or provide --version.",
             )
@@ -1833,7 +1833,7 @@ def upgrade(
             fail(
                 ErrorCategory.UNAVAILABLE,
                 "GitHub returned an invalid CLI release version.",
-                operation="Upgrade Observal CLI",
+                operation="Upgrade DevLibrary CLI",
                 resource="GitHub releases",
                 remediation="Retry later or provide a known release with --version.",
             )
@@ -1858,9 +1858,9 @@ def upgrade(
             fail(
                 ErrorCategory.VALIDATION,
                 f"Upgrade target v{target} is older than current v{current}.",
-                operation="Upgrade Observal CLI",
+                operation="Upgrade DevLibrary CLI",
                 resource="target version",
-                remediation=f"Use `observal self downgrade --version {target}` instead.",
+                remediation=f"Use `dev-library self downgrade --version {target}` instead.",
             )
     except InvalidVersion:
         pass
@@ -1869,7 +1869,7 @@ def upgrade(
         fail(
             ErrorCategory.VALIDATION,
             "JSON mode cannot prompt before upgrading the CLI.",
-            operation="Upgrade Observal CLI",
+            operation="Upgrade DevLibrary CLI",
             resource="CLI installation",
             remediation="Add --force to confirm the upgrade.",
         )
@@ -1886,7 +1886,7 @@ def upgrade(
         fail(
             ErrorCategory.CONFLICT,
             "Another CLI version change is already running.",
-            operation="Upgrade Observal CLI",
+            operation="Upgrade DevLibrary CLI",
             resource="CLI upgrade lock",
             remediation="Wait for it to finish, then retry.",
             detail=repr(error),
@@ -1916,11 +1916,11 @@ def downgrade(
     force: bool = typer.Option(False, "--force", "-f", help="Skip confirmation prompt"),
     output: OutputMode = typer.Option("table", "--output", "-o"),
 ):
-    """Downgrade the Observal CLI to a previous version.
+    """Downgrade the DevLibrary CLI to a previous version.
 
     Examples:
-        observal self downgrade --list --output json
-        observal self downgrade --version 2.4.0 --force --output json
+        dev-library self downgrade --list --output json
+        dev-library self downgrade --version 2.4.0 --force --output json
     """
     from packaging.version import InvalidVersion, Version
 
@@ -1935,7 +1935,7 @@ def downgrade(
         fail(
             ErrorCategory.VALIDATION,
             "Choose either --list or --version, not both.",
-            operation="Downgrade Observal CLI",
+            operation="Downgrade DevLibrary CLI",
             resource="downgrade mode",
             remediation="Remove one of the conflicting options.",
         )
@@ -1946,7 +1946,7 @@ def downgrade(
             fail(
                 ErrorCategory.UNAVAILABLE,
                 "Could not fetch CLI releases from GitHub.",
-                operation="List Observal CLI releases",
+                operation="List DevLibrary CLI releases",
                 resource="GitHub releases",
                 remediation="Check network access and retry.",
             )
@@ -1977,7 +1977,7 @@ def downgrade(
         fail(
             ErrorCategory.VALIDATION,
             "A target version is required for downgrade.",
-            operation="Downgrade Observal CLI",
+            operation="Downgrade DevLibrary CLI",
             resource="target version",
             remediation="Provide --version or use --list.",
         )
@@ -1987,7 +1987,7 @@ def downgrade(
         fail(
             ErrorCategory.VALIDATION,
             f"Invalid target version: {version}.",
-            operation="Downgrade Observal CLI",
+            operation="Downgrade DevLibrary CLI",
             resource="target version",
             remediation="Use a release version such as 2.4.0.",
         )
@@ -1996,7 +1996,7 @@ def downgrade(
         fail(
             ErrorCategory.VALIDATION,
             f"Cannot downgrade below v{version_check.VERSION_FLOOR}.",
-            operation="Downgrade Observal CLI",
+            operation="Downgrade DevLibrary CLI",
             resource="target version",
             remediation=f"Choose v{version_check.VERSION_FLOOR} or newer.",
         )
@@ -2005,20 +2005,20 @@ def downgrade(
             fail(
                 ErrorCategory.VALIDATION,
                 f"Downgrade target v{target} is not older than current v{current}.",
-                operation="Downgrade Observal CLI",
+                operation="Downgrade DevLibrary CLI",
                 resource="target version",
-                remediation="Choose an older release or use `observal self upgrade`.",
+                remediation="Choose an older release or use `dev-library self upgrade`.",
             )
     except InvalidVersion:
         pass
 
     install = install_detector.detect()
-    _managed_install(install, "Downgrade Observal CLI")
+    _managed_install(install, "Downgrade DevLibrary CLI")
     if output == "json" and not force:
         fail(
             ErrorCategory.VALIDATION,
             "JSON mode cannot prompt before downgrading the CLI.",
-            operation="Downgrade Observal CLI",
+            operation="Downgrade DevLibrary CLI",
             resource="CLI installation",
             remediation="Add --force to confirm the downgrade.",
         )
@@ -2034,7 +2034,7 @@ def downgrade(
         fail(
             ErrorCategory.CONFLICT,
             "Another CLI version change is already running.",
-            operation="Downgrade Observal CLI",
+            operation="Downgrade DevLibrary CLI",
             resource="CLI upgrade lock",
             remediation="Wait for it to finish, then retry.",
             detail=repr(error),
@@ -2055,7 +2055,7 @@ def downgrade(
                 fail(
                     ErrorCategory.UNAVAILABLE,
                     "CLI downgrade failed and the automatic-update setting could not be restored.",
-                    operation="Downgrade Observal CLI",
+                    operation="Downgrade DevLibrary CLI",
                     resource="automatic-update setting",
                     remediation="Restore auto_update to its previous value, then inspect the failed installation.",
                     detail=f"install={install_error!r}; restore={restore_error!r}",
@@ -2088,8 +2088,8 @@ def rollback(
     """Restore the CLI binary saved before the last version change.
 
     Examples:
-        observal self rollback
-        observal self rollback --force --output json
+        dev-library self rollback
+        dev-library self rollback --force --output json
     """
     import os
     import shutil
@@ -2106,7 +2106,7 @@ def rollback(
         fail(
             ErrorCategory.NOT_FOUND,
             "No CLI rollback backup was found.",
-            operation="Rollback Observal CLI",
+            operation="Rollback DevLibrary CLI",
             resource=str(backup),
             remediation="Run a successful binary upgrade or downgrade before rollback.",
         )
@@ -2114,7 +2114,7 @@ def rollback(
         fail(
             ErrorCategory.CONFLICT,
             "Rollback is only supported for standalone binary installations.",
-            operation="Rollback Observal CLI",
+            operation="Rollback DevLibrary CLI",
             resource="CLI installation",
             remediation="Install the previous version with the current package manager.",
         )
@@ -2122,7 +2122,7 @@ def rollback(
         fail(
             ErrorCategory.VALIDATION,
             "JSON mode cannot prompt before rolling back the CLI.",
-            operation="Rollback Observal CLI",
+            operation="Rollback DevLibrary CLI",
             resource="CLI installation",
             remediation="Add --force to confirm rollback.",
         )
@@ -2139,7 +2139,7 @@ def rollback(
         fail(
             ErrorCategory.CONFLICT,
             "Another CLI version change is already running.",
-            operation="Rollback Observal CLI",
+            operation="Rollback DevLibrary CLI",
             resource="CLI upgrade lock",
             remediation="Wait for it to finish, then retry.",
             detail=repr(error),
@@ -2156,7 +2156,7 @@ def rollback(
         fail(
             ErrorCategory.UNAVAILABLE,
             "Could not restore the previous CLI binary.",
-            operation="Rollback Observal CLI",
+            operation="Rollback DevLibrary CLI",
             resource=str(target),
             remediation="Check filesystem permissions and retry.",
             detail=repr(error),
@@ -2180,8 +2180,8 @@ def status(
     """Show the CLI version, install method, and update availability.
 
     Examples:
-        observal self status
-        observal self status --output json
+        dev-library self status
+        dev-library self status --output json
     """
     from observal_cli import install_detector, version_check
 
@@ -2213,7 +2213,7 @@ def status(
         suffix = "update available" if update_available else "up to date"
         rprint(f"  Latest:   [green]v{esc(latest)}[/green] ({suffix})")
         if update_available:
-            rprint("\n  Run: [bold]observal self upgrade[/bold]")
+            rprint("\n  Run: [bold]dev-library self upgrade[/bold]")
     else:
         rprint("  Latest:   [dim]could not reach GitHub[/dim]")
 

@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2026 Hemalatha Madeswaran <hemalathamadeswaran@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""E2E tests for the ``observal scan`` CLI command.
+"""E2E tests for the ``dev-library scan`` CLI command.
 
 Covers (per issue #959):
-  * ``observal scan`` outputs discovered components and never crashes.
+  * ``dev-library scan`` outputs discovered components and never crashes.
 
 The tests redirect ``$HOME`` to a temporary directory so ``Path.home()``
 points at a hermetic sandbox; the CWD is also pinned to the sandbox so the
@@ -34,7 +34,7 @@ runner = CliRunner()
 def sandbox_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Redirect ``Path.home()`` and CWD to an empty temp directory.
 
-    ``observal scan`` walks well-known harness locations rooted at ``~``.  To
+    ``dev-library scan`` walks well-known harness locations rooted at ``~``.  To
     keep the test hermetic we point ``HOME`` at a tmp dir.  We also chdir to
     the same dir so the project-directory scanner has nothing to find.
     """
@@ -54,7 +54,7 @@ def _write_json(path: Path, data: dict) -> None:
 
 
 class TestScanCommand:
-    """``observal scan``."""
+    """``dev-library scan``."""
 
     def test_scan_with_no_ide_dirs_exits_with_message(self, sandbox_home: Path) -> None:
         """An entirely empty home should exit non-zero with a friendly notice."""
@@ -119,7 +119,7 @@ class TestScanCommand:
         assert "claude-only" not in result.output
 
     def test_scan_does_not_modify_files(self, sandbox_home: Path) -> None:
-        """``observal scan`` is documented as read-only — verify nothing is rewritten."""
+        """``dev-library scan`` is documented as read-only — verify nothing is rewritten."""
         kiro_settings = sandbox_home / ".kiro" / "settings" / "mcp.json"
         payload = {"mcpServers": {"unchanged": {"command": "npx", "args": ["-y", "unchanged"]}}}
         _write_json(kiro_settings, payload)

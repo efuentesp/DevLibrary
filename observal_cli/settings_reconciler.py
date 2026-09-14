@@ -8,7 +8,7 @@ Implements a Terraform-style declarative reconciliation:
   2. Compare against desired state from claude_code_hooks_spec
   3. Apply minimal diff: add missing, update stale, preserve foreign
 
-Never deletes non-Observal hooks or env vars.  Identifies Observal
+Never deletes non-DevLibrary hooks or env vars.  Identifies DevLibrary
 hooks by script path pattern, not by position or event name.
 """
 
@@ -54,7 +54,7 @@ def reconcile_hooks(
     current_hooks: dict[str, list],
     desired_hooks: dict[str, list],
 ) -> tuple[dict[str, list], list[str]]:
-    """Merge desired Observal hooks into current hooks non-destructively.
+    """Merge desired DevLibrary hooks into current hooks non-destructively.
 
     Returns (merged_hooks, changes) where changes is a list of
     human-readable strings describing what was modified.
@@ -72,24 +72,24 @@ def reconcile_hooks(
 
         current_groups = merged[event]
 
-        # Partition current groups into Observal-managed and foreign
+        # Partition current groups into DevLibrary-managed and foreign
         foreign_groups = [g for g in current_groups if not is_observal_matcher_group(g)]
         observal_groups = [g for g in current_groups if is_observal_matcher_group(g)]
 
-        # Check if Observal groups match desired (by JSON equality)
+        # Check if DevLibrary groups match desired (by JSON equality)
         if _groups_equal(observal_groups, desired_groups):
             continue  # Already up to date
 
-        # Replace Observal groups with desired, keep foreign ones
+        # Replace DevLibrary groups with desired, keep foreign ones
         merged[event] = foreign_groups + copy.deepcopy(desired_groups)
 
         if observal_groups:
-            changes.append(f"~ {event}: updated Observal hooks")
+            changes.append(f"~ {event}: updated DevLibrary hooks")
         else:
-            changes.append(f"+ {event}: added Observal hooks")
+            changes.append(f"+ {event}: added DevLibrary hooks")
 
     # 2. Events in current but not in desired - leave them alone
-    #    (they might be non-Observal hooks, or events we no longer manage)
+    #    (they might be non-DevLibrary hooks, or events we no longer manage)
 
     return merged, changes
 
@@ -98,7 +98,7 @@ def reconcile_env(
     current_env: dict[str, str],
     desired_env: dict[str, str],
 ) -> tuple[dict[str, str], list[str]]:
-    """Merge desired Observal env vars into current env.
+    """Merge desired DevLibrary env vars into current env.
 
     Only touches keys in MANAGED_ENV_KEYS.  Foreign env vars are
     preserved untouched.

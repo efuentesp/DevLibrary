@@ -92,7 +92,7 @@ class TestDoctorDiagnosis:
         result = runner.invoke(doctor_module.doctor_app, [])
 
         assert result.exit_code == 0
-        assert "Observal Doctor" in _plain(result.output)
+        assert "DevLibrary Doctor" in _plain(result.output)
         assert "Checking Goose" in _plain(result.output)
         assert "All clear! No issues found." in _plain(result.output)
         for check in quiet_diagnosis.checks.values():
@@ -123,8 +123,8 @@ class TestDoctorDiagnosis:
         assert "configuration is broken" in output
         assert "2 warning(s):" in output
         assert "cursor hooks are stale" in output
-        assert "Observal AI skill not installed for: Pi" in output
-        assert "observal doctor patch --all-harnesses" in output
+        assert "DevLibrary AI skill not installed for: Pi" in output
+        assert "dev-library doctor patch --all-harnesses" in output
         isolated_runtime.process.assert_not_called()
         isolated_runtime.prompt.assert_not_called()
 
@@ -150,7 +150,7 @@ class TestDoctorDiagnosis:
             default=True,
         )
         isolated_runtime.process.assert_not_called()
-        assert "observal doctor patch --all-harnesses" in _plain(capsys.readouterr().out)
+        assert "dev-library doctor patch --all-harnesses" in _plain(capsys.readouterr().out)
 
     def test_yes_reconciles_lockfile_runs_patch_and_installs_skill(
         self,
@@ -237,7 +237,7 @@ class TestConfigAndSkillDiagnosis:
 
         doctor_module._check_observal_config(issues, [])
 
-        assert issues == ["~/.observal/config.json is not valid JSON."]
+        assert issues == ["~/.dev-library/config.json is not valid JSON."]
         isolated_runtime.network.assert_not_called()
 
     def test_missing_config_fields_are_both_reported(self, tmp_path: Path, isolated_runtime: SimpleNamespace):
@@ -247,8 +247,8 @@ class TestConfigAndSkillDiagnosis:
         doctor_module._check_observal_config(issues, [])
 
         assert issues == [
-            "No access token in ~/.observal/config.json. Run `observal auth login`.",
-            "No server_url in ~/.observal/config.json. Run `observal auth login`.",
+            "No access token in ~/.dev-library/config.json. Run `dev-library auth login`.",
+            "No server_url in ~/.dev-library/config.json. Run `dev-library auth login`.",
         ]
         isolated_runtime.network.assert_not_called()
 
@@ -256,7 +256,7 @@ class TestConfigAndSkillDiagnosis:
         ("status", "expected"),
         [
             (200, []),
-            (503, ["Observal server at https://server.test returned status 503."]),
+            (503, ["DevLibrary server at https://server.test returned status 503."]),
         ],
     )
     def test_server_health_status_controls_config_issue(
@@ -299,8 +299,8 @@ class TestHarnessDiagnosisState:
 
         assert issues == []
         assert warnings == [
-            "Legacy Observal hooks detected (old hook scripts). "
-            "Run `observal doctor cleanup --harness claude-code` to remove them."
+            "Legacy DevLibrary hooks detected (old hook scripts). "
+            "Run `dev-library doctor cleanup --harness claude-code` to remove them."
         ]
 
     def test_claude_invalid_settings_are_an_issue(self, tmp_path: Path):
@@ -721,7 +721,7 @@ class TestDoctorCleanupCommand:
         result = runner.invoke(doctor_module.doctor_app, ["cleanup", "--harness", "pi", "--yes"])
 
         assert result.exit_code == 0
-        assert "Nothing to clean up, no Observal artifacts found." in _plain(result.output)
+        assert "Nothing to clean up, no DevLibrary artifacts found." in _plain(result.output)
 
     def test_unsupported_cleanup_failure_is_not_hidden(self, runner: CliRunner, cleanup_dispatch: SimpleNamespace):
         adapter = MagicMock()
@@ -958,7 +958,7 @@ def test_doctor_json_returns_findings_with_success_exit(runner, quiet_diagnosis)
     assert data["issues"] == ["configuration is broken"]
     assert data["warnings"] == ["hooks are stale"]
     assert data["fix_attempted"] is False
-    assert "Observal Doctor" not in result.stdout
+    assert "DevLibrary Doctor" not in result.stdout
 
 
 def test_doctor_patch_and_cleanup_json_results(runner, patch_dispatch, cleanup_dispatch, monkeypatch):

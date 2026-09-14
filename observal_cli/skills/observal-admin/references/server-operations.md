@@ -1,4 +1,4 @@
-<!-- SPDX-FileCopyrightText: 2026 Observal Contributors -->
+<!-- SPDX-FileCopyrightText: 2026 DevLibrary Contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
 # Server operations
@@ -16,11 +16,11 @@ Local server commands use shell, filesystem, Docker, and database authority. API
 ## Service lifecycle
 
 ```bash
-observal server status --output json
-observal server start --background --output json
-observal server restart --background --output json
-observal server logs api --lines 100 --output json
-observal server stop --output json
+dev-library server status --output json
+dev-library server start --background --output json
+dev-library server restart --background --output json
+dev-library server logs api --lines 100 --output json
+dev-library server stop --output json
 ```
 
 JSON start and restart require background mode. Verify final service status rather than trusting the launch response alone.
@@ -30,15 +30,15 @@ JSON start and restart require background mode. Verify final service status rath
 Read current and available versions first:
 
 ```bash
-observal server versions --output json
-observal server upgrade --dry-run --output json
+dev-library server versions --output json
+dev-library server upgrade --dry-run --output json
 ```
 
 Execute only the requested direction:
 
 ```bash
-observal server upgrade --version VERSION --force --output json
-observal server rollback --force --output json
+dev-library server upgrade --version VERSION --force --output json
+dev-library server rollback --force --output json
 ```
 
 Rollback restores PostgreSQL and managed Docker image state, not ClickHouse telemetry. Verify service status and version after completion.
@@ -48,9 +48,9 @@ Rollback restores PostgreSQL and managed Docker image state, not ClickHouse tele
 Export, validate, then import:
 
 ```bash
-observal server migrate export --file registry.tar.gz --output json
-observal server migrate validate --archive registry.tar.gz --output json
-observal server migrate import --archive registry.tar.gz --output json
+dev-library server migrate export --file registry.tar.gz --output json
+dev-library server migrate validate --archive registry.tar.gz --output json
+dev-library server migrate import --archive registry.tar.gz --output json
 ```
 
 Source commands read `DATABASE_URL`; target commands read `TARGET_DATABASE_URL`. Keep URLs out of output and logs. Never replace these commands with hand-written SQL.
@@ -58,9 +58,9 @@ Source commands read `DATABASE_URL`; target commands read `TARGET_DATABASE_URL`.
 ## ClickHouse telemetry migration
 
 ```bash
-observal server migrate export-telemetry --manifest registry.manifest.json --output-dir telemetry-export --output json
-observal server migrate validate-telemetry --input-dir telemetry-export --output json
-observal server migrate import-telemetry --input-dir telemetry-export --output json
+dev-library server migrate export-telemetry --manifest registry.manifest.json --output-dir telemetry-export --output json
+dev-library server migrate validate-telemetry --input-dir telemetry-export --output json
+dev-library server migrate import-telemetry --input-dir telemetry-export --output json
 ```
 
 Source commands read `CLICKHOUSE_URL`; target commands read `TARGET_CLICKHOUSE_URL`. Export requires a new destination directory. Validate files and Registry references before import.

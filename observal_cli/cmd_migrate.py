@@ -164,9 +164,9 @@ migrate_app = typer.Typer(
     help=(
         "Portable PostgreSQL and ClickHouse migration tools\n\n"
         "Examples:\n"
-        "  observal server migrate export --db-url postgresql://localhost/observal --file backup.tar.gz\n"
-        "  observal server migrate validate --archive backup.tar.gz --output json\n"
-        "  observal server migrate export-telemetry "
+        "  dev-library server migrate export --db-url postgresql://localhost/observal --file backup.tar.gz\n"
+        "  dev-library server migrate validate --archive backup.tar.gz --output json\n"
+        "  dev-library server migrate export-telemetry "
         "--clickhouse-url clickhouses://localhost/observal "
         "--manifest ./migration_manifest.json --output-dir ./telemetry-export"
     )
@@ -196,8 +196,8 @@ def export_cmd(
     Alembic migration version for compatibility verification on import.
 
     Examples:
-        observal server migrate export --db-url postgresql://localhost/observal --file backup.tar.gz
-        observal server migrate export --db-url postgresql://localhost/observal --file backup.tar.gz --output json
+        dev-library server migrate export --db-url postgresql://localhost/observal --file backup.tar.gz
+        dev-library server migrate export --db-url postgresql://localhost/observal --file backup.tar.gz --output json
     """
     _require_pyarrow()
     output_path = Path(file or f"observal-export-{datetime.now(UTC):%Y%m%d-%H%M%S}.tar.gz").expanduser()
@@ -270,8 +270,8 @@ def import_cmd(
     for idempotent imports: existing rows are skipped, not overwritten.
 
     Examples:
-        observal server migrate import --db-url postgresql://localhost/observal --archive backup.tar.gz
-        observal server migrate import --db-url postgresql://localhost/observal --archive backup.tar.gz --output json
+        dev-library server migrate import --db-url postgresql://localhost/observal --archive backup.tar.gz
+        dev-library server migrate import --db-url postgresql://localhost/observal --archive backup.tar.gz --output json
     """
     _require_pyarrow()
     archive_path = Path(archive).expanduser()
@@ -348,8 +348,8 @@ def validate_cmd(
     database to detect drift or partial imports.
 
     Examples:
-        observal server migrate validate --archive backup.tar.gz
-        observal server migrate validate --archive backup.tar.gz --output json
+        dev-library server migrate validate --archive backup.tar.gz
+        dev-library server migrate validate --archive backup.tar.gz --output json
     """
     _require_pyarrow()
     archive_path = Path(archive).expanduser()
@@ -437,13 +437,13 @@ def export_telemetry_cmd(
 
     Phase 2 of migration: exports session, audit, security, and webhook telemetry
     tables as monthly Parquet partitions. Requires a completed Phase 1 export
-    (the migration_manifest.json produced by 'observal server migrate export').
+    (the migration_manifest.json produced by 'dev-library server migrate export').
 
     Uses a time cutoff recorded at export start for consistency. The output
     directory must not already exist.
 
     Examples:
-        observal server migrate export-telemetry --clickhouse-url clickhouses://localhost/observal --manifest ./migration_manifest.json --output-dir ./telemetry-export
+        dev-library server migrate export-telemetry --clickhouse-url clickhouses://localhost/observal --manifest ./migration_manifest.json --output-dir ./telemetry-export
     """
     _require_pyarrow()
     destination = Path(output_dir).expanduser()
@@ -510,8 +510,8 @@ def import_telemetry_cmd(
     can continue where they left off.
 
     Examples:
-        observal server migrate import-telemetry --clickhouse-url clickhouses://localhost/observal --input-dir ./telemetry-export
-        observal server migrate import-telemetry --clickhouse-url clickhouses://localhost/observal --input-dir ./telemetry-export --output json
+        dev-library server migrate import-telemetry --clickhouse-url clickhouses://localhost/observal --input-dir ./telemetry-export
+        dev-library server migrate import-telemetry --clickhouse-url clickhouses://localhost/observal --input-dir ./telemetry-export --output json
     """
     _require_pyarrow()
     _warn_clickhouse_cleartext(clickhouse_url, output)
@@ -590,8 +590,8 @@ def validate_telemetry_cmd(
     PostgreSQL to detect orphaned telemetry records.
 
     Examples:
-        observal server migrate validate-telemetry --input-dir ./telemetry-export
-        observal server migrate validate-telemetry --input-dir ./telemetry-export --output json
+        dev-library server migrate validate-telemetry --input-dir ./telemetry-export
+        dev-library server migrate validate-telemetry --input-dir ./telemetry-export --output json
     """
     _require_pyarrow()
     input_path = Path(input_dir).expanduser()

@@ -85,7 +85,7 @@ class PiAdapter(BaseAdapter):
         )
 
     def detect_hooks(self, config_dir: Path) -> str:
-        """Check for the user-global Observal TypeScript extension."""
+        """Check for the user-global DevLibrary TypeScript extension."""
         return "installed" if (config_dir / "extensions" / "observal.ts").is_file() else "missing"
 
     # ── Private helpers ───────────────────────────────────────

@@ -13,13 +13,13 @@ from pathlib import Path
 
 # ── Base directories ────────────────────────────────────────────
 
-OBSERVAL_HOME = Path.home() / ".observal"
-BIN_DIR = OBSERVAL_HOME / "bin"
-DATA_DIR = OBSERVAL_HOME / "data"
-CONFIG_DIR = OBSERVAL_HOME / "config"
-LOG_DIR = OBSERVAL_HOME / "logs"
-RUN_DIR = OBSERVAL_HOME / "run"
-KEYS_DIR = OBSERVAL_HOME / "keys"
+DEVLIBRARY_HOME = Path.home() / ".observal"
+BIN_DIR = DEVLIBRARY_HOME / "bin"
+DATA_DIR = DEVLIBRARY_HOME / "data"
+CONFIG_DIR = DEVLIBRARY_HOME / "config"
+LOG_DIR = DEVLIBRARY_HOME / "logs"
+RUN_DIR = DEVLIBRARY_HOME / "run"
+KEYS_DIR = DEVLIBRARY_HOME / "keys"
 
 # ── Service ports (non-standard to avoid conflicts) ─────────────
 
@@ -37,7 +37,7 @@ REDIS_VERSION = "8.0"
 
 # ── GitHub repo for downloads ──────────────────────────────────
 
-GITHUB_REPO = "Observal/Observal"
+GITHUB_REPO = "Observal/DevLibrary"
 DEPS_RELEASE_TAG = "deps/v1"
 
 # ── Platform detection ──────────────────────────────────────────

@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: Apache-2.0
 name: observal-admin
 command: observal
-description: "Administers Observal users, settings, diagnostics, review queues, security events, audit logs, SAML, SCIM, local server services, upgrades, rollback, and database migrations. Use when the user needs privileged governance, submission decisions, identity configuration, security investigation, or server operations."
+description: "Administers DevLibrary users, settings, diagnostics, review queues, security events, audit logs, SAML, SCIM, local server services, upgrades, rollback, and database migrations. Use when the user needs privileged governance, submission decisions, identity configuration, security investigation, or server operations."
 version: 2.2.0
 owner: observal
 ---
 
-# Administering Observal
+# Administering DevLibrary
 
 Core administration requires an admin role. Review actions also work for authorized global reviewers and teamspace owners or reviewers.
 

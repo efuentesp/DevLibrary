@@ -1,12 +1,12 @@
 # SPDX-FileCopyrightText: 2026 Hemalatha Madeswaran <hemalathamadeswaran@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""E2E tests for the ``observal auth`` CLI commands.
+"""E2E tests for the ``dev-library auth`` CLI commands.
 
 Covers (per issue #959):
-  * ``observal auth login --server --email --password``
-  * ``observal auth whoami``
-  * ``observal auth status``
+  * ``dev-library auth login --server --email --password``
+  * ``dev-library auth whoami``
+  * ``dev-library auth status``
 
 All external services are mocked — no live server is required.
 """
@@ -88,7 +88,7 @@ def _fake_post_login(url: str, *_args, **_kwargs) -> MagicMock:
 def _patch_post_login_hooks(stack: ExitStack) -> MagicMock:
     """Patch the harness-configuration helpers and onboarding step.
 
-    ``observal auth login`` invokes a series of best-effort, side-effecting
+    ``dev-library auth login`` invokes a series of best-effort, side-effecting
     helpers after a successful login (write Claude Code settings, configure
     Kiro hooks, run post-auth onboarding, …).  None of those helpers are
     relevant to the unit under test, so we replace them with no-ops to keep
@@ -115,7 +115,7 @@ def _patch_post_login_hooks(stack: ExitStack) -> MagicMock:
 
 
 class TestAuthLogin:
-    """``observal auth login --server --email --password``."""
+    """``dev-library auth login --server --email --password``."""
 
     def test_login_with_credentials_saves_config(self) -> None:
         """Happy path: server reachable, credentials valid, config persisted."""
@@ -249,7 +249,7 @@ class TestAuthLogin:
 
 
 class TestAuthWhoami:
-    """``observal auth whoami``."""
+    """``dev-library auth whoami``."""
 
     def test_whoami_outputs_email_and_role(self) -> None:
         """Default (table) output must contain the user's email and role."""
@@ -312,7 +312,7 @@ class TestAuthWhoami:
 
 
 class TestAuthStatus:
-    """``observal auth status``."""
+    """``dev-library auth status``."""
 
     def test_status_reports_ok_when_healthy(self) -> None:
         """A reachable server with stored credentials renders ``ok`` + latency."""
@@ -507,8 +507,8 @@ class TestAuthJsonOutputs:
             patch.dict(
                 "os.environ",
                 {
-                    "OBSERVAL_CURRENT_PASSWORD": "CurrentPassword1!",
-                    "OBSERVAL_NEW_PASSWORD": "ValidPassword1!",
+                    "DEVLIBRARY_CURRENT_PASSWORD": "CurrentPassword1!",
+                    "DEVLIBRARY_NEW_PASSWORD": "ValidPassword1!",
                 },
                 clear=False,
             ),

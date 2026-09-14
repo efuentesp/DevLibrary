@@ -10,7 +10,13 @@ import { useDeploymentConfig } from "@/hooks/use-deployment-config";
  * own mark, not Observal's. Decorative by default — the surrounding text
  * carries the meaning, so the image stays out of the accessibility tree.
  */
-export function RegistryMark({ size = 16, className = "" }: { size?: number; className?: string }) {
+export function RegistryMark({
+	size = 16,
+	className = "",
+}: {
+	size?: number;
+	className?: string;
+}) {
 	const { brandingLogo } = useDeploymentConfig();
 	return (
 		<img

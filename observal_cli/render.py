@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Shared rendering helpers for the Observal CLI."""
+"""Shared rendering helpers for the DevLibrary CLI."""
 
 from __future__ import annotations
 
@@ -84,7 +84,7 @@ def relative_time(iso: str | None) -> str:
 
 # ── Registry identities ──────────────────────────────────
 # The API returns the canonical ``namespace/slug`` in ``qualified_name``. That
-# form is what commands take (``observal agent pull alice/reviewer``), but it
+# form is what commands take (``dev-library agent pull alice/reviewer``), but it
 # reads poorly in listings, so we show the bare name with the owning namespace
 # beneath it as ``@alice``. Use ``client.canonical_name()`` for anything a user
 # is meant to paste back into a command.

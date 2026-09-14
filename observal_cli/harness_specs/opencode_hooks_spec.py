@@ -6,7 +6,7 @@
 
 OpenCode uses in-process JS/TS plugins for session telemetry.
 Plugins subscribe to events like session.idle, message.updated, etc.
-This module provides metadata for `observal doctor patch` and the
+This module provides metadata for `dev-library doctor patch` and the
 plugin source that gets installed into .opencode/plugins/.
 
 Bump HOOKS_SPEC_VERSION whenever the plugin definition changes.
@@ -29,7 +29,7 @@ def build_hooks() -> dict:
     OpenCode's hooks are delivered as a plugin file placed in
     .opencode/plugins/ or ~/.config/opencode/plugins/.
     The plugin subscribes to session lifecycle events and pushes
-    message data to the Observal server.
+    message data to the DevLibrary server.
     """
     return {
         "hook_type": "plugin",

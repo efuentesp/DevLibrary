@@ -42,9 +42,9 @@ def reconcile(
     """Backfill local session records missed by automatic hook delivery.
 
     Examples:
-      observal reconcile --output json
-      observal reconcile --harness kiro --since 24 --output json
-      observal reconcile --since 24 --dry-run --output json
+      dev-library reconcile --output json
+      dev-library reconcile --harness kiro --since 24 --output json
+      dev-library reconcile --since 24 --dry-run --output json
     """
     harness = _value(harness).strip().lower()
     since_hours = _value(since_hours)
@@ -63,10 +63,10 @@ def reconcile(
     if cfg is None or not cfg.get("user_id"):
         fail(
             ErrorCategory.AUTH,
-            "Observal session delivery is not configured.",
+            "DevLibrary session delivery is not configured.",
             operation="Reconcile local sessions",
             resource="CLI authentication configuration",
-            remediation="Run `observal auth login` and retry.",
+            remediation="Run `dev-library auth login` and retry.",
         )
 
     ensure_loaded()
@@ -305,8 +305,8 @@ def register_reconcile(app: typer.Typer) -> None:
         help=(
             "Backfill local session records missed by automatic hook delivery\n\n"
             "Examples:\n"
-            "  observal reconcile --output json\n"
-            "  observal reconcile --harness kiro --since 24 --output json\n"
-            "  observal reconcile --dry-run --output json"
+            "  dev-library reconcile --output json\n"
+            "  dev-library reconcile --harness kiro --since 24 --output json\n"
+            "  dev-library reconcile --dry-run --output json"
         ),
     )(reconcile)

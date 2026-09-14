@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
 """Human error context for CLI API operations."""
@@ -74,7 +74,7 @@ OPERATION_LABELS = {
     "agent_unarchive": "Restore agent",
     "agent_versions": "List agent versions",
     "approve_join_request": "Approve teamspace join request",
-    "api_request": "Call Observal API",
+    "api_request": "Call DevLibrary API",
     "approve_visibility_request": "Approve teamspace visibility",
     "bulk_submit_components": "Bulk submit components",
     "bundle": "Generate support bundle",
@@ -149,7 +149,7 @@ OPERATION_LABELS = {
 
 RESOURCE_LABELS = {
     "cmd_agent.py": "agent registry",
-    "cmd_api.py": "Observal API",
+    "cmd_api.py": "DevLibrary API",
     "cmd_archive.py": "registry component",
     "cmd_bulk.py": "component registry",
     "cmd_auth.py": "user account",
@@ -161,7 +161,7 @@ RESOURCE_LABELS = {
     "cmd_mcp.py": "MCP registry",
     "cmd_migrate.py": "migration authorization",
     "cmd_logs.py": "server logs",
-    "cmd_ops.py": "Observal operations",
+    "cmd_ops.py": "DevLibrary operations",
     "cmd_outdated.py": "installed registry items",
     "cmd_prompt.py": "prompt registry",
     "cmd_pull.py": "agent installation",

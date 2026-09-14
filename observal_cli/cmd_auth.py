@@ -46,9 +46,9 @@ auth_app = typer.Typer(
     help=(
         "Authentication and account commands\n\n"
         "Examples:\n"
-        "  observal auth login\n"
-        "  observal auth whoami\n"
-        "  observal auth logout"
+        "  dev-library auth login\n"
+        "  dev-library auth whoami\n"
+        "  dev-library auth logout"
     ),
     no_args_is_help=True,
 )
@@ -57,9 +57,9 @@ config_app = typer.Typer(
     help=(
         "CLI configuration\n\n"
         "Examples:\n"
-        "  observal config show\n"
-        "  observal config set server_url https://observal.example.com\n"
-        "  observal config aliases --output json"
+        "  dev-library config show\n"
+        "  dev-library config set server_url https://observal.example.com\n"
+        "  dev-library config aliases --output json"
     )
 )
 
@@ -239,13 +239,13 @@ def _ensure_cli_matches_server(server_url: str) -> None:
     from observal_cli.install_detector import upgrade_command
 
     if cli_version > server_version:
-        install_command = f"observal self downgrade --version {server_ver}"
+        install_command = f"dev-library self downgrade --version {server_ver}"
     else:
         install_command = upgrade_command(server_ver)
     fail(
         ErrorCategory.VERSION,
         f"CLI version {cli_ver_str} does not match server version {server_ver}.",
-        operation="Authenticate with Observal",
+        operation="Authenticate with DevLibrary",
         resource=f"server {server_url}",
         remediation=f"Run {install_command} and retry login.",
     )
@@ -269,14 +269,14 @@ def login(
     Human mode asks for the server URL; leave it blank for http://localhost.
     On a fresh server, creates the first admin account. On an initialized
     server, authenticates with credentials or browser SSO. Set
-    OBSERVAL_PASSWORD or OBSERVAL_PASSWORD_FILE to avoid exposing a password
+    DEVLIBRARY_PASSWORD or DEVLIBRARY_PASSWORD_FILE to avoid exposing a password
     in shell history. JSON credential login requires complete inputs and never
     prompts. JSON SSO emits JSON Lines authorization and completion events.
 
     Examples:
-        observal auth login
-        observal auth login --server https://observal.example.com --email alice --output json --no-setup
-        observal auth login --sso --output json
+        dev-library auth login
+        dev-library auth login --server https://observal.example.com --email alice --output json --no-setup
+        dev-library auth login --sso --output json
     """
     json_mode = _is_json(output)
     if not json_mode:
@@ -369,7 +369,7 @@ def login(
     _ensure_cli_matches_server(server_url)
     initialized = health_data.get("initialized", True)
     run_setup = not no_setup and not json_mode
-    supplied_password = password or _secret("OBSERVAL_PASSWORD", operation="Authenticate with Observal")
+    supplied_password = password or _secret("DEVLIBRARY_PASSWORD", operation="Authenticate with DevLibrary")
 
     if not initialized:
         if json_mode:
@@ -377,10 +377,10 @@ def login(
                 fail(
                     ErrorCategory.VALIDATION,
                     "Fresh-server JSON login requires email, name, and a password.",
-                    operation="Initialize Observal administrator",
+                    operation="Initialize DevLibrary administrator",
                     resource=resource,
                     remediation=(
-                        "Provide email and name, and set OBSERVAL_PASSWORD or OBSERVAL_PASSWORD_FILE, then retry."
+                        "Provide email and name, and set DEVLIBRARY_PASSWORD or DEVLIBRARY_PASSWORD_FILE, then retry."
                     ),
                 )
             admin_email, admin_name, admin_password = email, name, supplied_password
@@ -395,7 +395,7 @@ def login(
                     fail(
                         ErrorCategory.VALIDATION,
                         "Passwords do not match.",
-                        operation="Initialize Observal administrator",
+                        operation="Initialize DevLibrary administrator",
                         resource="administrator password",
                         remediation="Enter matching passwords and retry.",
                     )
@@ -405,7 +405,7 @@ def login(
             fail(
                 ErrorCategory.VALIDATION,
                 "The administrator password does not meet security requirements.",
-                operation="Initialize Observal administrator",
+                operation="Initialize DevLibrary administrator",
                 resource="administrator password",
                 remediation="Use at least 12 characters with uppercase, number, and special characters.",
             )
@@ -421,7 +421,7 @@ def login(
                 fail(
                     ErrorCategory.CONFLICT,
                     "The server was initialized by another user before this request completed.",
-                    operation="Initialize Observal administrator",
+                    operation="Initialize DevLibrary administrator",
                     resource=resource,
                     remediation="Retry login with an existing account.",
                     http_status=400,
@@ -429,19 +429,19 @@ def login(
             _raise_for_status(
                 response,
                 path="/api/v1/auth/init",
-                operation="Initialize Observal administrator",
+                operation="Initialize DevLibrary administrator",
                 resource=resource,
             )
             data = response.json()
         except CliError:
             raise
         except httpx.TransportError as error:
-            _fail_transport(error, operation="Initialize Observal administrator", resource=resource)
+            _fail_transport(error, operation="Initialize DevLibrary administrator", resource=resource)
         except (ValueError, TypeError) as error:
             fail(
                 ErrorCategory.UNEXPECTED,
                 "The server returned an invalid initialization response.",
-                operation="Initialize Observal administrator",
+                operation="Initialize DevLibrary administrator",
                 resource=resource,
                 remediation="Check server health and version compatibility, then retry.",
                 detail=repr(error),
@@ -494,9 +494,9 @@ def login(
         fail(
             ErrorCategory.VALIDATION,
             "JSON login requires complete credentials or an explicit SSO option.",
-            operation="Authenticate with Observal",
+            operation="Authenticate with DevLibrary",
             resource=resource,
-            remediation=("Provide email and OBSERVAL_PASSWORD, or select SSO or SAML, then retry."),
+            remediation=("Provide email and DEVLIBRARY_PASSWORD, or select SSO or SAML, then retry."),
         )
 
     if not json_mode and not sso_mode and not (email or supplied_password):
@@ -570,8 +570,8 @@ def logout(
     refresh tokens. Remote revocation failure never blocks local cleanup.
 
     Examples:
-        observal auth logout
-        observal auth logout --output json
+        dev-library auth logout
+        dev-library auth logout --output json
     """
     existed = config.CONFIG_FILE.exists()
     attempted = False
@@ -583,7 +583,7 @@ def logout(
             fail(
                 ErrorCategory.VALIDATION,
                 "The local authentication configuration cannot be read.",
-                operation="Log out of Observal",
+                operation="Log out of DevLibrary",
                 resource=str(config.CONFIG_FILE),
                 remediation="Repair or remove the configuration file, then retry.",
                 detail=repr(error),
@@ -623,7 +623,7 @@ def logout(
     if existed:
         rprint(
             "[dim]Harness hooks will stop sending telemetry. "
-            "Run [bold]observal doctor cleanup[/bold] to remove managed hooks.[/dim]"
+            "Run [bold]dev-library doctor cleanup[/bold] to remove managed hooks.[/dim]"
         )
 
 
@@ -636,8 +636,8 @@ def whoami(
     Queries the server for the user associated with the stored access token.
 
     Examples:
-        observal auth whoami
-        observal auth whoami --output json
+        dev-library auth whoami
+        dev-library auth whoami --output json
     """
     config.get_or_exit()
     with nullcontext() if _is_json(output) else spinner("Checking..."):
@@ -670,25 +670,25 @@ def status(
     code 9 when the configured server cannot be reached.
 
     Examples:
-        observal auth status
-        observal auth status --output json
+        dev-library auth status
+        dev-library auth status --output json
     """
     cfg = config.load()
     url = str(cfg.get("server_url") or "").rstrip("/")
     if not url or not cfg.get("access_token"):
         fail(
             ErrorCategory.AUTH,
-            "Observal authentication is not configured.",
+            "DevLibrary authentication is not configured.",
             operation="Check authentication status",
             resource=str(config.CONFIG_FILE),
-            remediation="Run observal auth login or configure an access token, then retry.",
+            remediation="Run dev-library auth login or configure an access token, then retry.",
         )
 
     ok, latency = client.health()
     if not ok:
         fail(
             ErrorCategory.UNAVAILABLE,
-            "The configured Observal server is unreachable.",
+            "The configured DevLibrary server is unreachable.",
             operation="Check authentication status",
             resource=f"server {url}",
             remediation="Check the server URL and service health, then retry.",
@@ -742,13 +742,13 @@ def change_password(
 ):
     """Change your password.
 
-    Both modes read OBSERVAL_CURRENT_PASSWORD and OBSERVAL_NEW_PASSWORD,
+    Both modes read DEVLIBRARY_CURRENT_PASSWORD and DEVLIBRARY_NEW_PASSWORD,
     including their FILE forms. Human mode prompts for missing values; JSON
     mode requires both values and never prompts.
 
     Examples:
-        observal auth change-password
-        observal auth change-password --output json
+        dev-library auth change-password
+        dev-library auth change-password --output json
     """
     cfg = config.load()
     if not cfg.get("server_url") or not cfg.get("access_token"):
@@ -757,19 +757,21 @@ def change_password(
             "An authenticated session is required to change the password.",
             operation="Change password",
             resource=str(config.CONFIG_FILE),
-            remediation="Run observal auth login and retry.",
+            remediation="Run dev-library auth login and retry.",
         )
 
     json_mode = _is_json(output)
-    current = _secret("OBSERVAL_CURRENT_PASSWORD", operation="Change password")
-    new_password = _secret("OBSERVAL_NEW_PASSWORD", operation="Change password")
+    current = _secret("DEVLIBRARY_CURRENT_PASSWORD", operation="Change password")
+    new_password = _secret("DEVLIBRARY_NEW_PASSWORD", operation="Change password")
     if json_mode and (not current or not new_password):
         fail(
             ErrorCategory.VALIDATION,
             "JSON password change requires current and new password secrets.",
             operation="Change password",
             resource="password input",
-            remediation=("Set OBSERVAL_CURRENT_PASSWORD and OBSERVAL_NEW_PASSWORD, or their FILE forms, then retry."),
+            remediation=(
+                "Set DEVLIBRARY_CURRENT_PASSWORD and DEVLIBRARY_NEW_PASSWORD, or their FILE forms, then retry."
+            ),
         )
 
     current = current or password_input("Current password")
@@ -816,9 +818,9 @@ def set_username(
     """Set or update your username.
 
     Examples:
-        observal auth set-username alice
-        observal auth set-username my-dev-handle --output json
-        observal auth set-username my.dev.handle
+        dev-library auth set-username alice
+        dev-library auth set-username my-dev-handle --output json
+        dev-library auth set-username my.dev.handle
     """
     optic.trace("username={}", username)
     if username != username.strip().lower() or not is_valid_namespace(username):
@@ -844,10 +846,10 @@ def version_callback():
     from importlib.metadata import version as pkg_version
 
     try:
-        v = pkg_version("observal-cli")
+        v = pkg_version("dev-library-cli")
     except Exception:
         v = "dev"
-    rprint(f"observal [bold]{v}[/bold]")
+    rprint(f"dev-library [bold]{v}[/bold]")
 
 
 # ── Helper functions ────────────────────────────────────────
@@ -912,7 +914,7 @@ def _do_password_login(
     if data.get("must_change_password"):
         if not json_mode:
             rprint("[yellow]Your administrator requires a password change.[/yellow]")
-        new_password = _secret("OBSERVAL_NEW_PASSWORD", operation="Complete required password change")
+        new_password = _secret("DEVLIBRARY_NEW_PASSWORD", operation="Complete required password change")
         if new_password is None:
             if json_mode:
                 fail(
@@ -920,7 +922,7 @@ def _do_password_login(
                     "JSON login requires a new password for the mandatory password change.",
                     operation="Complete required password change",
                     resource="new password",
-                    remediation="Set OBSERVAL_NEW_PASSWORD or OBSERVAL_NEW_PASSWORD_FILE, then retry.",
+                    remediation="Set DEVLIBRARY_NEW_PASSWORD or DEVLIBRARY_NEW_PASSWORD_FILE, then retry.",
                 )
             new_password = _prompt_password("New password")
             confirmation = password_input("Confirm new password")
@@ -1189,7 +1191,7 @@ def _parse_bool(value: str, *, key: str) -> bool:
         f"{key} must be true or false.",
         operation="Update CLI configuration",
         resource=key,
-        remediation=f"Run observal config set {key} true or {key} false.",
+        remediation=f"Run dev-library config set {key} true or {key} false.",
     )
 
 
@@ -1246,7 +1248,7 @@ def _normalize_config_value(key: str, value: str) -> object:
                 "update_check_repo must use owner/repository format.",
                 operation="Update CLI configuration",
                 resource=key,
-                remediation="Provide a value such as Observal/Observal or an empty string.",
+                remediation="Provide a value such as Observal/DevLibrary or an empty string.",
             )
         return normalized
     return normalized
@@ -1297,8 +1299,8 @@ def register_config(app: typer.Typer):
         """Show effective CLI configuration without exposing credentials.
 
         Examples:
-            observal config show
-            observal config show --output json
+            dev-library config show
+            dev-library config show --output json
         """
         safe = _safe_config(config.load())
         if _is_json(output):
@@ -1324,9 +1326,9 @@ def register_config(app: typer.Typer):
         """Set a validated user-managed CLI setting.
 
         Examples:
-            observal config set server_url https://observal.example.com
-            observal config set timeout 60 --output json
-            observal config set update_check false
+            dev-library config set server_url https://observal.example.com
+            dev-library config set timeout 60 --output json
+            dev-library config set update_check false
         """
         optic.trace("key={}", key)
         normalized = _normalize_config_value(key, value)
@@ -1363,8 +1365,8 @@ def register_config(app: typer.Typer):
         """Show the config file path.
 
         Examples:
-            observal config path
-            observal config path --output json
+            dev-library config path
+            dev-library config path --output json
         """
         result = {"path": str(config.CONFIG_FILE), "exists": config.CONFIG_FILE.exists()}
         if _is_json(output):
@@ -1383,9 +1385,9 @@ def register_config(app: typer.Typer):
         """Set or remove a local registry reference alias.
 
         Examples:
-            observal config alias reviewer alice/reviewer
-            observal config alias reviewer alice/reviewer --output json
-            observal config alias reviewer
+            dev-library config alias reviewer alice/reviewer
+            dev-library config alias reviewer alice/reviewer --output json
+            dev-library config alias reviewer
         """
         optic.trace("name={}, has_target={}", name, target is not None)
         _validate_alias_name(name)
@@ -1429,15 +1431,15 @@ def register_config(app: typer.Typer):
         """List all local aliases.
 
         Examples:
-            observal config aliases
-            observal config aliases --output json
+            dev-library config aliases
+            dev-library config aliases --output json
         """
         items = [{"alias": name, "target": target} for name, target in sorted(config.load_aliases().items())]
         if _is_json(output):
             output_json({"items": items, "total": len(items)})
             return
         if not items:
-            rprint("[dim]No aliases set. Use: observal config alias <name> <reference>[/dim]")
+            rprint("[dim]No aliases set. Use: dev-library config alias <name> <reference>[/dim]")
             return
 
         table = Table(title="CLI Aliases", show_lines=False)
@@ -1469,7 +1471,7 @@ def _post_login_setup():
         pass  # Normal exit from doctor
     except Exception as e:
         rprint(f"[yellow]Could not run doctor: {e}[/yellow]")
-        rprint("  Run [bold]observal doctor[/bold] manually to configure your harnesses.")
+        rprint("  Run [bold]dev-library doctor[/bold] manually to configure your harnesses.")
 
 
 def _post_auth_onboarding():
@@ -1517,14 +1519,14 @@ def _post_auth_onboarding():
                 parts.append(f"{mcps} MCP{'s' if mcps != 1 else ''}")
             rprint(f"  [bold]{label}[/bold] - {', '.join(parts)} found")
         rprint()
-        rprint("[dim]Run `observal doctor patch --all-harnesses` to instrument telemetry.[/dim]")
+        rprint("[dim]Run `dev-library doctor patch --all-harnesses` to instrument telemetry.[/dim]")
 
     except Exception:
         pass
 
 
 def _generate_initial_layer_snapshot():
-    """Generate ~/.observal/layer_snapshot.json scanning all detected harnesses.
+    """Generate ~/.dev-library/layer_snapshot.json scanning all detected harnesses.
 
     Runs once after login to establish the initial baseline of the user's
     harness configuration state. Silent on failure.
@@ -1538,14 +1540,14 @@ def _generate_initial_layer_snapshot():
 
 
 def _install_observal_skill():
-    """Install the bundled Observal skills to all detected harness skill directories."""
+    """Install the bundled DevLibrary skills to all detected harness skill directories."""
     from observal_cli.skill_installer import install_observal_skill
 
     install_observal_skill()
 
 
 def _run_doctor_patch(ide_name: str):
-    """Run 'observal doctor patch --harness <name>' as a subprocess."""
+    """Run 'dev-library doctor patch --harness <name>' as a subprocess."""
     optic.trace("ide_name={}", ide_name)
     import subprocess
     import sys
@@ -1567,7 +1569,7 @@ def _run_doctor_patch(ide_name: str):
             rprint(f"[yellow]{result.stderr.rstrip()}[/yellow]")
     except Exception as e:
         rprint(f"[yellow]Could not run doctor patch: {e}[/yellow]")
-        rprint(f"Run [bold]observal doctor patch --harness {ide_name}[/bold] manually.")
+        rprint(f"Run [bold]dev-library doctor patch --harness {ide_name}[/bold] manually.")
 
 
 def _configure_cursor(server_url: str):
@@ -1581,7 +1583,7 @@ def _configure_cursor(server_url: str):
             return
 
         if not typer.confirm(
-            "\nDetected Cursor. Configure telemetry -> Observal?",
+            "\nDetected Cursor. Configure telemetry -> DevLibrary?",
             default=True,
         ):
             return
@@ -1590,7 +1592,7 @@ def _configure_cursor(server_url: str):
 
     except Exception as e:
         rprint(f"\n[yellow]Could not configure Cursor automatically: {e}[/yellow]")
-        rprint("Run [bold]observal doctor patch --harness cursor[/bold] to set up manually.")
+        rprint("Run [bold]dev-library doctor patch --harness cursor[/bold] to set up manually.")
 
 
 def _configure_kiro(server_url: str):
@@ -1604,7 +1606,7 @@ def _configure_kiro(server_url: str):
             return
 
         if not typer.confirm(
-            "\nDetected Kiro CLI. Configure telemetry -> Observal?",
+            "\nDetected Kiro CLI. Configure telemetry -> DevLibrary?",
             default=True,
         ):
             return
@@ -1613,7 +1615,7 @@ def _configure_kiro(server_url: str):
 
     except Exception as e:
         rprint(f"\n[yellow]Could not configure Kiro automatically: {e}[/yellow]")
-        rprint("Run [bold]observal doctor patch --harness kiro[/bold] to set up manually.")
+        rprint("Run [bold]dev-library doctor patch --harness kiro[/bold] to set up manually.")
 
 
 def _configure_codex(server_url: str):
@@ -1627,7 +1629,7 @@ def _configure_codex(server_url: str):
             return
 
         if not typer.confirm(
-            "\nDetected Codex CLI. Configure telemetry -> Observal?",
+            "\nDetected Codex CLI. Configure telemetry -> DevLibrary?",
             default=True,
         ):
             return
@@ -1636,7 +1638,7 @@ def _configure_codex(server_url: str):
 
     except Exception as e:
         rprint(f"\n[yellow]Could not configure Codex automatically: {e}[/yellow]")
-        rprint("Run [bold]observal doctor patch --harness codex[/bold] manually.")
+        rprint("Run [bold]dev-library doctor patch --harness codex[/bold] manually.")
 
 
 def _configure_copilot(server_url: str):
@@ -1656,7 +1658,7 @@ def _configure_copilot(server_url: str):
             return
 
         if not typer.confirm(
-            "\nDetected GitHub Copilot. Configure telemetry -> Observal?",
+            "\nDetected GitHub Copilot. Configure telemetry -> DevLibrary?",
             default=True,
         ):
             return
@@ -1672,13 +1674,13 @@ def _configure_copilot_cli(server_url: str):
     optic.trace("server_url={}", server_url)
     try:
         # The copilot binary is the definitive signal.
-        # ~/.copilot/config.json can be created by a previous observal doctor patch,
+        # ~/.copilot/config.json can be created by a previous dev-library doctor patch,
         # so its presence alone doesn't mean Copilot CLI is actually installed.
         if not shutil.which("copilot"):
             return
 
         if not typer.confirm(
-            "\nDetected Copilot CLI. Configure telemetry -> Observal?",
+            "\nDetected Copilot CLI. Configure telemetry -> DevLibrary?",
             default=True,
         ):
             return
@@ -1695,14 +1697,14 @@ def _configure_opencode(server_url: str):
     try:
         # The opencode binary is the strongest signal. The official installer
         # commonly places it at ~/.opencode/bin/opencode without adding it to PATH.
-        # ~/.config/opencode/opencode.json can be created by a previous Observal
+        # ~/.config/opencode/opencode.json can be created by a previous DevLibrary
         # doctor patch, so accept config only when a binary is present.
         opencode_bin = Path.home() / ".opencode" / "bin" / "opencode"
         if not shutil.which("opencode") and not opencode_bin.exists():
             return
 
         if not typer.confirm(
-            "\nDetected OpenCode. Configure telemetry -> Observal?",
+            "\nDetected OpenCode. Configure telemetry -> DevLibrary?",
             default=True,
         ):
             return
@@ -1717,7 +1719,7 @@ def _configure_claude_code(server_url: str, access_token: str):
     """Check for Claude Code and configure telemetry via doctor patch.
 
     Fetches a long-lived hooks token first (needed by the patch command),
-    then delegates to 'observal doctor patch --harness claude-code'.
+    then delegates to 'dev-library doctor patch --harness claude-code'.
     """
     optic.trace("server_url={}", server_url)
     claude_dir = Path.home() / ".claude"
@@ -1728,7 +1730,7 @@ def _configure_claude_code(server_url: str, access_token: str):
             return
 
         if not typer.confirm(
-            "\nDetected Claude Code. Configure telemetry -> Observal?",
+            "\nDetected Claude Code. Configure telemetry -> DevLibrary?",
             default=True,
         ):
             return
@@ -1744,7 +1746,7 @@ def _configure_claude_code(server_url: str, access_token: str):
 
     except Exception as e:
         rprint(f"\n[yellow]Could not configure Claude Code automatically: {e}[/yellow]")
-        rprint("Run [bold]observal doctor patch --harness claude-code[/bold] manually.")
+        rprint("Run [bold]dev-library doctor patch --harness claude-code[/bold] manually.")
 
 
 def _fetch_hooks_token(server_url: str, access_token: str) -> str:

@@ -10,7 +10,7 @@
 # SPDX-FileCopyrightText: 2026 Madhumidha <madhumidha072005@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""observal scan: read-only inventory of local harness setup."""
+"""dev-library scan: read-only inventory of local harness setup."""
 
 from __future__ import annotations
 
@@ -64,12 +64,12 @@ def register_scan(app: typer.Typer):
         Use --harness to filter to a specific harness (e.g. --harness kiro).
 
         This command never modifies files. To install hooks, run:
-          observal doctor patch --all-harnesses
+          dev-library doctor patch --all-harnesses
 
         Examples:
-            observal scan
-            observal scan --harness claude-code
-            observal scan --harness kiro
+            dev-library scan
+            dev-library scan --harness claude-code
+            dev-library scan --harness kiro
         """
         ensure_loaded()
         optic.trace("harness={}", harness)
@@ -179,7 +179,7 @@ def register_scan(app: typer.Typer):
             output_json(out_data)
             return
 
-        rprint(f"\n[bold]Observal Scan[/bold] - {total} components discovered\n")
+        rprint(f"\n[bold]DevLibrary Scan[/bold] - {total} components discovered\n")
 
         # ── harnesses Detected table ──
         if ide_status:
@@ -317,9 +317,9 @@ def register_scan(app: typer.Typer):
 
         suggestions = []
         if missing_hooks:
-            suggestions.append("Run [bold]observal doctor patch --all-harnesses[/bold] to install telemetry hooks")
+            suggestions.append("Run [bold]dev-library doctor patch --all-harnesses[/bold] to install telemetry hooks")
 
-        suggestions.append("Use [bold]observal registry <type> submit[/bold] to publish components to the registry")
+        suggestions.append("Use [bold]dev-library registry <type> submit[/bold] to publish components to the registry")
 
         if suggestions:
             rprint("[dim]" + " | ".join(suggestions) + "[/dim]")

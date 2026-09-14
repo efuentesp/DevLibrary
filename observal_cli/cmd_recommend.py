@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Lokesh Selvam <lokeshselvam7025@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""observal registry recommend: components picked for the signed-in user.
+"""dev-library registry recommend: components picked for the signed-in user.
 
 Recommendations are derived from the user's own session history, so this
 command is deliberately self-only — there is no flag to read someone else's
@@ -25,9 +25,9 @@ recommend_app = typer.Typer(
     help=(
         "Components recommended for you, based on your own sessions\n\n"
         "Examples:\n"
-        "  observal registry recommend\n"
-        "  observal registry recommend --type mcp\n"
-        "  observal registry recommend list --output json"
+        "  dev-library registry recommend\n"
+        "  dev-library registry recommend --type mcp\n"
+        "  dev-library registry recommend list --output json"
     ),
     no_args_is_help=False,
     invoke_without_command=True,
@@ -126,8 +126,8 @@ def _emit(limit: int, type_: str | None, refresh: bool, output: OutputMode) -> N
     first = items[0]
     first_type = esc(first.get("type", "skill"))
     first_name = esc(first.get("qualified_name") or first.get("name", ""))
-    rprint(f"[dim]Inspect: [cyan]observal registry {first_type} show {first_name} --output json[/cyan][/dim]")
-    rprint(f"[dim]Hide one: [cyan]observal registry recommend dismiss {first_type} {first_name}[/cyan][/dim]")
+    rprint(f"[dim]Inspect: [cyan]dev-library registry {first_type} show {first_name} --output json[/cyan][/dim]")
+    rprint(f"[dim]Hide one: [cyan]dev-library registry recommend dismiss {first_type} {first_name}[/cyan][/dim]")
 
 
 @recommend_app.callback(invoke_without_command=True)
@@ -142,11 +142,11 @@ def recommend(
 
     Examples:
 
-        observal registry recommend
+        dev-library registry recommend
 
-        observal registry recommend --limit 12 --type mcp
+        dev-library registry recommend --limit 12 --type mcp
 
-        observal registry recommend --refresh --output json
+        dev-library registry recommend --refresh --output json
     """
     if ctx.invoked_subcommand is None:
         _emit(limit, type_, refresh, output)
@@ -163,7 +163,7 @@ def recommend_list(
 
     Examples:
 
-        observal registry recommend list --output json
+        dev-library registry recommend list --output json
     """
     _emit(limit, type_, refresh, output)
 
@@ -184,9 +184,9 @@ def recommend_dismiss(
 
     Examples:
 
-        observal registry recommend dismiss skill super/terraform-plan-review
+        dev-library registry recommend dismiss skill super/terraform-plan-review
 
-        observal registry recommend dismiss mcp 0f2b... --action installed --output json
+        dev-library registry recommend dismiss mcp 0f2b... --action installed --output json
     """
     normalized = _normalize_type(component_type, "Update recommendation feedback")
     if action not in _VALID_ACTIONS:

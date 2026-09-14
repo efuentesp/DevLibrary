@@ -37,9 +37,9 @@ sandbox_app = typer.Typer(
     help=(
         "Sandbox registry commands\n\n"
         "Examples:\n"
-        "  observal registry sandbox list\n"
-        "  observal registry sandbox show alice/my-sandbox\n"
-        "  observal registry sandbox submit --from-file sandbox.json"
+        "  dev-library registry sandbox list\n"
+        "  dev-library registry sandbox show alice/my-sandbox\n"
+        "  dev-library registry sandbox submit --from-file sandbox.json"
     )
 )
 
@@ -102,9 +102,9 @@ def sandbox_submit(
     Only submit sandboxes you created or are the point-of-contact for.
 
     Examples:
-        observal registry sandbox submit --from-file sandbox.json
-        observal registry sandbox submit --draft
-        observal registry sandbox submit --submit abc123 --output json
+        dev-library registry sandbox submit --from-file sandbox.json
+        dev-library registry sandbox submit --draft
+        dev-library registry sandbox submit --submit abc123 --output json
     """
     human_output = output != "json"
     if human_output:
@@ -306,9 +306,9 @@ def sandbox_list(
     in subsequent commands.
 
     Examples:
-        observal registry sandbox list
-        observal registry sandbox list --runtime docker
-        observal registry sandbox list --search "node" --output json
+        dev-library registry sandbox list
+        dev-library registry sandbox list --runtime docker
+        dev-library registry sandbox list --search "node" --output json
     """
     if runtime and runtime not in VALID_SANDBOX_RUNTIME_TYPES:
         fail(
@@ -372,9 +372,9 @@ def sandbox_show(
     from a previous list, or @alias.
 
     Examples:
-        observal registry sandbox show my-sandbox
-        observal registry sandbox show 1
-        observal registry sandbox show @dev-env --output json
+        dev-library registry sandbox show my-sandbox
+        dev-library registry sandbox show 1
+        dev-library registry sandbox show @dev-env --output json
     """
     resolved = client.resolve_registry_reference("sandbox", sandbox_id)
     fetch_ctx = nullcontext() if output == "json" else spinner()
@@ -422,9 +422,9 @@ def sandbox_edit(
     Acquires an edit lock to prevent concurrent modifications.
 
     Examples:
-        observal registry sandbox edit my-sandbox --image node:20-alpine
-        observal registry sandbox edit abc123 --from-file updates.json
-        observal registry sandbox edit @env --runtime-type docker --version 2.0.0 --output json
+        dev-library registry sandbox edit my-sandbox --image node:20-alpine
+        dev-library registry sandbox edit abc123 --from-file updates.json
+        dev-library registry sandbox edit @env --runtime-type docker --version 2.0.0 --output json
     """
     resolved = client.resolve_registry_reference("sandbox", sandbox_id)
     if from_file:

@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""CLI commands for managing the embedded Observal server.
+"""CLI commands for managing the embedded DevLibrary server.
 
-Provides `observal server start|stop|status|logs|reset|install|config` commands
-for running a fully self-contained Observal instance with embedded PostgreSQL,
+Provides `dev-library server start|stop|status|logs|reset|install|config` commands
+for running a fully self-contained DevLibrary instance with embedded PostgreSQL,
 ClickHouse, and Redis.
 """
 
@@ -27,16 +27,16 @@ from rich.table import Table
 
 from observal_cli.errors import ErrorCategory, fail
 from observal_cli.render import OutputMode, output_json, output_json_line
-from observal_cli.server.constants import API_PORT, CONFIG_DIR, LOG_DIR, OBSERVAL_HOME
+from observal_cli.server.constants import API_PORT, CONFIG_DIR, DEVLIBRARY_HOME, LOG_DIR
 
 server_app = typer.Typer(
     name="server",
     help=(
-        "Manage the embedded Observal server (PostgreSQL + ClickHouse + Redis + API).\n\n"
+        "Manage the embedded DevLibrary server (PostgreSQL + ClickHouse + Redis + API).\n\n"
         "Examples:\n"
-        "  observal server status\n"
-        "  observal server start\n"
-        "  observal server logs api"
+        "  dev-library server status\n"
+        "  dev-library server start\n"
+        "  dev-library server logs api"
     ),
     no_args_is_help=True,
 )
@@ -72,9 +72,9 @@ def start(
     JSON mode requires background startup and never emits progress output.
 
     Examples:
-        observal server start
-        observal server start --port 9000
-        observal server start --background --output json
+        dev-library server start
+        dev-library server start --port 9000
+        dev-library server start --background --output json
     """
     import socket
 
@@ -131,7 +131,7 @@ def start(
                     "Embedded services are already running.",
                     operation="Start embedded server",
                     resource="embedded server",
-                    remediation="Run observal server stop or observal server restart.",
+                    remediation="Run dev-library server stop or dev-library server restart.",
                 )
             orchestrator.start_all(foreground=not background)
             if background:
@@ -168,8 +168,8 @@ def stop(
     """Stop all embedded services.
 
     Examples:
-        observal server stop
-        observal server stop --output json
+        dev-library server stop
+        dev-library server stop --output json
     """
     from observal_cli.server.orchestrator import Orchestrator
 
@@ -193,8 +193,8 @@ def restart(
     JSON mode requires background startup.
 
     Examples:
-        observal server restart
-        observal server restart --background --output json
+        dev-library server restart
+        dev-library server restart --background --output json
     """
     from observal_cli.server.orchestrator import Orchestrator, ServiceError
 
@@ -234,8 +234,8 @@ def status(
     """Show embedded service status.
 
     Examples:
-        observal server status
-        observal server status --output json
+        dev-library server status
+        dev-library server status --output json
     """
     from observal_cli.server.constants import CLICKHOUSE_HTTP_PORT, POSTGRES_PORT, REDIS_PORT
     from observal_cli.server.orchestrator import Orchestrator
@@ -258,7 +258,7 @@ def status(
         output_json(payload)
         return
 
-    table = Table(title="Observal Service Status")
+    table = Table(title="DevLibrary Service Status")
     table.add_column("Service", style="bold")
     table.add_column("Status")
     table.add_column("Port")
@@ -293,9 +293,9 @@ def logs(
     Follow mode emits JSON Lines when JSON output is selected.
 
     Examples:
-        observal server logs
-        observal server logs postgres --lines 100
-        observal server logs api --follow --output json
+        dev-library server logs
+        dev-library server logs postgres --lines 100
+        dev-library server logs api --follow --output json
     """
     log_files = {
         "postgres": LOG_DIR / "postgres.log",
@@ -385,8 +385,8 @@ def install(
     """Download verified embedded database binaries.
 
     Examples:
-        observal server install
-        observal server install --upgrade --output json
+        dev-library server install
+        dev-library server install --upgrade --output json
     """
     from observal_cli.server.deps import install_dependencies
 
@@ -406,7 +406,7 @@ def install(
         output_json({"status": "installed", "services": ["postgres", "clickhouse", "redis"], "refreshed": upgrade})
     else:
         console.print("\n[green]✓[/green] All dependencies installed")
-        console.print("  Run [cyan]observal server start[/cyan] to start the server")
+        console.print("  Run [cyan]dev-library server start[/cyan] to start the server")
 
 
 @server_app.command()
@@ -419,8 +419,8 @@ def reset(
     """Stop embedded services and wipe database data and generated secrets.
 
     Examples:
-        observal server reset
-        observal server reset --force --output json
+        dev-library server reset
+        dev-library server reset --force --output json
     """
     from observal_cli.server.orchestrator import Orchestrator
 
@@ -450,15 +450,15 @@ def config(
     """Show embedded server paths and ports.
 
     Examples:
-        observal server config
-        observal server config --output json
+        dev-library server config
+        dev-library server config --output json
     """
     from observal_cli.server.constants import CLICKHOUSE_HTTP_PORT, POSTGRES_PORT, REDIS_PORT
 
-    config_file = OBSERVAL_HOME / "observal.yaml"
+    config_file = DEVLIBRARY_HOME / "observal.yaml"
     payload = {
         "mode": "embedded",
-        "home_directory": str(OBSERVAL_HOME),
+        "home_directory": str(DEVLIBRARY_HOME),
         "ports": {
             "api": API_PORT,
             "postgres": POSTGRES_PORT,
@@ -472,7 +472,7 @@ def config(
     if _is_json(output):
         output_json(payload)
         return
-    table = Table(title="Observal Server Configuration")
+    table = Table(title="DevLibrary Server Configuration")
     table.add_column("Setting", style="bold")
     table.add_column("Value")
     table.add_row("Mode", "embedded")
@@ -491,13 +491,13 @@ def config(
 
 
 def _find_compose_dir() -> Path:
-    """Find the Docker Compose directory for the Observal deployment."""
+    """Find the Docker Compose directory for the DevLibrary deployment."""
     # Check common locations
     candidates = [
         Path.cwd() / "docker",  # dev: project root with docker/ subdir
         Path.cwd(),  # production: cwd IS the compose dir
         Path("/opt/observal"),  # server-package default install
-        OBSERVAL_HOME / "docker",
+        DEVLIBRARY_HOME / "docker",
     ]
     for d in candidates:
         if (d / "docker-compose.yml").exists() or (d / "compose.yml").exists():
@@ -650,7 +650,7 @@ def _server_upgrade(version: str | None, skip_backup: bool, dry_run: bool, force
                 "The target server image was not found.",
                 operation="Upgrade Docker server",
                 resource=f"ghcr.io/observal/observal-api:{target}",
-                remediation="Run observal server versions and choose an available version.",
+                remediation="Run dev-library server versions and choose an available version.",
             )
 
     if dry_run:
@@ -778,7 +778,7 @@ def _server_upgrade(version: str | None, skip_backup: bool, dry_run: bool, force
         console.print(f"[green]✓ Upgraded to v{target}[/green]")
         if backup_path:
             console.print(f"  Backup: {escape(str(backup_path))}")
-        console.print("  Rollback: [dim]observal server rollback[/dim]")
+        console.print("  Rollback: [dim]dev-library server rollback[/dim]")
         return {
             "status": "upgraded",
             "current_version": current,
@@ -807,8 +807,8 @@ def server_upgrade(
     JSON mutation requires explicit confirmation. Dry run is read-only.
 
     Examples:
-        observal server upgrade --dry-run --output json
-        observal server upgrade --version 1.2.3 --force --output json
+        dev-library server upgrade --dry-run --output json
+        dev-library server upgrade --version 1.2.3 --force --output json
     """
     if _is_json(output) and not dry_run and not force:
         fail(
@@ -868,7 +868,7 @@ def _server_rollback(from_backup: str | None, force: bool) -> dict:
             "The managed PostgreSQL backup was not found.",
             operation="Rollback Docker server",
             resource=str(backup_dir),
-            remediation="Run observal server versions to list available backups.",
+            remediation="Run dev-library server versions to list available backups.",
         )
 
     prev_version = backup_dir.name.split("-")[0].removeprefix("v")
@@ -880,7 +880,7 @@ def _server_rollback(from_backup: str | None, force: bool) -> dict:
             "The backup directory does not identify a valid server version.",
             operation="Rollback Docker server",
             resource=str(backup_dir),
-            remediation="Choose a backup created by observal server upgrade.",
+            remediation="Choose a backup created by dev-library server upgrade.",
             detail=repr(error),
         )
 
@@ -982,8 +982,8 @@ def server_rollback(
     ClickHouse telemetry is left unchanged. JSON mode requires explicit confirmation.
 
     Examples:
-        observal server rollback --force --output json
-        observal server rollback --from-backup ~/.observal/backups/v1.2.2-20260521T120000 --force
+        dev-library server rollback --force --output json
+        dev-library server rollback --from-backup ~/.dev-library/backups/v1.2.2-20260521T120000 --force
     """
     if _is_json(output) and not force:
         fail(
@@ -1018,8 +1018,8 @@ def server_versions(
     """List Docker image versions and managed PostgreSQL backups.
 
     Examples:
-        observal server versions
-        observal server versions --output json
+        dev-library server versions
+        dev-library server versions --output json
     """
     from observal_cli import version_check
     from observal_cli.server.backup import list_backups

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
 """Stable error contract for CLI users, scripts, and agents."""
@@ -178,8 +178,8 @@ def debug_requested(args: tuple[str, ...] | list[str] | None = None) -> bool:
 def _json_stream_requested(command: click.Command, args: tuple[str, ...]) -> bool:
     path = _command_path(command, args)
     return json_errors_requested(args) and (
-        (path == "observal auth login" and any(value in {"--sso", "--saml"} for value in args))
-        or (path == "observal server logs" and any(value in {"--follow", "-f"} for value in args))
+        (path == "dev-library auth login" and any(value in {"--sso", "--saml"} for value in args))
+        or (path == "dev-library server logs" and any(value in {"--follow", "-f"} for value in args))
     )
 
 
@@ -349,7 +349,7 @@ class ErrorHandlingGroup(TyperGroup):
                 category,
                 f"The server rejected the operation with HTTP {status}.",
                 operation=operation,
-                resource="Observal server",
+                resource="DevLibrary server",
                 remediation="Check the request and server health, then retry.",
                 request_id=next(
                     (value for key, value in error.response.headers.items() if key.lower() == "x-request-id"),
@@ -365,7 +365,7 @@ class ErrorHandlingGroup(TyperGroup):
                 ErrorCategory.UNAVAILABLE,
                 "The network operation failed.",
                 operation=operation,
-                resource="Observal service",
+                resource="DevLibrary service",
                 remediation="Check network connectivity and service health, then retry.",
                 detail=repr(error),
             )

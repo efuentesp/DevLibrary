@@ -9,7 +9,7 @@ Computes a deterministic layer_hash from the manifest and manages
 caching to avoid redundant file reads.
 
 The layer_hash represents the FULL state the AI sees, not just what
-Observal installed, but also user-created rules, custom agents, etc.
+DevLibrary installed, but also user-created rules, custom agents, etc.
 """
 
 from __future__ import annotations
@@ -465,7 +465,7 @@ def build_layer_manifest(
 
 
 def _get_observal_managed_files(lockfile_data: dict, harness: str, project_dir: str | None) -> set[str]:
-    """Determine which display paths are managed by Observal from the lock file."""
+    """Determine which display paths are managed by DevLibrary from the lock file."""
     from observal_cli.harness import ensure_loaded, get_adapter
 
     ensure_loaded()
@@ -556,7 +556,7 @@ def get_local_snapshot() -> dict | None:
 def save_local_snapshot(snapshot: dict) -> None:
     """Save the snapshot locally (mirror of what was uploaded to server).
 
-    Writes only to ~/.observal/layer_snapshot.json. Overwrites in place (no history).
+    Writes only to ~/.dev-library/layer_snapshot.json. Overwrites in place (no history).
     Validates payload size before writing to prevent disk flooding.
     """
     try:

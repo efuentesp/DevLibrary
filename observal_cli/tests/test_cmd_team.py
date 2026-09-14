@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for `observal team` commands. Client is mocked, no live server."""
+"""Tests for `dev-library team` commands. Client is mocked, no live server."""
 
 from __future__ import annotations
 

@@ -39,9 +39,9 @@ prompt_app = typer.Typer(
     help=(
         "Prompt registry commands\n\n"
         "Examples:\n"
-        "  observal registry prompt list\n"
-        "  observal registry prompt show alice/my-prompt\n"
-        "  observal registry prompt render alice/my-prompt --var lang=python"
+        "  dev-library registry prompt list\n"
+        "  dev-library registry prompt show alice/my-prompt\n"
+        "  dev-library registry prompt render alice/my-prompt --var lang=python"
     )
 )
 
@@ -75,9 +75,9 @@ def prompt_submit(
     Only submit prompts you created or are the point-of-contact for.
 
     Examples:
-        observal registry prompt submit --from-file prompt.json
-        observal registry prompt submit --draft
-        observal registry prompt submit --submit abc123 --output json
+        dev-library registry prompt submit --from-file prompt.json
+        dev-library registry prompt submit --draft
+        dev-library registry prompt submit --submit abc123 --output json
     """
     human_output = output != "json"
     if human_output:
@@ -209,7 +209,7 @@ def prompt_submit(
         return
     message = "Draft saved" if draft else "Prompt submitted"
     rprint(f"[green]✓ {message}![/green] ID: [bold]{esc(result['id'])}[/bold]")
-    rprint(f"  Render: [cyan]observal registry prompt render {esc(client.canonical_name(result))}[/cyan]")
+    rprint(f"  Render: [cyan]dev-library registry prompt render {esc(client.canonical_name(result))}[/cyan]")
 
 
 @prompt_app.command(name="list")
@@ -227,9 +227,9 @@ def prompt_list(
     in subsequent commands.
 
     Examples:
-        observal registry prompt list
-        observal registry prompt list --category coding
-        observal registry prompt list --search "refactor" --output json
+        dev-library registry prompt list
+        dev-library registry prompt list --category coding
+        dev-library registry prompt list --search "refactor" --output json
     """
     if category and category not in VALID_PROMPT_CATEGORIES:
         fail(
@@ -291,8 +291,8 @@ def prompt_my(
     Useful for tracking the review status of your submissions.
 
     Examples:
-        observal registry prompt my
-        observal registry prompt my --output json
+        dev-library registry prompt my
+        dev-library registry prompt my --output json
     """
     fetch_ctx = nullcontext() if output == "json" else spinner("Fetching your prompts...")
     with fetch_ctx:
@@ -338,9 +338,9 @@ def prompt_show(
     Accepts a UUID, name, row number from a previous list, or @alias.
 
     Examples:
-        observal registry prompt show my-prompt
-        observal registry prompt show @refactor-prompt
-        observal registry prompt show abc123 --output json
+        dev-library registry prompt show my-prompt
+        dev-library registry prompt show @refactor-prompt
+        dev-library registry prompt show abc123 --output json
     """
     resolved = client.resolve_registry_reference("prompt", prompt_id)
     fetch_ctx = nullcontext() if output == "json" else spinner()
@@ -380,8 +380,8 @@ def prompt_render(
     a prompt_render telemetry span.
 
     Examples:
-        observal registry prompt render my-prompt --var lang=python
-        observal registry prompt render @tpl --var file=main.py --var task=refactor --output json
+        dev-library registry prompt render my-prompt --var lang=python
+        dev-library registry prompt render @tpl --var file=main.py --var task=refactor --output json
     """
     resolved = client.resolve_registry_reference("prompt", prompt_id)
     variables = {}
@@ -423,9 +423,9 @@ def prompt_edit(
     Acquires an edit lock to prevent concurrent modifications.
 
     Examples:
-        observal registry prompt edit my-prompt --description "Updated desc"
-        observal registry prompt edit abc123 --from-file updates.json
-        observal registry prompt edit @tpl --template "New template: {{var}}" --output json
+        dev-library registry prompt edit my-prompt --description "Updated desc"
+        dev-library registry prompt edit abc123 --from-file updates.json
+        dev-library registry prompt edit @tpl --template "New template: {{var}}" --output json
     """
     resolved = client.resolve_registry_reference("prompt", prompt_id)
     if from_file:

@@ -30,9 +30,9 @@ insights_app = typer.Typer(
     help=(
         "Agent insight reports\n\n"
         "Examples:\n"
-        "  observal ops insights list alice/my-agent\n"
-        "  observal ops insights show alice/my-agent latest\n"
-        "  observal ops insights generate alice/my-agent"
+        "  dev-library ops insights list alice/my-agent\n"
+        "  dev-library ops insights show alice/my-agent latest\n"
+        "  dev-library ops insights generate alice/my-agent"
     )
 )
 
@@ -63,13 +63,13 @@ def _registry_name() -> str:
 
     Best effort and cached per process: a cosmetic label must never be the
     reason a report fails to render, so any error falls back to a neutral
-    phrase rather than hardcoding "Observal" over someone's branding.
+    phrase rather than hardcoding "DevLibrary" over someone's branding.
     """
     global _registry_name_cache
     if _registry_name_cache is None:
         try:
             data = client.get("/api/v1/config/public")
-            _registry_name_cache = str(data.get("branding_app_name") or "").strip() or "Observal"
+            _registry_name_cache = str(data.get("branding_app_name") or "").strip() or "DevLibrary"
         except Exception:
             _registry_name_cache = "your registry"
     return _registry_name_cache
@@ -117,7 +117,7 @@ def _select_report_id(reports: list[dict], report_ref: str | None) -> str:
             f"Insight report prefix is ambiguous: {report_ref}.",
             operation="Show agent insight report",
             resource="insight report",
-            remediation="Use a row number from `observal ops insights list <agent>`.",
+            remediation="Use a row number from `dev-library ops insights list <agent>`.",
         )
 
     fail(
@@ -125,7 +125,7 @@ def _select_report_id(reports: list[dict], report_ref: str | None) -> str:
         f"Insight report not found: {report_ref}.",
         operation="Show agent insight report",
         resource="insight report",
-        remediation="Use a row number from `observal ops insights list <agent>`.",
+        remediation="Use a row number from `dev-library ops insights list <agent>`.",
     )
 
 
@@ -145,9 +145,9 @@ def insights_list(
 
     Examples:
 
-        observal ops insights list my-agent
+        dev-library ops insights list my-agent
 
-        observal ops insights list my-agent --output json
+        dev-library ops insights list my-agent --output json
     """
     with _progress(output, "Fetching insight reports..."):
         resolved = _resolve_agent_id(agent_id)
@@ -178,8 +178,8 @@ def insights_list(
         )
     console.print(table)
     rprint()
-    rprint(f"[dim]Open latest completed: [cyan]observal ops insights show {esc(agent_id)}[/cyan][/dim]")
-    rprint(f"[dim]Open row 1: [cyan]observal ops insights show {esc(agent_id)} 1[/cyan][/dim]")
+    rprint(f"[dim]Open latest completed: [cyan]dev-library ops insights show {esc(agent_id)}[/cyan][/dim]")
+    rprint(f"[dim]Open row 1: [cyan]dev-library ops insights show {esc(agent_id)} 1[/cyan][/dim]")
 
 
 @insights_app.command(name="show")
@@ -193,11 +193,11 @@ def insights_show(
 
     Examples:
 
-        observal ops insights show my-agent
+        dev-library ops insights show my-agent
 
-        observal ops insights show my-agent 3
+        dev-library ops insights show my-agent 3
 
-        observal ops insights show my-agent --section suggestions
+        dev-library ops insights show my-agent --section suggestions
     """
     with _progress(output, "Fetching report..."):
         data = _resolve_report_for_show(target, report_ref)
@@ -478,8 +478,8 @@ def _render_reuse_feature(feature: dict, ref: dict):
         rprint(f"      [dim]Why this fits: {esc(feature['match_reason'])}[/dim]")
     elif feature.get("why_for_you"):
         rprint(f"      [dim]{esc(feature['why_for_you'])}[/dim]")
-    rprint(f"      [cyan]observal registry {esc(component_type)} show {esc(name)} --output json[/cyan]")
-    rprint(f"      [dim]Attach to an agent: observal agent add {esc(component_type)} {esc(ref.get('id', ''))}[/dim]")
+    rprint(f"      [cyan]dev-library registry {esc(component_type)} show {esc(name)} --output json[/cyan]")
+    rprint(f"      [dim]Attach to an agent: dev-library agent add {esc(component_type)} {esc(ref.get('id', ''))}[/dim]")
 
 
 def _render_registry_match_note(summary: dict | None):
@@ -674,9 +674,9 @@ def insights_generate(
 
     Examples:
 
-        observal ops insights generate my-agent
+        dev-library ops insights generate my-agent
 
-        observal ops insights generate my-agent --period 30
+        dev-library ops insights generate my-agent --period 30
     """
     agent_version = _version(agent_version, "agent version")
     compare_version = _version(compare_version, "comparison version")
@@ -729,7 +729,7 @@ def insights_generate(
                 "Timed out waiting for the insight report.",
                 operation="Generate agent insight report",
                 resource="insight report",
-                remediation="Use `observal ops insights show <agent> latest` to check it later.",
+                remediation="Use `dev-library ops insights show <agent> latest` to check it later.",
             )
 
         if data.get("status") == "failed":
@@ -758,4 +758,4 @@ def insights_generate(
         rprint(
             f"  Phase: {esc(str(data.get('progress_phase')).replace('_', ' '))} ({data.get('progress_percent', 0)}%)"
         )
-    rprint("[dim]  Run `observal ops insights show <agent>` when complete.[/dim]")
+    rprint("[dim]  Run `dev-library ops insights show <agent>` when complete.[/dim]")

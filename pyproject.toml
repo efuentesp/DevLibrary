@@ -9,7 +9,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [project]
-name = "observal-cli"
+name = "dev-library-cli"
 version = "1.13.1"
 description = "Observal MCP Server Registry & Agent Registry CLI"
 readme = "README.md"
@@ -55,9 +55,9 @@ Changelog = "https://github.com/Observal/Observal/blob/main/CHANGELOG.md"
 Issues = "https://github.com/Observal/Observal/issues"
 
 [project.scripts]
-observal = "observal_cli.main:app"
-observal-sandbox-run = "observal_cli.sandbox_runner:main"
-observal-sandbox-mcp = "observal_cli.sandbox_mcp:main"
+dev-library = "observal_cli.main:app"
+dev-library-sandbox-run = "observal_cli.sandbox_runner:main"
+dev-library-sandbox-mcp = "observal_cli.sandbox_mcp:main"
 #observal-graphrag-proxy = "observal_cli.graphrag_proxy:main"
 
 [build-system]

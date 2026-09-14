@@ -6,7 +6,7 @@
 
 """Declarative hook specification for Claude Code settings.
 
-Defines the desired state of Observal-managed hooks. The reconciler
+Defines the desired state of DevLibrary-managed hooks. The reconciler
 compares this spec against the user's current ~/.claude/settings.json
 and applies non-destructive updates.
 
@@ -67,12 +67,12 @@ def get_desired_env(*_args, **_kwargs) -> dict[str, str]:
     """Legacy stub - no env vars needed for session JSONL push.
 
     Old callers pass (server_url, hooks_token, ...) - ignored.
-    Config now lives in ~/.observal/config.json.
+    Config now lives in ~/.dev-library/config.json.
     """
     return {}
 
 
-# Keys in settings.env that Observal manages (for cleanup).
+# Keys in settings.env that DevLibrary manages (for cleanup).
 MANAGED_ENV_KEYS = frozenset(
     {
         "OBSERVAL_HOOKS_URL",
