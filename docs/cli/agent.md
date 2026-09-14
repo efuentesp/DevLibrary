@@ -23,7 +23,7 @@ Canonical identities use `namespace/slug`. Commands also accept UUIDs, unambiguo
 | `archive` | Archive an agent |
 | `delete` | Compatibility alias for `archive` |
 | `unarchive` | Restore an archived agent |
-| `init` | Create a local `observal-agent.yaml` |
+| `init` | Create a local `dev-library-agent.yaml` |
 | `add` | Add a Registry component UUID to local YAML |
 | `build` | Validate local composition and target scope |
 | `publish` | Create, update, save, or submit an agent |
@@ -157,7 +157,7 @@ JSON returns:
 
 ```json
 {
-  "path": "/work/reviewer/observal-agent.yaml",
+  "path": "/work/reviewer/dev-library-agent.yaml",
   "agent": {
     "name": "reviewer",
     "version": "1.0.0"

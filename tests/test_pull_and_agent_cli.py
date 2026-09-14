@@ -744,7 +744,7 @@ class TestPullHelp:
 
 
 def _make_agent_yaml(tmp_path: Path, **overrides) -> Path:
-    """Write a minimal observal-agent.yaml and return its path."""
+    """Write a minimal dev-library-agent.yaml and return its path."""
     data = {
         "name": "test-agent",
         "version": "1.0.0",
@@ -755,7 +755,7 @@ def _make_agent_yaml(tmp_path: Path, **overrides) -> Path:
         "components": [],
     }
     data.update(overrides)
-    yaml_path = tmp_path / "observal-agent.yaml"
+    yaml_path = tmp_path / "dev-library-agent.yaml"
     yaml_path.write_text(yaml.dump(data, default_flow_style=False, sort_keys=False))
     return yaml_path
 
@@ -781,7 +781,7 @@ class TestAgentInit:
         assert result.exit_code == 0, result.output
         assert "Created" in result.output
 
-        yaml_path = tmp_path / "observal-agent.yaml"
+        yaml_path = tmp_path / "dev-library-agent.yaml"
         assert yaml_path.exists()
 
         data = yaml.safe_load(yaml_path.read_text())
@@ -815,7 +815,7 @@ class TestAgentInit:
             input=inputs,
         )
         assert result.exit_code == 0, result.output
-        data = yaml.safe_load((tmp_path / "observal-agent.yaml").read_text())
+        data = yaml.safe_load((tmp_path / "dev-library-agent.yaml").read_text())
         assert data["name"] == "new-agent"
 
 
@@ -830,7 +830,7 @@ class TestAgentAdd:
         assert result.exit_code == 0, result.output
         assert "Added" in result.output
 
-        data = yaml.safe_load((tmp_path / "observal-agent.yaml").read_text())
+        data = yaml.safe_load((tmp_path / "dev-library-agent.yaml").read_text())
         assert len(data["components"]) == 1
         assert data["components"][0]["component_type"] == "mcp"
         assert data["components"][0]["component_id"] == "11111111-1111-1111-1111-111111111111"
@@ -861,7 +861,7 @@ class TestAgentAdd:
         assert "already exists" in result.output
 
     def test_fails_if_no_yaml(self, tmp_path: Path):
-        """Fails if observal-agent.yaml does not exist."""
+        """Fails if dev-library-agent.yaml does not exist."""
         result = runner.invoke(
             cli_app,
             ["agent", "add", "mcp", "33333333-3333-3333-3333-333333333333", "--dir", str(tmp_path)],
@@ -1002,7 +1002,7 @@ class TestAgentBuild:
         assert "Component belongs to another teamspace" in result.output
 
     def test_fails_if_no_yaml(self, tmp_path: Path):
-        """Fails if observal-agent.yaml does not exist."""
+        """Fails if dev-library-agent.yaml does not exist."""
         result = runner.invoke(
             cli_app,
             ["agent", "build", "--dir", str(tmp_path)],
@@ -1097,7 +1097,7 @@ class TestAgentPublish:
         assert "existing-uuid" in put_call[0][0]
 
     def test_fails_if_no_yaml(self, tmp_path: Path):
-        """Fails if observal-agent.yaml does not exist."""
+        """Fails if dev-library-agent.yaml does not exist."""
         with _patch_config():
             result = runner.invoke(
                 cli_app,

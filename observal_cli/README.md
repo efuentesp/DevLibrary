@@ -47,7 +47,7 @@ observal auth status      # check connectivity and buffer status
 ### Agent Workflow
 
 ```
-observal agent init              # scaffold observal-agent.yaml
+observal agent init              # scaffold dev-library-agent.yaml
 observal agent add mcp <id>      # add a component to the agent definition
 observal agent build             # validate the definition
 observal agent publish           # push to the server
@@ -105,11 +105,11 @@ observal config show                                 # show current config
 
 ## Supported harnesses
 
-| harness / Tool                  | Support Level                |
+| harness / Tool | Support Level |
 | --------------------------- | ---------------------------- |
-| Claude Code                 | Fully supported              |
-| Kiro CLI                    | Supported (next most tested) |
-| Cursor, VS Code             | Untested                     |
+| Claude Code | Fully supported |
+| Kiro CLI | Supported (next most tested) |
+| Cursor, VS Code | Untested |
 
 The `--harness` flag controls which config format is generated. Each harness has its own config paths and JSON structure.
 

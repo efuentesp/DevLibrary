@@ -33,7 +33,7 @@ Step-by-step prompts: name, description, which MCP servers, which skills, which 
 ### Option B - the YAML workflow (recommended for teams)
 
 ```bash
-observal agent init                  # scaffold observal-agent.yaml
+observal agent init                  # scaffold dev-library-agent.yaml
 observal agent add mcp github-mcp    # add components
 observal agent add skill code-review-skill
 observal agent add hook pretooluse-logger

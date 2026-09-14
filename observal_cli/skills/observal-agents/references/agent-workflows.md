@@ -108,7 +108,7 @@ dev-library agent publish --dir ./my-agent --team platform-tools --visibility pu
 Use only when the user wants to change the current listing without a reviewed version.
 
 1. Read current state with `agent show`.
-2. Preserve required fields in `observal-agent.yaml`, including `model_config_json: {}` and `external_mcps: []`.
+2. Preserve required fields in `dev-library-agent.yaml`, including `model_config_json: {}` and `external_mcps: []`.
 3. Build before mutation.
 4. Publish update and verify.
 

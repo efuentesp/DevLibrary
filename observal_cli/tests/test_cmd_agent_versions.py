@@ -25,7 +25,7 @@ runner = CliRunner()
 
 @pytest.fixture()
 def agent_yaml_dir(tmp_path: Path) -> Path:
-    """Write a minimal observal-agent.yaml into tmp_path and return the dir."""
+    """Write a minimal dev-library-agent.yaml into tmp_path and return the dir."""
     data = {
         "name": "my-agent",
         "version": "1.2.0",
@@ -36,7 +36,7 @@ def agent_yaml_dir(tmp_path: Path) -> Path:
         "supported_harnesses": ["claude-code"],
         "components": [{"component_type": "mcp", "component_id": "abc-123"}],
     }
-    (tmp_path / "observal-agent.yaml").write_text(yaml.dump(data))
+    (tmp_path / "dev-library-agent.yaml").write_text(yaml.dump(data))
     return tmp_path
 
 
@@ -85,7 +85,7 @@ def test_agent_release_bumps_version(agent_yaml_dir: Path) -> None:
 
 
 def test_agent_release_updates_local_yaml(agent_yaml_dir: Path) -> None:
-    """release writes the new version back into observal-agent.yaml."""
+    """release writes the new version back into dev-library-agent.yaml."""
     agent_id = "agent-uuid-5678"
     suggestions = {
         "current": "1.2.0",
@@ -108,7 +108,7 @@ def test_agent_release_updates_local_yaml(agent_yaml_dir: Path) -> None:
         )
 
     assert result.exit_code == 0, result.output
-    saved = yaml.safe_load((agent_yaml_dir / "observal-agent.yaml").read_text())
+    saved = yaml.safe_load((agent_yaml_dir / "dev-library-agent.yaml").read_text())
     assert saved["version"] == "1.2.1"
 
 

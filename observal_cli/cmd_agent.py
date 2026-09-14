@@ -46,7 +46,7 @@ from observal_cli.render import (
 )
 
 # ── Agent authoring constants ──────────────────────────────
-YAML_FILE = "observal-agent.yaml"
+YAML_FILE = "dev-library-agent.yaml"
 VALID_COMPONENT_TYPES = {"mcp", "skill", "hook", "prompt", "sandbox"}
 
 # Common model choices for the interactive wizard
@@ -184,7 +184,7 @@ def _load_agent_yaml(directory: Path, *, operation: str = "Read agent definition
             f"Agent definition not found: {path}.",
             operation=operation,
             resource=str(path),
-            remediation="Run `dev-library agent init` or pass the directory containing observal-agent.yaml.",
+            remediation="Run `dev-library agent init` or pass the directory containing dev-library-agent.yaml.",
         )
     try:
         text = path.read_text(encoding="utf-8")
@@ -223,7 +223,7 @@ def _load_agent_yaml(directory: Path, *, operation: str = "Read agent definition
             "Agent definition must be a YAML mapping.",
             operation=operation,
             resource=str(path),
-            remediation="Replace the file with a valid observal-agent.yaml mapping.",
+            remediation="Replace the file with a valid dev-library-agent.yaml mapping.",
         )
     return data
 
@@ -1120,11 +1120,11 @@ def agent_init(
     supported_harnesses: list[str] | None = typer.Option(None, "--harness", help="Supported harness (repeatable)"),
     output: OutputMode = typer.Option("table", "--output", "-o", help="Output format: table or json"),
 ):
-    """Scaffold an observal-agent.yaml definition file.
+    """Scaffold an dev-library-agent.yaml definition file.
 
     Runs an interactive wizard to collect agent metadata (name, version,
     description, owner, model, system prompt) and writes the result as
-    observal-agent.yaml in the target directory. Use --beta to start
+    dev-library-agent.yaml in the target directory. Use --beta to start
     at version 0.1.0 instead of 1.0.0.
 
     Examples:
@@ -1251,13 +1251,13 @@ def agent_init(
 def agent_add(
     component_type: str = typer.Argument(..., help="Component type: mcp, skill, hook, prompt, sandbox"),
     component_id: str = typer.Argument(..., help="Component ID (UUID)"),
-    directory: str = typer.Option(".", "--dir", "-d", help="Directory containing observal-agent.yaml"),
+    directory: str = typer.Option(".", "--dir", "-d", help="Directory containing dev-library-agent.yaml"),
     output: OutputMode = typer.Option("table", "--output", "-o", help="Output format: table or json"),
 ):
-    """Add a component reference to observal-agent.yaml.
+    """Add a component reference to dev-library-agent.yaml.
 
     Appends a component entry to the components list in your local
-    observal-agent.yaml file. The component is referenced by type and
+    dev-library-agent.yaml file. The component is referenced by type and
     UUID. Duplicates are rejected.
 
     Examples:
@@ -1310,14 +1310,14 @@ def agent_add(
 
 @agent_app.command(name="build")
 def agent_build(
-    directory: str = typer.Option(".", "--dir", "-d", help="Directory containing observal-agent.yaml"),
+    directory: str = typer.Option(".", "--dir", "-d", help="Directory containing dev-library-agent.yaml"),
     team: str | None = typer.Option(None, "--team", help="Validate private components for this teamspace"),
     visibility: str | None = typer.Option(None, "--visibility", help="Agent visibility: public or team"),
     output: OutputMode = typer.Option("table", "--output", "-o", help="Output format: table or json"),
 ):
     """Validate agent definition against the server (dry-run).
 
-    Reads observal-agent.yaml and checks each referenced component
+    Reads dev-library-agent.yaml and checks each referenced component
     against the registry API to confirm it exists and is accessible.
     Exits with code 1 if any component fails validation.
 
@@ -1423,7 +1423,7 @@ def agent_build(
 
 @agent_app.command(name="publish")
 def agent_publish(
-    directory: str = typer.Option(".", "--dir", "-d", help="Directory containing observal-agent.yaml"),
+    directory: str = typer.Option(".", "--dir", "-d", help="Directory containing dev-library-agent.yaml"),
     update: bool = typer.Option(False, "--update", "-u", help="Update existing agent instead of creating"),
     draft: bool = typer.Option(False, "--draft", help="Save as draft instead of submitting for review"),
     submit: str | None = typer.Option(None, "--submit", help="Submit a draft agent for review (agent ID)"),
@@ -1434,7 +1434,7 @@ def agent_publish(
 ):
     """Publish the agent definition to the server.
 
-    Reads observal-agent.yaml from the specified directory and submits it.
+    Reads dev-library-agent.yaml from the specified directory and submits it.
     Use --update to modify an existing agent (same name). Use --draft to
     save without submitting for review.
 
@@ -1583,12 +1583,12 @@ def agent_publish(
 def agent_release(
     name: str = typer.Argument(..., help="Agent name, ID, row number, or @alias"),
     bump: str = typer.Option(..., "--bump", help="Version bump type: patch, minor, or major"),
-    directory: str = typer.Option(".", "--dir", "-d", help="Directory containing observal-agent.yaml"),
+    directory: str = typer.Option(".", "--dir", "-d", help="Directory containing dev-library-agent.yaml"),
     output: OutputMode = typer.Option("table", "--output", "-o", help="Output format: table or json"),
 ):
     """Bump version and push a versioned release to the registry.
 
-    Reads observal-agent.yaml, bumps the version, and submits a new version
+    Reads dev-library-agent.yaml, bumps the version, and submits a new version
     to the review queue. The YAML must contain all required fields including
     model_config_json: {} and external_mcps: [].
 

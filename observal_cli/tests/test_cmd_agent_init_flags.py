@@ -42,7 +42,7 @@ def test_agent_init_flags_write_yaml(tmp_path):
         )
 
     assert result.exit_code == 0, result.output
-    data = yaml.safe_load((target / "observal-agent.yaml").read_text())
+    data = yaml.safe_load((target / "dev-library-agent.yaml").read_text())
     assert data["name"] == "incident-helper"
     assert data["version"] == "1.2.3"
     assert data["prompt"] == "Handle incident response."
@@ -72,5 +72,5 @@ def test_agent_init_prompt_file(tmp_path):
         )
 
     assert result.exit_code == 0, result.output
-    data = yaml.safe_load((target / "observal-agent.yaml").read_text())
+    data = yaml.safe_load((target / "dev-library-agent.yaml").read_text())
     assert data["prompt"] == "Design good frontends."

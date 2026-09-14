@@ -50,13 +50,13 @@ Every command available in the installed CLI. This block is generated from the T
   - `dev-library agent co-authors add`: Add a co-author.
   - `dev-library agent co-authors list`: List co-authors.
   - `dev-library agent co-authors remove`: Remove a co-author.
-- `dev-library agent add`: Add a component reference to observal-agent.yaml.
+- `dev-library agent add`: Add a component reference to dev-library-agent.yaml.
 - `dev-library agent archive`: Archive an agent.
 - `dev-library agent build`: Validate agent definition against the server (dry-run).
 - `dev-library agent bulk-create`: Bulk-create agents from a JSON file.
 - `dev-library agent create`: Create a new agent (interactive wizard, from file, or via flags).
 - `dev-library agent delete`: Archive an agent. Prefer the archive command.
-- `dev-library agent init`: Scaffold an observal-agent.yaml definition file.
+- `dev-library agent init`: Scaffold an dev-library-agent.yaml definition file.
 - `dev-library agent install`: Get install config for an agent.
 - `dev-library agent list`: List active agents (paginated).
 - `dev-library agent my`: List your own agents (all statuses).
