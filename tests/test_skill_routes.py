@@ -338,6 +338,7 @@ class TestSubmitSkill:
             "delivery_mode": "registry_direct",
             "script_content": "print('review')",
             "script_filename": "review.py",
+            "extra_files": None,
             "validated": True,
             "slash_command": "review",
             "status": ListingStatus.pending,

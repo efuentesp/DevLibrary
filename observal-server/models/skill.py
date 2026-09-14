@@ -197,6 +197,16 @@ class SkillListing(Base):
         self.latest_version.script_filename = value
 
     @property
+    def extra_files(self) -> list | None:
+        return self.latest_version.extra_files if self.latest_version else None
+
+    @extra_files.setter
+    def extra_files(self, value: list | None) -> None:
+        if not self.latest_version:
+            raise RuntimeError(f"{type(self).__name__} has no latest_version; cannot set extra_files")
+        self.latest_version.extra_files = value
+
+    @property
     def validated(self) -> bool:
         return self.latest_version.validated if self.latest_version else False
 
@@ -278,6 +288,7 @@ class SkillVersion(Base):
     delivery_mode: Mapped[str] = mapped_column(String(20), server_default="git_fetch", nullable=False)
     script_content: Mapped[str | None] = mapped_column(Text, nullable=True)
     script_filename: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    extra_files: Mapped[list | None] = mapped_column(JSON, nullable=True)
     validated: Mapped[bool] = mapped_column(Boolean, default=False)
     target_agents: Mapped[list] = mapped_column(JSON, default=list)
     task_type: Mapped[str] = mapped_column(String(100), nullable=False)
