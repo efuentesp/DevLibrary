@@ -116,6 +116,34 @@ function SkillConfigSection({ detail }: { detail: ReviewItem }) {
 			<DetailField label="Git Ref" value={detail.git_ref} />
 			<DetailField label="Validated" value={detail.validated} />
 			<DetailField label="Target Agents" value={detail.target_agents} />
+			{detail.extra_files && detail.extra_files.length > 0 && (
+				<div className="col-span-full">
+					<dt className="text-xs font-medium text-muted-foreground">
+						Extra Files ({detail.extra_files.length})
+					</dt>
+					<dd className="mt-0.5 space-y-1.5">
+						{detail.extra_files.map((entry) => {
+							const isBinary = entry.encoding === "base64";
+							return (
+								<details key={entry.path} className="group rounded border border-border overflow-hidden">
+									<summary className="cursor-pointer select-none px-3 py-1.5 text-[11px] font-mono hover:bg-muted/50 list-none flex items-center gap-1">
+										<span className="group-open:rotate-90 transition-transform inline-block">▶</span>
+											{entry.path}
+											{isBinary && (
+												<span className="text-[10px] text-muted-foreground">base64</span>
+											)}
+									</summary>
+									<pre className="px-3 py-2 text-[11px] font-mono leading-relaxed overflow-auto max-h-80 bg-background border-t border-border/50 break-words">
+										{isBinary
+											? `${entry.content.length} base64 characters (binary content)`
+											: entry.content}
+									</pre>
+								</details>
+							);
+						})}
+					</dd>
+				</div>
+			)}
 		</dl>
 	);
 }

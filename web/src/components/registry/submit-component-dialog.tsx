@@ -30,7 +30,20 @@ import { useTeams, useWhoami } from "@/hooks/use-api";
 import { useHarnesses } from "@/hooks/use-harnesses";
 import { parseMcpConfigJson, applyParsedConfig } from "@/lib/mcp-parser";
 import type { EnvVar } from "@/lib/mcp-parser";
+import {
+	MAX_EXTRA_FILES,
+	type SkillExtraFile,
+	fileToSkillExtraEntry,
+	skillExtraFileBytes,
+	validateSkillExtraFiles,
+} from "@/lib/skill-files";
 import { useHelp } from "@/components/wiki/help-context";
+
+function formatExtraBytes(bytes: number): string {
+	if (bytes < 1024) return `${bytes} B`;
+	if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export const MCP_CATEGORIES = [
 	"browser-automation",
@@ -241,7 +254,64 @@ export function SubmitComponentDialog({
 	const [skillScriptFilename, setSkillScriptFilename] = useState(
 		(d?.script_filename as string) ?? "",
 	);
+	const [skillExtraFiles, setSkillExtraFiles] = useState<SkillExtraFile[]>(
+		(d?.extra_files as SkillExtraFile[] | undefined) ?? [],
+	);
+	const skillExtraFilesInputRef = useRef<HTMLInputElement | null>(null);
 	const [skillMode, setSkillMode] = useState<"git" | "paste">("git");
+
+	const applySkillExtraFiles = useCallback(
+		(next: SkillExtraFile[]) => {
+			try {
+				validateSkillExtraFiles(next, skillScriptFilename || undefined);
+			} catch (err) {
+				toast.error(
+					err instanceof Error ? err.message : "Extra files rejected",
+				);
+				return;
+			}
+			setSkillExtraFiles(next);
+		},
+		[skillScriptFilename],
+	);
+
+	const handleSkillExtraFilesPicked = useCallback(
+		async (files: FileList | null) => {
+			if (!files || files.length === 0) return;
+			const merged = [...skillExtraFiles];
+			for (const file of Array.from(files)) {
+				try {
+					const entry = await fileToSkillExtraEntry(file);
+					const idx = merged.findIndex(
+						(e) => e.path.toLowerCase() === entry.path.toLowerCase(),
+					);
+					if (idx >= 0) merged[idx] = entry;
+					else merged.push(entry);
+				} catch {
+					toast.error(`Could not read ${file.name}`);
+				}
+			}
+			applySkillExtraFiles(merged);
+			if (skillExtraFilesInputRef.current) skillExtraFilesInputRef.current.value = "";
+		},
+		[skillExtraFiles, applySkillExtraFiles],
+	);
+
+	const updateSkillExtraFile = useCallback(
+		(index: number, patch: Partial<SkillExtraFile>) => {
+			applySkillExtraFiles(
+				skillExtraFiles.map((e, i) => (i === index ? { ...e, ...patch } : e)),
+			);
+		},
+		[skillExtraFiles, applySkillExtraFiles],
+	);
+
+	const removeSkillExtraFile = useCallback(
+		(index: number) => {
+			setSkillExtraFiles(skillExtraFiles.filter((_, i) => i !== index));
+		},
+		[skillExtraFiles],
+	);
 
 	// Auto-discover skill_path from GitHub Trees API when git_url changes
 	const skillDiscoverRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -510,6 +580,7 @@ export function SubmitComponentDialog({
 					if (skillMdContent) skillBody.skill_md_content = skillMdContent;
 					if (skillScriptContent) skillBody.script_content = skillScriptContent;
 					if (skillScriptFilename) skillBody.script_filename = skillScriptFilename;
+					if (skillExtraFiles.length > 0) skillBody.extra_files = skillExtraFiles;
 				}
 				return skillBody;
 			}
@@ -1135,17 +1206,76 @@ export function SubmitComponentDialog({
 										<Label htmlFor="skill-script-content">
 											Script (optional, {skillScriptLanguageName})
 										</Label>
-										<CodeEditor
-											id="skill-script-content"
-											value={skillScriptContent}
-											onChange={setSkillScriptContent}
-											language={skillScriptLanguage}
-											placeholder="Paste or type the skill script here."
-										/>
-										<p className="text-xs text-muted-foreground">
-											Detected from filename. Use .sh for Bash, .py for Python, or .mjs/.js for JavaScript.
-										</p>
-									</div>
+							<CodeEditor
+								id="skill-script-content"
+								value={skillScriptContent}
+								onChange={setSkillScriptContent}
+								language={skillScriptLanguage}
+								placeholder="Paste or type the skill script here."
+							/>
+							<p className="text-xs text-muted-foreground">
+								Detected from filename. Use .sh for Bash, .py for Python, or .mjs/.js for JavaScript.
+							</p>
+						</div>
+						<div className="space-y-1.5">
+							<div className="flex items-center justify-between">
+								<Label htmlFor="skill-extra-files">
+									Extra Files (optional, {skillExtraFiles.length}/{MAX_EXTRA_FILES})
+								</Label>
+								<Button
+									type="button"
+									variant="outline"
+									size="sm"
+									onClick={() => skillExtraFilesInputRef.current?.click()}
+								>
+									<Plus className="h-3.5 w-3.5" /> Add files
+								</Button>
+							</div>
+							<input
+								ref={skillExtraFilesInputRef}
+								id="skill-extra-files"
+								type="file"
+								multiple
+								className="hidden"
+								onChange={(e) => void handleSkillExtraFilesPicked(e.target.files)}
+							/>
+							{skillExtraFiles.length === 0 ? (
+								<p className="text-xs text-muted-foreground">
+									Scripts, templates, and resources shipped with the skill. Paths are
+									relative to the skill directory; binary files are stored base64.
+								</p>
+							) : (
+								<div className="space-y-1.5">
+									{skillExtraFiles.map((entry, i) => {
+										const bytes = skillExtraFileBytes(entry);
+										return (
+										<div key={`${entry.path}-${i}`} className="flex items-center gap-2">
+											<Input
+												value={entry.path}
+												onChange={(e) =>
+													updateSkillExtraFile(i, { path: e.target.value })
+												}
+												placeholder="templates/x.md"
+												className="font-mono text-xs"
+											/>
+											<span className="shrink-0 text-[10px] text-muted-foreground">
+												{entry.encoding} · {formatExtraBytes(bytes)}
+											</span>
+											<Button
+												type="button"
+												variant="ghost"
+												size="icon"
+												onClick={() => removeSkillExtraFile(i)}
+												aria-label={`Remove ${entry.path}`}
+											>
+												<X className="h-3.5 w-3.5" />
+											</Button>
+										</div>
+										);
+									})}
+								</div>
+							)}
+						</div>
 								</TabsContent>
 							</Tabs>
 						</>

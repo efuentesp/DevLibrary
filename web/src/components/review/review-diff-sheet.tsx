@@ -243,6 +243,21 @@ const COMPONENT_SNAPSHOT_META = new Set([
 ]);
 
 function buildComponentYaml(detail: Record<string, unknown>): string {
+	// Reviewer-friendly shape for extra_files: inline text content, byte
+	// summary for base64 blobs a human cannot read in a diff anyway.
+	if (Array.isArray(detail.extra_files)) {
+		const shaped = (detail.extra_files as Array<Record<string, unknown>>).map(
+			(entry) => {
+				if (entry.encoding === "base64") {
+					const content = typeof entry.content === "string" ? entry.content : "";
+					const bytes = Math.floor((content.replace(/\s+/g, "").length * 3) / 4);
+					return { path: entry.path, encoding: "base64", bytes };
+				}
+				return entry;
+			},
+		);
+		detail = { ...detail, extra_files: shaped };
+	}
 	const obj = Object.fromEntries(
 		Object.entries(detail).filter(
 			([k, v]) =>

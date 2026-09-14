@@ -7,6 +7,8 @@
 // SPDX-FileCopyrightText: 2026 Swathi Saravanan <ss4522@cornell.edu>
 // SPDX-License-Identifier: Apache-2.0
 
+import type { SkillExtraFile } from "../skill-files";
+
 // ── Registry ────────────────────────────────────────────────────────
 
 /** GET /registry/resolve: canonical identity for a UUID or namespace/slug reference. */
@@ -165,6 +167,7 @@ export interface ComponentVersionSummary {
 	script_filename?: string;
 	source_path?: string;
 	requirements?: string[];
+	extra_files?: SkillExtraFile[];
 	// Skill fields
 	skill_path?: string;
 	git_url?: string;
@@ -317,6 +320,7 @@ export interface ReviewItem {
 	target_agents?: string[];
 	task_type?: string;
 	slash_command?: string;
+	extra_files?: SkillExtraFile[];
 
 	// Hook-specific
 	event?: string;

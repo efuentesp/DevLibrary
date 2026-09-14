@@ -5,7 +5,8 @@
 
 
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { ArrowRight, Loader2, RotateCcw, Construction } from "lucide-react";
+import { ArrowRight, Loader2, RotateCcw, Construction, Plus, X } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +35,13 @@ import {
 import { VersionBumpDialog } from "@/components/registry/version-bump-dialog";
 import type { RegistryType } from "@/lib/api";
 import type { RegistryItem } from "@/lib/types";
+import {
+	MAX_EXTRA_FILES,
+	type SkillExtraFile,
+	fileToSkillExtraEntry,
+	skillExtraFileBytes,
+	validateSkillExtraFiles,
+} from "@/lib/skill-files";
 
 // ── Constants ──────────────────────────────────────────────────────
 
@@ -89,6 +97,7 @@ interface SkillFieldState {
 	skill_md_content: string;
 	script_content: string;
 	script_filename: string;
+	extra_files: SkillExtraFile[];
 }
 
 interface PromptFieldState {
@@ -875,9 +884,11 @@ function SkillFields({
 							placeholder="Paste or type the skill script here."
 						/>
 						<p className="text-xs text-muted-foreground">
-							Detected from filename. Use .sh for Bash, .py for Python, or .mjs/.js for JavaScript.
+								Detected from filename. Use .sh for Bash, .py for Python, or .mjs/.js for JavaScript.
 						</p>
 					</div>
+
+					<SkillExtraFilesField state={state} onChange={onChange} />
 				</TabsContent>
 			</Tabs>
 		</div>
@@ -885,6 +896,120 @@ function SkillFields({
 }
 
 // ── Sub-form: Prompt fields ────────────────────────────────────────
+
+function SkillExtraFilesField({
+	state,
+	onChange,
+}: {
+	state: SkillFieldState;
+	onChange: (patch: Partial<SkillFieldState>) => void;
+}) {
+	const inputRef = useRef<HTMLInputElement | null>(null);
+
+	const apply = (next: SkillExtraFile[]) => {
+		try {
+			validateSkillExtraFiles(next, state.script_filename || undefined);
+		} catch (err) {
+			toast.error(
+				err instanceof Error ? err.message : "Extra files rejected",
+			);
+			return;
+		}
+		onChange({ extra_files: next });
+	};
+
+	const handlePicked = async (files: FileList | null) => {
+		if (!files || files.length === 0) return;
+		const merged = [...state.extra_files];
+		for (const file of Array.from(files)) {
+			try {
+				const entry = await fileToSkillExtraEntry(file);
+				const idx = merged.findIndex(
+					(e) => e.path.toLowerCase() === entry.path.toLowerCase(),
+				);
+				if (idx >= 0) merged[idx] = entry;
+				else merged.push(entry);
+			} catch {
+				toast.error(`Could not read ${file.name}`);
+			}
+		}
+		apply(merged);
+		if (inputRef.current) inputRef.current.value = "";
+	};
+
+	return (
+		<div className="space-y-2">
+			<div className="flex items-center justify-between">
+				<Label htmlFor="skill-extra-files-edit">
+					Extra Files (optional, {state.extra_files.length}/{MAX_EXTRA_FILES})
+				</Label>
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					onClick={() => inputRef.current?.click()}
+				>
+					<Plus className="h-3.5 w-3.5" /> Add files
+				</Button>
+			</div>
+			<input
+				ref={inputRef}
+				id="skill-extra-files-edit"
+				type="file"
+				multiple
+				className="hidden"
+				onChange={(e) => void handlePicked(e.target.files)}
+			/>
+			{state.extra_files.length === 0 ? (
+				<p className="text-xs text-muted-foreground">
+					Scripts, templates, and resources shipped with the skill. Paths are
+					relative to the skill directory; binary files are stored base64.
+				</p>
+			) : (
+				<div className="space-y-1.5">
+					{state.extra_files.map((entry, i) => {
+						const bytes = skillExtraFileBytes(entry);
+						return (
+							<div key={`${entry.path}-${i}`} className="flex items-center gap-2">
+								<Input
+									value={entry.path}
+									onChange={(e) =>
+										apply(
+											state.extra_files.map((f, j) =>
+												j === i ? { ...f, path: e.target.value } : f,
+											),
+											)
+										}
+										placeholder="templates/x.md"
+										className="font-mono text-xs"
+									/>
+								<span className="shrink-0 text-[10px] text-muted-foreground">
+									{entry.encoding} ·{" "}
+									{bytes < 1024
+										? `${bytes} B`
+										: `${(bytes / 1024).toFixed(1)} KB`}
+								</span>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									onClick={() =>
+										onChange({
+											extra_files: state.extra_files.filter((_, j) => j !== i),
+											})
+										}
+									aria-label={`Remove ${entry.path}`}
+								>
+									<X className="h-3.5 w-3.5" />
+								</Button>
+							</div>
+						);
+					})}
+			</div>
+		)}
+	</div>
+	);
+}
 
 function PromptFields({
 	state,
@@ -1038,6 +1163,7 @@ function EditFormInner({
 		skill_md_content: (item.skill_md_content as string) ?? "",
 		script_content: (item.script_content as string) ?? "",
 		script_filename: (item.script_filename as string) ?? "",
+		extra_files: (item.extra_files as SkillExtraFile[] | undefined) ?? [],
 	};
 	const initialPrompt: PromptFieldState = {
 		category: (item.category as string) ?? "",
@@ -1128,6 +1254,7 @@ function EditFormInner({
 				extra.script_content = skillState.script_content;
 			if (skillState.script_filename)
 				extra.script_filename = skillState.script_filename;
+			extra.extra_files = skillState.extra_files;
 		} else if (singularType === "prompt") {
 			if (promptState.category) extra.category = promptState.category;
 			if (promptState.template) extra.template = promptState.template;
