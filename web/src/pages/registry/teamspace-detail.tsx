@@ -1342,7 +1342,7 @@ export default function TeamspaceDetailPage() {
 							</div>
 						</div>
 						<code className="rounded-md border border-border/80 bg-background px-3 py-2 font-mono text-xs text-foreground">
-							observal pull {team.handle}/agent-name
+							dev-library pull {team.handle}/agent-name
 						</code>
 							</footer>
 						</>

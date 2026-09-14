@@ -163,7 +163,7 @@ async def _on_duplicate(
     happened, which creating a second row could not.
 
     Kinds with ``reopen_on_redelivery=False`` opt out of the resurrection:
-    ``update_available`` is re-reported by every ``observal outdated`` run for
+    ``update_available`` is re-reported by every ``dev-library outdated`` run for
     as long as the user stays outdated, so the same still-true fact would
     otherwise reopen a dismissed notice forever. A NEWER version is a new
     dedupe key and a new item regardless of this flag.

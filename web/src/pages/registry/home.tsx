@@ -304,7 +304,7 @@ export default function RegistryHome() {
                   1. Install the CLI
                 </p>
                 <code className="block overflow-x-auto whitespace-nowrap rounded-md bg-background px-3 py-2 font-mono text-xs text-foreground">
-                  uv tool install observal-cli
+                  uv tool install dev-library-cli
                 </code>
               </li>
               <li className="min-w-0">
@@ -312,7 +312,7 @@ export default function RegistryHome() {
                   2. Find an agent
                 </p>
                 <code className="block overflow-x-auto whitespace-nowrap rounded-md bg-background px-3 py-2 font-mono text-xs text-foreground">
-                  observal agent list
+                  dev-library agent list
                 </code>
               </li>
               <li className="min-w-0">
@@ -320,7 +320,7 @@ export default function RegistryHome() {
                   3. Pull it into your harness
                 </p>
                 <code className="block overflow-x-auto whitespace-nowrap rounded-md bg-background px-3 py-2 font-mono text-xs text-foreground">
-                  observal pull namespace/agent --harness pi
+                  dev-library pull namespace/agent --harness pi
                 </code>
               </li>
             </ol>

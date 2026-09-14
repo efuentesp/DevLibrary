@@ -129,7 +129,7 @@ async def stream_logs(
 
     Starts with a backfill of the last 50 matching entries.
     Sends ``: keepalive`` comments every 15 s.
-    Compatible with curl -N, EventSource, and ``observal ops logs --remote``.
+    Compatible with curl -N, EventSource, and ``dev-library ops logs --remote``.
     """
     optic.info("SSE log stream opened (level={}, filter='{}')", level, filter)
 

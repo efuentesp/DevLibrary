@@ -224,7 +224,7 @@ export default function AuditLogPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `observal_audit-log_${new Date().toISOString().replace(/[-:]/g, "").slice(0, 15)}Z.csv`;
+      a.download = `dev-library_audit-log_${new Date().toISOString().replace(/[-:]/g, "").slice(0, 15)}Z.csv`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {

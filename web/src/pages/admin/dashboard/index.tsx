@@ -109,7 +109,7 @@ function ExportDropdown({ activeTab }: { activeTab: string }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `observal-dashboard-${activeTab}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `dev-library-dashboard-${activeTab}-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }, [activeTab]);

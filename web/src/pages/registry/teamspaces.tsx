@@ -149,7 +149,7 @@ function CreatePanel({
 				<div className="self-center" aria-live="polite" aria-atomic="true">
 					<p className="text-xs font-medium text-muted-foreground">Live install identity</p>
 					<div className="mt-3 min-h-16 border-b border-primary-accent/20 pb-4 font-mono text-xl tracking-tight 2xl:text-2xl">
-						<span className="text-primary-accent/70">observal pull </span>
+						<span className="text-primary-accent/70">dev-library pull </span>
 						<span
 							key={previewHandle}
 							className="inline-block text-foreground motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-1 motion-safe:duration-200 motion-reduce:animate-none"

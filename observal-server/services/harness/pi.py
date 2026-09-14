@@ -3,7 +3,7 @@
 
 """Pi harness adapter for agent config generation.
 
-Pi is harness-centric: `observal pull` writes AGENTS.md which becomes pi's
+Pi is harness-centric: `dev-library pull` writes AGENTS.md which becomes pi's
 entire system prompt, effectively reconfiguring the whole agent runtime.
 MCP servers are written to ~/.pi/agent/mcp.json (read by pi-mcp-adapter).
 Skills go to .pi/skills/ or ~/.pi/agent/skills/.

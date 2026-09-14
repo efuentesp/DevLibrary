@@ -954,10 +954,10 @@ async def test_every_action_url_is_a_same_origin_path(sessions):
 @pytest.mark.parametrize(
     ("item_type", "expected_command"),
     [
-        ("agent", "observal agent pull acme/widget --harness claude-code --no-prompt"),
-        ("mcp", "observal registry mcp install acme/widget --harness claude-code --no-prompt"),
-        ("skill", "observal registry skill install acme/widget --harness claude-code"),
-        ("hook", "observal registry hook install acme/widget --harness claude-code"),
+        ("agent", "dev-library agent pull acme/widget --harness claude-code --no-prompt"),
+        ("mcp", "dev-library registry mcp install acme/widget --harness claude-code --no-prompt"),
+        ("skill", "dev-library registry skill install acme/widget --harness claude-code"),
+        ("hook", "dev-library registry hook install acme/widget --harness claude-code"),
     ],
 )
 @pytest.mark.asyncio
