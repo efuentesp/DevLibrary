@@ -156,7 +156,7 @@ class KindSpec:
     # recipient already resolved. True fits one-shot facts that can become true
     # again (a resubmitted version re-entering review). False fits recurring
     # reports of a fact that never stopped being true: ``update_available``
-    # arrives on every ``observal outdated`` run, and reopening a dismissed
+    # arrives on every ``dev-library outdated`` run, and reopening a dismissed
     # notice each time would make dismissal meaningless.
     reopen_on_redelivery: bool = True
     # Reserved kinds are declared but have no producer: nothing in the codebase

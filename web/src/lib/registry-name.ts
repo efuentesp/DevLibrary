@@ -5,7 +5,7 @@
  * Display helpers for qualified registry identities (``namespace/slug``).
  *
  * The API returns the canonical slash form in ``qualified_name``. That form is
- * what commands take (``observal agent pull alice/reviewer``), but it reads
+ * what commands take (``dev-library agent pull alice/reviewer``), but it reads
  * poorly in the UI, so listings render the bare name with the owning namespace
  * underneath as ``@alice``. Keep using ``qualified_name`` verbatim for anything
  * copy-pasted into a shell.

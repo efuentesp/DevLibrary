@@ -31,7 +31,7 @@ export function PullCommand({ agentName, currentVersion, latestVersion }: PullCo
 
   const effectiveHarness = harness || (defaultHarness && harnesses?.some((i) => i.name === defaultHarness) ? defaultHarness : harnesses?.[0]?.name) || "cursor";
   const versionFlag = currentVersion && latestVersion && currentVersion !== latestVersion ? ` --version ${currentVersion}` : "";
-  const command = `observal agent pull ${agentName} --harness ${effectiveHarness}${versionFlag}`;
+  const command = `dev-library agent pull ${agentName} --harness ${effectiveHarness}${versionFlag}`;
 
   async function handleCopy() {
     try {

@@ -7,8 +7,8 @@ Allows remote CLI users (admins) to tail server logs without SSH.
 Streams from the in-memory ring buffer with optional level/text filtering.
 
 Usage:
-    observal ops logs --remote
-    observal ops logs --remote --level WARNING --filter clickhouse
+    dev-library ops logs --remote
+    dev-library ops logs --remote --level WARNING --filter clickhouse
     curl -N -H "Authorization: Bearer <token>" https://host/api/v1/admin/logs/stream
 """
 
