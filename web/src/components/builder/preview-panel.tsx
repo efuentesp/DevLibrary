@@ -5,7 +5,6 @@
 // SPDX-FileCopyrightText: 2026 Vishnu Muthiah <vishnu.muthiah04@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
 import { useState, useCallback, useEffect, useRef } from "react";
 import { CheckCircle2, XCircle, Loader2, Maximize2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -108,8 +107,10 @@ export function PreviewPanel({
 
 	useEffect(() => {
 		if (!harnessList || harnessList.length === 0) return;
-		if (!harnessList.some((opt) => opt.name === harness)) setHarness(harnessList[0].name);
-		if (!harnessList.some((opt) => opt.name === modalHarness)) setModalHarness(harnessList[0].name);
+		if (!harnessList.some((opt) => opt.name === harness))
+			setHarness(harnessList[0].name);
+		if (!harnessList.some((opt) => opt.name === modalHarness))
+			setModalHarness(harnessList[0].name);
 	}, [harnessList, harness, modalHarness]);
 
 	const body = buildMarkdownBody(
@@ -120,7 +121,10 @@ export function PreviewPanel({
 	);
 
 	const files: PreviewFile[] = fullConfigs?.[harness]
-		? Object.entries(fullConfigs[harness]).map(([path, content]) => ({ path, content }))
+		? Object.entries(fullConfigs[harness]).map(([path, content]) => ({
+				path,
+				content,
+			}))
 		: [];
 
 	const fetchFullConfig = useCallback(async () => {
@@ -158,9 +162,7 @@ export function PreviewPanel({
 			});
 			setFullConfigs(res.configs);
 		} catch (e) {
-			setFullError(
-				e instanceof Error ? e.message : "Failed to generate config",
-			);
+			setFullError(e instanceof Error ? e.message : "Failed to generate config");
 		} finally {
 			setFullLoading(false);
 		}
@@ -211,9 +213,7 @@ export function PreviewPanel({
 							{validationResult.valid ? (
 								<>
 									<CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-									<span className="text-emerald-600 dark:text-emerald-400">
-										Valid
-									</span>
+									<span className="text-emerald-600 dark:text-emerald-400">Valid</span>
 								</>
 							) : (
 								<>
@@ -279,8 +279,8 @@ export function PreviewPanel({
 			</Card>
 
 			<p className="text-[11px] text-muted-foreground">
-				Telemetry hooks and environment variables are configured during
-				installation via{" "}
+				Telemetry hooks and environment variables are configured during installation
+				via{" "}
 				<code className="font-[family-name:var(--font-mono)]">
 					dev-library pull
 				</code>
@@ -362,9 +362,7 @@ export function PreviewPanel({
 							</div>
 						) : modalFiles.length === 0 ? (
 							<div className="flex items-center justify-center py-16 text-muted-foreground">
-								<span className="text-sm">
-									No config generated for this harness.
-								</span>
+								<span className="text-sm">No config generated for this harness.</span>
 							</div>
 						) : (
 							<div className="space-y-3">

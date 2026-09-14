@@ -77,10 +77,10 @@ import {
 import { cn } from "@/lib/utils";
 
 const TYPES: { value: RegistryType; label: string }[] = [
-  { value: "mcps", label: "MCPs" },
   { value: "skills", label: "Skills" },
-  { value: "hooks", label: "Hooks" },
   { value: "prompts", label: "Prompts" },
+  { value: "mcps", label: "MCPs" },
+  { value: "hooks", label: "Hooks" },
   { value: "sandboxes", label: "Sandboxes" },
 ];
 
@@ -194,7 +194,7 @@ export default function ComponentsPage() {
   const searchParams = useSearch({ from: "/_authed/components/" });
   const { ready: authReady, role, isAuthenticated } = useOptionalAuth();
   const { data: teams = [] } = useTeams(isAuthenticated);
-  const activeType = searchParams.type ?? "mcps";
+  const activeType = searchParams.type ?? "skills";
   const [search, setSearch] = useState(searchParams.search ?? "");
   const [debouncedSearch, setDebouncedSearch] = useState(searchParams.search ?? "");
   const [publisherQuery, setPublisherQuery] = useState(searchParams.namespace ? `@${searchParams.namespace}` : "");
