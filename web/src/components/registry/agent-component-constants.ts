@@ -3,7 +3,11 @@
 
 import type { RegistryType } from "@/lib/api";
 
-export const COMPONENT_TYPES: { value: RegistryType; label: string; singular: string }[] = [
+export const COMPONENT_TYPES: {
+  value: RegistryType;
+  label: string;
+  singular: string;
+}[] = [
   { value: "skills", label: "Skills", singular: "Skill" },
   { value: "prompts", label: "Prompts", singular: "Prompt" },
   { value: "mcps", label: "MCPs", singular: "MCP" },
