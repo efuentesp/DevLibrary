@@ -32,19 +32,25 @@ export function validateSkillExtraFilePath(path: string): string {
 	const candidate = path.trim();
 	if (!candidate) throw new SkillExtraFileError("Path cannot be empty");
 	if (candidate.length > MAX_EXTRA_PATH_LENGTH)
-		throw new SkillExtraFileError(`Path exceeds ${MAX_EXTRA_PATH_LENGTH} characters`);
+		throw new SkillExtraFileError(
+			`Path exceeds ${MAX_EXTRA_PATH_LENGTH} characters`,
+		);
 	if (candidate.includes("\\"))
 		throw new SkillExtraFileError("Path must use forward slashes only");
 	if (candidate.includes(":"))
 		throw new SkillExtraFileError("Path must not contain ':'");
 	if (/[^\x20-\x7E]/.test(candidate))
-		throw new SkillExtraFileError("Path must not contain control or non-ASCII characters");
+		throw new SkillExtraFileError(
+			"Path must not contain control or non-ASCII characters",
+		);
 	if (candidate.startsWith("/"))
 		throw new SkillExtraFileError("Path must be relative to the skill directory");
 	const parts = candidate.split("/").filter((p) => p.length > 0);
 	if (parts.length === 0) throw new SkillExtraFileError("Path cannot be empty");
 	if (parts.length > MAX_EXTRA_PATH_DEPTH)
-		throw new SkillExtraFileError(`Path exceeds ${MAX_EXTRA_PATH_DEPTH} segments`);
+		throw new SkillExtraFileError(
+			`Path exceeds ${MAX_EXTRA_PATH_DEPTH} segments`,
+		);
 	for (const part of parts) {
 		if (part === "." || part === "..")
 			throw new SkillExtraFileError("Path must not traverse directories");
@@ -52,7 +58,9 @@ export function validateSkillExtraFilePath(path: string): string {
 	if (parts[0] && RESERVED_FIRST_SEGMENTS.has(parts[0]))
 		throw new SkillExtraFileError("Path must not start with .git");
 	if (parts[parts.length - 1].toLowerCase() === SKILL_MD)
-		throw new SkillExtraFileError("Paths must not end in SKILL.md (harness scanners treat it as a skill root)");
+		throw new SkillExtraFileError(
+			"Paths must not end in SKILL.md (harness scanners treat it as a skill root)",
+		);
 	return parts.join("/");
 }
 
@@ -60,7 +68,10 @@ export function validateSkillExtraFilePath(path: string): string {
 export function skillExtraFileBytes(entry: SkillExtraFile): number {
 	if (entry.encoding === "base64") {
 		const clean = entry.content.replace(/\s+/g, "");
-		return Math.floor((clean.length * 3) / 4) - (clean.endsWith("==") ? 2 : clean.endsWith("=") ? 1 : 0);
+		return (
+			Math.floor((clean.length * 3) / 4) -
+			(clean.endsWith("==") ? 2 : clean.endsWith("=") ? 1 : 0)
+		);
 	}
 	return new TextEncoder().encode(entry.content).length;
 }
@@ -74,24 +85,34 @@ export function validateSkillExtraFiles(
 	scriptFilename?: string | null,
 ): SkillExtraFile[] {
 	if (entries.length > MAX_EXTRA_FILES)
-		throw new SkillExtraFileError(`Too many files: maximum is ${MAX_EXTRA_FILES}`);
+		throw new SkillExtraFileError(
+			`Too many files: maximum is ${MAX_EXTRA_FILES}`,
+		);
 	const seen = new Set<string>();
 	let total = 0;
 	for (const entry of entries) {
 		entry.path = validateSkillExtraFilePath(entry.path);
 		const key = entry.path.toLowerCase();
 		if (seen.has(key))
-			throw new SkillExtraFileError(`Duplicate path (paths compare case-insensitively): ${entry.path}`);
+			throw new SkillExtraFileError(
+				`Duplicate path (paths compare case-insensitively): ${entry.path}`,
+			);
 		seen.add(key);
 		if (scriptFilename && key === `scripts/${scriptFilename.toLowerCase()}`)
-			throw new SkillExtraFileError(`${entry.path} collides with the script slot; use a different path`);
+			throw new SkillExtraFileError(
+				`${entry.path} collides with the script slot; use a different path`,
+			);
 		const size = skillExtraFileBytes(entry);
 		if (size > MAX_EXTRA_FILE_BYTES)
-			throw new SkillExtraFileError(`${entry.path} exceeds ${MAX_EXTRA_FILE_BYTES} decoded bytes`);
+			throw new SkillExtraFileError(
+				`${entry.path} exceeds ${MAX_EXTRA_FILE_BYTES} decoded bytes`,
+			);
 		total += size;
 	}
 	if (total > MAX_EXTRA_TOTAL_BYTES)
-		throw new SkillExtraFileError(`Extra files total exceeds ${MAX_EXTRA_TOTAL_BYTES} decoded bytes`);
+		throw new SkillExtraFileError(
+			`Extra files total exceeds ${MAX_EXTRA_TOTAL_BYTES} decoded bytes`,
+		);
 	return entries;
 }
 
@@ -99,7 +120,9 @@ export function validateSkillExtraFiles(
  * Read a browser File into an extra-file entry: UTF-8 when it decodes cleanly
  * (fatal TextDecoder probe, matching the CLI), base64 otherwise.
  */
-export async function fileToSkillExtraEntry(file: File): Promise<SkillExtraFile> {
+export async function fileToSkillExtraEntry(
+	file: File,
+): Promise<SkillExtraFile> {
 	const buffer = await file.arrayBuffer();
 	try {
 		const text = new TextDecoder("utf-8", { fatal: true }).decode(buffer);

@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
 import { useState, useCallback, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -22,7 +21,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DetailSkeleton, TableSkeleton } from "@/components/shared/skeleton-layouts";
+import {
+	DetailSkeleton,
+	TableSkeleton,
+} from "@/components/shared/skeleton-layouts";
 import {
 	Tooltip,
 	TooltipContent,
@@ -44,7 +46,9 @@ import type { ReviewItem } from "@/lib/types";
 
 function toYaml(value: unknown): string {
 	try {
-		return yaml.dump(value, { lineWidth: 120, indent: 2, noRefs: true }).trimEnd();
+		return yaml
+			.dump(value, { lineWidth: 120, indent: 2, noRefs: true })
+			.trimEnd();
 	} catch {
 		return JSON.stringify(value, null, 2);
 	}
@@ -91,10 +95,7 @@ function McpConfigSection({ detail }: { detail: ReviewItem }) {
 			<DetailField label="Args" value={detail.args} />
 			<DetailField label="URL" value={detail.url} />
 			<DetailField label="Auto Approve" value={detail.auto_approve} />
-			<DetailField
-				label="Setup Instructions"
-				value={detail.setup_instructions}
-			/>
+			<DetailField label="Setup Instructions" value={detail.setup_instructions} />
 			<DetailField label="Changelog" value={detail.changelog} />
 			<DetailField
 				label="Environment Variables"
@@ -125,13 +126,18 @@ function SkillConfigSection({ detail }: { detail: ReviewItem }) {
 						{detail.extra_files.map((entry) => {
 							const isBinary = entry.encoding === "base64";
 							return (
-								<details key={entry.path} className="group rounded border border-border overflow-hidden">
+								<details
+									key={entry.path}
+									className="group rounded border border-border overflow-hidden"
+								>
 									<summary className="cursor-pointer select-none px-3 py-1.5 text-[11px] font-mono hover:bg-muted/50 list-none flex items-center gap-1">
-										<span className="group-open:rotate-90 transition-transform inline-block">▶</span>
-											{entry.path}
-											{isBinary && (
-												<span className="text-[10px] text-muted-foreground">base64</span>
-											)}
+										<span className="group-open:rotate-90 transition-transform inline-block">
+											▶
+										</span>
+										{entry.path}
+										{isBinary && (
+											<span className="text-[10px] text-muted-foreground">base64</span>
+										)}
 									</summary>
 									<pre className="px-3 py-2 text-[11px] font-mono leading-relaxed overflow-auto max-h-80 bg-background border-t border-border/50 break-words">
 										{isBinary
@@ -158,9 +164,18 @@ function HookConfigSection({ detail }: { detail: ReviewItem }) {
 			<DetailField label="Scope" value={detail.scope} />
 			<DetailField label="Tool Filter" value={detail.tool_filter} />
 			<DetailField label="Handler Config" value={detail.handler_config} />
-			{detail.script_filename && <DetailField label="Script" value={detail.script_filename} />}
-			{detail.source_url && <DetailField label="Source" value={`${detail.source_url}@${detail.source_ref || 'main'}`} />}
-			{detail.requirements && detail.requirements.length > 0 && <DetailField label="Requirements" value={detail.requirements.join(', ')} />}
+			{detail.script_filename && (
+				<DetailField label="Script" value={detail.script_filename} />
+			)}
+			{detail.source_url && (
+				<DetailField
+					label="Source"
+					value={`${detail.source_url}@${detail.source_ref || "main"}`}
+				/>
+			)}
+			{detail.requirements && detail.requirements.length > 0 && (
+				<DetailField label="Requirements" value={detail.requirements.join(", ")} />
+			)}
 		</dl>
 	);
 }
@@ -174,9 +189,7 @@ function PromptConfigSection({ detail }: { detail: ReviewItem }) {
 			<DetailField label="Model Hints" value={detail.model_hints} />
 			{detail.template && (
 				<div className="col-span-full">
-					<dt className="text-xs font-medium text-muted-foreground">
-						Template
-					</dt>
+					<dt className="text-xs font-medium text-muted-foreground">Template</dt>
 					<dd className="mt-0.5">
 						<pre className="max-h-60 overflow-auto rounded bg-muted p-2 text-[11px] font-mono leading-relaxed break-words">
 							{detail.template}
@@ -196,8 +209,12 @@ function SandboxConfigSection({ detail }: { detail: ReviewItem }) {
 			<DetailField label="Network Policy" value={detail.network_policy} />
 			<DetailField label="Entrypoint" value={detail.entrypoint} />
 			<DetailField label="Resource Limits" value={detail.resource_limits} />
-			{detail.sandbox_path && <DetailField label="Sandbox Path" value={detail.sandbox_path} />}
-			{detail.source_url && <DetailField label="Source" value={detail.source_url} />}
+			{detail.sandbox_path && (
+				<DetailField label="Sandbox Path" value={detail.sandbox_path} />
+			)}
+			{detail.source_url && (
+				<DetailField label="Source" value={detail.source_url} />
+			)}
 		</dl>
 	);
 }
@@ -224,20 +241,33 @@ function AgentConfigSection({ detail }: { detail: ReviewItem }) {
 			)}
 			{detail.success_criteria && detail.success_criteria.intended_purpose && (
 				<div className="col-span-full">
-					<dt className="text-xs font-medium text-muted-foreground">Success Criteria</dt>
+					<dt className="text-xs font-medium text-muted-foreground">
+						Success Criteria
+					</dt>
 					<dd className="mt-0.5 space-y-2 text-sm">
 						<div>
-							<span className="text-[10px] font-medium text-muted-foreground uppercase">Purpose</span>
-							<p className="text-xs whitespace-pre-wrap">{detail.success_criteria.intended_purpose}</p>
+							<span className="text-[10px] font-medium text-muted-foreground uppercase">
+								Purpose
+							</span>
+							<p className="text-xs whitespace-pre-wrap">
+								{detail.success_criteria.intended_purpose}
+							</p>
 						</div>
 						{(detail.success_criteria.success_metrics?.length ?? 0) > 0 && (
 							<div>
-								<span className="text-[10px] font-medium text-muted-foreground uppercase">Metrics</span>
+								<span className="text-[10px] font-medium text-muted-foreground uppercase">
+									Metrics
+								</span>
 								<div className="mt-1 space-y-1">
 									{detail.success_criteria.success_metrics.map((m, i) => (
-										<div key={i} className="flex flex-wrap gap-x-2 text-xs rounded bg-muted/50 px-2 py-1">
+										<div
+											key={i}
+											className="flex flex-wrap gap-x-2 text-xs rounded bg-muted/50 px-2 py-1"
+										>
 											<span className="font-medium">{m.name}</span>
-											<span className="text-muted-foreground">target: <span className="font-mono">{m.target}</span></span>
+											<span className="text-muted-foreground">
+												target: <span className="font-mono">{m.target}</span>
+											</span>
 											<span className="text-muted-foreground">via: {m.measurement}</span>
 										</div>
 									))}
@@ -246,8 +276,12 @@ function AgentConfigSection({ detail }: { detail: ReviewItem }) {
 						)}
 						{detail.success_criteria.evaluation_notes && (
 							<div>
-								<span className="text-[10px] font-medium text-muted-foreground uppercase">Evaluation Notes</span>
-								<p className="text-xs whitespace-pre-wrap">{detail.success_criteria.evaluation_notes}</p>
+								<span className="text-[10px] font-medium text-muted-foreground uppercase">
+									Evaluation Notes
+								</span>
+								<p className="text-xs whitespace-pre-wrap">
+									{detail.success_criteria.evaluation_notes}
+								</p>
 							</div>
 						)}
 					</dd>
@@ -263,8 +297,19 @@ function AgentConfigSection({ detail }: { detail: ReviewItem }) {
 							const comp = c as Record<string, unknown>;
 							const name = (comp.name as string) || `${c.component_type} component`;
 							const description = comp.description as string | undefined;
-							const CONTENT_KEYS = ["template", "skill_md_content", "handler_config", "input_schema", "output_schema", "source_url", "git_url", "config_json"];
-							const contentEntries = Object.entries(comp).filter(([k]) => CONTENT_KEYS.includes(k) && comp[k]);
+							const CONTENT_KEYS = [
+								"template",
+								"skill_md_content",
+								"handler_config",
+								"input_schema",
+								"output_schema",
+								"source_url",
+								"git_url",
+								"config_json",
+							];
+							const contentEntries = Object.entries(comp).filter(
+								([k]) => CONTENT_KEYS.includes(k) && comp[k],
+							);
 							return (
 								<div key={i} className="rounded border border-border overflow-hidden">
 									<div className="flex items-center gap-2 px-3 py-2 bg-muted/50">
@@ -274,12 +319,16 @@ function AgentConfigSection({ detail }: { detail: ReviewItem }) {
 										<span className="text-xs font-medium">{name}</span>
 									</div>
 									{description && (
-										<p className="px-3 py-1.5 text-[11px] text-muted-foreground border-b border-border/50">{description}</p>
+										<p className="px-3 py-1.5 text-[11px] text-muted-foreground border-b border-border/50">
+											{description}
+										</p>
 									)}
 									{contentEntries.length > 0 && (
 										<details open className="group">
 											<summary className="cursor-pointer select-none px-3 py-1.5 text-[10px] font-medium text-muted-foreground hover:text-foreground list-none flex items-center gap-1">
-												<span className="group-open:rotate-90 transition-transform inline-block">▶</span>
+												<span className="group-open:rotate-90 transition-transform inline-block">
+													▶
+												</span>
 												Content
 											</summary>
 											<pre className="px-3 py-2 text-[11px] font-mono leading-relaxed overflow-auto max-h-80 bg-background border-t border-border/50 break-words">
@@ -498,9 +547,7 @@ function SheetBody({
 						</Badge>
 					)}
 					{merged.version && (
-						<span className="text-xs text-muted-foreground">
-							v{merged.version}
-						</span>
+						<span className="text-xs text-muted-foreground">v{merged.version}</span>
 					)}
 					<ValidationBadge item={merged} />
 				</div>
@@ -548,9 +595,7 @@ function SheetBody({
 					/>
 					{merged.git_url && (
 						<div>
-							<dt className="text-xs font-medium text-muted-foreground">
-								Git URL
-							</dt>
+							<dt className="text-xs font-medium text-muted-foreground">Git URL</dt>
 							<dd className="text-sm mt-0.5">
 								<a
 									href={merged.git_url}
@@ -596,9 +641,7 @@ function SheetBody({
 										: "border-destructive/25 bg-destructive/5"
 								}`}
 							>
-								<span
-									className={vr.passed ? "text-success" : "text-destructive"}
-								>
+								<span className={vr.passed ? "text-success" : "text-destructive"}>
 									{vr.passed ? "✓" : "✗"}
 								</span>
 								<div className="min-w-0 flex-1">

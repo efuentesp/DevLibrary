@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { ArrowRight, Plus, Minus, RefreshCw } from "lucide-react";
 import {
@@ -129,10 +128,7 @@ function stripMeta(obj: Record<string, unknown>): Record<string, unknown> {
 	return Object.fromEntries(
 		Object.entries(obj).filter(
 			([k, v]) =>
-				!DIFF_METADATA_FIELDS.has(k) &&
-				v !== null &&
-				v !== undefined &&
-				v !== "",
+				!DIFF_METADATA_FIELDS.has(k) && v !== null && v !== undefined && v !== "",
 		),
 	);
 }
@@ -152,9 +148,9 @@ function formatBlockYaml(obj: Record<string, unknown>, indent = 2): string {
 			if (typeof value[0] === "object" && value[0] !== null) {
 				lines.push(`${key}:`);
 				for (const item of value) {
-					const entries = Object.entries(
-						item as Record<string, unknown>,
-					).filter(([, v]) => v !== null && v !== undefined && v !== "");
+					const entries = Object.entries(item as Record<string, unknown>).filter(
+						([, v]) => v !== null && v !== undefined && v !== "",
+					);
 					if (entries.length === 0) continue;
 					const [firstKey, firstVal] = entries[0];
 					lines.push(`${pad}- ${firstKey}: ${formatScalar(firstVal)}`);
@@ -291,11 +287,17 @@ function buildCleanYaml(
 	if (detail.description) obj.description = detail.description;
 	if (detail.prompt) obj.prompt = detail.prompt;
 	if (detail.model_name) obj.model_name = detail.model_name;
-	const byHarness = detail.models_by_harness as Record<string, unknown> | undefined;
-	if (byHarness && Object.keys(byHarness).length) obj.models_by_harness = byHarness;
+	const byHarness = detail.models_by_harness as
+		| Record<string, unknown>
+		| undefined;
+	if (byHarness && Object.keys(byHarness).length)
+		obj.models_by_harness = byHarness;
 	const harnesses = detail.supported_harnesses as string[] | undefined;
 	if (harnesses?.length) obj.supported_harnesses = harnesses;
-	const sc = detail.success_criteria as Record<string, unknown> | null | undefined;
+	const sc = detail.success_criteria as
+		| Record<string, unknown>
+		| null
+		| undefined;
 	if (sc && sc.intended_purpose) obj.success_criteria = sc;
 	if (comps.length) {
 		obj.components = comps.map((c) => {
@@ -366,9 +368,10 @@ function LinkedComponentDetail({
 				return v ? [[k, v] as [string, unknown]] : [];
 			})
 		: [];
-	const href = item?.status === "approved"
-		? registryItemPath(item, registryType, componentId)
-		: `/components/${componentId}?type=${registryType}`;
+	const href =
+		item?.status === "approved"
+			? registryItemPath(item, registryType, componentId)
+			: `/components/${componentId}?type=${registryType}`;
 
 	return (
 		<div className="rounded border border-border overflow-hidden text-xs">
@@ -386,10 +389,7 @@ function LinkedComponentDetail({
 						<span className="ml-1 text-[9px] opacity-70">(pending)</span>
 					</button>
 				) : (
-					<Link
-						to={href}
-						className="font-medium hover:underline text-primary"
-					>
+					<Link to={href} className="font-medium hover:underline text-primary">
 						{name}
 					</Link>
 				)}
@@ -627,7 +627,10 @@ function DiffDialogBody({
 	);
 	const supportedIdes =
 		(detail?.supported_harnesses as string[]) || item.supported_harnesses || [];
-	const successCriteria = detail?.success_criteria as SuccessCriteria | null | undefined;
+	const successCriteria = detail?.success_criteria as
+		| SuccessCriteria
+		| null
+		| undefined;
 	const components =
 		(detail?.components as {
 			component_type: string;
@@ -829,9 +832,7 @@ function DiffDialogBody({
 									<h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
 										Supported harnesses
 									</h4>
-									<p className="text-xs font-medium">
-										{supportedIdes.join(", ")}
-									</p>
+									<p className="text-xs font-medium">{supportedIdes.join(", ")}</p>
 								</div>
 							</>
 						)}
@@ -861,18 +862,31 @@ function DiffDialogBody({
 									</h4>
 									<div className="space-y-2 text-xs">
 										<div>
-											<span className="text-[10px] font-medium text-muted-foreground uppercase">Purpose</span>
-											<p className="whitespace-pre-wrap">{successCriteria.intended_purpose}</p>
+											<span className="text-[10px] font-medium text-muted-foreground uppercase">
+												Purpose
+											</span>
+											<p className="whitespace-pre-wrap">
+												{successCriteria.intended_purpose}
+											</p>
 										</div>
 										{(successCriteria.success_metrics?.length ?? 0) > 0 && (
 											<div>
-												<span className="text-[10px] font-medium text-muted-foreground uppercase">Metrics</span>
+												<span className="text-[10px] font-medium text-muted-foreground uppercase">
+													Metrics
+												</span>
 												<div className="mt-1 space-y-1">
 													{successCriteria.success_metrics!.map((m, i) => (
-														<div key={i} className="flex flex-wrap gap-x-2 rounded bg-muted/50 px-2 py-1">
+														<div
+															key={i}
+															className="flex flex-wrap gap-x-2 rounded bg-muted/50 px-2 py-1"
+														>
 															<span className="font-medium">{m.name}</span>
-															<span className="text-muted-foreground">target: <span className="font-mono">{m.target}</span></span>
-															<span className="text-muted-foreground">via: {m.measurement}</span>
+															<span className="text-muted-foreground">
+																target: <span className="font-mono">{m.target}</span>
+															</span>
+															<span className="text-muted-foreground">
+																via: {m.measurement}
+															</span>
 														</div>
 													))}
 												</div>
@@ -880,8 +894,12 @@ function DiffDialogBody({
 										)}
 										{successCriteria.evaluation_notes && (
 											<div>
-												<span className="text-[10px] font-medium text-muted-foreground uppercase">Evaluation Notes</span>
-												<p className="whitespace-pre-wrap">{successCriteria.evaluation_notes}</p>
+												<span className="text-[10px] font-medium text-muted-foreground uppercase">
+													Evaluation Notes
+												</span>
+												<p className="whitespace-pre-wrap">
+													{successCriteria.evaluation_notes}
+												</p>
 											</div>
 										)}
 									</div>
@@ -912,9 +930,7 @@ function DiffDialogBody({
 											<h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
 												Category
 											</h4>
-											<p className="text-xs font-medium">
-												{detail.category as string}
-											</p>
+											<p className="text-xs font-medium">{detail.category as string}</p>
 										</div>
 									</>
 								)}
@@ -925,9 +941,7 @@ function DiffDialogBody({
 											<h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
 												Event
 											</h4>
-											<p className="text-xs font-medium">
-												{detail.event as string}
-											</p>
+											<p className="text-xs font-medium">{detail.event as string}</p>
 										</div>
 									</>
 								)}
@@ -989,17 +1003,13 @@ function DiffDialogBody({
 															(ch as { type?: string }).type ??
 															""
 														}
-														componentId={
-															(ch as { component_id?: string }).component_id ??
-															""
-														}
+														componentId={(ch as { component_id?: string }).component_id ?? ""}
 														onPendingClick={onOpenComponentReview}
 														isPending={
 															item.component_blockers?.some(
 																(b) =>
 																	b.component_id ===
-																	(ch as { component_id?: string })
-																		.component_id,
+																	(ch as { component_id?: string }).component_id,
 															) ?? false
 														}
 													/>
@@ -1083,18 +1093,16 @@ function DiffDialogBody({
 																)
 															: undefined,
 													} as Record<string, unknown>);
-													return structural
-														.split("\n")
-														.map((line: string, i: number) => (
-															<tr key={i} className="hover:bg-muted/30">
-																<td className="select-none w-10 shrink-0 px-2 text-right tabular-nums text-muted-foreground/50 border-r border-border/40">
-																	{i + 1}
-																</td>
-																<td className="px-3 whitespace-pre-wrap break-words text-foreground leading-relaxed">
-																	{line}
-																</td>
-															</tr>
-														));
+													return structural.split("\n").map((line: string, i: number) => (
+														<tr key={i} className="hover:bg-muted/30">
+															<td className="select-none w-10 shrink-0 px-2 text-right tabular-nums text-muted-foreground/50 border-r border-border/40">
+																{i + 1}
+															</td>
+															<td className="px-3 whitespace-pre-wrap break-words text-foreground leading-relaxed">
+																{line}
+															</td>
+														</tr>
+													));
 												})()}
 											</tbody>
 										</table>

@@ -4,7 +4,6 @@
 // SPDX-FileCopyrightText: 2026 Kaushik Kumar <kaushikrjpm10@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
 import { useState, useRef, useCallback, useEffect } from "react";
 import {
 	Dialog,
@@ -175,10 +174,7 @@ export function SubmitComponentDialog({
 	const { data: teams = [] } = useTeams();
 	const { data: harnessList } = useHarnesses();
 	const defaultOwner =
-		(d?.owner as string) ||
-		whoami?.username ||
-		whoami?.email ||
-		"";
+		(d?.owner as string) || whoami?.username || whoami?.email || "";
 
 	// ── Common ──────────────────────────────────────────────
 	const [name, setName] = useState((d?.name as string) ?? "");
@@ -205,7 +201,9 @@ export function SubmitComponentDialog({
 	}, [teamRequiresPrivate]);
 
 	const [supportedHarnesses, setSupportedHarnesses] = useState<string[]>(
-		Array.isArray(d?.supported_harnesses) ? (d.supported_harnesses as string[]) : [],
+		Array.isArray(d?.supported_harnesses)
+			? (d.supported_harnesses as string[])
+			: [],
 	);
 
 	// ── MCP ─────────────────────────────────────────────────
@@ -213,9 +211,7 @@ export function SubmitComponentDialog({
 	const [jsonInput, setJsonInput] = useState("");
 	const [jsonError, setJsonError] = useState<string | null>(null);
 	const [jsonParsed, setJsonParsed] = useState(false);
-	const [category, setCategory] = useState(
-		(d?.category as string) ?? "general",
-	);
+	const [category, setCategory] = useState((d?.category as string) ?? "general");
 	const [gitUrl, setGitUrl] = useState((d?.git_url as string) ?? "");
 	const [command, setCommand] = useState((d?.command as string) ?? "");
 	const [args, setArgs] = useState(
@@ -265,9 +261,7 @@ export function SubmitComponentDialog({
 			try {
 				validateSkillExtraFiles(next, skillScriptFilename || undefined);
 			} catch (err) {
-				toast.error(
-					err instanceof Error ? err.message : "Extra files rejected",
-				);
+				toast.error(err instanceof Error ? err.message : "Extra files rejected");
 				return;
 			}
 			setSkillExtraFiles(next);
@@ -292,7 +286,8 @@ export function SubmitComponentDialog({
 				}
 			}
 			applySkillExtraFiles(merged);
-			if (skillExtraFilesInputRef.current) skillExtraFilesInputRef.current.value = "";
+			if (skillExtraFilesInputRef.current)
+				skillExtraFilesInputRef.current.value = "";
 		},
 		[skillExtraFiles, applySkillExtraFiles],
 	);
@@ -352,8 +347,7 @@ export function SubmitComponentDialog({
 					);
 					const skillFiles = canonical.length > 0 ? canonical : allSkillFiles;
 					if (skillFiles.length === 1) {
-						const found =
-							skillFiles[0].path.replace(/\/?SKILL\.md$/, "") || "/";
+						const found = skillFiles[0].path.replace(/\/?SKILL\.md$/, "") || "/";
 						setSkillPath(found);
 						setSkillPathAuto(true);
 						setSkillPathHint(
@@ -414,14 +408,24 @@ export function SubmitComponentDialog({
 	);
 	const [entrypoint, setEntrypoint] = useState((d?.entrypoint as string) ?? "");
 	const [sandboxResourceLimits, setSandboxResourceLimits] = useState(
-		d?.resource_limits && typeof d.resource_limits === "object" ? JSON.stringify(d.resource_limits, null, 2) : "{}",
+		d?.resource_limits && typeof d.resource_limits === "object"
+			? JSON.stringify(d.resource_limits, null, 2)
+			: "{}",
 	);
 	const [sandboxRuntimeConfig, setSandboxRuntimeConfig] = useState(
-		d?.runtime_config && typeof d.runtime_config === "object" ? JSON.stringify(d.runtime_config, null, 2) : "{}",
+		d?.runtime_config && typeof d.runtime_config === "object"
+			? JSON.stringify(d.runtime_config, null, 2)
+			: "{}",
 	);
-	const [sandboxSourceUrl, setSandboxSourceUrl] = useState((d?.source_url as string) ?? "");
-	const [sandboxSourceRef, setSandboxSourceRef] = useState((d?.source_ref as string) ?? "");
-	const [sandboxPath, setSandboxPath] = useState((d?.sandbox_path as string) ?? "");
+	const [sandboxSourceUrl, setSandboxSourceUrl] = useState(
+		(d?.source_url as string) ?? "",
+	);
+	const [sandboxSourceRef, setSandboxSourceRef] = useState(
+		(d?.source_ref as string) ?? "",
+	);
+	const [sandboxPath, setSandboxPath] = useState(
+		(d?.sandbox_path as string) ?? "",
+	);
 
 	function bumpPatchVersion(ver: string): string {
 		const parts = ver.split(".");
@@ -547,7 +551,8 @@ export function SubmitComponentDialog({
 			visibility: effectiveVisibility,
 		};
 		if (effectiveTeamId) base.team_id = effectiveTeamId;
-		if (supportedHarnesses.length > 0) base.supported_harnesses = supportedHarnesses;
+		if (supportedHarnesses.length > 0)
+			base.supported_harnesses = supportedHarnesses;
 
 		switch (type) {
 			case "mcps": {
@@ -706,7 +711,9 @@ export function SubmitComponentDialog({
 
 	function toggleHarness(harness: string) {
 		setSupportedHarnesses((prev) =>
-			prev.includes(harness) ? prev.filter((item) => item !== harness) : [...prev, harness],
+			prev.includes(harness)
+				? prev.filter((item) => item !== harness)
+				: [...prev, harness],
 		);
 	}
 
@@ -737,7 +744,10 @@ export function SubmitComponentDialog({
 				className="max-w-lg max-h-[85vh] overflow-y-auto"
 				onPointerDownOutside={(event) => {
 					const target = event.target;
-					if (target instanceof Node && document.querySelector('[data-help-panel="true"]')?.contains(target)) {
+					if (
+						target instanceof Node &&
+						document.querySelector('[data-help-panel="true"]')?.contains(target)
+					) {
 						event.preventDefault();
 					}
 				}}
@@ -769,8 +779,8 @@ export function SubmitComponentDialog({
 					<div className="flex items-start gap-2 rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
 						<Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
 						<span>
-							Only submit components you created (private) or are the
-							point-of-contact for (external).
+							Only submit components you created (private) or are the point-of-contact
+							for (external).
 						</span>
 					</div>
 
@@ -818,13 +828,21 @@ export function SubmitComponentDialog({
 									setTeamId(next);
 									if (!next) {
 										setVisibility("public");
-									} else if (teams.find((team) => team.id === next)?.visibility === "private") {
+									} else if (
+										teams.find((team) => team.id === next)?.visibility === "private"
+									) {
 										setVisibility("team");
 									}
 								}}
 								options={[
-									{ value: "personal", label: `Personal (${whoami?.username || whoami?.email || "me"})` },
-									...teams.map((team) => ({ value: team.id, label: `Team: ${team.name}` })),
+									{
+										value: "personal",
+										label: `Personal (${whoami?.username || whoami?.email || "me"})`,
+									},
+									...teams.map((team) => ({
+										value: team.id,
+										label: `Team: ${team.name}`,
+									})),
 								]}
 							/>
 						</div>
@@ -845,7 +863,8 @@ export function SubmitComponentDialog({
 						</div>
 					</div>
 					<p className="text-xs text-muted-foreground">
-						Public teamspace items are visible to everyone. Team-only items are limited to team members.
+						Public teamspace items are visible to everyone. Team-only items are
+						limited to team members.
 					</p>
 
 					{/* ── MCP-specific ──────────────────────────────── */}
@@ -874,9 +893,9 @@ export function SubmitComponentDialog({
 											placeholder="https://github.com/user/mcp-server"
 										/>
 										<p className="text-xs text-muted-foreground">
-											Observal still needs pasted MCP JSON. The git repo is only
-											used to detect Dockerfile, Containerfile, or compose build
-											setup instructions.
+											Observal still needs pasted MCP JSON. The git repo is only used to
+											detect Dockerfile, Containerfile, or compose build setup
+											instructions.
 										</p>
 									</div>
 
@@ -907,9 +926,7 @@ export function SubmitComponentDialog({
 										<p className="text-xs text-muted-foreground">
 											Paste directly or type JSON. Brackets and quotes auto-close.
 										</p>
-										{jsonError && (
-											<p className="text-xs text-destructive">{jsonError}</p>
-										)}
+										{jsonError && <p className="text-xs text-destructive">{jsonError}</p>}
 										{jsonParsed && (
 											<div className="flex items-center gap-1.5 text-xs text-green-600">
 												<Check className="h-3 w-3" />
@@ -1047,17 +1064,13 @@ export function SubmitComponentDialog({
 											<div key={i} className="flex items-center gap-2">
 												<Input
 													value={ev.name}
-													onChange={(e) =>
-														updateEnvVar(i, "name", e.target.value)
-													}
+													onChange={(e) => updateEnvVar(i, "name", e.target.value)}
 													placeholder="ENV_NAME"
 													className="flex-1 h-8 text-xs font-mono"
 												/>
 												<Input
 													value={ev.description}
-													onChange={(e) =>
-														updateEnvVar(i, "description", e.target.value)
-													}
+													onChange={(e) => updateEnvVar(i, "description", e.target.value)}
 													placeholder="Description"
 													className="flex-1 h-8 text-xs"
 												/>
@@ -1102,7 +1115,11 @@ export function SubmitComponentDialog({
 								/>
 							</div>
 
-							<Tabs value={skillMode} onValueChange={(v) => setSkillMode(v as "git" | "paste")} className="w-full">
+							<Tabs
+								value={skillMode}
+								onValueChange={(v) => setSkillMode(v as "git" | "paste")}
+								className="w-full"
+							>
 								<TabsList className="grid w-full grid-cols-2">
 									<TabsTrigger value="git">Git Submit</TabsTrigger>
 									<TabsTrigger value="paste">Registry Submit</TabsTrigger>
@@ -1174,9 +1191,7 @@ export function SubmitComponentDialog({
 													for (const line of lines) {
 														const nm = line.match(/^name:\s*(.+)$/);
 														if (nm && !name) setName(nm[1].trim());
-														const dm = line.match(
-															/^description:\s*["']?(.+?)["']?$/,
-														);
+														const dm = line.match(/^description:\s*["']?(.+?)["']?$/);
 														if (dm && !description) setDescription(dm[1].trim());
 													}
 												}
@@ -1190,7 +1205,9 @@ export function SubmitComponentDialog({
 										</p>
 									</div>
 									<div className="space-y-1.5">
-										<Label htmlFor="skill-script-filename">Script Filename (optional)</Label>
+										<Label htmlFor="skill-script-filename">
+											Script Filename (optional)
+										</Label>
 										<Input
 											id="skill-script-filename"
 											value={skillScriptFilename}
@@ -1206,76 +1223,80 @@ export function SubmitComponentDialog({
 										<Label htmlFor="skill-script-content">
 											Script (optional, {skillScriptLanguageName})
 										</Label>
-							<CodeEditor
-								id="skill-script-content"
-								value={skillScriptContent}
-								onChange={setSkillScriptContent}
-								language={skillScriptLanguage}
-								placeholder="Paste or type the skill script here."
-							/>
-							<p className="text-xs text-muted-foreground">
-								Detected from filename. Use .sh for Bash, .py for Python, or .mjs/.js for JavaScript.
-							</p>
-						</div>
-						<div className="space-y-1.5">
-							<div className="flex items-center justify-between">
-								<Label htmlFor="skill-extra-files">
-									Extra Files (optional, {skillExtraFiles.length}/{MAX_EXTRA_FILES})
-								</Label>
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={() => skillExtraFilesInputRef.current?.click()}
-								>
-									<Plus className="h-3.5 w-3.5" /> Add files
-								</Button>
-							</div>
-							<input
-								ref={skillExtraFilesInputRef}
-								id="skill-extra-files"
-								type="file"
-								multiple
-								className="hidden"
-								onChange={(e) => void handleSkillExtraFilesPicked(e.target.files)}
-							/>
-							{skillExtraFiles.length === 0 ? (
-								<p className="text-xs text-muted-foreground">
-									Scripts, templates, and resources shipped with the skill. Paths are
-									relative to the skill directory; binary files are stored base64.
-								</p>
-							) : (
-								<div className="space-y-1.5">
-									{skillExtraFiles.map((entry, i) => {
-										const bytes = skillExtraFileBytes(entry);
-										return (
-										<div key={`${entry.path}-${i}`} className="flex items-center gap-2">
-											<Input
-												value={entry.path}
-												onChange={(e) =>
-													updateSkillExtraFile(i, { path: e.target.value })
-												}
-												placeholder="templates/x.md"
-												className="font-mono text-xs"
-											/>
-											<span className="shrink-0 text-[10px] text-muted-foreground">
-												{entry.encoding} · {formatExtraBytes(bytes)}
-											</span>
+										<CodeEditor
+											id="skill-script-content"
+											value={skillScriptContent}
+											onChange={setSkillScriptContent}
+											language={skillScriptLanguage}
+											placeholder="Paste or type the skill script here."
+										/>
+										<p className="text-xs text-muted-foreground">
+											Detected from filename. Use .sh for Bash, .py for Python, or .mjs/.js
+											for JavaScript.
+										</p>
+									</div>
+									<div className="space-y-1.5">
+										<div className="flex items-center justify-between">
+											<Label htmlFor="skill-extra-files">
+												Extra Files (optional, {skillExtraFiles.length}/{MAX_EXTRA_FILES})
+											</Label>
 											<Button
 												type="button"
-												variant="ghost"
-												size="icon"
-												onClick={() => removeSkillExtraFile(i)}
-												aria-label={`Remove ${entry.path}`}
+												variant="outline"
+												size="sm"
+												onClick={() => skillExtraFilesInputRef.current?.click()}
 											>
-												<X className="h-3.5 w-3.5" />
+												<Plus className="h-3.5 w-3.5" /> Add files
 											</Button>
 										</div>
-										);
-									})}
-								</div>
-							)}
-						</div>
+										<input
+											ref={skillExtraFilesInputRef}
+											id="skill-extra-files"
+											type="file"
+											multiple
+											className="hidden"
+											onChange={(e) => void handleSkillExtraFilesPicked(e.target.files)}
+										/>
+										{skillExtraFiles.length === 0 ? (
+											<p className="text-xs text-muted-foreground">
+												Scripts, templates, and resources shipped with the skill. Paths are
+												relative to the skill directory; binary files are stored base64.
+											</p>
+										) : (
+											<div className="space-y-1.5">
+												{skillExtraFiles.map((entry, i) => {
+													const bytes = skillExtraFileBytes(entry);
+													return (
+														<div
+															key={`${entry.path}-${i}`}
+															className="flex items-center gap-2"
+														>
+															<Input
+																value={entry.path}
+																onChange={(e) =>
+																	updateSkillExtraFile(i, { path: e.target.value })
+																}
+																placeholder="templates/x.md"
+																className="font-mono text-xs"
+															/>
+															<span className="shrink-0 text-[10px] text-muted-foreground">
+																{entry.encoding} · {formatExtraBytes(bytes)}
+															</span>
+															<Button
+																type="button"
+																variant="ghost"
+																size="icon"
+																onClick={() => removeSkillExtraFile(i)}
+																aria-label={`Remove ${entry.path}`}
+															>
+																<X className="h-3.5 w-3.5" />
+															</Button>
+														</div>
+													);
+												})}
+											</div>
+										)}
+									</div>
 								</TabsContent>
 							</Tabs>
 						</>
@@ -1332,9 +1353,7 @@ export function SubmitComponentDialog({
 								/>
 							</div>
 							<div className="space-y-1.5">
-								<Label htmlFor="hook-script-filename">
-									Script Filename (optional)
-								</Label>
+								<Label htmlFor="hook-script-filename">Script Filename (optional)</Label>
 								<input
 									id="hook-script-filename"
 									type="text"
@@ -1360,8 +1379,8 @@ export function SubmitComponentDialog({
 									className="font-mono text-sm"
 								/>
 								<p className="text-xs text-muted-foreground">
-									Script content stored in the registry and delivered on
-									install. Leave empty for inline commands.
+									Script content stored in the registry and delivered on install. Leave
+									empty for inline commands.
 								</p>
 							</div>
 						</>
@@ -1411,7 +1430,10 @@ export function SubmitComponentDialog({
 									<PickerSelect
 										value={networkPolicy}
 										onValueChange={setNetworkPolicy}
-										options={SANDBOX_NETWORK_POLICIES.map((p) => ({ value: p, label: p }))}
+										options={SANDBOX_NETWORK_POLICIES.map((p) => ({
+											value: p,
+											label: p,
+										}))}
 									/>
 								</div>
 							</div>
@@ -1460,9 +1482,21 @@ export function SubmitComponentDialog({
 								</div>
 							</div>
 							<div className="grid grid-cols-3 gap-3">
-								<Input value={sandboxSourceUrl} onChange={(e) => setSandboxSourceUrl(e.target.value)} placeholder="Source URL" />
-								<Input value={sandboxSourceRef} onChange={(e) => setSandboxSourceRef(e.target.value)} placeholder="Source ref" />
-								<Input value={sandboxPath} onChange={(e) => setSandboxPath(e.target.value)} placeholder="Sandbox path" />
+								<Input
+									value={sandboxSourceUrl}
+									onChange={(e) => setSandboxSourceUrl(e.target.value)}
+									placeholder="Source URL"
+								/>
+								<Input
+									value={sandboxSourceRef}
+									onChange={(e) => setSandboxSourceRef(e.target.value)}
+									placeholder="Source ref"
+								/>
+								<Input
+									value={sandboxPath}
+									onChange={(e) => setSandboxPath(e.target.value)}
+									placeholder="Sandbox path"
+								/>
 							</div>
 						</>
 					)}
@@ -1508,9 +1542,7 @@ export function SubmitComponentDialog({
 										disabled={busy || !!submitError}
 										title={submitError ?? undefined}
 									>
-										{isSavingDraft && (
-											<Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-										)}
+										{isSavingDraft && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
 										Save Changes
 									</Button>
 								) : (
@@ -1550,9 +1582,7 @@ export function SubmitComponentDialog({
 											disabled={busy || !!submitError}
 											title={submitError ?? undefined}
 										>
-											{isSubmitting && (
-												<Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-											)}
+											{isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
 											Save & Resubmit
 										</Button>
 									</>
@@ -1565,9 +1595,7 @@ export function SubmitComponentDialog({
 									onClick={handleDraft}
 									disabled={busy || !name}
 								>
-									{isSavingDraft && (
-										<Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-									)}
+									{isSavingDraft && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
 									Save Draft
 								</Button>
 								<Button
@@ -1575,9 +1603,7 @@ export function SubmitComponentDialog({
 									disabled={busy || !!submitError}
 									title={submitError ?? undefined}
 								>
-									{isSubmitting && (
-										<Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-									)}
+									{isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
 									Submit for Review
 								</Button>
 							</>
