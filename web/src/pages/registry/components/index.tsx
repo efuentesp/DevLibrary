@@ -3,7 +3,6 @@
 // SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
 import { Link, useRouter, useSearch } from "@tanstack/react-router";
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
@@ -105,11 +104,15 @@ const TYPE_FILTERS: Partial<Record<RegistryType, TypeFilter[]>> = {
     { key: "scope", label: "Scope", options: HOOK_SCOPES },
   ],
   prompts: [{ key: "category", label: "Category", options: PROMPT_CATEGORIES }],
-  sandboxes: [{ key: "runtime_type", label: "Runtime", options: SANDBOX_RUNTIME_TYPES }],
+  sandboxes: [
+    { key: "runtime_type", label: "Runtime", options: SANDBOX_RUNTIME_TYPES },
+  ],
 };
 
 function formatOption(value: string): string {
-  return value.replaceAll("-", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return value
+    .replaceAll("-", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function SortIcon({ column }: { column: Column<RegistryItem> }) {
@@ -138,7 +141,10 @@ function makeColumns(activeType: RegistryType): ColumnDef<RegistryItem>[] {
             to={registryItemPath(row.original, activeType, row.original.id)}
             className="block min-w-0 hover:underline underline-offset-4"
           >
-            <RegistryName item={row.original} nameClassName="font-medium text-sm" />
+            <RegistryName
+              item={row.original}
+              nameClassName="font-medium text-sm"
+            />
           </Link>
           {row.original.description && (
             <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1 max-w-xs">
@@ -196,8 +202,12 @@ export default function ComponentsPage() {
   const { data: teams = [] } = useTeams(isAuthenticated);
   const activeType = searchParams.type ?? "skills";
   const [search, setSearch] = useState(searchParams.search ?? "");
-  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.search ?? "");
-  const [publisherQuery, setPublisherQuery] = useState(searchParams.namespace ? `@${searchParams.namespace}` : "");
+  const [debouncedSearch, setDebouncedSearch] = useState(
+    searchParams.search ?? "",
+  );
+  const [publisherQuery, setPublisherQuery] = useState(
+    searchParams.namespace ? `@${searchParams.namespace}` : "",
+  );
   const [view, setView] = useState<ViewMode>("table");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [submitOpen, setSubmitOpen] = useState(false);
@@ -214,7 +224,9 @@ export default function ComponentsPage() {
   }, [search]);
 
   useEffect(() => {
-    setPublisherQuery(searchParams.namespace ? `@${searchParams.namespace}` : "");
+    setPublisherQuery(
+      searchParams.namespace ? `@${searchParams.namespace}` : "",
+    );
   }, [searchParams.namespace]);
 
   const typeFilters = TYPE_FILTERS[activeType] ?? [];
@@ -229,13 +241,21 @@ export default function ComponentsPage() {
     if (value) registryFilters[filter.key] = value;
   }
 
-  const { data, isLoading, isError, error, refetch } = useRegistryList(activeType, registryFilters);
+  const { data, isLoading, isError, error, refetch } = useRegistryList(
+    activeType,
+    registryFilters,
+  );
 
   const { data: myItems } = useMyComponents(activeType, isAuthenticated);
   const myDrafts = useMemo(
-    () => isAuthenticated
-      ? (myItems ?? []).filter((i) => ["draft", "pending", "rejected", "archived"].includes(i.status ?? ""))
-      : [],
+    () =>
+      isAuthenticated
+        ? (myItems ?? []).filter((i) =>
+            ["draft", "pending", "rejected", "archived"].includes(
+              i.status ?? "",
+            ),
+          )
+        : [],
     [isAuthenticated, myItems],
   );
 
@@ -286,7 +306,11 @@ export default function ComponentsPage() {
 
   const handleRowClick = useCallback(
     (id: string) => {
-      router.navigate({ to: "/components/$componentId", params: { componentId: id }, search: { type: activeType } });
+      router.navigate({
+        to: "/components/$componentId",
+        params: { componentId: id },
+        search: { type: activeType },
+      });
     },
     [router, activeType],
   );
@@ -353,10 +377,15 @@ export default function ComponentsPage() {
               <>
                 <PickerSelect
                   value={searchParams.team ?? ""}
-                  onValueChange={(value) => updateFilters({ team: value || undefined })}
+                  onValueChange={(value) =>
+                    updateFilters({ team: value || undefined })
+                  }
                   options={[
                     { value: "", label: "All visible teamspaces" },
-                    ...teams.map((team) => ({ value: team.handle, label: `Team: ${team.name}` })),
+                    ...teams.map((team) => ({
+                      value: team.handle,
+                      label: `Team: ${team.name}`,
+                    })),
                   ]}
                   placeholder="Teamspace"
                   className="w-[210px]"
@@ -366,7 +395,11 @@ export default function ComponentsPage() {
                   value={publisherQuery}
                   onValueChange={(value) => {
                     setPublisherQuery(value);
-                    if (searchParams.namespace && value !== searchParams.namespace && value !== `@${searchParams.namespace}`) {
+                    if (
+                      searchParams.namespace &&
+                      value !== searchParams.namespace &&
+                      value !== `@${searchParams.namespace}`
+                    ) {
                       updateFilters({ namespace: undefined });
                     }
                   }}
@@ -384,10 +417,15 @@ export default function ComponentsPage() {
               <PickerSelect
                 key={filter.key}
                 value={searchParams[filter.key] ?? ""}
-                onValueChange={(value) => updateFilters({ [filter.key]: value || undefined })}
+                onValueChange={(value) =>
+                  updateFilters({ [filter.key]: value || undefined })
+                }
                 options={[
                   { value: "", label: `Any ${filter.label.toLowerCase()}` },
-                  ...filter.options.map((option) => ({ value: option, label: formatOption(option) })),
+                  ...filter.options.map((option) => ({
+                    value: option,
+                    label: formatOption(option),
+                  })),
                 ]}
                 placeholder={filter.label}
                 className="w-[180px]"
@@ -395,7 +433,14 @@ export default function ComponentsPage() {
               />
             ))}
             {authReady && role && (
-              <Button size="sm" className="h-9" onClick={() => { setEditItem(null); setSubmitOpen(true); }}>
+              <Button
+                size="sm"
+                className="h-9"
+                onClick={() => {
+                  setEditItem(null);
+                  setSubmitOpen(true);
+                }}
+              >
                 <Plus className="h-4 w-4 mr-1.5" />
                 Create
               </Button>
@@ -422,15 +467,28 @@ export default function ComponentsPage() {
             </div>
           </div>
           {hasFilters && (
-            <div className="flex min-h-7 items-center gap-2 flex-wrap" aria-label="Active filters">
+            <div
+              className="flex min-h-7 items-center gap-2 flex-wrap"
+              aria-label="Active filters"
+            >
               {searchParams.team && (
-                <Button variant="secondary" size="sm" className="h-7 gap-1 px-2 text-xs" onClick={() => updateFilters({ team: undefined })}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-7 gap-1 px-2 text-xs"
+                  onClick={() => updateFilters({ team: undefined })}
+                >
                   Team: {selectedTeam?.name ?? searchParams.team}
                   <X className="h-3 w-3" />
                 </Button>
               )}
               {searchParams.namespace && (
-                <Button variant="secondary" size="sm" className="h-7 gap-1 px-2 text-xs" onClick={() => updateFilters({ namespace: undefined })}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="h-7 gap-1 px-2 text-xs"
+                  onClick={() => updateFilters({ namespace: undefined })}
+                >
                   Publisher: @{searchParams.namespace}
                   <X className="h-3 w-3" />
                 </Button>
@@ -439,13 +497,24 @@ export default function ComponentsPage() {
                 const value = searchParams[filter.key];
                 if (!value) return null;
                 return (
-                  <Button key={filter.key} variant="secondary" size="sm" className="h-7 gap-1 px-2 text-xs" onClick={() => updateFilters({ [filter.key]: undefined })}>
+                  <Button
+                    key={filter.key}
+                    variant="secondary"
+                    size="sm"
+                    className="h-7 gap-1 px-2 text-xs"
+                    onClick={() => updateFilters({ [filter.key]: undefined })}
+                  >
                     {filter.label}: {formatOption(value)}
                     <X className="h-3 w-3" />
                   </Button>
                 );
               })}
-              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-muted-foreground" onClick={clearFilters}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs text-muted-foreground"
+                onClick={clearFilters}
+              >
                 Clear all
               </Button>
             </div>
@@ -585,21 +654,29 @@ export default function ComponentsPage() {
                   <div className="flex items-center gap-3 min-w-0">
                     <StatusBadge status={item.status ?? "draft"} />
                     <div className="min-w-0">
-                      <RegistryName item={item} nameClassName="text-sm font-medium" />
+                      <RegistryName
+                        item={item}
+                        nameClassName="text-sm font-medium"
+                      />
                       {item.description && (
                         <p className="text-xs text-muted-foreground truncate max-w-xs">
                           {item.description}
                         </p>
                       )}
                       {item.status === "rejected" && item.rejection_reason && (
-                        <p className="text-xs text-destructive mt-0.5 line-clamp-2" title={item.rejection_reason}>
+                        <p
+                          className="text-xs text-destructive mt-0.5 line-clamp-2"
+                          title={item.rejection_reason}
+                        >
                           Rejected: {item.rejection_reason}
                         </p>
                       )}
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
-                    {(item.status === "draft" || item.status === "rejected" || item.status === "pending") && (
+                    {(item.status === "draft" ||
+                      item.status === "rejected" ||
+                      item.status === "pending") && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -608,10 +685,14 @@ export default function ComponentsPage() {
                         onClick={() => {
                           if (item.status === "pending") {
                             startEditMutation.mutate(item.id, {
-                              onSuccess: () => { setEditItem(item); setSubmitOpen(true); },
+                              onSuccess: () => {
+                                setEditItem(item);
+                                setSubmitOpen(true);
+                              },
                             });
                           } else {
-                            setEditItem(item); setSubmitOpen(true);
+                            setEditItem(item);
+                            setSubmitOpen(true);
                           }
                         }}
                       >
@@ -619,7 +700,8 @@ export default function ComponentsPage() {
                         Edit
                       </Button>
                     )}
-                    {(item.status === "draft" || item.status === "rejected") && (
+                    {(item.status === "draft" ||
+                      item.status === "rejected") && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -639,48 +721,69 @@ export default function ComponentsPage() {
         )}
       </div>
 
-      {isAuthenticated && <SubmitComponentDialog
-        key={editItem?.id ?? "new"}
-        open={submitOpen}
-        onOpenChange={(v) => {
-          if (!v && editItem?.status === "pending") {
-            cancelEditMutation.mutate(editItem.id);
-          }
-          setSubmitOpen(v);
-          if (!v) setEditItem(null);
-        }}
-        type={activeType}
-        editItem={editItem as Record<string, unknown> | null}
-        onSubmit={(body) => {
-          if (editItem) {
-            if (editItem.status === "pending") {
-              updateDraftMutation.mutate({ id: editItem.id, body }, {
-                onSuccess: () => { setSubmitOpen(false); setEditItem(null); },
-              });
+      {isAuthenticated && (
+        <SubmitComponentDialog
+          key={editItem?.id ?? "new"}
+          open={submitOpen}
+          onOpenChange={(v) => {
+            if (!v && editItem?.status === "pending") {
+              cancelEditMutation.mutate(editItem.id);
+            }
+            setSubmitOpen(v);
+            if (!v) setEditItem(null);
+          }}
+          type={activeType}
+          editItem={editItem as Record<string, unknown> | null}
+          onSubmit={(body) => {
+            if (editItem) {
+              if (editItem.status === "pending") {
+                updateDraftMutation.mutate(
+                  { id: editItem.id, body },
+                  {
+                    onSuccess: () => {
+                      setSubmitOpen(false);
+                      setEditItem(null);
+                    },
+                  },
+                );
+              } else {
+                submitDraftMutation.mutate(editItem.id, {
+                  onSuccess: () => {
+                    setSubmitOpen(false);
+                    setEditItem(null);
+                  },
+                });
+              }
             } else {
-              submitDraftMutation.mutate(editItem.id, {
-                onSuccess: () => { setSubmitOpen(false); setEditItem(null); },
+              submitMutation.mutate(body, {
+                onSuccess: () => setSubmitOpen(false),
               });
             }
-          } else {
-            submitMutation.mutate(body, {
+          }}
+          onSaveDraft={(body) => {
+            saveDraftMutation.mutate(body, {
               onSuccess: () => setSubmitOpen(false),
             });
+          }}
+          onUpdateDraft={(id, body) => {
+            updateDraftMutation.mutate(
+              { id, body },
+              {
+                onSuccess: () => {
+                  setSubmitOpen(false);
+                  setEditItem(null);
+                },
+              },
+            );
+          }}
+          isSubmitting={
+            submitMutation.isPending || submitDraftMutation.isPending
           }
-        }}
-        onSaveDraft={(body) => {
-          saveDraftMutation.mutate(body, {
-            onSuccess: () => setSubmitOpen(false),
-          });
-        }}
-        onUpdateDraft={(id, body) => {
-          updateDraftMutation.mutate({ id, body }, {
-            onSuccess: () => { setSubmitOpen(false); setEditItem(null); },
-          });
-        }}
-        isSubmitting={submitMutation.isPending || submitDraftMutation.isPending}
-        isSavingDraft={saveDraftMutation.isPending || updateDraftMutation.isPending}
-      />}
+          isSavingDraft={
+            saveDraftMutation.isPending || updateDraftMutation.isPending
+          }
+        />
+      )}
     </>
   );
 }
