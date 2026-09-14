@@ -62,6 +62,17 @@ observal registry skill submit --skill-md ./SKILL.md --delivery-mode registry_di
 observal registry skill submit --skill-md ./SKILL.md --script ./run.sh --delivery-mode registry_direct --name my-skill --description 'What it does' --task-type general --output json
 ```
 
+Multi-file skills carry scripts, templates, and other resources. `--from-dir`
+packages a whole skill directory (SKILL.md plus every resource, ignoring
+`.git`, caches, and OS noise); `--extra-file` adds individual files (repeatable,
+paths relative to the SKILL.md directory, or `dest=path` for files elsewhere;
+binary files are stored base64). Caps: 100 files, 2 MB each, 8 MB total.
+
+```bash
+observal registry skill submit --from-dir ./my-skill --delivery-mode registry_direct --name my-skill --description 'What it does' --task-type general --output json
+observal registry skill submit --skill-md ./SKILL.md --extra-file ./templates/x.md --extra-file 'assets/logo.png=/tmp/logo.png' --delivery-mode registry_direct --name my-skill --description 'What it does' --task-type general --output json
+```
+
 Choose one delivery mode deliberately. Verify installed paths and script metadata after approval.
 
 ## Hook

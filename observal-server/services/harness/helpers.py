@@ -436,6 +436,7 @@ def _build_skill_configs(
                 "skill_md_content": getattr(listing, "skill_md_content", None),
                 "script_content": getattr(listing, "script_content", None),
                 "script_filename": getattr(listing, "script_filename", None),
+                "extra_files": getattr(listing, "extra_files", None),
             }
         )
 

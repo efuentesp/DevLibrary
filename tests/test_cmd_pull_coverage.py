@@ -915,6 +915,7 @@ def test_pull_full_project_flow_writes_every_shape_and_exact_side_effects(
         skill_md_content="direct skill\n",
         script_content="print('ok')\n",
         script_filename="run.py",
+        extra_files=None,
         harness="claude-code",
         scope="project",
         cwd=target.resolve(),

@@ -697,6 +697,7 @@ def test_install_command_registry_direct_tracks_project_metadata(monkeypatch):
         skill_md_content="# Review",
         script_content="print('review')",
         script_filename="run.py",
+        extra_files=None,
         harness="pi",
         scope="project",
     )

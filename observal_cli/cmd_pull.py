@@ -1096,6 +1096,7 @@ def register_pull(app: typer.Typer):
                         skill_md_content=sc.get("skill_md_content"),
                         script_content=sc.get("script_content"),
                         script_filename=sc.get("script_filename"),
+                        extra_files=sc.get("extra_files"),
                         harness=harness,
                         scope=scope_str,
                         cwd=target_dir,
