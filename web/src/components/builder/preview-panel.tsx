@@ -37,6 +37,8 @@ function buildMarkdownBody(
 	prompt?: string,
 	pendingBodies?: Record<string, Record<string, unknown>>,
 ): string {
+	// description is intentionally unused: the server renders registry
+	// metadata itself; only component bodies travel with the prompt.
 	const lines: string[] = [];
 
 	for (const [type, items] of Object.entries(selectedComponents)) {
@@ -139,7 +141,11 @@ export function PreviewPanel({
 							? "hook"
 							: type === "prompts"
 								? "prompt"
-								: null;
+								: type === "sandboxes"
+									? "sandbox"
+									: type === "workflows"
+										? "workflow"
+										: null;
 			if (!componentType) continue;
 			for (const item of items) {
 				components.push({
@@ -153,10 +159,24 @@ export function PreviewPanel({
 		setFullError(null);
 
 		try {
+			// The server assembles component sections itself; only in-memory
+			// pending component bodies (not yet in the registry) must ride
+			// along with the prompt. Sending the full pre-built body here
+			// duplicated every registry component section.
+			const pendingOnly = Object.fromEntries(
+				Object.entries(selectedComponents).map(([type, items]) => [
+					type,
+					items.filter((item) => pendingComponentBodies?.[item.id]),
+				]),
+			);
+			const previewPrompt =
+				prompt && Object.keys(pendingComponentBodies ?? {}).length > 0
+					? buildMarkdownBody(description, pendingOnly, prompt, pendingComponentBodies)
+					: (prompt ?? "");
 			const res = await registry.previewConfig({
 				name: name || "untitled",
 				description,
-				prompt: body,
+				prompt: previewPrompt,
 				model_name: modelName ?? "",
 				components,
 			});

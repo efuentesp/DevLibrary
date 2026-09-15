@@ -25,7 +25,9 @@ from api.deps import (
 from models.hook import HookListing
 from models.mcp import ListingStatus, McpListing
 from models.prompt import PromptListing
+from models.sandbox import SandboxListing
 from models.skill import SkillListing
+from models.workflow import WorkflowListing
 from observal_shared.harness_registry import HARNESS_REGISTRY
 from services.harness import generate_agent_config
 
@@ -46,7 +48,7 @@ _MAX_PROMPT_LEN = 50_000
 
 
 class PreviewComponentRef(BaseModel):
-    component_type: str = Field(pattern=r"^(mcp|skill|hook|prompt)$")
+    component_type: str = Field(pattern=r"^(mcp|skill|hook|prompt|sandbox|workflow)$")
     component_id: uuid.UUID
 
 
@@ -129,6 +131,8 @@ async def preview_config(
     skill_ids = [c.component_id for c in components if c.component_type == "skill"]
     hook_ids = [c.component_id for c in components if c.component_type == "hook"]
     prompt_ids = [c.component_id for c in components if c.component_type == "prompt"]
+    sandbox_ids = [c.component_id for c in components if c.component_type == "sandbox"]
+    workflow_ids = [c.component_id for c in components if c.component_type == "workflow"]
 
     async def _visible_map(model, ids, *, load_latest_version=False):
         if not ids:
@@ -152,12 +156,16 @@ async def preview_config(
     skill_map = await _visible_map(SkillListing, skill_ids)
     hook_map = await _visible_map(HookListing, hook_ids, load_latest_version=True)
     prompt_map = await _visible_map(PromptListing, prompt_ids, load_latest_version=True)
+    sandbox_map = await _visible_map(SandboxListing, sandbox_ids, load_latest_version=True)
+    workflow_map = await _visible_map(WorkflowListing, workflow_ids, load_latest_version=True)
 
     # Refuse loudly rather than quietly previewing a partial agent. A component the
     # caller cannot see is reported the same way as one that does not exist, so the
     # response is not an existence oracle for team-private listings.
-    requested = set(mcp_ids) | set(skill_ids) | set(hook_ids) | set(prompt_ids)
-    resolved = set(mcp_map) | set(skill_map) | set(hook_map) | set(prompt_map)
+    requested = set(mcp_ids) | set(skill_ids) | set(hook_ids) | set(prompt_ids) | set(sandbox_ids) | set(workflow_ids)
+    resolved = (
+        set(mcp_map) | set(skill_map) | set(hook_map) | set(prompt_map) | set(sandbox_map) | set(workflow_map)
+    )
     if missing := requested - resolved:
         raise HTTPException(
             status_code=404,
@@ -173,6 +181,10 @@ async def preview_config(
     for row in hook_map.values():
         name_map[str(row.id)] = row.name
     for row in prompt_map.values():
+        name_map[str(row.id)] = row.name
+    for row in sandbox_map.values():
+        name_map[str(row.id)] = row.name
+    for row in workflow_map.values():
         name_map[str(row.id)] = row.name
 
     # Generate configs for all target harnesses
@@ -192,14 +204,12 @@ async def preview_config(
                 skill_listings=skill_map,
                 hook_listings=hook_map,
                 prompt_listings=prompt_map,
+                sandbox_listings=sandbox_map,
             )
         except Exception:
             continue
 
         files: dict[str, str] = {}
-        if "agent_profile" in config:
-            rf = config["agent_profile"]
-            files[rf["path"]] = rf["content"]
         if "agent_profile" in config:
             af = config["agent_profile"]
             content = af["content"]
@@ -217,6 +227,25 @@ async def preview_config(
         if "skills" in config:
             for sf in config["skills"]:
                 files[sf["path"]] = sf["content"]
+        # Registry-direct skills (pi, kiro, ...) materialize as SKILL.md plus
+        # extra_files under the skill directory; show them so the preview
+        # matches what install writes.
+        for sc in config.get("skill_components") or []:
+            sc_path = sc.get("path")
+            md = sc.get("skill_md_content")
+            if sc.get("git_url") or not sc_path or not md:
+                continue
+            files[sc_path] = md
+            script = sc.get("script_content")
+            script_name = sc.get("script_filename")
+            if script and script_name:
+                base = sc_path.rsplit("/", 1)[0]
+                files[f"{base}/{script_name}"] = script
+            for extra in sc.get("extra_files") or []:
+                base = sc_path.rsplit("/", 1)[0]
+                epath, econtent = extra.get("path"), extra.get("content")
+                if epath and econtent is not None:
+                    files[f"{base}/{epath}"] = econtent
 
         if files:
             configs[harness] = files
