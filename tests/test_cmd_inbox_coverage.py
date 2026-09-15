@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
 """Deterministic behavioral coverage for the inbox CLI boundary."""
@@ -15,8 +15,8 @@ import typer
 from typer.main import get_command
 from typer.testing import CliRunner
 
-import observal_cli.cmd_inbox as inbox
-from observal_cli.main import app as cli_app
+import dev_library_cli.cmd_inbox as inbox
+from dev_library_cli.main import app as cli_app
 
 ITEM_ID = "11111111-1111-1111-1111-111111111111"
 SECOND_ITEM_ID = "22222222-2222-2222-2222-222222222222"
@@ -292,8 +292,8 @@ def test_list_table_renders_unread_action_state_markup_and_pagination_exactly(cl
     assert cli.console.renderables == [table]
     assert cli.messages == [
         "\n[dim]Showing 3-4 of 7.[/dim]",
-        f"[dim]Next page: [cyan]observal inbox list {LONG_OPTION}page 3[/cyan][/dim]",
-        f"\n[dim]Detail: [cyan]observal inbox show {ITEM_ID}[/cyan][/dim]",
+        f"[dim]Next page: [cyan]dev-library inbox list {LONG_OPTION}page 3[/cyan][/dim]",
+        f"\n[dim]Detail: [cyan]dev-library inbox show {ITEM_ID}[/cyan][/dim]",
     ]
     assert cli.json == []
 
@@ -311,7 +311,7 @@ def test_list_final_page_has_range_without_a_nonexistent_next_page(cli):
 
     assert cli.messages == [
         "\n[dim]Showing 5-5 of 5.[/dim]",
-        f"\n[dim]Detail: [cyan]observal inbox show {ITEM_ID}[/cyan][/dim]",
+        f"\n[dim]Detail: [cyan]dev-library inbox show {ITEM_ID}[/cyan][/dim]",
     ]
     assert all("Next page" not in message for message in cli.messages)
 
@@ -327,7 +327,7 @@ def test_single_page_list_omits_pagination_copy(cli):
 
     inbox._emit_list({"page": 1, "page_size": 25}, "table")
 
-    assert cli.messages == [f"\n[dim]Detail: [cyan]observal inbox show {ITEM_ID}[/cyan][/dim]"]
+    assert cli.messages == [f"\n[dim]Detail: [cyan]dev-library inbox show {ITEM_ID}[/cyan][/dim]"]
 
 
 def test_list_json_accepts_an_empty_param_mapping_without_inventing_filters(cli):
@@ -381,7 +381,7 @@ def test_show_renders_full_detail_actions_and_timestamped_history_exactly(cli):
         "state": "open",
         "body": "Inspect [/tmp]",
         "action_url": "/review?tab=components",
-        "action_command": f"observal registry mcp show acme/tool {LONG_OPTION}output json",
+        "action_command": f"dev-library registry mcp show acme/tool {LONG_OPTION}output json",
         "history": [
             {"created_at": "2026-06-01T01:02:03Z", "event": "created"},
             {
@@ -403,7 +403,7 @@ def test_show_renders_full_detail_actions_and_timestamped_history_exactly(cli):
         "[dim]review_requested · open[/dim]",
         "\nInspect \\[/tmp]",
         "\n[dim]Open:[/dim] /review?tab=components",
-        f"[dim]Run:[/dim]  [cyan]observal registry mcp show acme/tool {LONG_OPTION}output json[/cyan]",
+        f"[dim]Run:[/dim]  [cyan]dev-library registry mcp show acme/tool {LONG_OPTION}output json[/cyan]",
         "\n[bold]History[/bold]",
         "  [dim]2026-06-01T01:02:03Z[/dim]  created",
         "  [dim]2026-06-02T04:05:06+00:00[/dim]  read \\[once] : Moved \\[queue]",

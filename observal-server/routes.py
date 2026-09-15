@@ -43,6 +43,7 @@ from api.routes.support import router as support_router
 from api.routes.teams import router as teams_router
 from api.routes.telemetry import router as telemetry_router
 from api.routes.users import router as users_router
+from api.routes.workflow import router as workflow_router
 from services.saml_health import register_saml_health_probe
 
 REST_ROUTERS = (
@@ -55,6 +56,7 @@ REST_ROUTERS = (
     agent_router,
     preview_router,
     skill_router,
+    workflow_router,
     hook_router,
     prompt_router,
     sandbox_router,

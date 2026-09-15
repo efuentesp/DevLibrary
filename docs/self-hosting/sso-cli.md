@@ -4,7 +4,6 @@
 
 # Observal SSO, SCIM, and Audit API Reference
 
-
 For the core CLI reference, see [docs/cli/README.md](../../docs/cli/README.md). For setup instructions, see [docs/self-hosting/README.md](../../docs/self-hosting/README.md).
 
 ---
@@ -12,7 +11,7 @@ For the core CLI reference, see [docs/cli/README.md](../../docs/cli/README.md). 
 ## SSO Configuration
 
 | Setting | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `oauth.client_id` | disabled | OAuth/OIDC client ID |
 | `oauth.client_secret` | disabled | OAuth/OIDC client secret |
 | `oauth.server_metadata_url` | disabled | OIDC discovery URL |
@@ -39,7 +38,7 @@ Observal logs admin and write operations to ClickHouse. Audit logs are queryable
 Query audit log entries. Requires admin role.
 
 | Parameter | Type | Description |
-|-----------|------|-------------|
+| ----------- | ------ | ------------- |
 | `actor` | string | Filter by actor email |
 | `action` | string | Filter by action (e.g. `create`, `delete`, `approve`) |
 | `resource_type` | string | Filter by resource type (e.g. `mcp`, `agent`, `user`) |
@@ -71,7 +70,7 @@ SCIM endpoints allow your IdP (Okta, Azure AD, etc.) to automatically provision 
 Authentication uses a shared bearer token stored as a SHA-256 hash in the scim_tokens table.
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
+| -------- | ---------- | ------------- |
 | `GET` | `/api/v1/scim/Users` | List provisioned users |
 | `POST` | `/api/v1/scim/Users` | Create a user from IdP |
 | `GET` | `/api/v1/scim/Users/{id}` | Get a specific user |
@@ -87,7 +86,7 @@ For detailed setup instructions, see [scim-setup.md](scim-setup.md).
 SAML endpoints for identity providers that don't support OIDC.
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
+| -------- | ---------- | ------------- |
 | `GET` | `/api/v1/sso/saml/login` | SP-initiated login |
 | `POST` | `/api/v1/sso/saml/acs` | Receives IdP response |
 | `GET` | `/api/v1/sso/saml/metadata` | SP metadata XML |
@@ -102,7 +101,7 @@ When SSO is the only login method, the CLI uses the OAuth 2.0 Device
 Authorization Grant (RFC 8628) to authenticate through a browser.
 
 ```bash
-observal auth login --sso
+dev-library auth login --sso
 ```
 
 For CI/CD environments without a browser, set the `OBSERVAL_TOKEN`

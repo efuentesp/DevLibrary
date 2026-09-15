@@ -25,6 +25,7 @@ const TYPES = new Set<RegistryType>([
   "hooks",
   "prompts",
   "sandboxes",
+  "workflows",
 ]);
 
 export const Route = createFileRoute("/_authed/components/")({

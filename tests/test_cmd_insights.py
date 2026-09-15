@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typer.testing import CliRunner
 
-from observal_cli.cmd_insights import insights_app
+from dev_library_cli.cmd_insights import insights_app
 
 runner = CliRunner()
 
@@ -21,8 +21,8 @@ def test_insights_list_resolves_agent_name_before_report_lookup(monkeypatch):
             return []
         raise AssertionError(f"unexpected path: {path}")
 
-    monkeypatch.setattr("observal_cli.config.resolve_alias", lambda value: value)
-    monkeypatch.setattr("observal_cli.cmd_insights.client.get", fake_get)
+    monkeypatch.setattr("dev_library_cli.config.resolve_alias", lambda value: value)
+    monkeypatch.setattr("dev_library_cli.cmd_insights.client.get", fake_get)
 
     result = runner.invoke(insights_app, ["list", "ultra-pi"])
 
@@ -55,9 +55,9 @@ def test_insights_generate_resolves_agent_name_before_generate(monkeypatch):
             }
         raise AssertionError(f"unexpected path: {path}")
 
-    monkeypatch.setattr("observal_cli.config.resolve_alias", lambda value: value)
-    monkeypatch.setattr("observal_cli.cmd_insights.client.get", fake_get)
-    monkeypatch.setattr("observal_cli.cmd_insights.client.post", fake_post)
+    monkeypatch.setattr("dev_library_cli.config.resolve_alias", lambda value: value)
+    monkeypatch.setattr("dev_library_cli.cmd_insights.client.get", fake_get)
+    monkeypatch.setattr("dev_library_cli.cmd_insights.client.post", fake_post)
 
     result = runner.invoke(insights_app, ["generate", "ultra-pi", "--period", "30"])
 
@@ -105,8 +105,8 @@ def test_insights_show_agent_name_uses_latest_completed_report(monkeypatch):
             return _completed_report("be5aa083-d84a-49e7-8a35-b37b3e687780")
         raise AssertionError(f"unexpected path: {path}")
 
-    monkeypatch.setattr("observal_cli.config.resolve_alias", lambda value: value)
-    monkeypatch.setattr("observal_cli.cmd_insights.client.get", fake_get)
+    monkeypatch.setattr("dev_library_cli.config.resolve_alias", lambda value: value)
+    monkeypatch.setattr("dev_library_cli.cmd_insights.client.get", fake_get)
 
     result = runner.invoke(insights_app, ["show", "ultra-pi"])
 
@@ -140,8 +140,8 @@ def test_insights_show_agent_name_accepts_report_row(monkeypatch):
             return _completed_report("b7c416a4-b501-42d7-a066-3cc95b76e656")
         raise AssertionError(f"unexpected path: {path}")
 
-    monkeypatch.setattr("observal_cli.config.resolve_alias", lambda value: value)
-    monkeypatch.setattr("observal_cli.cmd_insights.client.get", fake_get)
+    monkeypatch.setattr("dev_library_cli.config.resolve_alias", lambda value: value)
+    monkeypatch.setattr("dev_library_cli.cmd_insights.client.get", fake_get)
 
     result = runner.invoke(insights_app, ["show", "ultra-pi", "2"])
 

@@ -42,4 +42,4 @@ A conflict is deterministic information, not a transient failure. Common decisio
 - Treat an already-created bulk component as skipped after verifying its identity.
 - Do not bypass edit locks or ownership conflicts.
 
-The `observal api` escape hatch follows the same retry rules because it uses the shared authenticated client.
+The `dev-library api` escape hatch follows the same retry rules because it uses the shared authenticated client.

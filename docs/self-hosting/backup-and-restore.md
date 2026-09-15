@@ -108,7 +108,7 @@ If you're restoring from backup after a catastrophic failure:
 3. Restore `pgdata` (Postgres).
 4. Restore `chdata` (ClickHouse).
 5. Bring up the stack: `docker compose up -d`.
-6. Smoke test: `observal auth login`, `observal auth status`.
+6. Smoke test: `dev-library auth login`, `dev-library auth status`.
 
 Skipping step 2 works but every user has to re-login.
 
@@ -119,10 +119,10 @@ Test restores in a staging environment at least quarterly. Untested backups are 
 Smoke test after restore:
 
 ```bash
-observal auth login
-observal auth whoami              # you should be your pre-backup user
-observal agent list               # registry should be intact
-observal ops traces --limit 5     # traces up to the backup timestamp should be visible
+dev-library auth login
+dev-library auth whoami              # you should be your pre-backup user
+dev-library agent list               # registry should be intact
+dev-library ops traces --limit 5     # traces up to the backup timestamp should be visible
 ```
 
 ## Automated backup

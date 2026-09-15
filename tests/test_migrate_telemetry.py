@@ -23,7 +23,7 @@ from hypothesis import settings as hsettings
 from hypothesis import strategies as st
 from typer.testing import CliRunner
 
-from observal_cli.main import app as cli_app
+from dev_library_cli.main import app as cli_app
 from observal_shared.migration.archive import _is_empty_parquet, _month_range, _sha256_file
 from observal_shared.migration.ch_export import (
     _build_ch_count_query,
@@ -553,7 +553,7 @@ class TestErrorPaths:
 class TestSecurity:
     """Verify connection strings never appear in CLI output."""
 
-    @patch("observal_cli.cmd_migrate.asyncio")
+    @patch("dev_library_cli.cmd_migrate.asyncio")
     def test_clickhouse_url_not_in_export_output(self, mock_asyncio):
         secret_url = "clickhouse://secret_user:secret_pass@secret-host:9000/secret_db"
         mock_asyncio.run.side_effect = SystemExit(1)
@@ -1061,7 +1061,7 @@ class TestUUIDLowercaseNormalization:
 
     def test_uuid_re_is_module_level_constant(self):
         """Verify _UUID_RE is compiled once at module level, not per call."""
-        import observal_cli.cmd_migrate as mod
+        import dev_library_cli.cmd_migrate as mod
 
         assert hasattr(mod, "_UUID_RE")
         assert mod._UUID_RE is _UUID_RE

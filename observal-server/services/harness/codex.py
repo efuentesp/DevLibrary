@@ -10,7 +10,7 @@ import json
 from observal_shared.harness_registry import HARNESS_REGISTRY
 from services.harness import BaseHarnessAdapter, ConfigContext, McpConfigContext, register_adapter
 
-_CODEX_SESSION_PUSH_CMD = "python3 -m observal_cli.hooks.codex_session_push"
+_CODEX_SESSION_PUSH_CMD = "python3 -m dev_library_cli.hooks.codex_session_push"
 
 
 def _toml_string(value: str) -> str:

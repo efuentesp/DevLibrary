@@ -14,9 +14,9 @@ from unittest.mock import Mock
 import pytest
 from typer.testing import CliRunner
 
-from observal_cli.harness import NotSupportedError, ScanResult, SessionSource
-from observal_cli.harness.base import _check_feature
-from observal_cli.harness.claude_code import ClaudeCodeAdapter
+from dev_library_cli.harness import NotSupportedError, ScanResult, SessionSource
+from dev_library_cli.harness.base import _check_feature
+from dev_library_cli.harness.claude_code import ClaudeCodeAdapter
 from observal_shared.harness_registry import HARNESS_REGISTRY
 
 _FRONTMATTER = "-" * 3
@@ -627,7 +627,7 @@ def test_detect_hooks_counts_managed_groups_and_ignores_unmanaged_entries(
 ):
     groups = [{"hooks": [{"type": "command", "command": "foreign"}]}]
     groups.extend(
-        {"hooks": [{"type": "command", "command": "python -m observal_cli.hooks.session_push"}]}
+        {"hooks": [{"type": "command", "command": "python -m dev_library_cli.hooks.session_push"}]}
         for _ in range(managed_groups)
     )
     _write_json(
@@ -673,8 +673,8 @@ def test_detect_hooks_unsupported_shapes_fail_loudly(tmp_path: Path, settings: o
 
 
 def test_hook_spec_generation_and_doctor_delegation_are_exact(monkeypatch: pytest.MonkeyPatch):
-    from observal_cli import cmd_doctor
-    from observal_cli.harness_specs import claude_code_hooks_spec
+    from dev_library_cli import cmd_doctor
+    from dev_library_cli.harness_specs import claude_code_hooks_spec
 
     adapter = ClaudeCodeAdapter()
     generated = {"Stop": [{"hooks": []}]}
@@ -833,7 +833,7 @@ def test_scan_command_deduplicates_home_before_project_with_stable_scope_order(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ):
-    from observal_cli.main import app
+    from dev_library_cli.main import app
 
     home = tmp_path / "home"
     project = tmp_path / "project"

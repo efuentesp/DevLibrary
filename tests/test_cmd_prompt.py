@@ -16,30 +16,30 @@ from unittest.mock import patch
 
 from typer.testing import CliRunner
 
-from observal_cli import cmd_prompt  # noqa: F401
-from observal_cli.main import app as cli_app
+from dev_library_cli import cmd_prompt  # noqa: F401
+from dev_library_cli.main import app as cli_app
 
 runner = CliRunner()
 
 
 def _patch_config_load():
-    return patch("observal_cli.config.load", return_value={"user_name": "testuser", "username": "testuser"})
+    return patch("dev_library_cli.config.load", return_value={"user_name": "testuser", "username": "testuser"})
 
 
 def _patch_resolve_alias():
-    return patch("observal_cli.config.resolve_alias", side_effect=lambda x: x)
+    return patch("dev_library_cli.config.resolve_alias", side_effect=lambda x: x)
 
 
 def _patch_get(return_value):
-    return patch("observal_cli.client.get", return_value=return_value)
+    return patch("dev_library_cli.client.get", return_value=return_value)
 
 
 def _patch_post(return_value):
-    return patch("observal_cli.client.post", return_value=return_value)
+    return patch("dev_library_cli.client.post", return_value=return_value)
 
 
 def _patch_put(return_value):
-    return patch("observal_cli.client.put", return_value=return_value)
+    return patch("dev_library_cli.client.put", return_value=return_value)
 
 
 class TestPromptSubmit:
@@ -113,7 +113,7 @@ class TestPromptList:
             {"id": "p1", "name": "prompt-one", "version": "1.0.0", "status": "approved", "owner": "user1"},
             {"id": "p2", "name": "prompt-two", "version": "1.1.0", "status": "approved", "owner": "user2"},
         ]
-        with _patch_get(mock_data), patch("observal_cli.config.save_last_results"):
+        with _patch_get(mock_data), patch("dev_library_cli.config.save_last_results"):
             result = runner.invoke(cli_app, ["registry", "prompt", "list"])
 
             assert result.exit_code == 0
@@ -149,7 +149,7 @@ class TestPromptMy:
         mock_data = [
             {"id": "p1", "name": "my-first-prompt", "version": "1.0.0", "status": "approved", "owner": "testuser"}
         ]
-        with _patch_get(mock_data), patch("observal_cli.config.save_last_results"):
+        with _patch_get(mock_data), patch("dev_library_cli.config.save_last_results"):
             result = runner.invoke(cli_app, ["registry", "prompt", "my"])
 
             assert result.exit_code == 0
@@ -162,7 +162,7 @@ class TestPromptRender:
         """Test prompt render command with variables."""
         with (
             _patch_resolve_alias(),
-            patch("observal_cli.client.post_public", return_value={"rendered": "Hello Earth!"}) as mock_post,
+            patch("dev_library_cli.client.post_public", return_value={"rendered": "Hello Earth!"}) as mock_post,
         ):
             result = runner.invoke(cli_app, ["registry", "prompt", "render", "p123", "--var", "target=Earth"])
 
@@ -210,7 +210,7 @@ class TestPromptEdgeCases:
 
     def test_list_empty_results(self):
         """List should handle empty result set gracefully."""
-        with _patch_get([]), patch("observal_cli.config.save_last_results"):
+        with _patch_get([]), patch("dev_library_cli.config.save_last_results"):
             result = runner.invoke(cli_app, ["registry", "prompt", "list"])
 
             assert result.exit_code == 0
@@ -241,7 +241,7 @@ class TestPromptEdgeCases:
     def test_invalid_category_fails_before_request(self):
         """Prompt category validation is local and deterministic."""
         mock_data = []
-        with _patch_get(mock_data) as mock_get, patch("observal_cli.config.save_last_results"):
+        with _patch_get(mock_data) as mock_get, patch("dev_library_cli.config.save_last_results"):
             result = runner.invoke(cli_app, ["registry", "prompt", "list", "--category", "invalid-category"])
 
             assert result.exit_code == 7
@@ -278,7 +278,7 @@ def test_prompt_render_json_and_variable_validation():
     response = {"rendered": "Review array[0] literally"}
     with (
         _patch_resolve_alias(),
-        patch("observal_cli.client.post_public", return_value=response) as post,
+        patch("dev_library_cli.client.post_public", return_value=response) as post,
     ):
         rendered = runner.invoke(
             cli_app,

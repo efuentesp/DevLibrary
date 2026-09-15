@@ -316,18 +316,18 @@ class TestCliAudit:
     """CLI audit emission."""
 
     def test_no_config_is_noop(self):
-        with patch("observal_cli.config.load", return_value={}):
-            from observal_cli.audit import emit_cli_audit
+        with patch("dev_library_cli.config.load", return_value={}):
+            from dev_library_cli.audit import emit_cli_audit
 
             emit_cli_audit("test.action")  # should not raise
 
     def test_starts_thread(self):
         cfg = {"api_key": "test-key", "server_url": "http://localhost:8000"}
         with (
-            patch("observal_cli.config.load", return_value=cfg),
+            patch("dev_library_cli.config.load", return_value=cfg),
             patch("threading.Thread") as mock_thread,
         ):
-            from observal_cli.audit import emit_cli_audit
+            from dev_library_cli.audit import emit_cli_audit
 
             emit_cli_audit("agent.pull", resource_type="agent", resource_id="abc")
             mock_thread.assert_called_once()

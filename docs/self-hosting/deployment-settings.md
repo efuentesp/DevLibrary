@@ -29,7 +29,7 @@ The base URL where users access the Observal web UI in their browser.
 **Affects:** OAuth/SAML redirect URIs, device authorization confirmation links, email notification links, and CORS origin validation.
 
 | Value | Effect |
-|-------|--------|
+| ------- | -------- |
 | _(empty)_ (default) | Auto-detected from incoming request `Host` header |
 | `https://app.example.com` | All redirect URIs and links use this exact origin |
 | `https://observal.internal:3000` | For non-standard ports or internal deployments |
@@ -37,6 +37,7 @@ The base URL where users access the Observal web UI in their browser.
 **When to set:** Always set explicitly in production. Auto-detection works for development but is unreliable behind reverse proxies or CDNs.
 
 **Common mistakes:**
+
 - Trailing slash (`https://app.example.com/`) will cause redirect URI mismatches
 - Using `http://` when your proxy terminates TLS will break OAuth callbacks
 - Not matching the exact hostname users type (e.g. `www.` vs bare domain)
@@ -45,10 +46,10 @@ The base URL where users access the Observal web UI in their browser.
 
 The externally-reachable URL of the Observal API server.
 
-**Affects:** CLI auto-configuration during `observal auth login`, telemetry endpoint discovery, webhook callback URLs, and inter-service communication references.
+**Affects:** CLI auto-configuration during `dev-library auth login`, telemetry endpoint discovery, webhook callback URLs, and inter-service communication references.
 
 | Value | Effect |
-|-------|--------|
+| ------- | -------- |
 | _(empty)_ (default) | Inferred from incoming request headers |
 | `https://api.example.com` | CLI and SDK use this for all API calls |
 | `https://observal.example.com/api` | When API is path-routed behind the same domain |
@@ -75,7 +76,7 @@ Origins allowed to make cross-origin browser requests to the API.
 **Affects:** Browser-based requests from the web UI. If the frontend is served from a different origin than the API, CORS must include it. Requests from unlisted origins receive a CORS error and are blocked by the browser.
 
 | Value | Effect |
-|-------|--------|
+| ------- | -------- |
 | _(empty)_ (default) | Only same-origin requests are allowed |
 | `https://app.example.com` | Single frontend origin |
 | `https://app.example.com,https://admin.example.com` | Multiple origins (comma-separated) |

@@ -2,7 +2,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Observal Contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal server migrate`
+# `dev-library server migrate`
 
 Move PostgreSQL registry data and ClickHouse telemetry between Observal deployments.
 
@@ -28,7 +28,7 @@ PostgreSQL must be imported first so referenced users and agents exist before te
 ## PostgreSQL export
 
 ```bash
-observal server migrate export \
+dev-library server migrate export \
   --file registry.tar.gz \
   --output json
 ```
@@ -54,11 +54,11 @@ Example JSON fields:
 ## PostgreSQL validation and import
 
 ```bash
-observal server migrate validate \
+dev-library server migrate validate \
   --archive registry.tar.gz \
   --output json
 
-observal server migrate import \
+dev-library server migrate import \
   --archive registry.tar.gz \
   --output json
 ```
@@ -72,7 +72,7 @@ Import verifies checksums before insertion. Existing rows are skipped according 
 ClickHouse export requires the PostgreSQL sidecar manifest and a new destination directory:
 
 ```bash
-observal server migrate export-telemetry \
+dev-library server migrate export-telemetry \
   --manifest registry.manifest.json \
   --output-dir telemetry-export \
   --output json
@@ -85,11 +85,11 @@ The export covers active session, checkpoint, layer, audit, security, and webhoo
 ## ClickHouse validation and import
 
 ```bash
-observal server migrate validate-telemetry \
+dev-library server migrate validate-telemetry \
   --input-dir telemetry-export \
   --output json
 
-observal server migrate import-telemetry \
+dev-library server migrate import-telemetry \
   --input-dir telemetry-export \
   --output json
 ```
@@ -125,19 +125,19 @@ Cleartext ClickHouse transport with credentials produces a human warning. JSON m
 
 ```bash
 # Source
-observal server migrate export --file registry.tar.gz --output json
-observal server migrate export-telemetry \
+dev-library server migrate export --file registry.tar.gz --output json
+dev-library server migrate export-telemetry \
   --manifest registry.manifest.json \
   --output-dir telemetry-export \
   --output json
 
 # Target
-observal server migrate validate --archive registry.tar.gz --output json
-observal server migrate import --archive registry.tar.gz --output json
-observal server migrate validate-telemetry \
+dev-library server migrate validate --archive registry.tar.gz --output json
+dev-library server migrate import --archive registry.tar.gz --output json
+dev-library server migrate validate-telemetry \
   --input-dir telemetry-export \
   --output json
-observal server migrate import-telemetry \
+dev-library server migrate import-telemetry \
   --input-dir telemetry-export \
   --output json
 ```

@@ -5,7 +5,7 @@
  * Display helpers for qualified registry identities (``namespace/slug``).
  *
  * The API returns the canonical slash form in ``qualified_name``. That form is
- * what commands take (``observal agent pull alice/reviewer``), but it reads
+ * what commands take (``dev-library agent pull alice/reviewer``), but it reads
  * poorly in the UI, so listings render the bare name with the owning namespace
  * underneath as ``@alice``. Keep using ``qualified_name`` verbatim for anything
  * copy-pasted into a shell.
@@ -54,8 +54,13 @@ export interface SlugifyRegistryTextOptions {
 const AGENT_NAME_RE = /^[a-z0-9][a-z0-9_-]*$/;
 
 /** Normalize human input to a lowercase registry slug without adding padding. */
-export function slugifyRegistryText(raw: string, options: SlugifyRegistryTextOptions = {}): string {
-	const separatorPattern = options.allowUnderscore ? /[^a-z0-9_-]+/g : /[^a-z0-9-]+/g;
+export function slugifyRegistryText(
+	raw: string,
+	options: SlugifyRegistryTextOptions = {},
+): string {
+	const separatorPattern = options.allowUnderscore
+		? /[^a-z0-9_-]+/g
+		: /[^a-z0-9-]+/g;
 	let slug = raw
 		.trimStart()
 		.toLowerCase()
@@ -109,7 +114,10 @@ export interface RegistryIdentity {
  * ``qualified_name`` so older payloads (and the leaderboard summaries, which
  * only carry the qualified form) still render a handle.
  */
-export function registryIdentity(item: QualifiedIdentity | null | undefined, fallbackName = ""): RegistryIdentity {
+export function registryIdentity(
+	item: QualifiedIdentity | null | undefined,
+	fallbackName = "",
+): RegistryIdentity {
 	const qualifiedName = item?.qualified_name?.trim();
 	let handle = item?.namespace?.trim() || undefined;
 	let name = item?.slug?.trim() || undefined;
@@ -127,17 +135,24 @@ export function registryIdentity(item: QualifiedIdentity | null | undefined, fal
 	return {
 		name: displayName,
 		handle: handle || undefined,
-		qualified: qualifiedName || (handle && name ? `${handle}/${name}` : displayName),
+		qualified:
+			qualifiedName || (handle && name ? `${handle}/${name}` : displayName),
 	};
 }
 
 /** The canonical ``namespace/slug`` string to embed in CLI commands. */
-export function qualifiedName(item: QualifiedIdentity | null | undefined, fallbackName = ""): string {
+export function qualifiedName(
+	item: QualifiedIdentity | null | undefined,
+	fallbackName = "",
+): string {
 	return registryIdentity(item, fallbackName).qualified;
 }
 
 /** Single-line form for breadcrumbs and document titles, e.g. ``reviewer @alice``. */
-export function registryNameWithHandle(item: QualifiedIdentity | null | undefined, fallbackName = ""): string {
+export function registryNameWithHandle(
+	item: QualifiedIdentity | null | undefined,
+	fallbackName = "",
+): string {
 	const { name, handle } = registryIdentity(item, fallbackName);
 	return handle ? `${name} @${handle}` : name;
 }
@@ -154,9 +169,14 @@ export type RegistryRouteType =
 	| "prompt"
 	| "prompts"
 	| "sandbox"
-	| "sandboxes";
+	| "sandboxes"
+	| "workflow"
+	| "workflows";
 
-const COMPONENT_ROUTE_TYPE: Record<Exclude<RegistryRouteType, "agent" | "agents">, string> = {
+const COMPONENT_ROUTE_TYPE: Record<
+	Exclude<RegistryRouteType, "agent" | "agents">,
+	string
+> = {
 	mcp: "mcps",
 	mcps: "mcps",
 	skill: "skills",
@@ -167,10 +187,16 @@ const COMPONENT_ROUTE_TYPE: Record<Exclude<RegistryRouteType, "agent" | "agents"
 	prompts: "prompts",
 	sandbox: "sandboxes",
 	sandboxes: "sandboxes",
+	workflow: "workflows",
+	workflows: "workflows",
 };
 
 /** Canonical web path when possible, otherwise the always-resolvable UUID path. */
-export function registryItemPath(item: QualifiedIdentity | null | undefined, type: RegistryRouteType, id: string): string {
+export function registryItemPath(
+	item: QualifiedIdentity | null | undefined,
+	type: RegistryRouteType,
+	id: string,
+): string {
 	const identity = registryIdentity(item);
 	const parts = canonicalRouteParts(identity.handle, identity.name);
 	if (type === "agent" || type === "agents") {

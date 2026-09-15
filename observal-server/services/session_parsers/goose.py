@@ -4,7 +4,7 @@
 """Goose session parser.
 
 Goose persists sessions in SQLite, so the CLI adapter projects each session
-onto an append-only JSONL mirror (see ``observal_cli.sessions.goose``).  Every
+onto an append-only JSONL mirror (see ``dev_library_cli.sessions.goose``).  Every
 mirrored line is one of:
 
 ``{"type": "session", ...}``      session metadata boundary

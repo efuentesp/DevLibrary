@@ -413,7 +413,7 @@ async def outdated_report(
     The server cannot compute this itself: ``AgentDownloadRecord`` knows who has
     an agent but not which version, and ``ComponentDownloadRecord`` knows the
     version but not the user. The lock file is the only source with both, so the
-    exact comparison stays in ``observal outdated`` and the result is reported
+    exact comparison stays in ``dev-library outdated`` and the result is reported
     here.
 
     Reported versions are NOT validated against the registry. Items land only in

@@ -371,13 +371,47 @@ Future epics should extend these committed contracts instead of creating paralle
 
 - **Product and harness inventory:** [`README.md`](README.md)
 - **Session delivery and repair contract:** [`docs/core-concepts/session-tracking.md`](docs/core-concepts/session-tracking.md), [`observal-server/api/routes/ingest.py`](observal-server/api/routes/ingest.py), and [`observal-server/services/session_ingest.py`](observal-server/services/session_ingest.py)
-- **Installed state and layer evidence:** [`observal_cli/lockfile.py`](observal_cli/lockfile.py), [`observal_cli/layer.py`](observal_cli/layer.py), and [`observal-server/api/routes/layer_snapshot.py`](observal-server/api/routes/layer_snapshot.py)
+- **Installed state and layer evidence:** [`dev_library_cli/lockfile.py`](dev_library_cli/lockfile.py), [`dev_library_cli/layer.py`](dev_library_cli/layer.py), and [`observal-server/api/routes/layer_snapshot.py`](observal-server/api/routes/layer_snapshot.py)
 - **Harness parsers and extension guide:** [`observal-server/services/session_parsers/`](observal-server/services/session_parsers/) and [`docs/adding-a-harness.md`](docs/adding-a-harness.md)
 - **Management dashboard:** [`observal-server/api/routes/exec_dashboard.py`](observal-server/api/routes/exec_dashboard.py), [`web/src/pages/admin/dashboard/`](web/src/pages/admin/dashboard/), and [issue #1592](https://github.com/Observal/Observal/issues/1592)
 - **Agent and component versions and review:** [`observal-server/api/routes/agent_versions.py`](observal-server/api/routes/agent_versions.py), [`observal-server/api/routes/component_versions.py`](observal-server/api/routes/component_versions.py), [`observal-server/api/routes/review.py`](observal-server/api/routes/review.py), and [`web/src/components/review/`](web/src/components/review/)
 - **Skills:** [`observal-server/schemas/skill.py`](observal-server/schemas/skill.py), [`observal-server/services/skill_validator.py`](observal-server/services/skill_validator.py), and [`docs/cli/skill.md`](docs/cli/skill.md)
-- **CLI and bundled skills:** [`observal_cli/main.py`](observal_cli/main.py), [`observal_cli/client.py`](observal_cli/client.py), [`observal_cli/render.py`](observal_cli/render.py), and [`observal_cli/skills/`](observal_cli/skills/)
+- **CLI and bundled skills:** [`dev_library_cli/main.py`](dev_library_cli/main.py), [`dev_library_cli/client.py`](dev_library_cli/client.py), [`dev_library_cli/render.py`](dev_library_cli/render.py), and [`dev_library_cli/skills/`](dev_library_cli/skills/)
 - **Recommendations and dynamic policy settings:** [`observal-server/api/routes/recommendations.py`](observal-server/api/routes/recommendations.py), [`observal-server/services/user_recommendations.py`](observal-server/services/user_recommendations.py), and [`observal-server/services/dynamic_settings.py`](observal-server/services/dynamic_settings.py)
 - **Teamspaces:** [`observal-server/api/routes/teams.py`](observal-server/api/routes/teams.py), [`observal-server/models/team.py`](observal-server/models/team.py), and [`docs/use-cases/teamspaces.md`](docs/use-cases/teamspaces.md)
-- **Server setup and lifecycle:** [`install-server.sh`](install-server.sh), [`observal_cli/cmd_server.py`](observal_cli/cmd_server.py), [`observal_cli/server/backup.py`](observal_cli/server/backup.py), and [`docs/self-hosting/`](docs/self-hosting/)
+- **Server setup and lifecycle:** [`install-server.sh`](install-server.sh), [`dev_library_cli/cmd_server.py`](dev_library_cli/cmd_server.py), [`dev_library_cli/server/backup.py`](dev_library_cli/server/backup.py), and [`docs/self-hosting/`](docs/self-hosting/)
 - **Release and security automation:** [`tools/release.py`](tools/release.py), [`.github/workflows/release.yml`](.github/workflows/release.yml), [`.github/workflows/scorecard.yml`](.github/workflows/scorecard.yml), and [`.github/workflows/codeql.yml`](.github/workflows/codeql.yml)
+
+---
+
+## Fork enhancements (efuentesp/DevLibrary)
+
+This section tracks work specific to the [`efuentesp/DevLibrary`](https://github.com/efuentesp/DevLibrary) fork, layered on top of the upstream product roadmap above. Each enhancement is versioned, tracked in fork issues, and designed to stay upstreamable where feasible.
+
+### Versioning policy
+
+- The fork follows **semantic versioning** (`x.y.z`) starting from upstream `1.13.1`.
+- `observal-cli` (`pyproject.toml`) and `observal-server` (`observal-server/pyproject.toml`) versions move in lockstep.
+- **minor** (`x.Y.0`): new functionality. **patch** (`x.y.Z`): fixes. **major** (`X.0.0`): breaking changes to CLI commands, public API contracts, or migrations that cannot run in place.
+- Changes accumulate under `[Unreleased]` in [`CHANGELOG.md`](CHANGELOG.md); on release, cut the version, bump both `pyproject.toml` files, and tag `vX.Y.Z`.
+
+### Releases
+
+#### v1.14.0 — Multi-file skills (in progress)
+
+Upstream issue: [Observal/Observal#1730](https://github.com/Observal/Observal/issues/1730). `registry_direct` skills carry a full file tree (scripts, templates, references) through submit → review → version → install, instead of only `SKILL.md` + one script.
+
+**Design (agreed):** `extra_files` JSON column on `skill_versions` — a list of `{path, content, encoding}` entries (`encoding`: `utf-8` | `base64`). Storage stays in Postgres (version snapshot semantics for free, reviewable diffs, no new infrastructure). Validation and caps live in `observal_shared` as the single source of truth for server and CLI: relative POSIX paths only, traversal-free, no collision with `SKILL.md` or `scripts/<script_filename>`, unique paths, max 100 files, 2 MB per file, 8 MB total (nginx allows 10 MB bodies).
+
+| #   | Deliverable                                                                                          | Issue                                                                                                  | Status      |
+| --- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------- |
+| 1   | Server core: migration, model, schemas, routes, version-extras                                        | [#1](https://github.com/efuentesp/DevLibrary/issues/1)                                                  | in progress |
+| 2   | CLI: `--extra-file` / `--from-dir`, install writer, config propagation, agent pull                    | [#2](https://github.com/efuentesp/DevLibrary/issues/2)                                                  | planned     |
+| 3   | Web UI: submit/edit dialog, per-file review diff                                                      | [#3](https://github.com/efuentesp/DevLibrary/issues/3)                                                  | planned     |
+| —   | Follow-ups backlog (Copilot CLI filter, unify `script_content`, private git fetch, `.skillignore`, bundle download) | [#4](https://github.com/efuentesp/DevLibrary/issues/4)                                                  | backlog     |
+
+**Complete when:** a conforming external skill (directory with `SKILL.md` + resources) enters through `observal registry skill submit --from-dir`, survives review and versioning, and installs byte-identical via `observal registry skill install` and `observal agent pull` — with the same cycle usable from the web UI.
+
+#### Backlog (unscheduled)
+
+- Adapt the platform to personal/team workflows as needs arise; each future enhancement gets its own version target and issues here before implementation starts.

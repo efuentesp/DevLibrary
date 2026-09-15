@@ -22,9 +22,9 @@ Do not add a separate example flag, a new output mode, a command-specific error 
 
 ## 1. Register the command in the existing hierarchy
 
-Use the existing Typer application for the relevant domain. Register new top-level groups in `observal_cli/main.py` only when no existing group fits.
+Use the existing Typer application for the relevant domain. Register new top-level groups in `dev_library_cli/main.py` only when no existing group fits.
 
-Canonical paths matter. Verify the final path with the CLI help tree before documenting it. For example, use `observal agent pull` and `observal doctor support`, not historical top-level aliases.
+Canonical paths matter. Verify the final path with the CLI help tree before documenting it. For example, use `dev-library agent pull` and `dev-library doctor support`, not historical top-level aliases.
 
 When adding a command changes the command inventory, update the executable-path assertion in `tests/test_cli_errors.py`.
 
@@ -51,19 +51,19 @@ def list_widgets(
     """List widgets visible to the current user.
 
     Examples:
-      observal registry widget list
-      observal registry widget list --output json
+      dev-library registry widget list
+      dev-library registry widget list --output json
     """
 ```
 
-The command-tree help regression in `observal_cli/tests/test_cmd_component_submit_flags.py` must continue to pass.
+The command-tree help regression in `dev_library_cli/tests/test_cmd_component_submit_flags.py` must continue to pass.
 
 ## 3. Use the table and JSON output contract
 
 Import the shared type and renderer:
 
 ```python
-from observal_cli.render import OutputMode, output_json
+from dev_library_cli.render import OutputMode, output_json
 ```
 
 Use only these modes:
@@ -78,7 +78,7 @@ Rules:
 - Return natural JSON objects. Detail and mutation commands return the direct result object.
 - Every dedicated list command returns `{ "items": [...], "total": N, "page": N, "page_size": N }`.
 - Unpaginated lists use `page: 1` and `page_size: len(items)`, including `page_size: 0` when empty.
-- The `observal api` escape hatch preserves raw endpoint JSON and is the only top-level-array exception.
+- The `dev-library api` escape hatch preserves raw endpoint JSON and is the only top-level-array exception.
 - Empty JSON results are still valid JSON. Do not return early with a human-only empty message before the JSON branch.
 - JSON mode must not emit prompts, spinners, banners, tables, or Rich markup.
 - Streams use JSON Lines, one object per line.
@@ -102,9 +102,9 @@ console.print(table)
 
 ## 4. Use the shared error contract
 
-HTTP commands must use the shared functions in `observal_cli/client.py`. They map HTTP status, connection, timeout, invalid JSON, and content-type failures into the CLI contract and preserve server request IDs.
+HTTP commands must use the shared functions in `dev_library_cli/client.py`. They map HTTP status, connection, timeout, invalid JSON, and content-type failures into the CLI contract and preserve server request IDs.
 
-Every shared client call receives audited human context through `observal_cli/error_context.py`:
+Every shared client call receives audited human context through `dev_library_cli/error_context.py`:
 
 - Add the enclosing function to `OPERATION_LABELS`.
 - Add a resource label for a new command module to `RESOURCE_LABELS`.
@@ -113,7 +113,7 @@ Every shared client call receives audited human context through `observal_cli/er
 For local validation or filesystem failures, use `fail` rather than printing an error and raising `typer.Exit`:
 
 ```python
-from observal_cli.errors import ErrorCategory, fail
+from dev_library_cli.errors import ErrorCategory, fail
 
 fail(
     ErrorCategory.VALIDATION,
@@ -169,7 +169,7 @@ Agents must be able to run the command without hidden prompts.
 When a command, path, argument, option, or behavior changes:
 
 1. Update the matching page under `docs/cli/`.
-2. Update every applicable bundled skill under `observal_cli/skills/`.
+2. Update every applicable bundled skill under `dev_library_cli/skills/`.
 3. Regenerate the command reference:
 
 ```bash
@@ -210,4 +210,4 @@ Before declaring the command complete:
 - [ ] CLI docs and bundled skills are updated.
 - [ ] Generated skill command references are synchronized.
 - [ ] Focused tests, `make lint`, and `make test` pass.
-- [ ] `observal_cli/tests` is run explicitly because `make test` does not include it.
+- [ ] `dev_library_cli/tests` is run explicitly because `make test` does not include it.

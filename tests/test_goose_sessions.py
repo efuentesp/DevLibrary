@@ -12,8 +12,8 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from observal_cli.harness.goose import GooseAdapter
-from observal_cli.sessions import goose as goose_sessions
+from dev_library_cli.harness.goose import GooseAdapter
+from dev_library_cli.sessions import goose as goose_sessions
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -303,7 +303,7 @@ def test_resolve_session_id_without_history(tmp_path: Path):
 
 def test_goose_path_root_overrides_every_other_location(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     """Goose relocates config, data and .agents wholesale when GOOSE_PATH_ROOT is set."""
-    from observal_cli.shared.utils import (
+    from dev_library_cli.shared.utils import (
         resolve_goose_agents_home,
         resolve_goose_config_dir,
         resolve_goose_data_dir,
@@ -319,7 +319,7 @@ def test_goose_path_root_overrides_every_other_location(tmp_path: Path, monkeypa
 
 
 def test_goose_path_root_is_ignored_when_relative(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    from observal_cli.shared.utils import resolve_goose_config_dir
+    from dev_library_cli.shared.utils import resolve_goose_config_dir
 
     monkeypatch.setenv("GOOSE_PATH_ROOT", "relative/path")
     monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)

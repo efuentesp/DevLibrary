@@ -18,8 +18,8 @@ import httpx
 import pytest
 from typer.testing import CliRunner
 
-import observal_cli.cmd_doctor as doctor_module
-from observal_cli.harness.protocol import NotSupportedError
+import dev_library_cli.cmd_doctor as doctor_module
+from dev_library_cli.harness.protocol import NotSupportedError
 
 _ANSI = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
 _DIAGNOSTIC_CHECKS = (
@@ -71,7 +71,7 @@ def runner() -> CliRunner:
 
 @pytest.fixture
 def quiet_diagnosis(monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace:
-    from observal_cli import lockfile_reconcile
+    from dev_library_cli import lockfile_reconcile
 
     checks: dict[str, MagicMock] = {}
     for name in _DIAGNOSTIC_CHECKS:
@@ -92,7 +92,7 @@ class TestDoctorDiagnosis:
         result = runner.invoke(doctor_module.doctor_app, [])
 
         assert result.exit_code == 0
-        assert "Observal Doctor" in _plain(result.output)
+        assert "DevLibrary Doctor" in _plain(result.output)
         assert "Checking Goose" in _plain(result.output)
         assert "All clear! No issues found." in _plain(result.output)
         for check in quiet_diagnosis.checks.values():
@@ -123,8 +123,8 @@ class TestDoctorDiagnosis:
         assert "configuration is broken" in output
         assert "2 warning(s):" in output
         assert "cursor hooks are stale" in output
-        assert "Observal AI skill not installed for: Pi" in output
-        assert "observal doctor patch --all-harnesses" in output
+        assert "DevLibrary AI skill not installed for: Pi" in output
+        assert "dev-library doctor patch --all-harnesses" in output
         isolated_runtime.process.assert_not_called()
         isolated_runtime.prompt.assert_not_called()
 
@@ -150,7 +150,7 @@ class TestDoctorDiagnosis:
             default=True,
         )
         isolated_runtime.process.assert_not_called()
-        assert "observal doctor patch --all-harnesses" in _plain(capsys.readouterr().out)
+        assert "dev-library doctor patch --all-harnesses" in _plain(capsys.readouterr().out)
 
     def test_yes_reconciles_lockfile_runs_patch_and_installs_skill(
         self,
@@ -158,7 +158,7 @@ class TestDoctorDiagnosis:
         quiet_diagnosis: SimpleNamespace,
         monkeypatch: pytest.MonkeyPatch,
     ):
-        from observal_cli import skill_installer
+        from dev_library_cli import skill_installer
 
         changes = [
             SimpleNamespace(label=f"component-{index}", field="version", old="1", new="2") for index in range(12)
@@ -237,7 +237,7 @@ class TestConfigAndSkillDiagnosis:
 
         doctor_module._check_observal_config(issues, [])
 
-        assert issues == ["~/.observal/config.json is not valid JSON."]
+        assert issues == ["~/.dev-library/config.json is not valid JSON."]
         isolated_runtime.network.assert_not_called()
 
     def test_missing_config_fields_are_both_reported(self, tmp_path: Path, isolated_runtime: SimpleNamespace):
@@ -247,8 +247,8 @@ class TestConfigAndSkillDiagnosis:
         doctor_module._check_observal_config(issues, [])
 
         assert issues == [
-            "No access token in ~/.observal/config.json. Run `observal auth login`.",
-            "No server_url in ~/.observal/config.json. Run `observal auth login`.",
+            "No access token in ~/.dev-library/config.json. Run `dev-library auth login`.",
+            "No server_url in ~/.dev-library/config.json. Run `dev-library auth login`.",
         ]
         isolated_runtime.network.assert_not_called()
 
@@ -256,7 +256,7 @@ class TestConfigAndSkillDiagnosis:
         ("status", "expected"),
         [
             (200, []),
-            (503, ["Observal server at https://server.test returned status 503."]),
+            (503, ["DevLibrary server at https://server.test returned status 503."]),
         ],
     )
     def test_server_health_status_controls_config_issue(
@@ -286,7 +286,7 @@ class TestHarnessDiagnosisState:
             tmp_path / ".claude" / "settings.json",
             {
                 "hooks": {
-                    "UserPromptSubmit": [{"hooks": [{"command": "python -m observal_cli.hooks.session_push"}]}],
+                    "UserPromptSubmit": [{"hooks": [{"command": "python -m dev_library_cli.hooks.session_push"}]}],
                     "Legacy": [{"hooks": [{"command": "/tmp/observal-hook"}]}],
                     "Ignored": "not-a-list",
                 }
@@ -299,8 +299,8 @@ class TestHarnessDiagnosisState:
 
         assert issues == []
         assert warnings == [
-            "Legacy Observal hooks detected (old hook scripts). "
-            "Run `observal doctor cleanup --harness claude-code` to remove them."
+            "Legacy DevLibrary hooks detected (old hook scripts). "
+            "Run `dev-library doctor cleanup --harness claude-code` to remove them."
         ]
 
     def test_claude_invalid_settings_are_an_issue(self, tmp_path: Path):
@@ -328,7 +328,7 @@ class TestHarnessDiagnosisState:
             {
                 "hooks": {
                     "ignored": "not-a-list",
-                    "userPromptSubmit": [{"command": "python -m observal_cli.hooks.session_push --harness kiro"}],
+                    "userPromptSubmit": [{"command": "python -m dev_library_cli.hooks.session_push --harness kiro"}],
                 }
             },
         )
@@ -377,7 +377,7 @@ class TestHarnessDiagnosisState:
     def test_pi_extension_source_fails_when_no_bundled_or_source_file_exists(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ):
-        monkeypatch.setattr(doctor_module, "__file__", str(tmp_path / "pkg" / "observal_cli" / "cmd_doctor.py"))
+        monkeypatch.setattr(doctor_module, "__file__", str(tmp_path / "pkg" / "dev_library_cli" / "cmd_doctor.py"))
 
         with pytest.raises(FileNotFoundError, match="Bundled Pi telemetry extension is missing"):
             doctor_module._pi_extension_source()
@@ -511,7 +511,7 @@ class TestHarnessDiagnosisState:
         issue: str | None,
         warning: str | None,
     ):
-        from observal_cli.shared import utils
+        from dev_library_cli.shared import utils
 
         config_dir = tmp_path / ".gemini" / "config"
         config_dir.mkdir(parents=True)
@@ -536,7 +536,7 @@ class TestHarnessDiagnosisState:
 
 @pytest.fixture
 def patch_dispatch(monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace:
-    import observal_cli.audit as audit_module
+    import dev_library_cli.audit as audit_module
 
     config_load = MagicMock(return_value={"server_url": "https://server.test"})
     ensure_loaded = MagicMock()
@@ -647,7 +647,7 @@ class TestDoctorPatchCommand:
 
 @pytest.fixture
 def cleanup_dispatch(monkeypatch: pytest.MonkeyPatch) -> SimpleNamespace:
-    import observal_cli.audit as audit_module
+    import dev_library_cli.audit as audit_module
 
     ensure_loaded = MagicMock()
     get_adapter = MagicMock()
@@ -721,7 +721,7 @@ class TestDoctorCleanupCommand:
         result = runner.invoke(doctor_module.doctor_app, ["cleanup", "--harness", "pi", "--yes"])
 
         assert result.exit_code == 0
-        assert "Nothing to clean up, no Observal artifacts found." in _plain(result.output)
+        assert "Nothing to clean up, no DevLibrary artifacts found." in _plain(result.output)
 
     def test_unsupported_cleanup_failure_is_not_hidden(self, runner: CliRunner, cleanup_dispatch: SimpleNamespace):
         adapter = MagicMock()
@@ -748,7 +748,7 @@ class TestCleanupStateEdges:
                     "Stop": [
                         {
                             "_observal": {"version": "1"},
-                            "hooks": [{"command": "python -m observal_cli.hooks.session_push"}],
+                            "hooks": [{"command": "python -m dev_library_cli.hooks.session_push"}],
                         }
                     ]
                 },
@@ -800,7 +800,7 @@ class TestPatchStateEdges:
     def test_kiro_skips_unusable_lock_entries_and_reports_profiles(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
     ):
-        from observal_cli import lockfile
+        from dev_library_cli import lockfile
 
         invalid = tmp_path / ".kiro" / "agents" / "invalid.json"
         invalid.parent.mkdir(parents=True)
@@ -853,7 +853,7 @@ class TestPatchStateEdges:
     def test_antigravity_missing_detection_and_invalid_file_dry_run_do_not_write(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
     ):
-        from observal_cli.shared import utils
+        from dev_library_cli.shared import utils
 
         resolver = MagicMock(return_value=None)
         monkeypatch.setattr(utils, "resolve_antigravity_config_dir", resolver)
@@ -958,7 +958,7 @@ def test_doctor_json_returns_findings_with_success_exit(runner, quiet_diagnosis)
     assert data["issues"] == ["configuration is broken"]
     assert data["warnings"] == ["hooks are stale"]
     assert data["fix_attempted"] is False
-    assert "Observal Doctor" not in result.stdout
+    assert "DevLibrary Doctor" not in result.stdout
 
 
 def test_doctor_patch_and_cleanup_json_results(runner, patch_dispatch, cleanup_dispatch, monkeypatch):
@@ -1007,7 +1007,7 @@ def test_doctor_command_inventory_and_json_cleanup_confirmation():
     from click import Group
     from typer.main import get_command
 
-    from observal_cli.main import app
+    from dev_library_cli.main import app
 
     doctor = get_command(app).commands["doctor"]
 

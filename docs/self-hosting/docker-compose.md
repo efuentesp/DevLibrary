@@ -78,17 +78,17 @@ Log in with the CLI:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Observal/Observal/main/install.sh | bash   # if you haven't already
-observal auth login              # Email: super@demo.example, Password: super-changeme
+dev-library auth login              # Email: super@demo.example, Password: super-changeme
 ```
 
-**Remove demo accounts before real deployment.** Unset the `DEMO_*` env vars in `.env` and restart. Already-seeded accounts stay until you delete them manually (`observal admin delete-user <email>`).
+**Remove demo accounts before real deployment.** Unset the `DEMO_*` env vars in `.env` and restart. Already-seeded accounts stay until you delete them manually (`dev-library admin delete-user <email>`).
 
 ### Option B - fresh bootstrap (recommended for production)
 
 Remove `DEMO_*` from `.env` and start the stack. Run:
 
 ```bash
-observal auth login
+dev-library auth login
 # Server URL: http://localhost
 # No users detected - bootstrapping admin account.
 # Email: alice@your-company.com
@@ -100,10 +100,10 @@ The CLI detects that no users exist and interactively creates the first admin. T
 ## 6. Verify with the CLI
 
 ```bash
-observal auth whoami
-observal auth status
+dev-library auth whoami
+dev-library auth status
 
-observal registry mcp list         # empty list - you haven't added anything yet
+dev-library registry mcp list         # empty list - you haven't added anything yet
 ```
 
 ## 7. Stop, restart, rebuild

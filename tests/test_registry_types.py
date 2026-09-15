@@ -834,12 +834,12 @@ class TestCLICommands:
         return [c.name or c.callback.__name__ for c in info]
 
     def test_skill_app_exists(self):
-        from observal_cli.cmd_skill import skill_app
+        from dev_library_cli.cmd_skill import skill_app
 
         assert skill_app is not None
 
     def test_skill_app_has_subcommands(self):
-        from observal_cli.cmd_skill import skill_app
+        from dev_library_cli.cmd_skill import skill_app
 
         names = self._get_command_names(skill_app)
         for cmd in ("submit", "list", "show", "install"):

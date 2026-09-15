@@ -35,6 +35,7 @@ from models.sandbox import SandboxListing, SandboxVersion
 from models.skill import SkillListing, SkillVersion
 from models.team import Team, TeamMembership, TeamRole
 from models.user import User, UserRole
+from models.workflow import WorkflowListing, WorkflowVersion
 from services.inbox import sources as inbox
 from services.registry_namespace import identity_exists
 from services.teamspace import review_publication_to_public, team_membership
@@ -47,6 +48,7 @@ _LISTING_MODELS = {
     "hook": HookListing,
     "prompt": PromptListing,
     "sandbox": SandboxListing,
+    "workflow": WorkflowListing,
 }
 _RECONCILE_MODELS = {
     "agent": (Agent, AgentVersion),
@@ -55,6 +57,7 @@ _RECONCILE_MODELS = {
     "hook": (HookListing, HookVersion),
     "prompt": (PromptListing, PromptVersion),
     "sandbox": (SandboxListing, SandboxVersion),
+    "workflow": (WorkflowListing, WorkflowVersion),
 }
 
 
@@ -66,7 +69,7 @@ class RegistryResolution(BaseModel):
     qualified_name: str
 
 
-RegistryItemType = Literal["agent", "mcp", "skill", "hook", "prompt", "sandbox"]
+RegistryItemType = Literal["agent", "mcp", "skill", "hook", "prompt", "sandbox", "workflow"]
 
 
 class VisibilityUpdateRequest(BaseModel):
@@ -96,7 +99,7 @@ class RegistryReconcileResult(BaseModel):
 
 @router.get("/resolve", response_model=RegistryResolution)
 async def resolve_registry_identifier(
-    type: str = Query(..., pattern="^(agent|mcp|skill|hook|prompt|sandbox)$"),
+    type: str = Query(..., pattern="^(agent|mcp|skill|hook|prompt|sandbox|workflow)$"),
     identifier: str = Query(..., min_length=1, max_length=129),
     db: AsyncSession = Depends(get_db),
     current_user: User | None = Depends(get_registry_user),

@@ -2,15 +2,15 @@
 <!-- SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal registry models`
+# `dev-library registry models`
 
 Display the model catalog packaged for registered harnesses.
 
 ## Synopsis
 
 ```bash
-observal registry models [--harness <name>] [--output table|json]
-observal registry models list [--harness <name>] [--output table|json]
+dev-library registry models [--harness <name>] [--output table|json]
+dev-library registry models list [--harness <name>] [--output table|json]
 ```
 
 The direct and explicit list forms are equivalent.
@@ -51,7 +51,7 @@ An unknown harness is a usage error with exit code 2. JSON errors are written to
 ## Examples
 
 ```bash
-observal registry models
-observal registry models --harness pi --output json
-observal registry models list --harness claude-code --output json
+dev-library registry models
+dev-library registry models --harness pi --output json
+dev-library registry models list --harness claude-code --output json
 ```

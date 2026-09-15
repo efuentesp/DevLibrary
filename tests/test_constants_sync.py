@@ -29,7 +29,7 @@ _SHARED_LISTS = [
 @pytest.mark.parametrize("name", _SHARED_LISTS)
 def test_constants_match(name):
     server = importlib.import_module("schemas.constants")
-    cli = importlib.import_module("observal_cli.constants")
+    cli = importlib.import_module("dev_library_cli.constants")
     server_val = getattr(server, name)
     cli_val = getattr(cli, name)
     assert server_val == cli_val, f"{name} mismatch: server={server_val!r}, cli={cli_val!r}"
@@ -38,7 +38,7 @@ def test_constants_match(name):
 def test_harness_capability_matrix_match():
     """HARNESS_CAPABILITIES uses sets, so compare per-harness."""
     server = importlib.import_module("schemas.constants")
-    cli = importlib.import_module("observal_cli.constants")
+    cli = importlib.import_module("dev_library_cli.constants")
     server_val = server.HARNESS_CAPABILITIES
     cli_val = cli.HARNESS_CAPABILITIES
     assert server_val.keys() == cli_val.keys(), (

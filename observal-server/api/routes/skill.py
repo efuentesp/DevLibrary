@@ -59,6 +59,13 @@ def _validate_stored_skill_md(skill_md_content: str | None, slash_command: str |
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
+def _extra_files_payload(req) -> list[dict] | None:
+    """Dump validated SkillExtraFile entries to canonical dicts for storage."""
+    if req.extra_files is None:
+        return None
+    return [entry.model_dump() for entry in req.extra_files]
+
+
 @router.post("/submit", response_model=SkillListingResponse)
 async def submit_skill(
     req: SkillSubmitRequest,
@@ -76,6 +83,7 @@ async def submit_skill(
     delivery_mode = req.delivery_mode or "git_fetch"
     script_content = req.script_content
     script_filename = req.script_filename
+    extra_files = _extra_files_payload(req)
 
     if delivery_mode == "registry_direct":
         # Registry direct: skill_md_content is required, no git validation
@@ -163,6 +171,7 @@ async def submit_skill(
         delivery_mode=delivery_mode,
         script_content=script_content,
         script_filename=script_filename,
+        extra_files=extra_files,
         validated=validated,
         target_agents=req.target_agents,
         task_type=req.task_type,
@@ -417,6 +426,7 @@ async def save_skill_draft(
         delivery_mode=req.delivery_mode or "git_fetch",
         script_content=req.script_content,
         script_filename=req.script_filename,
+        extra_files=_extra_files_payload(req),
         target_agents=req.target_agents,
         task_type=req.task_type,
         slash_command=slash_command,
@@ -506,6 +516,10 @@ async def update_skill_draft(
         val = getattr(req, field)
         if val is not None:
             setattr(ver, field, val)
+
+    if req.extra_files is not None:
+        # An explicit empty list clears the tree; absence leaves it untouched.
+        ver.extra_files = [entry.model_dump() for entry in req.extra_files]
 
     if slash_command_should_update:
         ver.slash_command = slash_command

@@ -32,7 +32,7 @@ For Docker Compose deployments, run the init service manually when needed:
 docker compose -f docker/docker-compose.yml run --rm observal-init
 ```
 
-The init service applies Alembic and ClickHouse migrations before API startup. `observal server migrate` moves data between deployments; it does not apply schema migrations.
+The init service applies Alembic and ClickHouse migrations before API startup. `dev-library server migrate` moves data between deployments; it does not apply schema migrations.
 
 ### Reset
 

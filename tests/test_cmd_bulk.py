@@ -11,8 +11,8 @@ from unittest.mock import Mock, call
 import pytest
 from typer.testing import CliRunner
 
-import observal_cli.cmd_bulk as bulk
-from observal_cli.errors import CliError, ErrorCategory
+import dev_library_cli.cmd_bulk as bulk
+from dev_library_cli.errors import CliError, ErrorCategory
 
 runner = CliRunner()
 
@@ -195,7 +195,7 @@ def test_invalid_files_fail_before_http(tmp_path, boundaries, components):
 
 
 def test_json_validation_error_keeps_stdout_clean(tmp_path, boundaries, monkeypatch: pytest.MonkeyPatch):
-    import observal_cli.main as main
+    import dev_library_cli.main as main
 
     post, _get, _load = boundaries
     path = _write_components(tmp_path, [])
@@ -214,7 +214,7 @@ def test_json_validation_error_keeps_stdout_clean(tmp_path, boundaries, monkeypa
 
 
 def test_json_execution_requires_confirmation(tmp_path, boundaries, monkeypatch: pytest.MonkeyPatch):
-    import observal_cli.main as main
+    import dev_library_cli.main as main
 
     post, _get, _load = boundaries
     path = _write_components(

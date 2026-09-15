@@ -21,7 +21,7 @@ This guide matches how Observal’s server is implemented today:
 Collect this information **before** opening Okta:
 
 | Item | Example | Where it is used |
-|------|---------|------------------|
+| ------ | --------- | ------------------ |
 | Customer company name | `Acme Corp` | Okta app name, group naming |
 | Observal public URL (HTTPS) | `https://acme.observal.io` | Okta redirect URIs; **Settings → Frontend URL** in Observal |
 | Okta admin access | Super admin on customer’s Okta org (or your integrator org) | All Okta steps |
@@ -66,7 +66,7 @@ Collect this information **before** opening Okta:
 #### General settings (first wizard screen)
 
 | Field | Value |
-|-------|-------|
+| ------- | ------- |
 | **App integration name** | `Observal - <Customer Name>` (e.g. `Observal - Acme Corp`) |
 | **Grant type** | Leave **Authorization Code** checked. Do **not** enable Client Credentials for Observal login. |
 | **Sign-in redirect URIs** | `https://<OBSERVAL_DOMAIN>/api/v1/auth/oauth/callback` |
@@ -80,14 +80,14 @@ Replace `<OBSERVAL_DOMAIN>` with the customer’s Observal hostname only (no pat
 - **Allow everyone in your organization to access** - fastest for pilots; any Okta user can attempt login (assignment still recommended).
 - **Limit access to selected groups** - preferred for production; only assigned groups can use the app.
 
-5. Click **Save**.
+1. Click **Save**.
 
 #### Copy credentials immediately
 
 On the application **General** tab, record:
 
 | Okta label | Copy to (Observal SSO setting) |
-|------------|---------------------------|
+| ------------ | --------------------------- |
 | **Client ID** | `oauth.client_id` |
 | **Client secret** (click eye icon) | `oauth.client_secret` |
 | **Okta domain** (from browser URL, e.g. `acme.okta.com`) | Used in metadata URL below |
@@ -100,7 +100,7 @@ https://<OKTA_DOMAIN>/oauth2/default/.well-known/openid-configuration
 
 Example: `https://acme.okta.com/oauth2/default/.well-known/openid-configuration` → this becomes `oauth.server_metadata_url`.
 
-6. Open that metadata URL in a browser; confirm it returns JSON with `authorization_endpoint` and `token_endpoint`. If it fails, stop and fix the domain before continuing.
+1. Open that metadata URL in a browser; confirm it returns JSON with `authorization_endpoint` and `token_endpoint`. If it fails, stop and fix the domain before continuing.
 
 ---
 
@@ -132,7 +132,7 @@ Groups control both **who can access Observal** (when assigned to the app) and *
 
 Repeat for every department you need (`product`, `design`, `data-science`, `platform`, etc.).
 
-4. Click **Save** after each group.
+1. Click **Save** after each group.
 
 **Tip:** Use short, lowercase names without spaces; they are stored as-is in Observal’s `user_groups` table.
 
@@ -145,14 +145,14 @@ Repeat for every department you need (`product`, `design`, `data-science`, `plat
 3. Fill in:
 
 | Field | Guidance |
-|-------|----------|
+| ------- | ---------- |
 | **First name** / **Last name** | As provided by the customer |
 | **Username** | Use work email, e.g. `alice@acme.com` |
 | **Primary email** | Same as username |
 | **Password** | **Set by admin** (send securely) or **Set by user** (invitation email) |
 
-4. Click **Save**.
-5. Repeat for every user who needs Observal access.
+1. Click **Save**.
+2. Repeat for every user who needs Observal access.
 
 **Activate users:** If the person is **Staged**, open their profile → **More Actions** → **Activate** before they can sign in.
 
@@ -203,12 +203,12 @@ Observal does not configure MFA itself; Okta enforces it here.
 4. Set:
 
 | Setting | Production | Dev / pilot |
-|---------|------------|-------------|
+| --------- | ------------ | ------------- |
 | **If user is** | Assigned app / Any app | Same |
 | **And user is** | Assigned to `Observal - <Customer>` | Same |
 | **Then authenticate with** | Password + another factor (MFA) | Password only (if acceptable) |
 
-5. **Save** the rule and ensure the policy is **Active**.
+1. **Save** the rule and ensure the policy is **Active**.
 
 #### Option B - Sign-on policy on the app (Identity Engine)
 
@@ -242,14 +242,14 @@ Observal requests scope `groups` and reads `userinfo.groups` from the token. Wit
 3. Set:
 
 | Field | Value |
-|-------|-------|
+| ------- | ------- |
 | **Name** | `groups` |
 | **Include in token type** | **ID Token** → **Always** |
 | **Value type** | **Groups** |
 | **Filter** | Matches regex: `.*` (all groups) - or restrict to your Observal group names |
 | **Include in** | **Any scope** |
 
-4. Click **Create**.
+1. Click **Create**.
 
 #### 9c - Allow the client to use `groups` (access policy)
 
@@ -309,9 +309,11 @@ The API builds the OAuth redirect from **`deployment.frontend_url`**, which you 
 1. Sign in to Observal as an admin (bootstrap or existing admin account).
 2. Open **Settings** (admin area).
 3. Under **Deployment**, set **Frontend URL** to exactly:
+
    ```
    https://<OBSERVAL_DOMAIN>
    ```
+
    - Must match the host used in Okta sign-in redirect URIs (Step 2)
    - No trailing slash
 4. Click **Save**.
@@ -353,7 +355,7 @@ If `false`:
 **Expected failures if misconfigured:**
 
 | Symptom | Likely cause |
-|---------|----------------|
+| --------- | ---------------- |
 | Okta error `redirect_uri` mismatch | Redirect URI in app ≠ `https://<domain>/api/v1/auth/oauth/callback` or Frontend URL wrong |
 | Okta “You are not allowed to access this app” | User/group not assigned in Step 7 |
 | Observal “OAuth authorization failed” | Wrong client secret or metadata URL |
@@ -389,7 +391,7 @@ Only after Steps 14–16 succeed:
 
 1. **Settings** → **Deployment** → enable **SSO Only Mode**.
 2. Confirm password login is disabled for normal users.
-3. Document CLI access: users run `observal auth login` with device flow (see `docs/self-hosting/cli-sso.md`).
+3. Document CLI access: users run `dev-library auth login` with device flow (see `docs/self-hosting/cli-sso.md`).
 
 ---
 
@@ -398,7 +400,7 @@ Only after Steps 14–16 succeed:
 ## Troubleshooting
 
 | Issue | Cause | Fix |
-|-------|-------|-----|
+| ------- | ------- | ----- |
 | `redirect_uri mismatch` | Okta URI ≠ `deployment.frontend_url` + `/api/v1/auth/oauth/callback` | Align Okta app URIs and Admin **Frontend URL** |
 | `mismatching_state` / CSRF | Frontend URL changed mid-login, or API restarted during flow | Set Frontend URL, retry in fresh incognito window |
 | Okta “access denied” for app | User not assigned | Step 7 - assign group or person |

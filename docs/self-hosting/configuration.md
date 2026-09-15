@@ -9,13 +9,13 @@ Boot-time infrastructure settings live in `.env`. Credentials can use dedicated 
 
 Source deployments must override these before going live. Server-package setup generates the secret values and file references automatically:
 
-| Variable               | Default                        | Why change                                                                                                                         |
+| Variable | Default | Why change |
 | ---------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `SECRET_KEY` or `SECRET_KEY_FILE` | `change-me-to-a-random-string` | Application encryption secret. Use a random value of at least 32 characters. |
 | `POSTGRES_PASSWORD` or `POSTGRES_PASSWORD_FILE` | `postgres` | PostgreSQL bootstrap credential. |
 | `CLICKHOUSE_PASSWORD` or generated hashed user config | `clickhouse` | ClickHouse credential. |
-| `CORS_ALLOWED_ORIGINS` | `http://localhost:3000`        | Scope to your real frontend origin(s). Configure as `deployment.cors_origins` in Admin Settings.                                   |
-| `deployment.frontend_url` | `http://localhost:3000`     | Used for OAuth redirects and email links. Configure in Admin Settings.                                                             |
+| `CORS_ALLOWED_ORIGINS` | `http://localhost:3000` | Scope to your real frontend origin(s). Configure as `deployment.cors_origins` in Admin Settings. |
+| `deployment.frontend_url` | `http://localhost:3000` | Used for OAuth redirects and email links. Configure in Admin Settings. |
 
 The server-package installer generates these credentials in an operator-owned `secrets/` directory. Directories use mode `0750`, files use mode `0640`, and `OBSERVAL_SECRET_GID` grants the containers read access through the operator's group. Existing deployments can keep direct environment values.
 
@@ -46,7 +46,6 @@ PostgreSQL containers use `POSTGRES_PASSWORD_FILE`. The server package generates
 
 Set `deployment.sso_only=true` in **Admin → SSO** when you want IdP-only access. Leave it `false` to keep password login available.
 
-
 ## Demo accounts
 
 Seeded on first startup _only_ when no users exist:
@@ -62,7 +61,7 @@ DEMO_USER_EMAIL=user@demo.example
 DEMO_USER_PASSWORD=user-changeme
 ```
 
-**Remove demo account variables and their password files before a real deployment.** Existing demo users survive after removal. Delete them manually (`observal admin delete-user <email>`).
+**Remove demo account variables and their password files before a real deployment.** Existing demo users survive after removal. Delete them manually (`dev-library admin delete-user <email>`).
 
 > **Admin settings warning:** If demo accounts are still active or `SECRET_KEY` is insecure, the admin Settings page will display a warning banner at the top so operators can spot and fix the issue without digging through logs.
 

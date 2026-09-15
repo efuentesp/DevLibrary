@@ -6,7 +6,6 @@
 // SPDX-FileCopyrightText: 2026 Vishnu Muthiah <vishnu.muthiah04@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import {
   ArrowDownToLine,
@@ -58,7 +57,12 @@ import type {
 import { PullCommand } from "@/components/registry/pull-command";
 import { RegistryName } from "@/components/registry/registry-name";
 import { ShareLinkButton } from "@/components/registry/share-link-button";
-import { canonicalRouteParts, registryIdentity, registryItemPath, type QualifiedIdentity } from "@/lib/registry-name";
+import {
+  canonicalRouteParts,
+  registryIdentity,
+  registryItemPath,
+  type QualifiedIdentity,
+} from "@/lib/registry-name";
 import { VersionDropdown } from "@/components/registry/version-dropdown";
 import { StatusBadge } from "@/components/registry/status-badge";
 import { HarnessBadges } from "@/components/registry/harness-badges";
@@ -76,17 +80,28 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PickerSelect } from "@/components/ui/picker-select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/layouts/page-header";
 import { DetailSkeleton } from "@/components/shared/skeleton-layouts";
 import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
-import { AgentEditForm, type AgentEditFormProps } from "@/components/registry/agent-edit-form";
-import { CoAuthorInput, type CoAuthor } from "@/components/registry/co-author-input";
+import {
+  AgentEditForm,
+  type AgentEditFormProps,
+} from "@/components/registry/agent-edit-form";
+import {
+  CoAuthorInput,
+  type CoAuthor,
+} from "@/components/registry/co-author-input";
 import { compactNumber } from "@/lib/utils";
-import { DIMENSION_META } from "@/components/dashboard/score-overview";
 
 const FEATURE_LABELS: Record<string, string> = {
   skills: "Slash-command skills",
@@ -99,10 +114,11 @@ const FEATURE_LABELS: Record<string, string> = {
 };
 
 const COMPONENT_TYPES = [
-  { value: "mcps", singular: "mcp", label: "MCPs" },
   { value: "skills", singular: "skill", label: "Skills" },
-  { value: "hooks", singular: "hook", label: "Hooks" },
   { value: "prompts", singular: "prompt", label: "Prompts" },
+  { value: "mcps", singular: "mcp", label: "MCPs" },
+  { value: "workflows", singular: "workflow", label: "Workflows" },
+  { value: "hooks", singular: "hook", label: "Hooks" },
   { value: "sandboxes", singular: "sandbox", label: "Sandboxes" },
 ] as const;
 
@@ -119,6 +135,8 @@ const COMPONENT_GROUP_BY_TYPE: Record<string, ComponentGroupKey> = {
   prompts: "prompts",
   sandbox: "sandboxes",
   sandboxes: "sandboxes",
+  workflow: "workflows",
+  workflows: "workflows",
 };
 
 // The visibility PATCH reports whether the flip pushed the agent back into the
@@ -140,13 +158,17 @@ function semverCompareDesc(a: string, b: string): number {
   return b.localeCompare(a);
 }
 
-function getLatestApprovedVersion(versions: AgentVersionSummary[]): string | undefined {
+function getLatestApprovedVersion(
+  versions: AgentVersionSummary[],
+): string | undefined {
   return [...versions]
     .filter((v) => v.status === "approved")
     .sort((a, b) => semverCompareDesc(a.version, b.version))[0]?.version;
 }
 
-function normalizeVersionComponents(components?: AgentComponentReference[]): ComponentLink[] | undefined {
+function normalizeVersionComponents(
+  components?: AgentComponentReference[],
+): ComponentLink[] | undefined {
   if (!components) return undefined;
   return components.map((component) => ({
     component_type: component.component_type,
@@ -160,7 +182,14 @@ function normalizeVersionComponents(components?: AgentComponentReference[]): Com
 }
 
 function getComponentName(component: ComponentLink): string {
-  return component.mcp_name ?? component.component_name ?? component.name ?? component.component_id ?? component.mcp_id ?? "Unnamed";
+  return (
+    component.mcp_name ??
+    component.component_name ??
+    component.name ??
+    component.component_id ??
+    component.mcp_id ??
+    "Unnamed"
+  );
 }
 
 function getComponentType(component: ComponentLink): string {
@@ -171,13 +200,22 @@ function getComponentGroup(component: ComponentLink): ComponentGroupKey {
   return COMPONENT_GROUP_BY_TYPE[getComponentType(component)] ?? "mcps";
 }
 
-function groupComponents(components: ComponentLink[]): Record<ComponentGroupKey, ComponentLink[]> {
+function groupComponents(
+  components: ComponentLink[],
+): Record<ComponentGroupKey, ComponentLink[]> {
   return components.reduce<Record<ComponentGroupKey, ComponentLink[]>>(
     (groups, component) => {
       groups[getComponentGroup(component)].push(component);
       return groups;
     },
-    { mcps: [], skills: [], hooks: [], prompts: [], sandboxes: [] },
+    {
+      mcps: [],
+      skills: [],
+      hooks: [],
+      prompts: [],
+      sandboxes: [],
+      workflows: [],
+    },
   );
 }
 
@@ -226,19 +264,26 @@ function VersionContentLoading() {
   );
 }
 
-function ArchivedComponentsBanner({ components }: { components: ComponentLink[] }) {
+function ArchivedComponentsBanner({
+  components,
+}: {
+  components: ComponentLink[];
+}) {
   const names = components.slice(0, 3).map(getComponentName).join(", ");
-  const extra = components.length > 3 ? ` and ${components.length - 3} more` : "";
+  const extra =
+    components.length > 3 ? ` and ${components.length - 3} more` : "";
 
   return (
     <div className="flex items-start gap-3 rounded-md border border-dark-yellow/30 bg-light-yellow px-4 py-3 text-dark-yellow">
       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
       <div className="space-y-1 text-sm">
         <p className="font-medium">
-          This agent includes archived components: {names}{extra}.
+          This agent includes archived components: {names}
+          {extra}.
         </p>
         <p className="text-xs text-dark-yellow/80">
-          Users can still pull the agent, but installs will show archived component warnings.
+          Users can still pull the agent, but installs will show archived
+          component warnings.
         </p>
       </div>
     </div>
@@ -284,13 +329,14 @@ function PromptSection({ prompt }: { prompt: string }) {
   );
 }
 
-function AgentVersionContents({
-  components,
-}: {
-  components: ComponentLink[];
-}) {
-  const [activeTab, setActiveTab] = useState<ComponentGroupKey>("mcps");
-  const groupedComponents = useMemo(() => groupComponents(components), [components]);
+function AgentVersionContents({ components }: { components: ComponentLink[] }) {
+  const [activeTab, setActiveTab] = useState<ComponentGroupKey>(
+    COMPONENT_TYPES[0].value,
+  );
+  const groupedComponents = useMemo(
+    () => groupComponents(components),
+    [components],
+  );
 
   return (
     <div className="space-y-6">
@@ -298,7 +344,8 @@ function AgentVersionContents({
         <div>
           <h3 className="text-sm font-medium font-display">Components</h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            MCPs, skills, hooks, prompts, and sandboxes linked to this agent version.
+            MCPs, skills, hooks, prompts, and sandboxes linked to this agent
+            version.
           </p>
         </div>
 
@@ -309,12 +356,18 @@ function AgentVersionContents({
             description="This version does not have any linked MCP servers or components."
           />
         ) : (
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as ComponentGroupKey)}>
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as ComponentGroupKey)}
+          >
             <TabsList>
               {COMPONENT_TYPES.map((componentType) => {
                 const count = groupedComponents[componentType.value].length;
                 return (
-                  <TabsTrigger key={componentType.value} value={componentType.value}>
+                  <TabsTrigger
+                    key={componentType.value}
+                    value={componentType.value}
+                  >
                     {componentType.label}
                     {count > 0 && (
                       <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
@@ -329,7 +382,11 @@ function AgentVersionContents({
             {COMPONENT_TYPES.map((componentType) => {
               const items = groupedComponents[componentType.value];
               return (
-                <TabsContent key={componentType.value} value={componentType.value} className="mt-3">
+                <TabsContent
+                  key={componentType.value}
+                  value={componentType.value}
+                  className="mt-3"
+                >
                   {items.length === 0 ? (
                     <p className="py-6 text-center text-sm text-muted-foreground">
                       No {componentType.label} linked to this version.
@@ -338,24 +395,38 @@ function AgentVersionContents({
                     <div className="space-y-2">
                       {items.map((component, index) => {
                         const componentName = getComponentName(component);
-                        const componentId = component.component_id ?? component.mcp_id;
+                        const componentId =
+                          component.component_id ?? component.mcp_id;
                         const row = (
                           <div className="flex items-center justify-between gap-3 rounded-md border border-border px-4 py-3 transition-colors hover:bg-accent/40">
                             <div className="flex min-w-0 items-center gap-3">
-                              <Badge variant="outline" className="shrink-0 text-[10px]">
+                              <Badge
+                                variant="outline"
+                                className="shrink-0 text-[10px]"
+                              >
                                 {componentType.singular}
                               </Badge>
                               {component.status === "archived" && (
-                                <StatusBadge status="archived" className="shrink-0" />
+                                <StatusBadge
+                                  status="archived"
+                                  className="shrink-0"
+                                />
                               )}
-                              <span className="truncate text-sm font-medium">{componentName}</span>
+                              <span className="truncate text-sm font-medium">
+                                {componentName}
+                              </span>
                               {component.resolved_version && (
                                 <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                                  {component.resolved_version === "latest" ? "latest" : `v${component.resolved_version}`}
+                                  {component.resolved_version === "latest"
+                                    ? "latest"
+                                    : `v${component.resolved_version}`}
                                 </span>
                               )}
                             </div>
-                            {component.status && component.status !== "archived" && <StatusBadge status={component.status} />}
+                            {component.status &&
+                              component.status !== "archived" && (
+                                <StatusBadge status={component.status} />
+                              )}
                           </div>
                         );
 
@@ -364,14 +435,22 @@ function AgentVersionContents({
                             key={`${componentType.value}-${componentId}-${index}`}
                             to={
                               component.status === "approved"
-                                ? registryItemPath(component, componentType.value, componentId)
+                                ? registryItemPath(
+                                    component,
+                                    componentType.value,
+                                    componentId,
+                                  )
                                 : `/components/${componentId}?type=${componentType.value}`
                             }
                           >
                             {row}
                           </Link>
                         ) : (
-                          <div key={`${componentType.value}-${componentName}-${index}`}>{row}</div>
+                          <div
+                            key={`${componentType.value}-${componentName}-${index}`}
+                          >
+                            {row}
+                          </div>
                         );
                       })}
                     </div>
@@ -386,7 +465,15 @@ function AgentVersionContents({
   );
 }
 
-function AgentDeleteButton({ agentId, agentName, onSuccess }: { agentId: string; agentName: string; onSuccess: () => void }) {
+function AgentDeleteButton({
+  agentId,
+  agentName,
+  onSuccess,
+}: {
+  agentId: string;
+  agentName: string;
+  onSuccess: () => void;
+}) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const deleteMutation = useDeleteAgent();
 
@@ -401,7 +488,13 @@ function AgentDeleteButton({ agentId, agentName, onSuccess }: { agentId: string;
 
   return (
     <>
-      <Button variant="destructive" size="sm" className="h-8" onClick={() => setConfirmOpen(true)} disabled={deleteMutation.isPending}>
+      <Button
+        variant="destructive"
+        size="sm"
+        className="h-8"
+        onClick={() => setConfirmOpen(true)}
+        disabled={deleteMutation.isPending}
+      >
         <Trash2 className="mr-1 h-3.5 w-3.5" />
         Delete
       </Button>
@@ -412,12 +505,26 @@ function AgentDeleteButton({ agentId, agentName, onSuccess }: { agentId: string;
             <DialogTitle>Delete {agentName}?</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            This soft deletes the agent, hides it from registry lists, and frees the name for reuse.
+            This soft deletes the agent, hides it from registry lists, and frees
+            the name for reuse.
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={submit} disabled={deleteMutation.isPending}>
-              {deleteMutation.isPending ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />Deleting...</> : "Delete"}
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={submit}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -426,7 +533,17 @@ function AgentDeleteButton({ agentId, agentName, onSuccess }: { agentId: string;
   );
 }
 
-function AgentArchiveButton({ agentId, agentName, status, onSuccess }: { agentId: string; agentName: string; status?: string; onSuccess: () => void }) {
+function AgentArchiveButton({
+  agentId,
+  agentName,
+  status,
+  onSuccess,
+}: {
+  agentId: string;
+  agentName: string;
+  status?: string;
+  onSuccess: () => void;
+}) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const archiveMutation = useArchiveAgent();
   const unarchiveMutation = useUnarchiveAgent();
@@ -448,18 +565,28 @@ function AgentArchiveButton({ agentId, agentName, status, onSuccess }: { agentId
       <Button
         variant="outline"
         size="sm"
-        className={isArchived ? "h-8" : "h-8 border-dark-yellow/40 bg-light-yellow text-dark-yellow hover:bg-light-yellow/80"}
+        className={
+          isArchived
+            ? "h-8"
+            : "h-8 border-dark-yellow/40 bg-light-yellow text-dark-yellow hover:bg-light-yellow/80"
+        }
         onClick={() => setConfirmOpen(true)}
         disabled={isBusy}
       >
-        {isArchived ? <ArchiveRestore className="mr-1 h-3.5 w-3.5" /> : <Archive className="mr-1 h-3.5 w-3.5" />}
+        {isArchived ? (
+          <ArchiveRestore className="mr-1 h-3.5 w-3.5" />
+        ) : (
+          <Archive className="mr-1 h-3.5 w-3.5" />
+        )}
         {isArchived ? "Restore" : "Archive"}
       </Button>
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{isArchived ? `Restore ${agentName}?` : `Archive ${agentName}?`}</DialogTitle>
+            <DialogTitle>
+              {isArchived ? `Restore ${agentName}?` : `Archive ${agentName}?`}
+            </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             {isArchived
@@ -467,14 +594,29 @@ function AgentArchiveButton({ agentId, agentName, status, onSuccess }: { agentId
               : "Archived agents stop appearing in registry lists. Direct pulls still work by ID."}
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+              Cancel
+            </Button>
             <Button
               variant={isArchived ? "default" : "outline"}
-              className={isArchived ? undefined : "border-dark-yellow/40 bg-light-yellow text-dark-yellow hover:bg-light-yellow/80"}
+              className={
+                isArchived
+                  ? undefined
+                  : "border-dark-yellow/40 bg-light-yellow text-dark-yellow hover:bg-light-yellow/80"
+              }
               onClick={submit}
               disabled={isBusy}
             >
-              {isBusy ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />Saving...</> : isArchived ? "Restore" : "Archive"}
+              {isBusy ? (
+                <>
+                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
+                  Saving...
+                </>
+              ) : isArchived ? (
+                "Restore"
+              ) : (
+                "Archive"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -483,8 +625,11 @@ function AgentArchiveButton({ agentId, agentName, status, onSuccess }: { agentId
   );
 }
 
-
-function InsightStatusBadge({ status }: { status: InsightReportListItem["status"] }) {
+function InsightStatusBadge({
+  status,
+}: {
+  status: InsightReportListItem["status"];
+}) {
   switch (status) {
     case "completed":
       return (
@@ -513,15 +658,29 @@ function InsightStatusBadge({ status }: { status: InsightReportListItem["status"
   }
 }
 
-function InsightsTab({ agentId, agentVersion, enabled }: { agentId: string; agentVersion?: string | null; enabled: boolean }) {
-  const { data: reports, isLoading: reportsLoading } = useInsightReports(agentId, enabled);
-  const { data: sessionCountData, isLoading: countLoading } = useInsightSessionCount(agentId, agentVersion, enabled);
+function InsightsTab({
+  agentId,
+  agentVersion,
+  enabled,
+}: {
+  agentId: string;
+  agentVersion?: string | null;
+  enabled: boolean;
+}) {
+  const { data: reports, isLoading: reportsLoading } = useInsightReports(
+    agentId,
+    enabled,
+  );
+  const { data: sessionCountData, isLoading: countLoading } =
+    useInsightSessionCount(agentId, agentVersion, enabled);
   const { data: insightsStatus } = useInsightsStatus(enabled);
   const generateInsight = useGenerateInsight();
 
   const availableSessions = sessionCountData?.session_count ?? 0;
   const notConfigured = insightsStatus && !insightsStatus.available;
-  const hasRunning = (reports ?? []).some((r) => r.status === "pending" || r.status === "running");
+  const hasRunning = (reports ?? []).some(
+    (r) => r.status === "pending" || r.status === "running",
+  );
 
   return (
     <div className="space-y-6">
@@ -547,7 +706,12 @@ function InsightsTab({ agentId, agentVersion, enabled }: { agentId: string; agen
             generateInsight.isPending ||
             hasRunning
           }
-          onClick={() => generateInsight.mutate({ agentId, agentVersion: agentVersion ?? undefined })}
+          onClick={() =>
+            generateInsight.mutate({
+              agentId,
+              agentVersion: agentVersion ?? undefined,
+            })
+          }
         >
           {generateInsight.isPending ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -577,7 +741,9 @@ function InsightsTab({ agentId, agentVersion, enabled }: { agentId: string; agen
         />
       ) : (
         <div className="space-y-3">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Reports</h4>
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Reports
+          </h4>
           <div className="space-y-2">
             {reports.map((report) => (
               <Link
@@ -605,11 +771,13 @@ function InsightsTab({ agentId, agentVersion, enabled }: { agentId: string; agen
                       {report.sessions_analyzed} sessions analyzed
                     </span>
                   )}
-                  {(report.status === "pending" || report.status === "running") && report.progress_phase && (
-                    <span className="text-xs text-muted-foreground">
-                      {report.progress_phase.replace(/_/g, " ")}
-                    </span>
-                  )}
+                  {(report.status === "pending" ||
+                    report.status === "running") &&
+                    report.progress_phase && (
+                      <span className="text-xs text-muted-foreground">
+                        {report.progress_phase.replace(/_/g, " ")}
+                      </span>
+                    )}
                 </div>
                 {report.status === "completed" && (
                   <span className="text-xs text-primary">View →</span>
@@ -623,8 +791,11 @@ function InsightsTab({ agentId, agentVersion, enabled }: { agentId: string; agen
   );
 }
 
-
-export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) {
+export default function AgentDetailPage({
+  agentId,
+}: {
+  agentId?: string;
+} = {}) {
   // Rendered from two routes: the canonical /agents/$namespace/$slug route
   // passes the resolved UUID as a prop; the legacy /agents/$agentId route
   // supplies it as a path param.
@@ -653,12 +824,23 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
   const updateVisibility = useUpdateRegistryVisibility();
   const { data: versionsData } = useAgentVersions(id);
   const versions = versionsData?.items ?? [];
-  const latestApprovedVersion = useMemo(() => getLatestApprovedVersion(versions), [versions]);
+  const latestApprovedVersion = useMemo(
+    () => getLatestApprovedVersion(versions),
+    [versions],
+  );
   const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
   const [confirmPublicOpen, setConfirmPublicOpen] = useState(false);
-  const { data: versionDetail, isLoading: isVersionDetailLoading } = useAgentVersionDetail(id, selectedVersion);
-  const effectiveVersionForDetail = selectedVersion ?? latestApprovedVersion ?? (agent as unknown as AgentDetail | undefined)?.version ?? null;
-  const { data: effectiveVersionDetail } = useAgentVersionDetail(id, effectiveVersionForDetail);
+  const { data: versionDetail, isLoading: isVersionDetailLoading } =
+    useAgentVersionDetail(id, selectedVersion);
+  const effectiveVersionForDetail =
+    selectedVersion ??
+    latestApprovedVersion ??
+    (agent as unknown as AgentDetail | undefined)?.version ??
+    null;
+  const { data: effectiveVersionDetail } = useAgentVersionDetail(
+    id,
+    effectiveVersionForDetail,
+  );
 
   // Co-authors
   const [coAuthors, setCoAuthors] = useState<CoAuthor[]>([]);
@@ -679,27 +861,59 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
   const isAdmin = isAuthenticated && hasMinRole(role, "admin");
 
   const a = agent as unknown as AgentDetail | undefined;
-  const effectiveVersion = selectedVersion ?? latestApprovedVersion ?? a?.version;
-  const selectedVersionSummary = versions.find((v) => v.version === effectiveVersion);
+  const effectiveVersion =
+    selectedVersion ?? latestApprovedVersion ?? a?.version;
+  const selectedVersionSummary = versions.find(
+    (v) => v.version === effectiveVersion,
+  );
   const vd = versionDetail ?? effectiveVersionDetail;
-  const isVersionContentLoading = !!selectedVersion && !versionDetail && isVersionDetailLoading;
-  const baseComponents: ComponentLink[] = a?.component_links ?? a?.mcp_links ?? [];
-  const versionComponents = selectedVersion ? normalizeVersionComponents(vd?.components) : undefined;
-  const components: ComponentLink[] = selectedVersion ? (versionComponents ?? []) : baseComponents;
+  const isVersionContentLoading =
+    !!selectedVersion && !versionDetail && isVersionDetailLoading;
+  const baseComponents: ComponentLink[] =
+    a?.component_links ?? a?.mcp_links ?? [];
+  const versionComponents = selectedVersion
+    ? normalizeVersionComponents(vd?.components)
+    : undefined;
+  const components: ComponentLink[] = selectedVersion
+    ? (versionComponents ?? [])
+    : baseComponents;
   const displayComponentCount = selectedVersion
-    ? (versionComponents?.length ?? selectedVersionSummary?.component_count ?? 0)
+    ? (versionComponents?.length ??
+      selectedVersionSummary?.component_count ??
+      0)
     : components.length;
-  const versionDescription = vd?.description ?? selectedVersionSummary?.description ?? a?.description;
+  const versionDescription =
+    vd?.description ?? selectedVersionSummary?.description ?? a?.description;
   const versionPrompt = vd?.prompt ?? (selectedVersion ? undefined : a?.prompt);
-  const versionModelName = vd?.model_name ?? (selectedVersion ? undefined : a?.model_name);
-  const versionSupportedIdes = vd?.supported_harnesses ?? selectedVersionSummary?.supported_harnesses ?? a?.supported_harnesses;
-  const versionRequiredFeatures = vd?.required_capabilities ?? (selectedVersion ? undefined : a?.required_capabilities);
-  const versionInferredIdes = vd?.inferred_supported_harnesses ?? (selectedVersion ? undefined : a?.inferred_supported_harnesses);
-  const versionSuccessCriteria = (vd?.success_criteria ?? (selectedVersion ? undefined : a?.success_criteria)) as SuccessCriteria | null | undefined;
-  const isOwner = !!(whoami?.id && a?.created_by && whoami.id === String(a.created_by));
+  const versionModelName =
+    vd?.model_name ?? (selectedVersion ? undefined : a?.model_name);
+  const versionSupportedIdes =
+    vd?.supported_harnesses ??
+    selectedVersionSummary?.supported_harnesses ??
+    a?.supported_harnesses;
+  const versionRequiredFeatures =
+    vd?.required_capabilities ??
+    (selectedVersion ? undefined : a?.required_capabilities);
+  const versionInferredIdes =
+    vd?.inferred_supported_harnesses ??
+    (selectedVersion ? undefined : a?.inferred_supported_harnesses);
+  const versionSuccessCriteria = (vd?.success_criteria ??
+    (selectedVersion ? undefined : a?.success_criteria)) as
+    | SuccessCriteria
+    | null
+    | undefined;
+  const isOwner = !!(
+    whoami?.id &&
+    a?.created_by &&
+    whoami.id === String(a.created_by)
+  );
   const canTransferOwnership = isOwner;
-  const owningTeam = a?.team_id ? teams.find((team) => team.id === String(a.team_id)) : undefined;
-  const personalTeam = teams.find((team) => team.is_personal && team.visibility === "private");
+  const owningTeam = a?.team_id
+    ? teams.find((team) => team.id === String(a.team_id))
+    : undefined;
+  const personalTeam = teams.find(
+    (team) => team.is_personal && team.visibility === "private",
+  );
   const teamRole = owningTeam?.role;
   // Mirror the server rule in PATCH /registry/agent/{id}/visibility exactly. See
   // the matching comment in the component detail page: admins are privileged, a
@@ -708,22 +922,34 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
   const canChangeVisibility = Boolean(
     a &&
       (hasMinRole(role, "admin") ||
-        (a.team_id ? teamRole === "owner" || teamRole === "reviewer" : isOwner)),
+        (a.team_id
+          ? teamRole === "owner" || teamRole === "reviewer"
+          : isOwner)),
   );
-  const currentVisibility = a?.visibility ?? (a?.is_private ? "team" : "public");
-  const visibilityOptions = owningTeam?.visibility === "private"
-    ? [{ value: "team", label: "Team members only" }]
-    : [
-        { value: "public", label: "Public" },
-        { value: "team", label: "Team members only" },
-      ];
-  const showVisibilityControl = canChangeVisibility && Boolean(a?.team_id || personalTeam);
+  const currentVisibility =
+    a?.visibility ?? (a?.is_private ? "team" : "public");
+  const visibilityOptions =
+    owningTeam?.visibility === "private"
+      ? [{ value: "team", label: "Team members only" }]
+      : [
+          { value: "public", label: "Public" },
+          { value: "team", label: "Team members only" },
+        ];
+  const showVisibilityControl =
+    canChangeVisibility && Boolean(a?.team_id || personalTeam);
   const canManageLifecycle = isAdmin || isOwner;
   const agentStatus = a?.status as string | undefined;
-  const canEdit = (isAdmin || a?.user_permission === "owner" || a?.user_permission === "edit") && ["approved", "pending", "draft", "rejected"].includes(agentStatus ?? "");
+  const canEdit =
+    (isAdmin ||
+      a?.user_permission === "owner" ||
+      a?.user_permission === "edit") &&
+    ["approved", "pending", "draft", "rejected"].includes(agentStatus ?? "");
   // Header/breadcrumb show the bare name; the pull command needs the canonical
   // `namespace/slug` the CLI resolves.
-  const agentIdentity = registryIdentity(a as QualifiedIdentity | undefined, id.slice(0, 8));
+  const agentIdentity = registryIdentity(
+    a as QualifiedIdentity | undefined,
+    id.slice(0, 8),
+  );
   const agentName = agentIdentity.name;
   const agentRef = agentIdentity.qualified;
   // Canonical shareable path from the explicit columns only, and only when the
@@ -753,7 +979,9 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
       replace: true,
     });
   }, [agentId, canonicalParts, agentApproved, navigate]);
-  const archivedComponents = components.filter((component) => component.status === "archived");
+  const archivedComponents = components.filter(
+    (component) => component.status === "archived",
+  );
   const avgRating = feedbackSummary?.average_rating;
   const totalReviews = feedbackSummary?.total_reviews ?? 0;
 
@@ -765,7 +993,11 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
           setConfirmPublicOpen(false);
           if (visibility === "team" && data.qualified_name.includes("/")) {
             const [namespace, slug] = data.qualified_name.split("/", 2);
-            navigate({ to: "/agents/$namespace/$slug", params: { namespace, slug }, replace: true });
+            navigate({
+              to: "/agents/$namespace/$slug",
+              params: { namespace, slug },
+              replace: true,
+            });
             return;
           }
           if (visibility !== "public") return;
@@ -799,7 +1031,9 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
           { label: isLoading ? "..." : agentName },
         ]}
         actionButtonsRight={
-          a ? <ShareLinkButton path={canonicalAgentPath ?? `/agents/${id}`} /> : undefined
+          a ? (
+            <ShareLinkButton path={canonicalAgentPath ?? `/agents/${id}`} />
+          ) : undefined
         }
       />
 
@@ -847,7 +1081,8 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
                       inputClassName="h-7 px-2 text-xs"
                       disabled={
                         updateVisibility.isPending ||
-                        (owningTeam?.visibility === "private" && currentVisibility === "team")
+                        (owningTeam?.visibility === "private" &&
+                          currentVisibility === "team")
                       }
                     />
                   )}
@@ -925,8 +1160,9 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
                     )}
                   </TabsTrigger>
                   {canEdit && <TabsTrigger value="edit">Edit</TabsTrigger>}
-                  {canEdit && <TabsTrigger value="insights">Insights</TabsTrigger>}
-
+                  {canEdit && (
+                    <TabsTrigger value="insights">Insights</TabsTrigger>
+                  )}
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-6 mt-6">
@@ -941,43 +1177,70 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
                     </div>
                   )}
 
-                  {versionPrompt && (
-                    <PromptSection prompt={versionPrompt} />
-                  )}
+                  {versionPrompt && <PromptSection prompt={versionPrompt} />}
 
-                  {versionSuccessCriteria && versionSuccessCriteria.intended_purpose && (
-                    <div className="space-y-3">
-                      <h3 className="text-sm font-semibold font-display">
-                        Success Criteria
-                      </h3>
-                      <div className="space-y-3 rounded-md border border-border bg-surface-sunken px-4 py-3 text-sm">
-                        <div>
-                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Purpose</p>
-                          <p className="text-foreground whitespace-pre-wrap">{versionSuccessCriteria.intended_purpose}</p>
-                        </div>
-                        {(versionSuccessCriteria.success_metrics?.length ?? 0) > 0 && (
+                  {versionSuccessCriteria &&
+                    versionSuccessCriteria.intended_purpose && (
+                      <div className="space-y-3">
+                        <h3 className="text-sm font-semibold font-display">
+                          Success Criteria
+                        </h3>
+                        <div className="space-y-3 rounded-md border border-border bg-surface-sunken px-4 py-3 text-sm">
                           <div>
-                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Metrics</p>
-                            <div className="space-y-2">
-                              {versionSuccessCriteria.success_metrics.map((m, i) => (
-                                <div key={i} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded border border-border/50 bg-background/50 px-3 py-2">
-                                  <span className="font-medium text-foreground">{m.name}</span>
-                                  <span className="text-xs text-muted-foreground">target: <span className="text-foreground font-mono">{m.target}</span></span>
-                                  <span className="text-xs text-muted-foreground">via: <span className="text-foreground">{m.measurement}</span></span>
-                                </div>
-                              ))}
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                              Purpose
+                            </p>
+                            <p className="text-foreground whitespace-pre-wrap">
+                              {versionSuccessCriteria.intended_purpose}
+                            </p>
+                          </div>
+                          {(versionSuccessCriteria.success_metrics?.length ??
+                            0) > 0 && (
+                            <div>
+                              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                                Metrics
+                              </p>
+                              <div className="space-y-2">
+                                {versionSuccessCriteria.success_metrics.map(
+                                  (m, i) => (
+                                    <div
+                                      key={i}
+                                      className="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded border border-border/50 bg-background/50 px-3 py-2"
+                                    >
+                                      <span className="font-medium text-foreground">
+                                        {m.name}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        target:{" "}
+                                        <span className="text-foreground font-mono">
+                                          {m.target}
+                                        </span>
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        via:{" "}
+                                        <span className="text-foreground">
+                                          {m.measurement}
+                                        </span>
+                                      </span>
+                                    </div>
+                                  ),
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                        {versionSuccessCriteria.evaluation_notes && (
-                          <div>
-                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Evaluation Notes</p>
-                            <p className="text-foreground whitespace-pre-wrap">{versionSuccessCriteria.evaluation_notes}</p>
-                          </div>
-                        )}
+                          )}
+                          {versionSuccessCriteria.evaluation_notes && (
+                            <div>
+                              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                                Evaluation Notes
+                              </p>
+                              <p className="text-foreground whitespace-pre-wrap">
+                                {versionSuccessCriteria.evaluation_notes}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   {versionModelName && (
                     <div className="space-y-1">
@@ -990,11 +1253,13 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
                     </div>
                   )}
 
-                  {!versionDescription && !versionPrompt && !versionSuccessCriteria?.intended_purpose && (
-                    <p className="text-sm text-muted-foreground">
-                      No additional details provided for this agent.
-                    </p>
-                  )}
+                  {!versionDescription &&
+                    !versionPrompt &&
+                    !versionSuccessCriteria?.intended_purpose && (
+                      <p className="text-sm text-muted-foreground">
+                        No additional details provided for this agent.
+                      </p>
+                    )}
                 </TabsContent>
 
                 <TabsContent value="components" className="mt-6">
@@ -1002,9 +1267,7 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
                     {isVersionContentLoading ? (
                       <VersionContentLoading />
                     ) : (
-                      <AgentVersionContents
-                        components={components}
-                      />
+                      <AgentVersionContents components={components} />
                     )}
                   </div>
                 </TabsContent>
@@ -1037,38 +1300,41 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
                   ) : (
                     <div className="space-y-4">
                       {feedbackItems
-                        .filter((fb: FeedbackItem) => !myReview || fb.id !== myReview.id)
+                        .filter(
+                          (fb: FeedbackItem) =>
+                            !myReview || fb.id !== myReview.id,
+                        )
                         .map((fb: FeedbackItem) => (
-                        <div
-                          key={fb.id}
-                          className="rounded-md border border-border p-4 space-y-2"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                              {Array.from({ length: 5 }).map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-3.5 w-3.5 ${
-                                    i < fb.rating
-                                      ? "fill-current text-warning"
-                                      : "text-muted-foreground/30"
-                                  }`}
-                                />
-                              ))}
+                          <div
+                            key={fb.id}
+                            className="rounded-md border border-border p-4 space-y-2"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`h-3.5 w-3.5 ${
+                                      i < fb.rating
+                                        ? "fill-current text-warning"
+                                        : "text-muted-foreground/30"
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-xs text-muted-foreground">
+                                {fb.username ?? fb.user ?? "Anonymous"}
+                                {fb.created_at &&
+                                  ` · ${new Date(fb.created_at).toLocaleDateString()}`}
+                              </span>
                             </div>
-                            <span className="text-xs text-muted-foreground">
-                              {fb.username ?? fb.user ?? "Anonymous"}
-                              {fb.created_at &&
-                                ` · ${new Date(fb.created_at).toLocaleDateString()}`}
-                            </span>
+                            {fb.comment && (
+                              <p className="text-sm text-muted-foreground leading-relaxed">
+                                {fb.comment}
+                              </p>
+                            )}
                           </div>
-                          {fb.comment && (
-                            <p className="text-sm text-muted-foreground leading-relaxed">
-                              {fb.comment}
-                            </p>
-                          )}
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   )}
                 </TabsContent>
@@ -1089,10 +1355,13 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
                 )}
                 {canEdit && (
                   <TabsContent value="insights" className="mt-6">
-                    <InsightsTab agentId={id} agentVersion={effectiveVersion} enabled={canEdit} />
+                    <InsightsTab
+                      agentId={id}
+                      agentVersion={effectiveVersion}
+                      enabled={canEdit}
+                    />
                   </TabsContent>
                 )}
-
               </Tabs>
             </div>
 
@@ -1174,20 +1443,24 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
                   inferredSupportedHarnesses={versionInferredIdes}
                   max={7}
                 />
-                {versionRequiredFeatures && versionRequiredFeatures.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60">
-                      Required features
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {versionRequiredFeatures.map((f: string) => (
-                        <span key={f} className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                          {FEATURE_LABELS[f] ?? f}
-                        </span>
-                      ))}
+                {versionRequiredFeatures &&
+                  versionRequiredFeatures.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60">
+                        Required features
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {versionRequiredFeatures.map((f: string) => (
+                          <span
+                            key={f}
+                            className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded"
+                          >
+                            {FEATURE_LABELS[f] ?? f}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
 
               {a.owner && (
@@ -1199,7 +1472,9 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
                 </div>
               )}
 
-              {(a?.user_permission === "owner" || coAuthors.length > 0 || canManageLifecycle) && (
+              {(a?.user_permission === "owner" ||
+                coAuthors.length > 0 ||
+                canManageLifecycle) && (
                 <div className="border border-border rounded-md p-4 space-y-4">
                   <h3 className="text-xs font-semibold font-display uppercase tracking-wider text-muted-foreground">
                     Danger zone
@@ -1217,17 +1492,28 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
                     />
                   )}
 
-                  {canManageLifecycle && (agentStatus === "approved" || agentStatus === "archived") && (
-                    <div className="border-t border-border pt-3 space-y-2">
-                      <p className="text-sm font-medium">Lifecycle</p>
-                      <div className="flex flex-wrap gap-2">
-                        <AgentArchiveButton agentId={id} agentName={agentName} status={agentStatus} onSuccess={() => refetch()} />
-                        {agentStatus === "approved" && (
-                          <AgentDeleteButton agentId={id} agentName={agentName} onSuccess={() => navigate({ to: "/agents" })} />
-                        )}
+                  {canManageLifecycle &&
+                    (agentStatus === "approved" ||
+                      agentStatus === "archived") && (
+                      <div className="border-t border-border pt-3 space-y-2">
+                        <p className="text-sm font-medium">Lifecycle</p>
+                        <div className="flex flex-wrap gap-2">
+                          <AgentArchiveButton
+                            agentId={id}
+                            agentName={agentName}
+                            status={agentStatus}
+                            onSuccess={() => refetch()}
+                          />
+                          {agentStatus === "approved" && (
+                            <AgentDeleteButton
+                              agentId={id}
+                              agentName={agentName}
+                              onSuccess={() => navigate({ to: "/agents" })}
+                            />
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               )}
             </aside>
@@ -1240,13 +1526,17 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
           <AlertDialogHeader>
             <AlertDialogTitle>Make {agentName} public?</AlertDialogTitle>
             <AlertDialogDescription>
-              Everyone who can reach this registry will be able to find and pull this agent, not just the members of
-              its teamspace. Publishing publicly also returns it to the review queue, so it leaves the catalog until a
-              reviewer approves it. Approval is manual, so it will not be immediate.
+              Everyone who can reach this registry will be able to find and pull
+              this agent, not just the members of its teamspace. Publishing
+              publicly also returns it to the review queue, so it leaves the
+              catalog until a reviewer approves it. Approval is manual, so it
+              will not be immediate.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={updateVisibility.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={updateVisibility.isPending}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={(event) => {
                 event.preventDefault();
@@ -1255,7 +1545,10 @@ export default function AgentDetailPage({ agentId }: { agentId?: string } = {}) 
               disabled={updateVisibility.isPending}
             >
               {updateVisibility.isPending ? (
-                <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />Publishing...</>
+                <>
+                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
+                  Publishing...
+                </>
               ) : (
                 "Make public"
               )}

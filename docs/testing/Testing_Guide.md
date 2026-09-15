@@ -75,7 +75,7 @@ Prefer one file per behavior area:
 
 - `tests/test_agent_name_lookup.py` for agent lookup behavior
 - `tests/test_component_versions_api.py` for component version endpoints
-- `observal_cli/tests/test_cmd_scan.py` for the `scan` command
+- `dev_library_cli/tests/test_cmd_scan.py` for the `scan` command
 - `observal-server/tests/test_jwt.py` for JWT service behavior
 
 Split a file when it mixes unrelated layers. For example, schema validation, route behavior, config generation, and resolver service behavior should usually live in separate files.
@@ -319,7 +319,7 @@ from typing import TYPE_CHECKING
 import pytest
 from typer.testing import CliRunner
 
-from observal_cli.main import app
+from dev_library_cli.main import app
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -386,7 +386,7 @@ class TestRedactionProperties:
 
     @given(secret=st.text(min_size=1, max_size=100))
     def test_secret_value_is_removed(self, secret: str) -> None:
-        from observal_cli.support.redaction import redact_text
+        from dev_library_cli.support.redaction import redact_text
 
         result = redact_text(f"token={secret}", secrets=[secret])
 
@@ -446,7 +446,7 @@ Use the existing directories:
 
 - `tests/` for cross-cutting backend, CLI, and integration-style unit tests
 - `observal-server/tests/` for server-focused tests that live with the server package
-- `observal_cli/tests/` for CLI command and CLI package tests
+- `dev_library_cli/tests/` for CLI command and CLI package tests
 - `tests/e2e/` for Playwright tests that require the running stack
 
 Shared setup should stay small:
@@ -475,7 +475,7 @@ Run focused pytest commands from `observal-server` when iterating on one file:
 cd observal-server
 uv run pytest ../tests/test_agent_name_lookup.py -q
 uv run pytest ../observal-server/tests/test_jwt.py -q
-uv run pytest ../observal_cli/tests/test_cmd_scan.py -q
+uv run pytest ../dev_library_cli/tests/test_cmd_scan.py -q
 ```
 
 Use `make lint` and `make format` before pushing Python changes. Use `make check` when you need the full pre-commit suite.

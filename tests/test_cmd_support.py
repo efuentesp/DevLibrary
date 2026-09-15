@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Naraen Rammoorthi <naraen13@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for observal_cli/cmd_support.py — bundle command module.
+"""Tests for dev_library_cli/cmd_support.py — bundle command module.
 
 Covers:
 - CONFIG_ALLOWLIST contents and count
@@ -24,7 +24,7 @@ from unittest.mock import patch
 
 import pytest
 
-from observal_cli.cmd_support import (
+from dev_library_cli.cmd_support import (
     CONFIG_ALLOWLIST,
     SIZE_BUDGET_BYTES,
     CollectorResult,
@@ -34,7 +34,7 @@ from observal_cli.cmd_support import (
     _write_archive,
     support_app,
 )
-from observal_cli.support.manifest import BundleManifest
+from dev_library_cli.support.manifest import BundleManifest
 
 # ── CONFIG_ALLOWLIST ─────────────────────────────────────────────────
 
@@ -274,7 +274,7 @@ class TestWriteArchive:
 
         # Patch tarfile.open to raise after creating temp file
         with (
-            patch("observal_cli.cmd_support.tarfile.open", side_effect=OSError("disk full")),
+            patch("dev_library_cli.cmd_support.tarfile.open", side_effect=OSError("disk full")),
             pytest.raises(OSError, match="disk full"),
         ):
             _write_archive(output, {"test.json": b"{}"}, manifest)
@@ -336,7 +336,7 @@ class TestSupportApp:
         assert "bundle" in command_names
 
     def test_bundle_docstring_mentions_no_customer_data(self):
-        from observal_cli.cmd_support import bundle
+        from dev_library_cli.cmd_support import bundle
 
         assert bundle.__doc__ is not None
         first_line = bundle.__doc__.strip().split("\n")[0]

@@ -27,7 +27,7 @@ from models.mcp import ListingStatus, McpDownload, McpListing, McpValidationResu
 from models.migration_job import MigrationJob, MigrationOperation, MigrationScope, MigrationStatus
 from models.prompt import PromptDownload, PromptListing
 from models.saml_config import SamlConfig
-from models.sandbox import SandboxDownload, SandboxListing
+from models.sandbox import SandboxListing, SandboxVersion
 from models.scim_token import ScimToken
 from models.skill import SkillDownload, SkillListing
 from models.submission import Submission
@@ -37,6 +37,7 @@ from models.usage_ping import UsagePingState
 from models.user import User, UserRole
 from models.user_group import UserGroup
 from models.user_profile import RecommendationFeedback, UserWorkProfile
+from models.workflow import WorkflowDownload, WorkflowListing
 
 __all__ = [
     "Agent",
@@ -76,8 +77,8 @@ __all__ = [
     "PromptListing",
     "RecommendationFeedback",
     "SamlConfig",
-    "SandboxDownload",
     "SandboxListing",
+    "SandboxVersion",
     "ScimToken",
     "SkillDownload",
     "SkillListing",
@@ -93,4 +94,6 @@ __all__ = [
     "UserGroup",
     "UserRole",
     "UserWorkProfile",
+    "WorkflowDownload",
+    "WorkflowListing",
 ]

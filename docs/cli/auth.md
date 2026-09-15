@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Apoorv Garg <apoorvgarg.21@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal auth`
+# `dev-library auth`
 
 Authentication and account management.
 
@@ -9,19 +9,19 @@ Authentication and account management.
 
 | Command | Description |
 | --- | --- |
-| `observal auth login` | Authenticate with credentials or browser SSO |
-| `observal auth logout` | Revoke the remote session when possible and clear local credentials |
-| `observal auth whoami` | Show the authenticated user |
-| `observal auth status` | Check authenticated server and local outbox health |
-| `observal auth change-password` | Change the current user's password |
-| `observal auth set-username` | Set or update the registry namespace username |
+| `dev-library auth login` | Authenticate with credentials or browser SSO |
+| `dev-library auth logout` | Revoke the remote session when possible and clear local credentials |
+| `dev-library auth whoami` | Show the authenticated user |
+| `dev-library auth status` | Check authenticated server and local outbox health |
+| `dev-library auth change-password` | Change the current user's password |
+| `dev-library auth set-username` | Set or update the registry namespace username |
 
 ## Login
 
 ```bash
-observal auth login
-observal auth login --server https://observal.example.com --email alice
-observal auth login --sso
+dev-library auth login
+dev-library auth login --server https://observal.example.com --email alice
+dev-library auth login --sso
 ```
 
 Login accepts `server`, `email`, `password`, `name`, `sso`, `saml`, `output`, and `no-setup` options. Prefer `OBSERVAL_PASSWORD` or `OBSERVAL_PASSWORD_FILE` over the password option so the secret does not enter shell history or process arguments.
@@ -36,7 +36,7 @@ Credential JSON login emits one safe object and never includes tokens or passwor
 
 ```bash
 OBSERVAL_PASSWORD_FILE=/run/secrets/observal-password \
-  observal auth login \
+  dev-library auth login \
   --server https://observal.example.com \
   --email alice \
   --output json
@@ -45,23 +45,23 @@ OBSERVAL_PASSWORD_FILE=/run/secrets/observal-password \
 Browser SSO in JSON mode is a JSON Lines stream. The first event contains the verification URL and user code. The final event confirms authentication:
 
 ```bash
-observal auth login --sso --output json
+dev-library auth login --sso --output json
 ```
 
 ## Logout
 
 ```bash
-observal auth logout
-observal auth logout --output json
+dev-library auth logout
+dev-library auth logout --output json
 ```
 
-Logout always removes local tokens when the local configuration is readable. Remote revocation is best effort and is reported separately in JSON. Use `observal doctor cleanup` to remove Observal-managed harness hooks.
+Logout always removes local tokens when the local configuration is readable. Remote revocation is best effort and is reported separately in JSON. Use `dev-library doctor cleanup` to remove Observal-managed harness hooks.
 
 ## Current user
 
 ```bash
-observal auth whoami
-observal auth whoami --output json
+dev-library auth whoami
+dev-library auth whoami --output json
 ```
 
 The JSON form returns the server user object directly.
@@ -69,8 +69,8 @@ The JSON form returns the server user object directly.
 ## Status
 
 ```bash
-observal auth status
-observal auth status --output json
+dev-library auth status
+dev-library auth status --output json
 ```
 
 Status reports the server URL, authentication state, health latency, and local telemetry outbox. It returns exit code 3 when authentication is absent and exit code 9 when the configured server is unreachable.
@@ -78,7 +78,7 @@ Status reports the server URL, authentication state, health latency, and local t
 ## Change password
 
 ```bash
-observal auth change-password
+dev-library auth change-password
 ```
 
 Both modes read `OBSERVAL_CURRENT_PASSWORD` and `OBSERVAL_NEW_PASSWORD`, including their corresponding `_FILE` forms. Human mode prompts for missing values; JSON mode requires both values and never prompts.
@@ -86,7 +86,7 @@ Both modes read `OBSERVAL_CURRENT_PASSWORD` and `OBSERVAL_NEW_PASSWORD`, includi
 ```bash
 OBSERVAL_CURRENT_PASSWORD_FILE=/run/secrets/current-password \
 OBSERVAL_NEW_PASSWORD_FILE=/run/secrets/new-password \
-  observal auth change-password --output json
+  dev-library auth change-password --output json
 ```
 
 Passwords require at least 12 characters, one uppercase letter, one number, and one special character.
@@ -94,8 +94,8 @@ Passwords require at least 12 characters, one uppercase letter, one number, and 
 ## Set username
 
 ```bash
-observal auth set-username alice
-observal auth set-username alice --output json
+dev-library auth set-username alice
+dev-library auth set-username alice --output json
 ```
 
 The username is the user's registry namespace. It must follow the namespace rules shown by command help. The server prevents changes that conflict with another namespace or published registry ownership.
@@ -117,5 +117,5 @@ Full list: [Environment variables](../reference/environment-variables.md).
 
 ## Related
 
-* [`observal config`](config.md): local configuration
+* [`dev-library config`](config.md): local configuration
 * [Self-hosting authentication](../self-hosting/authentication.md): server authentication and SSO

@@ -19,8 +19,8 @@ from hypothesis import settings as hsettings
 from hypothesis import strategies as st
 from typer.testing import CliRunner
 
-from observal_cli.cmd_migrate import _require_pyarrow
-from observal_cli.main import app as cli_app
+from dev_library_cli.cmd_migrate import _require_pyarrow
+from dev_library_cli.main import app as cli_app
 from observal_shared.migration.archive import _sha256_file
 from observal_shared.migration.constants import CHUNK_SIZE, INSERT_ORDER, JSONB_COLUMNS
 from observal_shared.migration.encoding import PGEncoder, _build_insert, _build_select, _coerce_value
@@ -74,7 +74,7 @@ class TestCLIRegistration:
         ["export", "import", "validate", "export-telemetry", "import-telemetry", "validate-telemetry"],
     )
     def test_leaf_help_does_not_load_pyarrow(self, command):
-        with patch("observal_cli.cmd_migrate._require_pyarrow", side_effect=AssertionError("loaded pyarrow")):
+        with patch("dev_library_cli.cmd_migrate._require_pyarrow", side_effect=AssertionError("loaded pyarrow")):
             result = runner.invoke(cli_app, ["server", "migrate", command, "--help"])
 
         assert result.exit_code == 0, result.output
@@ -95,7 +95,7 @@ class TestPyarrowRequirement:
                 raise ImportError("simulated missing pyarrow")
             return real_import(name, *args, **kwargs)
 
-        from observal_cli.errors import CliError, ErrorCategory
+        from dev_library_cli.errors import CliError, ErrorCategory
 
         with (
             patch.object(builtins, "__import__", side_effect=fake_import),
@@ -473,7 +473,7 @@ class TestErrorPaths:
 
 
 class TestSecurity:
-    @patch("observal_cli.cmd_migrate.asyncio")
+    @patch("dev_library_cli.cmd_migrate.asyncio")
     def test_db_url_not_in_export_output(self, mock_asyncio):
         """The --db-url value should never appear in CLI output."""
         secret_url = "postgres://secret_user:secret_pass@secret-host:5432/secret_db"

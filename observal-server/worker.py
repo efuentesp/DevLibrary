@@ -15,6 +15,7 @@ from loguru import logger as optic
 from jobs.catalog import batch_generate_insights, generate_insight_report, refresh_user_profiles
 from jobs.maintenance import maintain_clickhouse, purge_inbox_items, sync_component_sources
 from jobs.migration import purge_migration_artifacts, run_migration_job
+from jobs.sandbox_validation import validate_sandbox_version
 from jobs.usage_ping import submit_usage_ping
 from logging_config import setup_logging
 from services.alert_evaluator import evaluate_alerts
@@ -58,6 +59,7 @@ class WorkerSettings:
         refresh_user_profiles,
         purge_inbox_items,
         submit_usage_ping,
+        validate_sandbox_version,
     ]
     cron_jobs = [
         cron(sync_component_sources, hour={0, 6, 12, 18}),  # Every 6 hours

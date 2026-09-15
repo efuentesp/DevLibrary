@@ -15,7 +15,7 @@ Kiro agent profiles are JSON files. Project agents live in `.kiro/agents/`.
 User agents live in `~/.kiro/agents/`.
 
 When Observal installs a Kiro agent, it writes hook commands into that agent JSON.
-The default hooks run the shared `observal_cli.hooks.session_push --harness kiro`
+The default hooks run the shared `dev_library_cli.hooks.session_push --harness kiro`
 entry point for `userPromptSubmit` and `stop`.
 
 The hook reads Kiro session JSONL files from `~/.kiro/sessions/cli/`. It reads
@@ -26,7 +26,7 @@ only new lines since the last push and sends them to Observal.
 ## Supported capabilities
 
 | Capability | Support |
-|---|---|
+| --- | --- |
 | Agent profiles | Project and user scope |
 | Hook bridge | `userPromptSubmit` and `stop` by default |
 | Custom hooks | `agentSpawn`, `userPromptSubmit`, `preToolUse`, `postToolUse`, `stop` |
@@ -52,7 +52,7 @@ uv tool install observal-cli
 ### 2. Authenticate
 
 ```bash
-observal auth login
+dev-library auth login
 ```
 
 This writes credentials to `~/.observal/config.json`.
@@ -60,7 +60,7 @@ This writes credentials to `~/.observal/config.json`.
 ### 3. Pull an agent into Kiro
 
 ```bash
-observal agent pull <agent-name> --harness kiro
+dev-library agent pull <agent-name> --harness kiro
 ```
 
 Kiro's default scope is user scope. By default, the agent is written to
@@ -69,7 +69,7 @@ Kiro's default scope is user scope. By default, the agent is written to
 To install into the current project:
 
 ```bash
-observal agent pull <agent-name> --harness kiro --scope project
+dev-library agent pull <agent-name> --harness kiro --scope project
 ```
 
 Project agents are written to `.kiro/agents/{name}.json`.
@@ -86,7 +86,7 @@ that agent's Observal UUID. `doctor patch` does not install generic Kiro hooks.
 ## Config paths
 
 | Purpose | Project scope | User scope |
-|---|---|---|
+| --- | --- | --- |
 | Agent profile | `.kiro/agents/{name}.json` | `~/.kiro/agents/{name}.json` |
 | Guidance files | `.kiro/steering/*.md`, `AGENTS.md` | `~/.kiro/steering/*.md` |
 | MCP config | `.kiro/settings/mcp.json` | `~/.kiro/settings/mcp.json` |
@@ -111,12 +111,12 @@ Observal writes the telemetry hooks inside each Kiro agent JSON:
   "hooks": {
     "userPromptSubmit": [
       {
-        "command": "OBSERVAL_AGENT_ID=<agent-uuid> python -m observal_cli.hooks.session_push --harness kiro"
+        "command": "OBSERVAL_AGENT_ID=<agent-uuid> python -m dev_library_cli.hooks.session_push --harness kiro"
       }
     ],
     "stop": [
       {
-        "command": "OBSERVAL_AGENT_ID=<agent-uuid> python -m observal_cli.hooks.session_push --harness kiro"
+        "command": "OBSERVAL_AGENT_ID=<agent-uuid> python -m dev_library_cli.hooks.session_push --harness kiro"
       }
     ]
   }
@@ -124,7 +124,7 @@ Observal writes the telemetry hooks inside each Kiro agent JSON:
 ```
 
 On non-Windows platforms, generated server config may use `python3` instead of
-`python`. During `observal agent pull`, the CLI rewrites Observal hook commands to use
+`python`. During `dev-library agent pull`, the CLI rewrites Observal hook commands to use
 the active Python interpreter.
 
 ### Attribution
@@ -132,7 +132,7 @@ the active Python interpreter.
 Kiro does not expose a reliable active Observal agent in its session JSONL. The
 per-agent hook command is the source of truth.
 
-1. `observal agent pull` writes the agent UUID into the Kiro hook command as
+1. `dev-library agent pull` writes the agent UUID into the Kiro hook command as
    `OBSERVAL_AGENT_ID`.
 2. The shared session hook reads that UUID when Kiro fires `userPromptSubmit` or
    `stop`.
@@ -144,7 +144,7 @@ per-agent hook command is the source of truth.
 ### Event map
 
 | Observal event | Kiro event |
-|---|---|
+| --- | --- |
 | `SessionStart` | `agentSpawn` |
 | `UserPromptSubmit` | `userPromptSubmit` |
 | `PreToolUse` | `preToolUse` |
@@ -195,7 +195,7 @@ The `model` field is present when a model is resolved for the agent.
 Kiro skills live at:
 
 | Scope | Path |
-|---|---|
+| --- | --- |
 | Project | `.kiro/skills/{name}/SKILL.md` |
 | User | `~/.kiro/skills/{name}/SKILL.md` |
 
@@ -221,7 +221,7 @@ Run `pytest -q` from the project root.
 
 **Hooks are per agent.** Pulling a new agent includes telemetry hooks automatically, with `OBSERVAL_AGENT_ID` bound to that agent's UUID. Pull the agent again to replace an older Kiro-specific push command with the shared acknowledged exporter. `doctor patch` does not install generic Kiro attribution hooks.
 
-**Default scope is user.** `observal agent pull <agent-name> --harness kiro`
+**Default scope is user.** `dev-library agent pull <agent-name> --harness kiro`
 writes to `~/.kiro/agents/` unless `--scope project` is set.
 
 **No Claude Code subagent layout.** Kiro reads

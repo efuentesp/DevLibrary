@@ -8,7 +8,7 @@ Use MCP components when an agent needs tools from a local process or remote MCP 
 ## What to fill in
 
 | Field | What it means | Example |
-|-------|---------------|---------|
+| ------- | --------------- | --------- |
 | Name | Registry slug for this MCP server | `filesystem-tools` |
 | Category | Registry category for browsing | `file-systems` |
 | Command | Local executable for stdio MCP servers | `npx` or `uvx` |
@@ -65,7 +65,7 @@ Use either command plus args for stdio, or URL for remote MCP. Do not put secret
 Paste a configuration like the examples above into the submit command:
 
 ```bash
-observal registry mcp submit
+dev-library registry mcp submit
 ```
 
 ## Sources

@@ -15,7 +15,7 @@ from unittest.mock import MagicMock
 import httpx
 import pytest
 
-from observal_cli.server import deps
+from dev_library_cli.server import deps
 
 
 class RecordingConsole:

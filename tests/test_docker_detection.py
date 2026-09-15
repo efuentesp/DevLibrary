@@ -24,10 +24,10 @@ def _make_tmpdir_with_files(file_map: dict[str, str]) -> str:
 
 
 class TestDetectDockerImageCli:
-    """Tests for observal_cli.analyzer._detect_docker_image."""
+    """Tests for dev_library_cli.analyzer._detect_docker_image."""
 
     def test_compose_image(self):
-        from observal_cli.analyzer import _detect_docker_image
+        from dev_library_cli.analyzer import _detect_docker_image
 
         tmp = _make_tmpdir_with_files(
             {"docker-compose.yml": "services:\n  mcp:\n    image: ghcr.io/org/my-server:latest\n"}
@@ -37,7 +37,7 @@ class TestDetectDockerImageCli:
         assert suggested is False
 
     def test_compose_build_only_no_image(self):
-        from observal_cli.analyzer import _detect_docker_image
+        from dev_library_cli.analyzer import _detect_docker_image
 
         tmp = _make_tmpdir_with_files({"docker-compose.yml": "services:\n  mcp:\n    build: .\n"})
         image, suggested = _detect_docker_image(Path(tmp), "https://github.com/org/repo")
@@ -46,7 +46,7 @@ class TestDetectDockerImageCli:
         assert suggested is True
 
     def test_readme_ghcr_reference(self):
-        from observal_cli.analyzer import _detect_docker_image
+        from dev_library_cli.analyzer import _detect_docker_image
 
         tmp = _make_tmpdir_with_files({"README.md": "Run with:\n```\ndocker run ghcr.io/myorg/my-mcp-server\n```\n"})
         image, suggested = _detect_docker_image(Path(tmp), "https://gitlab.com/org/repo")
@@ -54,7 +54,7 @@ class TestDetectDockerImageCli:
         assert suggested is False
 
     def test_ghcr_inferred_from_github_url(self):
-        from observal_cli.analyzer import _detect_docker_image
+        from dev_library_cli.analyzer import _detect_docker_image
 
         tmp = _make_tmpdir_with_files({"src/main.py": "# no docker files"})
         image, suggested = _detect_docker_image(Path(tmp), "https://github.com/acme/cool-server")
@@ -62,7 +62,7 @@ class TestDetectDockerImageCli:
         assert suggested is True
 
     def test_ghcr_strips_dot_git(self):
-        from observal_cli.analyzer import _detect_docker_image
+        from dev_library_cli.analyzer import _detect_docker_image
 
         tmp = _make_tmpdir_with_files({"src/main.py": ""})
         image, suggested = _detect_docker_image(Path(tmp), "https://github.com/org/repo.git")
@@ -70,14 +70,14 @@ class TestDetectDockerImageCli:
         assert suggested is True
 
     def test_no_detection_non_github(self):
-        from observal_cli.analyzer import _detect_docker_image
+        from dev_library_cli.analyzer import _detect_docker_image
 
         tmp = _make_tmpdir_with_files({"src/main.py": ""})
         image, suggested = _detect_docker_image(Path(tmp), "https://gitlab.com/org/repo")
         assert image is None
 
     def test_compose_takes_priority_over_readme(self):
-        from observal_cli.analyzer import _detect_docker_image
+        from dev_library_cli.analyzer import _detect_docker_image
 
         tmp = _make_tmpdir_with_files(
             {
@@ -116,7 +116,7 @@ class TestDetectDockerImageServer:
 
     def test_server_matches_cli(self):
         """Both implementations should return the same results."""
-        from observal_cli.analyzer import _detect_docker_image as cli_detect
+        from dev_library_cli.analyzer import _detect_docker_image as cli_detect
         from services.mcp_validator import _detect_docker_image as server_detect
 
         test_cases = [
@@ -141,42 +141,42 @@ class TestInferCommandArgs:
     """Tests for _infer_command_args from the CLI analyzer."""
 
     def test_docker_image(self):
-        from observal_cli.analyzer import _infer_command_args
+        from dev_library_cli.analyzer import _infer_command_args
 
         cmd, args = _infer_command_args(None, "ghcr.io/org/server", "my-mcp")
         assert cmd == "docker"
         assert args == ["run", "-i", "--rm", "ghcr.io/org/server"]
 
     def test_typescript(self):
-        from observal_cli.analyzer import _infer_command_args
+        from dev_library_cli.analyzer import _infer_command_args
 
         cmd, args = _infer_command_args("typescript-mcp-sdk", None, "my-mcp")
         assert cmd == "npx"
         assert args == ["-y", "my-mcp"]
 
     def test_go(self):
-        from observal_cli.analyzer import _infer_command_args
+        from dev_library_cli.analyzer import _infer_command_args
 
         cmd, args = _infer_command_args("go-mcp-sdk", None, "my-mcp")
         assert cmd == "my-mcp"
         assert args == []
 
     def test_python(self):
-        from observal_cli.analyzer import _infer_command_args
+        from dev_library_cli.analyzer import _infer_command_args
 
         cmd, args = _infer_command_args("python-mcp", None, "my-mcp")
         assert cmd == "python"
         assert args == ["-m", "my-mcp"]
 
     def test_python_from_entry_point(self):
-        from observal_cli.analyzer import _infer_command_args
+        from dev_library_cli.analyzer import _infer_command_args
 
         cmd, args = _infer_command_args(None, None, "my-mcp", entry_point="src/main.py")
         assert cmd == "python"
         assert args == ["-m", "my-mcp"]
 
     def test_docker_overrides_framework(self):
-        from observal_cli.analyzer import _infer_command_args
+        from dev_library_cli.analyzer import _infer_command_args
 
         for fw in ("python-mcp", "typescript-mcp-sdk", "go-mcp-sdk"):
             cmd, args = _infer_command_args(fw, "img:latest", "my-mcp")
@@ -184,7 +184,7 @@ class TestInferCommandArgs:
             assert "img:latest" in args
 
     def test_no_framework_no_image(self):
-        from observal_cli.analyzer import _infer_command_args
+        from dev_library_cli.analyzer import _infer_command_args
 
         cmd, args = _infer_command_args(None, None, "my-mcp")
         assert cmd is None
@@ -192,7 +192,7 @@ class TestInferCommandArgs:
 
     def test_server_matches_cli(self):
         """Both implementations should return the same results."""
-        from observal_cli.analyzer import _infer_command_args as cli_infer
+        from dev_library_cli.analyzer import _infer_command_args as cli_infer
         from services.mcp_validator import _infer_command_args as server_infer
 
         test_cases = [
@@ -215,10 +215,10 @@ class TestInferCommandArgs:
 
 
 class TestParseDirectConfig:
-    """Tests for observal_cli.cmd_mcp._parse_direct_config."""
+    """Tests for dev_library_cli.cmd_mcp._parse_direct_config."""
 
     def test_stdio_docker(self):
-        from observal_cli.cmd_mcp import _parse_direct_config
+        from dev_library_cli.cmd_mcp import _parse_direct_config
 
         cfg = {
             "command": "docker",
@@ -234,7 +234,7 @@ class TestParseDirectConfig:
         assert parsed["environment_variables"][0]["name"] == "MY_TOKEN"
 
     def test_stdio_python(self):
-        from observal_cli.cmd_mcp import _parse_direct_config
+        from dev_library_cli.cmd_mcp import _parse_direct_config
 
         cfg = {"command": "python", "args": ["-m", "my_server"]}
         parsed = _parse_direct_config(cfg)
@@ -243,7 +243,7 @@ class TestParseDirectConfig:
         assert parsed["args"] == ["-m", "my_server"]
 
     def test_sse_with_headers(self):
-        from observal_cli.cmd_mcp import _parse_direct_config
+        from dev_library_cli.cmd_mcp import _parse_direct_config
 
         cfg = {
             "type": "sse",
@@ -259,7 +259,7 @@ class TestParseDirectConfig:
         assert parsed["auto_approve"] == ["search", "read"]
 
     def test_sse_defaults_type(self):
-        from observal_cli.cmd_mcp import _parse_direct_config
+        from dev_library_cli.cmd_mcp import _parse_direct_config
 
         cfg = {"url": "https://example.com/mcp"}
         parsed = _parse_direct_config(cfg)
@@ -267,7 +267,7 @@ class TestParseDirectConfig:
         assert parsed["url"] == "https://example.com/mcp"
 
     def test_npx_framework(self):
-        from observal_cli.cmd_mcp import _parse_direct_config
+        from dev_library_cli.cmd_mcp import _parse_direct_config
 
         cfg = {"command": "npx", "args": ["-y", "my-package"]}
         parsed = _parse_direct_config(cfg)
@@ -275,7 +275,7 @@ class TestParseDirectConfig:
 
     def test_unwrap_mcpservers_wrapper(self):
         """Full mcpServers wrapper should be unwrapped and server name extracted."""
-        from observal_cli.cmd_mcp import _parse_direct_config
+        from dev_library_cli.cmd_mcp import _parse_direct_config
 
         cfg = {
             "mcpServers": {
@@ -303,7 +303,7 @@ class TestParseDirectConfig:
 
     def test_unwrap_named_server(self):
         """Single named key wrapping a config dict should be unwrapped."""
-        from observal_cli.cmd_mcp import _parse_direct_config
+        from dev_library_cli.cmd_mcp import _parse_direct_config
 
         cfg = {
             "gitlab": {
@@ -319,7 +319,7 @@ class TestParseDirectConfig:
 
     def test_unwrap_sse_from_mcpservers(self):
         """SSE config inside mcpServers wrapper should be parsed correctly."""
-        from observal_cli.cmd_mcp import _parse_direct_config
+        from dev_library_cli.cmd_mcp import _parse_direct_config
 
         cfg = {
             "mcpServers": {
@@ -340,7 +340,7 @@ class TestParseDirectConfig:
 
     def test_docker_with_volume_mounts_and_env_flags(self):
         """Complex docker args with -v mounts and -env flags (Jira-style)."""
-        from observal_cli.cmd_mcp import _parse_direct_config
+        from dev_library_cli.cmd_mcp import _parse_direct_config
 
         cfg = {
             "command": "docker",
@@ -370,7 +370,7 @@ class TestParseDirectConfig:
 
     def test_unknown_command_still_parses(self):
         """Any command type should be accepted, framework is just None."""
-        from observal_cli.cmd_mcp import _parse_direct_config
+        from dev_library_cli.cmd_mcp import _parse_direct_config
 
         cfg = {"command": "my-custom-binary", "args": ["--serve"]}
         parsed = _parse_direct_config(cfg)
@@ -385,10 +385,10 @@ class TestParseDirectConfig:
 
 
 class TestBuildConfigPreview:
-    """Tests for observal_cli.cmd_mcp._build_config_preview."""
+    """Tests for dev_library_cli.cmd_mcp._build_config_preview."""
 
     def test_stdio_preview(self):
-        from observal_cli.cmd_mcp import _build_config_preview
+        from dev_library_cli.cmd_mcp import _build_config_preview
 
         parsed = {
             "command": "docker",
@@ -406,7 +406,7 @@ class TestBuildConfigPreview:
         assert server["env"] == {"MY_TOKEN": "<MY_TOKEN>"}
 
     def test_sse_preview(self):
-        from observal_cli.cmd_mcp import _build_config_preview
+        from dev_library_cli.cmd_mcp import _build_config_preview
 
         parsed = {
             "transport": "sse",

@@ -18,7 +18,7 @@ from models.agent import AgentStatus
 from schemas.constants import AGENT_NAME_REGEX, Visibility, make_name_validator
 from services.versioning import validate_semver
 
-VALID_COMPONENT_TYPES = {"mcp", "skill", "hook", "prompt", "sandbox"}
+VALID_COMPONENT_TYPES = {"mcp", "skill", "hook", "prompt", "sandbox", "workflow"}
 
 
 class ExternalMcp(BaseModel):
@@ -73,7 +73,7 @@ class SuccessCriteria(BaseModel):
         return v.strip()
 
 
-ComponentType = Literal["mcp", "skill", "hook", "prompt", "sandbox"]
+ComponentType = Literal["mcp", "skill", "hook", "prompt", "sandbox", "workflow"]
 
 
 class ComponentRef(BaseModel):

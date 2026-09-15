@@ -21,8 +21,8 @@ Coverage varies by harness because Observal can only index fields present in the
 ## Discover and install session hooks
 
 ```bash
-observal scan
-observal doctor patch --all-harnesses
+dev-library scan
+dev-library doctor patch --all-harnesses
 ```
 
 `scan` is read-only. `doctor patch` installs supported session hooks or extensions and leaves every MCP command and remote URL unchanged.
@@ -30,15 +30,15 @@ observal doctor patch --all-harnesses
 Scope hook installation to selected harnesses:
 
 ```bash
-observal doctor patch --harness claude-code
-observal doctor patch --harness kiro
-observal doctor patch --harness copilot-cli
+dev-library doctor patch --harness claude-code
+dev-library doctor patch --harness kiro
+dev-library doctor patch --harness copilot-cli
 ```
 
 Restart the harness after hook changes, then run a coding session. If a hook was missed or the machine was offline, reconcile local session sources:
 
 ```bash
-observal reconcile
+dev-library reconcile
 ```
 
 ## Query collected sessions
@@ -48,8 +48,8 @@ Open `/traces` in the web UI to filter sessions by harness, agent, user, model, 
 The CLI can list recent sessions and unfold their events:
 
 ```bash
-observal ops traces --limit 20
-observal ops traces --turn --limit 10
+dev-library ops traces --limit 20
+dev-library ops traces --turn --limit 10
 ```
 
 ## Caveats

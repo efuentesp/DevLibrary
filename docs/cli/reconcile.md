@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Observal Contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal reconcile`
+# `dev-library reconcile`
 
 Backfill local session records missed by automatic hook or extension delivery.
 
@@ -24,19 +24,19 @@ Routine use is unnecessary when automatic delivery is healthy.
 Preview the default seven-day window without network or cursor changes:
 
 ```bash
-observal reconcile --dry-run --output json
+dev-library reconcile --dry-run --output json
 ```
 
 Backfill every installed harness:
 
 ```bash
-observal reconcile --output json
+dev-library reconcile --output json
 ```
 
 Target one harness and a 24-hour discovery window:
 
 ```bash
-observal reconcile --harness kiro --since 24 --output json
+dev-library reconcile --harness kiro --since 24 --output json
 ```
 
 The discovery window accepts 1 through 8,760 hours.
@@ -115,6 +115,6 @@ Per-session source read failures and checkpoint mismatches are explicit result i
 
 ## Related
 
-* [`observal doctor`](doctor.md): configure and verify automatic telemetry instrumentation
-* [`observal ops telemetry status`](ops.md): inspect server and durable outbox health
+* [`dev-library doctor`](doctor.md): configure and verify automatic telemetry instrumentation
+* [`dev-library ops telemetry status`](ops.md): inspect server and durable outbox health
 * [Session tracking](../core-concepts/session-tracking.md): automatic and recovery delivery architecture

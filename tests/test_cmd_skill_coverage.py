@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -14,10 +14,10 @@ from unittest.mock import Mock, call
 import pytest
 from typer.testing import CliRunner
 
-import observal_cli.cmd_skill as skill
-from observal_cli import lockfile
-from observal_cli.errors import CliError, ErrorCategory
-from observal_cli.main import app
+import dev_library_cli.cmd_skill as skill
+from dev_library_cli import lockfile
+from dev_library_cli.errors import CliError, ErrorCategory
+from dev_library_cli.main import app
 
 runner = CliRunner()
 
@@ -551,7 +551,7 @@ def test_show_surfaces_http_failure(monkeypatch):
     assert result.exit_code == 1
     assert isinstance(result.exception, SystemExit)
     assert "Error (unexpected)" in result.output
-    assert "Run observal registry skill show" in result.output
+    assert "Run dev-library registry skill show" in result.output
 
 
 def test_sparse_clone_copies_requested_source_without_real_git(tmp_path, monkeypatch):
@@ -697,6 +697,7 @@ def test_install_command_registry_direct_tracks_project_metadata(monkeypatch):
         skill_md_content="# Review",
         script_content="print('review')",
         script_filename="run.py",
+        extra_files=None,
         harness="pi",
         scope="project",
     )
@@ -802,7 +803,7 @@ def test_install_command_surfaces_listing_failure(monkeypatch):
     assert result.exit_code == 1
     assert isinstance(result.exception, SystemExit)
     assert "Error (unexpected)" in result.output
-    assert "Run observal registry skill install" in result.output
+    assert "Run dev-library registry skill install" in result.output
     post.assert_not_called()
 
 

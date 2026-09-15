@@ -38,7 +38,10 @@ from schemas.dashboard import (
     LatencyCell,
     LeaderboardItem,
     OverviewStats,
+    SandboxRun,
     SandboxStats,
+    SandboxTopItem,
+    SandboxTrendPoint,
     TokenStats,
     TopAgentItem,
     TopItem,
@@ -54,6 +57,21 @@ _RANGE_MAP = {"24h": 1, "7d": 7, "30d": 30, "90d": 90}
 
 def _range_days(range_: str | None) -> int:
     return _RANGE_MAP.get(range_ or "7d", 7)
+
+
+def _to_int(value, default: int = 0) -> int:
+    """ClickHouse JSON returns UInt64 as strings; never let a dashboard query 500."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _to_float(value) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 async def _ch_json(sql: str, params: dict | None = None) -> list[dict]:
@@ -552,18 +570,94 @@ async def harness_usage(current_user: User = Depends(require_role(UserRole.admin
 
 
 @router.get("/dashboard/sandbox-metrics", response_model=SandboxStats)
-async def sandbox_metrics(current_user: User = Depends(require_role(UserRole.admin))):
-    optic.trace("user_id={}", current_user.id)
+async def sandbox_metrics(
+    range_: str | None = Query(None, alias="range"),
+    current_user: User = Depends(require_role(UserRole.admin)),
+):
+    """Aggregate sandbox execution telemetry from sandbox_exec_events."""
+    optic.trace("user_id={}, range={}", current_user.id, range_)
+    days = _range_days(range_)
+    interval = "start_time > now() - INTERVAL {days:UInt32} DAY"
+    params = {"param_days": str(days)}
+
+    summary_rows, over_time_rows, top_rows, failure_rows = await asyncio.gather(
+        _ch_json(
+            "SELECT count() AS total, countIf(status = 'success') AS success, "
+            "countIf(status = 'error') AS errors, countIf(timed_out = 1) AS timeouts, "
+            "countIf(oom_killed = 1) AS ooms, avg(latency_ms) AS avg_latency, "
+            f"quantile(0.95)(latency_ms) AS p95_latency FROM sandbox_exec_events WHERE {interval}",
+            params,
+        ),
+        _ch_json(
+            f"SELECT toDate(start_time) AS date, count() AS runs, countIf(status != 'success') AS failures "
+            f"FROM sandbox_exec_events WHERE {interval} GROUP BY date ORDER BY date ASC",
+            params,
+        ),
+        _ch_json(
+            f"SELECT sandbox_id, any(image) AS image, count() AS runs, "
+            "countIf(status != 'success') / count() AS failure_rate, avg(latency_ms) AS avg_latency "
+            f"FROM sandbox_exec_events WHERE {interval} GROUP BY sandbox_id ORDER BY runs DESC LIMIT 10",
+            params,
+        ),
+        _ch_json(
+            "SELECT event_id, sandbox_id, image, runtime_type, command, status, exit_code, "
+            "oom_killed, timed_out, latency_ms, harness, agent_id, toString(start_time) AS start_time, "
+            f"output_preview FROM sandbox_exec_events WHERE status != 'success' AND {interval} "
+            "ORDER BY start_time DESC LIMIT 20",
+            params,
+        ),
+    )
+
+    summary = summary_rows[0] if summary_rows else {}
+    total = _to_int(summary.get("total"))
+    timeout_count = _to_int(summary.get("timeouts"))
+    oom_count = _to_int(summary.get("ooms"))
+    avg_latency = _to_float(summary.get("avg_latency"))
+    p95_latency = _to_float(summary.get("p95_latency"))
+
     return SandboxStats(
-        total_runs=0,
-        oom_count=0,
-        oom_rate=0,
-        timeout_count=0,
-        timeout_rate=0,
-        avg_exit_code=None,
-        recent_runs=[],
-        cpu_over_time=[],
-        memory_over_time=[],
+        total_runs=total,
+        success_count=_to_int(summary.get("success")),
+        error_count=_to_int(summary.get("errors")),
+        timeout_count=timeout_count,
+        timeout_rate=(timeout_count / total) if total else 0.0,
+        oom_count=oom_count,
+        oom_rate=(oom_count / total) if total else 0.0,
+        avg_latency_ms=avg_latency,
+        p95_latency_ms=p95_latency,
+        runs_over_time=[
+            SandboxTrendPoint(date=str(row["date"]), runs=_to_int(row["runs"]), failures=_to_int(row["failures"]))
+            for row in over_time_rows
+        ],
+        top_sandboxes=[
+            SandboxTopItem(
+                sandbox_id=str(row["sandbox_id"]),
+                image=str(row.get("image") or ""),
+                runs=_to_int(row["runs"]),
+                failure_rate=_to_float(row.get("failure_rate")) or 0.0,
+                avg_latency_ms=_to_float(row.get("avg_latency")) or 0.0,
+            )
+            for row in top_rows
+        ],
+        recent_failures=[
+            SandboxRun(
+                event_id=str(row["event_id"]),
+                sandbox_id=str(row["sandbox_id"]),
+                image=str(row.get("image") or ""),
+                runtime_type=str(row.get("runtime_type") or "docker"),
+                command=str(row.get("command") or ""),
+                status=str(row.get("status") or "error"),
+                exit_code=_to_int(row.get("exit_code")),
+                oom_killed=bool(row.get("oom_killed")),
+                timed_out=bool(row.get("timed_out")),
+                latency_ms=_to_int(row.get("latency_ms")),
+                harness=str(row.get("harness") or ""),
+                agent_id=row.get("agent_id"),
+                start_time=str(row.get("start_time") or ""),
+                output_preview=str(row.get("output_preview") or ""),
+            )
+            for row in failure_rows
+        ],
     )
 
 

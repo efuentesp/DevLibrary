@@ -27,7 +27,7 @@ export function ComponentInstallCommand({ componentType, componentName }: Compon
   const [copied, setCopied] = useState(false);
 
   const effectiveHarness = harness || harnesses?.[0]?.name || "cursor";
-  const command = `observal registry ${componentType} install ${componentName} --harness ${effectiveHarness}`;
+  const command = `dev-library registry ${componentType} install ${componentName} --harness ${effectiveHarness}`;
 
   const handleCopy = useCallback(async () => {
     try {

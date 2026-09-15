@@ -6,10 +6,10 @@
 
 Run: python scripts/sync_observal_skill.py
 
-This walks the Typer command tree exposed by ``observal_cli.main:app`` and
+This walks the Typer command tree exposed by ``dev_library_cli.main:app`` and
 rewrites the section delimited by ``<!-- BEGIN AUTO-GENERATED ... -->`` and
 ``<!-- END AUTO-GENERATED ... -->`` sentinels in
-``observal_cli/skills/observal/SKILL.md`` so the bundled skill stays in sync
+``dev_library_cli/skills/observal/SKILL.md`` so the bundled skill stays in sync
 with the actual CLI surface.
 
 Enforced by ``tests/test_observal_skill_sync.py`` in CI. If the test fails,
@@ -21,15 +21,15 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Add project root to path so we can import observal_cli without installation.
+# Add project root to path so we can import dev_library_cli without installation.
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 import typer  # noqa: E402, TC002
 
-from observal_cli.main import app  # noqa: E402
+from dev_library_cli.main import app  # noqa: E402
 
-SKILL_PATH = ROOT / "observal_cli" / "skills" / "observal" / "references" / "commands.md"
+SKILL_PATH = ROOT / "dev_library_cli" / "skills" / "dev-library" / "references" / "commands.md"
 
 BEGIN_SENTINEL = "<!-- BEGIN AUTO-GENERATED COMMAND REFERENCE -->"
 END_SENTINEL = "<!-- END AUTO-GENERATED COMMAND REFERENCE -->"
@@ -100,7 +100,7 @@ def generate_reference() -> str:
     for cmd in sorted(app.registered_commands, key=lambda c: c.name or ""):
         name = cmd.name or (cmd.callback.__name__ if cmd.callback else "")
         summary = _command_help(cmd)
-        root_lines.append(f"- `observal {name}`: {summary}" if summary else f"- `observal {name}`")
+        root_lines.append(f"- `dev-library {name}`: {summary}" if summary else f"- `dev-library {name}`")
     if root_lines:
         lines.append("**Root commands**")
         lines.append("")
@@ -111,14 +111,14 @@ def generate_reference() -> str:
     for group in sorted(app.registered_groups, key=lambda g: g.name or ""):
         name = group.name or ""
         summary = _group_help(group)
-        header = f"**`observal {name}`**"
+        header = f"**`dev-library {name}`**"
         if summary:
             header = f"{header}: {summary}"
         lines.append(header)
         lines.append("")
         sub_lines: list[str] = []
         if group.typer_instance is not None:
-            _walk(f"observal {name}", group.typer_instance, sub_lines)
+            _walk(f"dev-library {name}", group.typer_instance, sub_lines)
         if sub_lines:
             lines.extend(sub_lines)
         else:

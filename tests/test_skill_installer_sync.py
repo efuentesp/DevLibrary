@@ -16,7 +16,7 @@ from typer.testing import CliRunner
 if TYPE_CHECKING:
     from pathlib import Path
 
-from observal_cli import skill_installer
+from dev_library_cli import skill_installer
 from observal_shared.harness_registry import HARNESS_REGISTRY
 
 
@@ -105,7 +105,7 @@ def test_every_detected_harness_syncs_all_skill_trees_and_migrates_antigravity(
         assert not (antigravity_skills / f"{name}.md").exists()
     assert not (antigravity_skills / "references").exists()
 
-    drift = tmp_path / ".pi/agent/skills/observal/extra.md"
+    drift = tmp_path / ".pi/agent/skills/dev-library/extra.md"
     drift.write_text("stale", encoding="utf-8")
     skill_installer.sync_observal_skills()
     assert not drift.exists()
@@ -151,15 +151,15 @@ def test_codex_and_pi_share_skills_and_remove_matching_native_copy(tmp_path: Pat
     bundled = _use_test_bundle(tmp_path, monkeypatch)
     (tmp_path / ".codex").mkdir()
     (tmp_path / ".pi").mkdir()
-    native = tmp_path / ".pi/agent/skills/observal/SKILL.md"
+    native = tmp_path / ".pi/agent/skills/dev-library/SKILL.md"
     native.parent.mkdir(parents=True)
-    native.write_bytes((bundled / "observal/SKILL.md").read_bytes())
+    native.write_bytes((bundled / "dev-library/SKILL.md").read_bytes())
 
     skill_installer.install_observal_skill()
-    shared_inode = (tmp_path / ".agents/skills/observal").stat().st_ino
+    shared_inode = (tmp_path / ".agents/skills/dev-library").stat().st_ino
     skill_installer.install_observal_skill()
 
-    assert (tmp_path / ".agents/skills/observal").stat().st_ino == shared_inode
+    assert (tmp_path / ".agents/skills/dev-library").stat().st_ino == shared_inode
     for name in skill_installer._SKILL_DIRS:
         assert skill_installer._directory_hash(tmp_path / ".agents/skills" / name) == skill_installer._directory_hash(
             bundled / name
@@ -170,14 +170,14 @@ def test_codex_and_pi_share_skills_and_remove_matching_native_copy(tmp_path: Pat
 def test_pi_reuses_an_existing_shared_copy_without_codex(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     bundled = _use_test_bundle(tmp_path, monkeypatch)
     (tmp_path / ".pi").mkdir()
-    shared = tmp_path / ".agents/skills/observal/SKILL.md"
+    shared = tmp_path / ".agents/skills/dev-library/SKILL.md"
     shared.parent.mkdir(parents=True)
-    shared.write_bytes((bundled / "observal/SKILL.md").read_bytes())
+    shared.write_bytes((bundled / "dev-library/SKILL.md").read_bytes())
 
     skill_installer.install_observal_skill()
 
-    assert skill_installer._directory_hash(shared.parent) == skill_installer._directory_hash(bundled / "observal")
-    assert not (tmp_path / ".pi/agent/skills/observal").exists()
+    assert skill_installer._directory_hash(shared.parent) == skill_installer._directory_hash(bundled / "dev-library")
+    assert not (tmp_path / ".pi/agent/skills/dev-library").exists()
 
 
 def test_divergent_native_copy_and_unrelated_skill_are_preserved(
@@ -186,7 +186,7 @@ def test_divergent_native_copy_and_unrelated_skill_are_preserved(
     _use_test_bundle(tmp_path, monkeypatch)
     (tmp_path / ".codex").mkdir()
     (tmp_path / ".pi").mkdir()
-    native = tmp_path / ".pi/agent/skills/observal/SKILL.md"
+    native = tmp_path / ".pi/agent/skills/dev-library/SKILL.md"
     native.parent.mkdir(parents=True)
     native.write_text("user customization", encoding="utf-8")
     unrelated = tmp_path / ".pi/agent/skills/custom/SKILL.md"
@@ -206,10 +206,10 @@ def test_failed_shared_sync_keeps_matching_native_copy(tmp_path: Path, monkeypat
     bundled = _use_test_bundle(tmp_path, monkeypatch)
     (tmp_path / ".codex").mkdir()
     (tmp_path / ".pi").mkdir()
-    native = tmp_path / ".pi/agent/skills/observal/SKILL.md"
+    native = tmp_path / ".pi/agent/skills/dev-library/SKILL.md"
     native.parent.mkdir(parents=True)
-    native.write_bytes((bundled / "observal/SKILL.md").read_bytes())
-    shared_dir = tmp_path / ".agents/skills/observal"
+    native.write_bytes((bundled / "dev-library/SKILL.md").read_bytes())
+    shared_dir = tmp_path / ".agents/skills/dev-library"
     original_replace = skill_installer._replace_directory
 
     def fail_shared_sync(source: Path, target: Path) -> None:
@@ -252,7 +252,7 @@ def test_startup_sync_does_not_install_into_an_unmanaged_harness(tmp_path: Path,
 
 
 def test_startup_sync_failure_is_a_categorized_json_error(monkeypatch: pytest.MonkeyPatch):
-    import observal_cli.main as main
+    import dev_library_cli.main as main
 
     def deny_sync() -> None:
         raise PermissionError("denied")

@@ -12,7 +12,7 @@ Settings that control platform-wide behavior, harness restrictions, and display 
 Controls the product name and images shown in the web UI.
 
 | Field | Effect |
-|-------|--------|
+| ------- | -------- |
 | Icon | Small logo used in navigation and compact surfaces |
 | Wordmark | Optional full logo image that replaces text branding |
 | App name | Text fallback used when no wordmark is configured |
@@ -23,12 +23,12 @@ Controls the product name and images shown in the web UI.
 
 ## harness Allowlist {#harness-allowlist}
 
-Restrict which harnesses are available in the platform. When set, only the listed harnesses appear in install dropdowns, agent compatibility tags, and `observal agent pull` target selection.
+Restrict which harnesses are available in the platform. When set, only the listed harnesses appear in install dropdowns, agent compatibility tags, and `dev-library agent pull` target selection.
 
-**Affects:** The harness dropdown on agent detail pages, component install commands, agent builder harness selection, and `observal agent pull --harness` validation. Harnesses outside the allowlist are hidden from all users.
+**Affects:** The harness dropdown on agent detail pages, component install commands, agent builder harness selection, and `dev-library agent pull --harness` validation. Harnesses outside the allowlist are hidden from all users.
 
 | Value | Effect |
-|-------|--------|
+| ------- | -------- |
 | _(empty)_ (default) | All supported harnesses are available |
 | `cursor,claude_code,pi` | Only Cursor, Claude Code, and Pi appear in dropdowns |
 | `kiro,cursor` | Only Kiro and Cursor are available |
@@ -37,14 +37,14 @@ Restrict which harnesses are available in the platform. When set, only the liste
 
 **When to set:** Your deployment standardizes on specific harnesses and you don't want users confused by irrelevant options. Also useful for reducing noise in the registry when agents only need to support a subset of harnesses.
 
-**CLI behavior:** `observal agent pull` still requires `--harness`. The selected harness must be allowed by the server.
+**CLI behavior:** `dev-library agent pull` still requires `--harness`. The selected harness must be allowed by the server.
 
 ## Default harness {#default-harness}
 
 The harness pre-selected in web installation controls. The CLI still requires an explicit `--harness`.
 
 | Value | Effect |
-|-------|--------|
+| ------- | -------- |
 | _(empty)_ (default) | First harness in the allowlist, or `cursor` if no allowlist is set |
 | `claude_code` | Claude Code is pre-selected in all harness dropdowns |
 | `pi` | Pi is the default target |

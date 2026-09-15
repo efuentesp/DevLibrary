@@ -14,27 +14,27 @@ import pytest
 
 class TestSandboxRunner:
     def test_now_iso_format(self):
-        from observal_cli.sandbox_runner import _now_iso
+        from dev_library_cli.sandbox_runner import _now_iso
 
         ts = _now_iso()
         assert len(ts) == 23  # YYYY-MM-DD HH:MM:SS.mmm
         assert "-" in ts and ":" in ts
 
     def test_max_log_bytes(self):
-        from observal_cli.sandbox_runner import MAX_LOG_BYTES
+        from dev_library_cli.sandbox_runner import MAX_LOG_BYTES
 
         assert MAX_LOG_BYTES == 64 * 1024
 
     def test_send_span_no_creds(self):
         """send_span should silently return when no server_url or api_key."""
-        from observal_cli.sandbox_runner import _send_span
+        from dev_library_cli.sandbox_runner import _send_span
 
         _send_span("", "", {"test": True})  # should not raise
         _send_span("http://localhost", "", {"test": True})
         _send_span("", "key", {"test": True})
 
     def test_send_span_noop_after_structured_telemetry_removal(self):
-        from observal_cli.sandbox_runner import _send_span
+        from dev_library_cli.sandbox_runner import _send_span
 
         _send_span("http://localhost:8000", "test-key", {"span_id": "test"})
 
@@ -54,7 +54,7 @@ class TestSandboxRunner:
         with patch.dict("sys.modules", {"docker": mock_docker}):
             import importlib
 
-            import observal_cli.sandbox_runner as sr
+            import dev_library_cli.sandbox_runner as sr
 
             importlib.reload(sr)
 
@@ -119,7 +119,7 @@ class TestSandboxRunner:
         assert span["oom_killed"] is True
 
     def test_run_sandbox_truncates_large_logs(self):
-        from observal_cli.sandbox_runner import MAX_LOG_BYTES
+        from dev_library_cli.sandbox_runner import MAX_LOG_BYTES
 
         mock_container = MagicMock()
         mock_container.wait.return_value = {"StatusCode": 0}
@@ -151,7 +151,7 @@ class TestSandboxMcpEntryBuilder:
         config = _build_sandbox_mcp_entry({"s-123": listing}, "cursor")
         assert "observal-sandbox" in config
         assert config["observal-sandbox"]["command"] == "python3"
-        assert "observal_cli.sandbox_mcp" in " ".join(config["observal-sandbox"]["args"])
+        assert "dev_library_cli.sandbox_mcp" in " ".join(config["observal-sandbox"]["args"])
 
     def test_empty(self):
         from services.harness.helpers import _build_sandbox_mcp_entry

@@ -11,6 +11,7 @@ import asyncio
 import enum
 import uuid
 from datetime import UTC, datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from loguru import logger as optic
@@ -28,6 +29,7 @@ from models.prompt import PromptListing, PromptVersion
 from models.sandbox import SandboxListing, SandboxVersion
 from models.skill import SkillListing, SkillVersion
 from models.user import User
+from models.workflow import WorkflowListing, WorkflowVersion
 from schemas.mcp import ReviewActionRequest
 from services.cache import invalidate_namespace
 from services.editing_lock import is_actively_editing
@@ -41,6 +43,7 @@ router = APIRouter(prefix="/api/v1/review", tags=["review"])
 LISTING_MODELS = {
     "mcp": McpListing,
     "skill": SkillListing,
+    "workflow": WorkflowListing,
     "hook": HookListing,
     "prompt": PromptListing,
     "sandbox": SandboxListing,
@@ -49,6 +52,7 @@ LISTING_MODELS = {
 VERSION_MODELS = {
     "mcp": McpVersion,
     "skill": SkillVersion,
+    "workflow": WorkflowVersion,
     "hook": HookVersion,
     "prompt": PromptVersion,
     "sandbox": SandboxVersion,
@@ -134,10 +138,10 @@ def _check_team_filter(team_id: uuid.UUID | None, scope: ReviewScope) -> None:
     raise HTTPException(status_code=403, detail="You do not review for this teamspace")
 
 
-async def _find_listing(listing_id: str, db: AsyncSession):
+async def _find_listing(listing_id: str, db: AsyncSession) -> tuple[str | None, Any]:
     """Find a listing by ID, prefix, or name across all component types."""
     optic.trace("listing_id={}", listing_id)
-    hits = []
+    hits: list[tuple[str, Any]] = []
     for listing_type, model in LISTING_MODELS.items():
         try:
             listing = await resolve_prefix_id(model, listing_id, db)
@@ -289,7 +293,7 @@ async def _query_pending_components(
             continue
 
         # Group by listing_id, take newest pending version per listing
-        seen_listings: dict[uuid.UUID, object] = {}
+        seen_listings: dict[uuid.UUID, Any] = {}
         for pv in pending_versions:
             if pv.listing_id not in seen_listings and not is_actively_editing(pv):
                 seen_listings[pv.listing_id] = pv
@@ -468,18 +472,27 @@ _DETAIL_FIELDS: dict[str, list[str]] = {
         "rejection_reason",
         "bundle_id",
     ],
+    "workflow": [
+        "target_agents",
+        "supported_harnesses",
+        "script_content",
+        "changelog",
+        "rejection_reason",
+        "bundle_id",
+    ],
     "sandbox": [
         "git_url",
         "git_ref",
         "runtime_type",
         "image",
-        "dockerfile_url",
         "resource_limits",
         "network_policy",
-        "allowed_mounts",
         "env_vars",
+        "allowed_mounts",
         "entrypoint",
         "supported_harnesses",
+        "validated_at",
+        "validation_results",
         "rejection_reason",
         "bundle_id",
     ],
@@ -491,13 +504,14 @@ def _safe_serialize(val: object) -> object:
     if isinstance(val, uuid.UUID):
         return str(val)
     if hasattr(val, "isoformat"):
-        return val.isoformat()
+        isoformat = getattr(val, "isoformat")  # noqa: B009 — hasattr narrows at runtime; getattr narrows for the type checker
+        return isoformat()
     if isinstance(val, enum.Enum):
         return val.value
     return val
 
 
-def _serialize_listing_detail(listing_type: str, listing) -> dict:
+def _serialize_listing_detail(listing_type: str, listing: Any) -> dict:
     # Find the pending version if one exists (for reviews, we want pending content)
     optic.trace("listing_type={}, listing={}", listing_type, listing)
     pending_ver = None
@@ -550,7 +564,7 @@ async def get_review(
     scope = await _require_review_scope(db, current_user)
     listing_type, listing = await _find_listing(listing_id, db)
 
-    if listing:
+    if listing and listing_type:
         # 404 rather than 403: the queue already hides items outside the caller's
         # scope, and answering 403 here would confirm a team-private item exists
         # to the very reviewers the scoping keeps away from it.
@@ -649,7 +663,7 @@ async def approve(
     optic.trace("listing_id={}", listing_id)
     scope = await _require_review_scope(db, current_user)
     listing_type, listing = await _find_listing(listing_id, db)
-    if not listing:
+    if not listing or not listing_type:
         raise HTTPException(status_code=404, detail="Listing not found")
     _authorize_item(listing, scope)
 
@@ -698,6 +712,19 @@ async def approve(
     await db.commit()
     await db.refresh(listing)
     await invalidate_namespace("dashboard")
+
+    # Sandbox approvals kick off async image validation: the registry check
+    # never blocks the approval response, and an enqueue failure is only a
+    # warning — validated_at simply stays unset until the next approval.
+    if listing_type == "sandbox" and pending_ver is not None:
+        try:
+            from services.redis import _get_arq_pool
+
+            pool = await _get_arq_pool()
+            await pool.enqueue_job("validate_sandbox_version", str(pending_ver.id))
+        except Exception as exc:
+            optic.warning("sandbox validation enqueue failed for {}: {}", listing.id, exc)
+
     asyncio.create_task(redis_publish("reviews:updated", {"listing_id": str(listing.id), "action": "approved"}))  # noqa: RUF006
     return {"type": listing_type, "id": str(listing.id), "name": listing.name, "status": listing.status.value}
 
@@ -712,7 +739,7 @@ async def reject(
     optic.trace("listing_id={}, req={}", listing_id, req)
     scope = await _require_review_scope(db, current_user)
     listing_type, listing = await _find_listing(listing_id, db)
-    if not listing:
+    if not listing or not listing_type:
         raise HTTPException(status_code=404, detail="Listing not found")
     _authorize_item(listing, scope)
 

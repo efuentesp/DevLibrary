@@ -3,12 +3,12 @@
 
 """OpenCode doctor patch tests."""
 
-from observal_cli.cmd_doctor import _check_opencode, _patch_opencode
+from dev_library_cli.cmd_doctor import _check_opencode, _patch_opencode
 from observal_shared.opencode_plugin_source import OPENCODE_PLUGIN_SOURCE
 
 
 def test_opencode_patch_updates_only_when_hash_differs(tmp_path, monkeypatch):
-    monkeypatch.setattr("observal_cli.cmd_doctor.Path.home", lambda: tmp_path)
+    monkeypatch.setattr("dev_library_cli.cmd_doctor.Path.home", lambda: tmp_path)
     plugin_path = tmp_path / ".config" / "opencode" / "plugins" / "observal-plugin.ts"
 
     assert _patch_opencode(dry_run=False) is True
@@ -22,7 +22,7 @@ def test_opencode_patch_updates_only_when_hash_differs(tmp_path, monkeypatch):
 
 
 def test_opencode_check_warns_for_stub(tmp_path, monkeypatch):
-    monkeypatch.setattr("observal_cli.cmd_doctor.Path.home", lambda: tmp_path)
+    monkeypatch.setattr("dev_library_cli.cmd_doctor.Path.home", lambda: tmp_path)
     plugin_path = tmp_path / ".config" / "opencode" / "plugins" / "observal-plugin.ts"
     plugin_path.parent.mkdir(parents=True)
     plugin_path.write_text("// offline stub\nexport const ObservalPlugin = async () => ({ event: async () => {} });")
@@ -36,7 +36,7 @@ def test_opencode_check_warns_for_stub(tmp_path, monkeypatch):
 
 
 def test_opencode_check_warns_for_drift(tmp_path, monkeypatch):
-    monkeypatch.setattr("observal_cli.cmd_doctor.Path.home", lambda: tmp_path)
+    monkeypatch.setattr("dev_library_cli.cmd_doctor.Path.home", lambda: tmp_path)
     plugin_path = tmp_path / ".config" / "opencode" / "plugins" / "observal-plugin.ts"
     plugin_path.parent.mkdir(parents=True)
     plugin_path.write_text(OPENCODE_PLUGIN_SOURCE.replace("session.idle", "session.idle.modified", 1))
@@ -50,7 +50,7 @@ def test_opencode_check_warns_for_drift(tmp_path, monkeypatch):
 
 
 def test_opencode_check_accepts_current_plugin(tmp_path, monkeypatch):
-    monkeypatch.setattr("observal_cli.cmd_doctor.Path.home", lambda: tmp_path)
+    monkeypatch.setattr("dev_library_cli.cmd_doctor.Path.home", lambda: tmp_path)
     plugin_path = tmp_path / ".config" / "opencode" / "plugins" / "observal-plugin.ts"
     plugin_path.parent.mkdir(parents=True)
     plugin_path.write_text(OPENCODE_PLUGIN_SOURCE)

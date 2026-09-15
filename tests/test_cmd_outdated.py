@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
 """Contract tests for the outdated command."""
@@ -13,9 +13,9 @@ import typer
 from click import unstyle
 from typer.testing import CliRunner
 
-from observal_cli import cmd_outdated
-from observal_cli.cmd_outdated import register_outdated
-from observal_cli.errors import CliError, ErrorCategory, ErrorHandlingGroup, ExitCode
+from dev_library_cli import cmd_outdated
+from dev_library_cli.cmd_outdated import register_outdated
+from dev_library_cli.errors import CliError, ErrorCategory, ErrorHandlingGroup, ExitCode
 
 _AGENT_ID = "11111111-1111-4111-8111-111111111111"
 _MCP_ID = "22222222-2222-4222-8222-222222222222"
@@ -61,7 +61,7 @@ def _mcp(*, version: str = "1.0.0") -> dict:
 
 
 def _set_entries(monkeypatch: pytest.MonkeyPatch, entries: list[dict]) -> None:
-    from observal_cli import lockfile
+    from dev_library_cli import lockfile
 
     monkeypatch.setattr(lockfile, "get_all_entries", lambda harness=None: entries)
 
@@ -84,9 +84,9 @@ def test_help_has_canonical_examples(cli: typer.Typer, monkeypatch: pytest.Monke
     output = unstyle(result.output)
 
     assert result.exit_code == 0
-    assert "observal outdated" in output
-    assert "observal outdated --harness claude-code" in output
-    assert "observal outdated --output json --no-report" in output
+    assert "dev-library outdated" in output
+    assert "dev-library outdated --harness claude-code" in output
+    assert "dev-library outdated --output json --no-report" in output
 
 
 def test_invalid_output_mode_is_a_usage_error(cli: typer.Typer) -> None:
@@ -147,7 +147,7 @@ def test_outdated_ignores_empty_or_inactive_registries(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from observal_cli import config, lockfile
+    from dev_library_cli import config, lockfile
 
     path = tmp_path / "lockfile.json"
     path.write_text(json.dumps({"lock_version": 2, "registries": registries}))
@@ -187,7 +187,7 @@ def test_json_reports_current_outdated_and_inbox_state(
     payload = json.loads(result.stdout)
     assert [item["status"] for item in payload["items"]] == ["outdated", "current"]
     assert payload["items"][0]["upgrade_command"] == (
-        "observal agent pull acme/reviewer --harness claude-code --no-prompt"
+        "dev-library agent pull acme/reviewer --harness claude-code --no-prompt"
     )
     assert payload["items"][1]["upgrade_command"] is None
     assert payload["summary"] == {"total": 2, "outdated": 1, "current": 1, "missing": 0}
@@ -238,7 +238,7 @@ def test_table_lists_every_status_and_escapes_registry_names(
     assert "outdated" in result.output
     assert "missing" in result.output
     assert "All installed items are up to date" not in result.output
-    assert "observal agent pull" in result.output
+    assert "dev-library agent pull" in result.output
 
 
 def test_not_found_is_an_item_status_with_request_context(
@@ -296,7 +296,7 @@ def test_invalid_harness_is_a_validation_error(
     cli: typer.Typer,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from observal_cli import lockfile
+    from dev_library_cli import lockfile
 
     get_entries = MagicMock()
     monkeypatch.setattr(lockfile, "get_all_entries", get_entries)
@@ -325,7 +325,7 @@ def test_invalid_lockfile_entries_are_validation_errors(
     cli: typer.Typer,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from observal_cli import lockfile
+    from dev_library_cli import lockfile
 
     monkeypatch.setattr(lockfile, "get_all_entries", lambda harness=None: [entry])
 
@@ -340,7 +340,7 @@ def test_nonempty_lockfile_without_active_registry_requires_authentication(
     cli: typer.Typer,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from observal_cli import lockfile
+    from dev_library_cli import lockfile
 
     monkeypatch.setattr(lockfile, "get_all_entries", MagicMock(side_effect=ValueError("missing server")))
 
@@ -355,7 +355,7 @@ def test_malformed_and_unreadable_lockfiles_are_categorized(
     cli: typer.Typer,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from observal_cli import lockfile
+    from dev_library_cli import lockfile
 
     monkeypatch.setattr(
         lockfile,
@@ -489,10 +489,10 @@ def test_no_report_prevents_inbox_write(
 @pytest.mark.parametrize(
     ("item_type", "expected"),
     [
-        ("agent", "observal agent pull acme/tool --harness pi --no-prompt"),
-        ("mcp", "observal registry mcp install acme/tool --harness pi --no-prompt"),
-        ("skill", "observal registry skill install acme/tool --harness pi"),
-        ("hook", "observal registry hook install acme/tool --harness pi"),
+        ("agent", "dev-library agent pull acme/tool --harness pi --no-prompt"),
+        ("mcp", "dev-library registry mcp install acme/tool --harness pi --no-prompt"),
+        ("skill", "dev-library registry skill install acme/tool --harness pi"),
+        ("hook", "dev-library registry hook install acme/tool --harness pi"),
     ],
 )
 def test_upgrade_commands_are_type_specific(item_type: str, expected: str) -> None:

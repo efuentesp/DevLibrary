@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for observal_cli.upgrade_lock."""
+"""Tests for dev_library_cli.upgrade_lock."""
 
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ import time
 
 import pytest
 
-from observal_cli import upgrade_lock
-from observal_cli.upgrade_lock import (
+from dev_library_cli import upgrade_lock
+from dev_library_cli.upgrade_lock import (
     UpgradeLockError,
     acquire_lock,
     release_lock,

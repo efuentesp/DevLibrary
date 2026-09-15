@@ -170,6 +170,9 @@ def generate_skill_config(
             config["skill"]["script_content"] = script_content
         if script_filename:
             config["skill"]["script_filename"] = script_filename
+        extra_files = getattr(source, "extra_files", None)
+        if extra_files:
+            config["skill"]["extra_files"] = extra_files
 
     # Include version info in the response
     if version_override:

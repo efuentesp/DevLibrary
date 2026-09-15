@@ -37,7 +37,7 @@ Every file Observal reads or writes on the client (`~/.observal/`) and in each h
 }
 ```
 
-Authentication and identity fields are managed by `observal auth`. The `config set` command accepts only `server_url`, `timeout`, `update_check`, `update_check_interval`, and `update_check_repo`. Supported environment variables override persisted values for the current invocation; see [Environment variables](environment-variables.md).
+Authentication and identity fields are managed by `dev-library auth`. The `config set` command accepts only `server_url`, `timeout`, `update_check`, `update_check_interval`, and `update_check_repo`. Supported environment variables override persisted values for the current invocation; see [Environment variables](environment-variables.md).
 
 ### Durable session outbox
 
@@ -45,7 +45,7 @@ Python session exporters persist each observed batch in `telemetry_buffer.db` be
 
 `sync_state.json` is a cache of acknowledged local positions, not the authority for delivered history. If it is missing, corrupt, or stale, recovery validates and restores positions from the authenticated server checkpoint. Finalized sessions also send a SHA-256 audit manifest; hashing is not performed on ordinary incremental uploads.
 
-Use `observal ops telemetry status` to inspect pending batch count, disk use, oldest pending time, and last successful acknowledgement.
+Use `dev-library ops telemetry status` to inspect pending batch count, disk use, oldest pending time, and last successful acknowledgement.
 
 ### `aliases.json` schema
 
@@ -120,7 +120,7 @@ Each list invocation replaces this cache, including an empty result. Numeric row
 
 ## Safe writes
 
-`observal doctor patch` and `observal doctor cleanup` write each managed configuration file atomically and preserve unrelated entries. Use `--dry-run --output json` to review planned harness changes before writing. Agent Pull reports every created or merged file in its result.
+`dev-library doctor patch` and `dev-library doctor cleanup` write each managed configuration file atomically and preserve unrelated entries. Use `--dry-run --output json` to review planned harness changes before writing. Agent Pull reports every created or merged file in its result.
 
 ## File permissions
 
@@ -129,4 +129,4 @@ Client-side files under `~/.observal/` are created with mode `0600` (owner read/
 ## Related
 
 * [Environment variables](environment-variables.md) - supported runtime overrides
-* [`observal config`](../cli/config.md), CLI surface for editing
+* [`dev-library config`](../cli/config.md), CLI surface for editing

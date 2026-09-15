@@ -2,32 +2,15 @@
 // SPDX-FileCopyrightText: 2026 Lokesh Selvam <lokeshselvam7025@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
-import {
-  useState,
-  useEffect,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
-import {
-  ArrowRight,
-  Loader2,
-  Save,
-  RotateCcw,
-} from "lucide-react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { ArrowRight, Loader2, Save, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -57,7 +40,11 @@ import {
   validateSuccessCriteria,
 } from "@/components/builder/success-criteria-section";
 import { ValidationPanel } from "@/components/builder/validation-panel";
-import { COMPONENT_TYPES, REVERSE_TYPE_MAP, TYPE_MAP } from "@/components/registry/agent-component-constants";
+import {
+  COMPONENT_TYPES,
+  REVERSE_TYPE_MAP,
+  TYPE_MAP,
+} from "@/components/registry/agent-component-constants";
 import { ComponentPicker } from "@/components/registry/component-picker";
 import { VersionBumpDialog } from "@/components/registry/version-bump-dialog";
 
@@ -90,8 +77,6 @@ interface ComponentLink {
   mcp_id?: string;
 }
 
-
-
 export interface AgentEditFormProps {
   agentId: string;
   agent: AgentDetail;
@@ -113,21 +98,32 @@ export function AgentEditForm({
   const vd = versionDetail;
   const initialDescription = vd?.description ?? agent.description ?? "";
   const initialModelName = vd?.model_name ?? agent.model_name ?? "";
-  const initialModelsByIde = (vd?.models_by_harness ?? agent.models_by_harness ?? {}) as Record<string, string>;
+  const initialModelsByIde = (vd?.models_by_harness ??
+    agent.models_by_harness ??
+    {}) as Record<string, string>;
   const initialPrompt = vd?.prompt ?? agent.prompt ?? "";
 
   // ── Form state ───────────────────────────────────────────────
   const [description, setDescription] = useState(initialDescription);
   const [modelName, setModelName] = useState(initialModelName);
-  const [modelsByHarness, setModelsByIde] = useState<Record<string, string>>(initialModelsByIde);
-  const [activeTab, setActiveTab] = useState<RegistryType>("mcps");
+  const [modelsByHarness, setModelsByIde] =
+    useState<Record<string, string>>(initialModelsByIde);
+  const [activeTab, setActiveTab] = useState<RegistryType>(
+    COMPONENT_TYPES[0].value,
+  );
   const [selectedComponents, setSelectedComponents] = useState<
     Record<string, RegistryItem[]>
-  >({ mcps: [], skills: [], hooks: [], prompts: [], sandboxes: [] });
+  >({
+    mcps: [],
+    skills: [],
+    hooks: [],
+    prompts: [],
+    sandboxes: [],
+    workflows: [],
+  });
   const [prompt, setPrompt] = useState<string>(initialPrompt);
-  const [successCriteria, setSuccessCriteria] = useState<SuccessCriteria | null>(
-    vd?.success_criteria ?? null
-  );
+  const [successCriteria, setSuccessCriteria] =
+    useState<SuccessCriteria | null>(vd?.success_criteria ?? null);
 
   // ── Dialog / loading state ────────────────────────────────────
   const [showVersionDialog, setShowVersionDialog] = useState(false);
@@ -148,7 +144,8 @@ export function AgentEditForm({
 
   // ── Validation ────────────────────────────────────────────────
   const validation = useAgentValidation();
-  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
+  const [validationResult, setValidationResult] =
+    useState<ValidationResult | null>(null);
   const validateTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // ── Mutations ─────────────────────────────────────────────────
@@ -188,13 +185,18 @@ export function AgentEditForm({
         }))
       : (agent.component_links ?? agent.mcp_links ?? []);
     const grouped: Record<string, RegistryItem[]> = {
-      mcps: [], skills: [], hooks: [], prompts: [], sandboxes: [],
+      mcps: [],
+      skills: [],
+      hooks: [],
+      prompts: [],
+      sandboxes: [],
     };
     for (const comp of links) {
       const singularType = comp.component_type ?? "mcp";
       const pluralType = REVERSE_TYPE_MAP[singularType] ?? singularType;
       const compId = comp.component_id ?? comp.mcp_id;
-      const compName = comp.component_name ?? comp.mcp_name ?? comp.name ?? compId ?? "";
+      const compName =
+        comp.component_name ?? comp.mcp_name ?? comp.name ?? compId ?? "";
       if (grouped[pluralType] && compId) {
         grouped[pluralType].push({ id: compId, name: compName });
       }
@@ -216,7 +218,7 @@ export function AgentEditForm({
       successCriteria: vd?.success_criteria ?? null,
     };
     setIsDirty(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fingerprint]);
 
   // ── Dirty detection ───────────────────────────────────────────
@@ -227,12 +229,22 @@ export function AgentEditForm({
     const dirty =
       description !== init.description ||
       modelName !== init.modelName ||
-      JSON.stringify(modelsByHarness) !== JSON.stringify(init.modelsByHarness) ||
+      JSON.stringify(modelsByHarness) !==
+        JSON.stringify(init.modelsByHarness) ||
       prompt !== init.prompt ||
-      JSON.stringify(selectedComponents) !== JSON.stringify(init.selectedComponents) ||
-      JSON.stringify(normalizeCriteria(successCriteria)) !== JSON.stringify(normalizeCriteria(init.successCriteria));
+      JSON.stringify(selectedComponents) !==
+        JSON.stringify(init.selectedComponents) ||
+      JSON.stringify(normalizeCriteria(successCriteria)) !==
+        JSON.stringify(normalizeCriteria(init.successCriteria));
     setIsDirty(dirty);
-  }, [description, modelName, modelsByHarness, prompt, selectedComponents, successCriteria]);
+  }, [
+    description,
+    modelName,
+    modelsByHarness,
+    prompt,
+    selectedComponents,
+    successCriteria,
+  ]);
 
   // ── Debounced validation ──────────────────────────────────────
   useEffect(() => {
@@ -263,7 +275,9 @@ export function AgentEditForm({
           onError: () =>
             setValidationResult({
               valid: false,
-              issues: [{ severity: "error", message: "Validation request failed" }],
+              issues: [
+                { severity: "error", message: "Validation request failed" },
+              ],
             }),
         },
       );
@@ -291,7 +305,9 @@ export function AgentEditForm({
         const exists = current.some((c) => c.id === item.id);
         return {
           ...prev,
-          [type]: exists ? current.filter((c) => c.id !== item.id) : [...current, item],
+          [type]: exists
+            ? current.filter((c) => c.id !== item.id)
+            : [...current, item],
         };
       });
     },
@@ -318,17 +334,15 @@ export function AgentEditForm({
     [],
   );
 
-
-
-
-
-
   function buildVersionBody(version: string) {
     const components: { component_type: string; component_id: string }[] = [];
     for (const [type, items] of Object.entries(selectedComponents)) {
       const singularType = TYPE_MAP[type] ?? type;
       for (const item of items) {
-        components.push({ component_type: singularType, component_id: item.id });
+        components.push({
+          component_type: singularType,
+          component_id: item.id,
+        });
       }
     }
 
@@ -387,7 +401,8 @@ export function AgentEditForm({
     }
     setSavingDraft(true);
     try {
-      const draftVersion = versionSuggestions?.suggestions?.patch ?? currentVersion;
+      const draftVersion =
+        versionSuggestions?.suggestions?.patch ?? currentVersion;
       const body = { ...buildVersionBody(draftVersion), save_as_draft: true };
       await createVersion.mutateAsync({ agentId, body });
       initialStateRef.current = {
@@ -487,7 +502,9 @@ export function AgentEditForm({
           rows={8}
           className="resize-y text-sm font-mono"
         />
-        <p className="text-xs text-muted-foreground">Required. Or link a Prompt component in the Components section below.</p>
+        <p className="text-xs text-muted-foreground">
+          Required. Or link a Prompt component in the Components section below.
+        </p>
       </section>
 
       {/* Success Criteria */}
@@ -505,7 +522,8 @@ export function AgentEditForm({
             Components
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            Select the MCPs, skills, hooks, prompts, and sandboxes for this agent. Drag to reorder.
+            Select the MCPs, skills, hooks, prompts, and sandboxes for this
+            agent. Drag to reorder.
           </p>
         </div>
 
@@ -515,9 +533,7 @@ export function AgentEditForm({
         >
           <TabsList>
             {COMPONENT_TYPES.map((ct) => {
-              const count =
-                (selectedComponents[ct.value] ?? []).length +
-                0;
+              const count = (selectedComponents[ct.value] ?? []).length + 0;
               return (
                 <TabsTrigger key={ct.value} value={ct.value}>
                   {ct.label}
@@ -537,7 +553,11 @@ export function AgentEditForm({
                 type={ct.value}
                 selected={selectedIds}
                 onToggle={handleToggle(ct.value)}
-                targetTeamId={agent.visibility === "team" ? agent.team_id ?? undefined : undefined}
+                targetTeamId={
+                  agent.visibility === "team"
+                    ? (agent.team_id ?? undefined)
+                    : undefined
+                }
               />
 
               {(selectedComponents[ct.value] ?? []).length > 0 && (
@@ -552,7 +572,6 @@ export function AgentEditForm({
                   />
                 </div>
               )}
-
             </TabsContent>
           ))}
         </Tabs>
@@ -562,7 +581,6 @@ export function AgentEditForm({
           isValidating={validation.isPending}
         />
       </section>
-
 
       <Separator />
 
@@ -626,7 +644,10 @@ export function AgentEditForm({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDiscardConfirm(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDiscardConfirm(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={confirmDiscard}>

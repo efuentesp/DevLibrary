@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -11,10 +11,10 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-import observal_cli.cmd_hook as hook
-from observal_cli import lockfile
-from observal_cli.errors import CliError, ErrorCategory
-from observal_cli.main import app
+import dev_library_cli.cmd_hook as hook
+from dev_library_cli import lockfile
+from dev_library_cli.errors import CliError, ErrorCategory
+from dev_library_cli.main import app
 
 runner = CliRunner()
 
@@ -499,7 +499,7 @@ def test_list_surfaces_http_failure(monkeypatch):
     assert result.exit_code == 1
     assert isinstance(result.exception, SystemExit)
     assert "Error (unexpected)" in result.output
-    assert "Run observal registry hook list" in result.output
+    assert "Run dev-library registry hook list" in result.output
 
 
 def test_show_renders_optional_metadata_and_json(monkeypatch):
@@ -540,7 +540,7 @@ def test_show_surfaces_http_failure(monkeypatch):
     assert result.exit_code == 1
     assert isinstance(result.exception, SystemExit)
     assert "Error (unexpected)" in result.output
-    assert "Run observal registry hook show" in result.output
+    assert "Run dev-library registry hook show" in result.output
 
 
 def test_install_raw_preserves_server_result_and_skips_writes(tmp_path, monkeypatch):
@@ -734,7 +734,7 @@ def test_install_surfaces_generation_failure_without_writing(tmp_path, monkeypat
     assert result.exit_code == 1
     assert isinstance(result.exception, SystemExit)
     assert "Error (unexpected)" in result.output
-    assert "Run observal registry hook install" in result.output
+    assert "Run dev-library registry hook install" in result.output
     assert not project.exists()
 
 

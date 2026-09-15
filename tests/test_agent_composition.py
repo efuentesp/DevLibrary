@@ -44,7 +44,7 @@ class TestComponentRefSchema:
     def test_valid_component_types_constant(self):
         from schemas.agent import VALID_COMPONENT_TYPES
 
-        assert {"mcp", "skill", "hook", "prompt", "sandbox"} == VALID_COMPONENT_TYPES
+        assert {"mcp", "skill", "hook", "prompt", "sandbox", "workflow"} == VALID_COMPONENT_TYPES
 
     def test_component_ref_rejects_invalid_type(self):
         from pydantic import ValidationError
@@ -242,7 +242,7 @@ class TestListingModelMap:
     def test_all_types_mapped(self):
         from services.agent_resolver import _LISTING_MODELS
 
-        assert set(_LISTING_MODELS.keys()) == {"mcp", "skill", "hook", "prompt", "sandbox"}
+        assert set(_LISTING_MODELS.keys()) == {"mcp", "skill", "hook", "prompt", "sandbox", "workflow"}
 
     def test_mcp_maps_to_mcp_listing(self):
         from models.mcp import McpListing
@@ -1089,7 +1089,7 @@ class TestResolverAndBuilderModulesImportable:
 
         assert callable(resolve_agent)
         assert callable(validate_component_ids)
-        assert len(_LISTING_MODELS) == 5
+        assert len(_LISTING_MODELS) == 6
 
     def test_builder_module_importable(self):
         from services.agent_builder import build_agent_manifest, build_composition_summary

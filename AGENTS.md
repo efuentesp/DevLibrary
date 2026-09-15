@@ -16,14 +16,14 @@ Observal is an agent-centric registry and observability platform for AI coding a
 2. **Web UI** (`web/`): browse the registry, view traces, manage users, admin dashboard
 3. **Observal skill** (bundled, auto-installed on login): lets the LLM inside any harness drive Observal commands directly (e.g. "create an agent that uses the github MCP")
 
-Agents are the primary entity. Each agent bundles 5 component types: MCP servers, skills, hooks, prompts, and sandboxes. When a user runs `observal agent pull <agent>`, the platform resolves all components and writes harness-specific config files.
+Agents are the primary entity. Each agent bundles 5 component types: MCP servers, skills, hooks, prompts, and sandboxes. When a user runs `dev-library agent pull <agent>`, the platform resolves all components and writes harness-specific config files.
 
 ## harness capability support
 
 Ten harnesses are registered in `packages/observal-shared/observal_shared/harness_registry.py`. Support is per-capability, not a single tier. Verify against the registry before relying on this table.
 
 | Harness | Hook spec | Session parser | Capabilities | Harness-specific e2e |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Claude Code | yes | `claude-code` | hooks, mcp_servers, skills | no |
 | Kiro | yes | `kiro` | hooks, mcp_servers | yes (9 specs) |
 | Cursor | no | `cursor` | hooks, mcp_servers | no |
@@ -35,14 +35,14 @@ Ten harnesses are registered in `packages/observal-shared/observal_shared/harnes
 | Antigravity | yes | `antigravity` | hooks, mcp_servers, skills | no |
 | Goose | yes | `goose` | hooks, mcp_servers, skills | no |
 
-Every harness now resolves a session parser, so `observal reconcile` works across all ten. Hook specs in `observal_cli/harness_specs/` exist for eight; Cursor and Pi have none. Only Kiro has harness-specific Playwright coverage.
+Every harness now resolves a session parser, so `dev-library reconcile` works across all ten. Hook specs in `dev_library_cli/harness_specs/` exist for eight; Cursor and Pi have none. Only Kiro has harness-specific Playwright coverage.
 
 See `docs/adding-a-harness.md` for the complete guide to adding or promoting a harness.
 
 ## Architecture at a glance
 
 ```
-observal_cli/          Python CLI (Typer)
+dev_library_cli/          Python CLI (Typer)
   harness/             CLI-side harness adapters (protocol.py, base.py, 10 adapters)
   harness_specs/       Hook specs (8: claude_code, kiro, codex, copilot, copilot_cli, opencode, antigravity, goose)
   skills/              Bundled skills installed on login (observal, observal-admin, etc.)
@@ -75,23 +75,25 @@ tests/e2e/             Playwright (20 specs)
 
 The codebase follows a strict adapter pattern for harness-specific logic. This is the most important architectural decision:
 
-**One adapter per harness, on both sides.** CLI adapters handle scanning and hook detection (`observal_cli/harness/<name>.py`). Server adapters handle config file generation (`observal-server/services/harness/<name>.py`). The shared harness registry (`packages/observal-shared/observal_shared/harness_registry.py`) defines paths, keys, features, and event maps for both sides.
+**One adapter per harness, on both sides.** CLI adapters handle scanning and hook detection (`dev_library_cli/harness/<name>.py`). Server adapters handle config file generation (`observal-server/services/harness/<name>.py`). The shared harness registry (`packages/observal-shared/observal_shared/harness_registry.py`) defines paths, keys, features, and event maps for both sides.
 
 **No if/elif chains for harness logic.** If you need harness-specific behavior, it goes in the adapter. The orchestrators (`cmd_scan.py`, `agent_builder.py`, `cmd_doctor.py`) call adapters via the registry, never with conditionals.
 
-**Capability gating.** Each adapter method maps to a capability via `METHOD_FEATURE_MAP` in `observal_cli/harness/protocol.py`. The registry entry's `capabilities` set (`hooks`, `mcp_servers`, `skills`, `prompts`) decides what is allowed; `BaseAdapter` raises `NotSupportedError` when the capability is absent. This means stubs are safe: they exist but can't be called for unsupported operations.
+**Capability gating.** Each adapter method maps to a capability via `METHOD_FEATURE_MAP` in `dev_library_cli/harness/protocol.py`. The registry entry's `capabilities` set (`hooks`, `mcp_servers`, `skills`, `prompts`) decides what is allowed; `BaseAdapter` raises `NotSupportedError` when the capability is absent. This means stubs are safe: they exist but can't be called for unsupported operations.
 
 **Session parsers are separate from adapters.** They live in `services/session_parsers/` (server-side) and handle converting raw JSONL into normalized trace events. All nine harnesses resolve a parser; Copilot reuses the Copilot CLI parser.
 
 ### What full support means concretely
 
 A fully supported harness has all of:
+
 - A hook spec in `harness_specs/` (defines what `doctor patch` installs)
-- A session parser resolved from the registry's `session_parser` key (enables `observal reconcile`)
+- A session parser resolved from the registry's `session_parser` key (enables `dev-library reconcile`)
 - Full scanning implementation in its CLI adapter (discovers MCPs, skills, hooks, agents)
 - E2E test coverage in `tests/e2e/`
 
 Today only Kiro meets all four. A minimal harness has:
+
 - A registry entry with correct paths
 - A CLI adapter that handles basic MCP scanning
 - A server adapter that generates config files
@@ -104,7 +106,7 @@ Today only Kiro meets all four. A minimal harness has:
 - **Ruff** for lint and format. Line length 120. Pre-commit enforces it.
 - **Loguru for dev logging** (`from loguru import logger as optic`). Positional args only: `optic.debug("x={}", x)`. Never f-strings. Never `exc_info=` (loguru ignores it). See the Optic section below for the full rule and known exceptions.
 - **Typer for CLI.** `B008` suppressed because Typer requires function calls in argument defaults.
-- **Skill files track CLI changes.** When any CLI command is added, removed, renamed, or has its flags changed, update the corresponding skill files in `observal_cli/skills/`. These are the agent's source of truth for command syntax.
+- **Skill files track CLI changes.** When any CLI command is added, removed, renamed, or has its flags changed, update the corresponding skill files in `dev_library_cli/skills/`. These are the agent's source of truth for command syntax.
 - **Dynamic settings** for runtime config: `from services.dynamic_settings import get, get_int, get_bool`. Non-boot settings live in the DB, not env vars.
 - **ClickHouse migrations** live in `observal-server/clickhouse/migrations/*.sql` and run through `services.clickhouse.migrations`. Keep Alembic for Postgres only. Never add ClickHouse DDL to startup code. The init container runs ClickHouse migrations after Alembic and before API startup.
 - **SSRF guard** for all outbound network: `from services.ssrf_guard import is_private_url`. Used in webhooks, git clone, MCP analysis.
@@ -131,7 +133,7 @@ Vite 6 SPA with TanStack Router, not Next.js. `web/AGENTS.md` is the authoritati
 ## CLI structure
 
 ```
-observal
+dev-library
 ├── api                      # authenticated JSON escape hatch for /api/v1 endpoints
 ├── scan                     # read-only discovery of what's installed
 ├── outdated                 # installed components with newer versions available
@@ -166,7 +168,7 @@ observal
     └── migrate              #   PostgreSQL and ClickHouse migration tools
 ```
 
-`pull` is a subcommand (`observal agent pull`), not a top-level command. Run `observal --help` to confirm before documenting a command path.
+`pull` is a subcommand (`dev-library agent pull`), not a top-level command. Run `dev-library --help` to confirm before documenting a command path.
 
 ## Server routes
 
@@ -186,7 +188,7 @@ Sub-packages: `agent/` (crud, install, draft), `admin/` (enterprise_settings, us
 
 ```
 harness ──→ session push hooks ──→ POST /api/v1/ingest/session ──→ ClickHouse
-CLI ──→ observal reconcile ──→ POST /api/v1/ingest/session ──→ ClickHouse
+CLI ──→ dev-library reconcile ──→ POST /api/v1/ingest/session ──→ ClickHouse
 ```
 
 Session delivery uses a local outbox and resumes after transient network failures.
@@ -197,7 +199,7 @@ Session delivery uses a local outbox and resumes after transient network failure
 - JWT signing uses ES256 (not HS256). JWKS endpoint for public key distribution.
 - Device authorization flow for CLI login via browser confirmation.
 - Redis fail-closed: if Redis is down, auth fails (prevents stale token usage).
-- Fresh servers auto-bootstrap admin on first `observal auth login` (localhost-only).
+- Fresh servers auto-bootstrap admin on first `dev-library auth login` (localhost-only).
 
 ## Commands
 
@@ -210,8 +212,8 @@ make logs                # tail logs
 
 # CLI (installed via uv)
 uv tool install --editable .
-observal auth login      # auto-creates admin on fresh server, or login
-observal auth whoami     # check auth
+dev-library auth login      # auto-creates admin on fresh server, or login
+dev-library auth whoami     # check auth
 
 # Linting
 make lint                # ruff check
@@ -222,7 +224,7 @@ make hooks               # install pre-commit hooks
 # Tests (all mock externals, no Docker needed)
 make test                # runs tests/ only (174 files), parallel via pytest-xdist
 make test-v              # verbose
-# observal-server/tests/ (21 files) and observal_cli/tests/ (11 files) are not run
+# observal-server/tests/ (21 files) and dev_library_cli/tests/ (11 files) are not run
 # by `make test` or CI; invoke pytest on those paths directly.
 make test-fuzz           # smoke-test the OSS-Fuzz targets in fuzz/ (needs atheris)
 # E2E (requires running stack):
@@ -231,7 +233,7 @@ cd tests/e2e && pnpm test   # 20 Playwright specs
 
 ## Optic (dev logging)
 
-Loguru-based. `observal ops logs` streams `~/.observal/logs/dev.log`.
+Loguru-based. `dev-library ops logs` streams `~/.observal/logs/dev.log`.
 
 - Import: `from loguru import logger as optic`
 - Format: `optic.debug("msg: x={}", x)` (positional only, never f-strings)

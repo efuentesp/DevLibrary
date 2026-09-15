@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Apoorv Garg <apoorvgarg.21@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal ops`
+# `dev-library ops`
 
 Inspect current session telemetry, Registry usage, feedback, logs, and Agent insight reports.
 
@@ -28,8 +28,8 @@ The dead `ops metrics`, legacy `ops spans`, and synthetic `ops telemetry test` c
 ## Top Registry items
 
 ```bash
-observal ops top --type mcp --output json
-observal ops top --type agent --output json
+dev-library ops top --type mcp --output json
+dev-library ops top --type agent --output json
 ```
 
 JSON returns the direct ranking array. MCP ranking is currently server-limited to five results; Agent ranking is currently server-limited to six.
@@ -39,26 +39,26 @@ JSON returns the direct ranking array. MCP ranking is currently server-limited t
 Submit feedback:
 
 ```bash
-observal ops rate alice/postgres --type mcp --stars 5 --comment 'Reliable' --output json
+dev-library ops rate alice/postgres --type mcp --stars 5 --comment 'Reliable' --output json
 ```
 
 Update feedback:
 
 ```bash
-observal ops rate-update alice/postgres --type mcp --stars 4 --output json
-observal ops rate-update alice/postgres --type mcp --comment 'Updated review' --anonymous --output json
+dev-library ops rate-update alice/postgres --type mcp --stars 4 --output json
+dev-library ops rate-update alice/postgres --type mcp --comment 'Updated review' --anonymous --output json
 ```
 
 Delete feedback:
 
 ```bash
-observal ops rate-delete alice/postgres --type mcp --yes --output json
+dev-library ops rate-delete alice/postgres --type mcp --yes --output json
 ```
 
 View feedback:
 
 ```bash
-observal ops feedback alice/postgres --type mcp --output json
+dev-library ops feedback alice/postgres --type mcp --output json
 ```
 
 Feedback types are `mcp`, `agent`, `skill`, `hook`, `prompt`, and `sandbox`. Stars accept 1 through 5 and comments accept at most 5,000 characters.
@@ -85,10 +85,10 @@ Feedback JSON combines aggregate and individual results:
 * Turn or span detail: `GET /api/v1/sessions/{session_id}`
 
 ```bash
-observal ops traces --limit 20 --output json
-observal ops traces --platform kiro --days 7 --output json
-observal ops traces --turn --limit 5 --output json
-observal ops traces --span --limit 3 --output json
+dev-library ops traces --limit 20 --output json
+dev-library ops traces --platform kiro --days 7 --output json
+dev-library ops traces --turn --limit 5 --output json
+dev-library ops traces --span --limit 3 --output json
 ```
 
 `--platform` accepts a registered harness. `--days` accepts 1 through 365 and `--limit` accepts 1 through 200.
@@ -116,7 +116,7 @@ Default JSON returns the direct session summary array. Turn and span JSON fetch 
 ## Telemetry status
 
 ```bash
-observal ops telemetry status --output json
+dev-library ops telemetry status --output json
 ```
 
 The server portion requires administrator access. The result combines recent server counts and local durable outbox state:
@@ -145,19 +145,19 @@ A local outbox read failure remains visible as `available: false` with a safe er
 Read a finite local tail:
 
 ```bash
-observal ops logs --level WARNING --lines 50 --no-follow --output json
+dev-library ops logs --level WARNING --lines 50 --no-follow --output json
 ```
 
 Follow local logs:
 
 ```bash
-observal ops logs --level INFO --output json
+dev-library ops logs --level INFO --output json
 ```
 
 Follow remote server logs with administrator access:
 
 ```bash
-observal ops logs --remote --level WARNING --output json
+dev-library ops logs --remote --level WARNING --output json
 ```
 
 Valid levels are `TRACE`, `DEBUG`, `INFO`, `WARNING`, `ERROR`, and `CRITICAL`. `--filter` performs case-insensitive text filtering. `--lines` must be zero or greater.
@@ -181,14 +181,14 @@ Malformed remote records, inaccessible files, HTTP errors, timeouts, and connect
 List reports:
 
 ```bash
-observal ops insights list alice/reviewer --output json
+dev-library ops insights list alice/reviewer --output json
 ```
 
 Show a report or one section:
 
 ```bash
-observal ops insights show alice/reviewer latest --output json
-observal ops insights show alice/reviewer latest --section suggestions --output json
+dev-library ops insights show alice/reviewer latest --output json
+dev-library ops insights show alice/reviewer latest --section suggestions --output json
 ```
 
 A section request returns `report_id`, `section`, and that section's `data` rather than the entire report.
@@ -196,13 +196,13 @@ A section request returns `report_id`, `section`, and that section's `data` rath
 Generate once:
 
 ```bash
-observal ops insights generate alice/reviewer --period 14 --output json
+dev-library ops insights generate alice/reviewer --period 14 --output json
 ```
 
 Generate and wait with JSON Lines progress:
 
 ```bash
-observal ops insights generate alice/reviewer --period 14 --wait --output json
+dev-library ops insights generate alice/reviewer --period 14 --wait --output json
 ```
 
 ```json
@@ -243,7 +243,7 @@ Report sections include:
 
 ## Related
 
-* [`observal inbox`](inbox.md): completed insight notifications
-* [`observal agent`](agent.md): apply insight recommendations
-* [`observal registry`](registry.md): inspect rated or recommended components
+* [`dev-library inbox`](inbox.md): completed insight notifications
+* [`dev-library agent`](agent.md): apply insight recommendations
+* [`dev-library registry`](registry.md): inspect rated or recommended components
 * [Debug Agent failures](../use-cases/debug-agent-failures.md)

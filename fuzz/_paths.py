@@ -4,7 +4,7 @@
 """Source-tree bootstrap shared by every fuzz target.
 
 Fuzz targets run as standalone scripts, both from a checkout and from the
-PyInstaller bundle OSS-Fuzz builds. ``observal_cli`` and ``observal_shared``
+PyInstaller bundle OSS-Fuzz builds. ``dev_library_cli`` and ``observal_shared``
 ship as installed packages, but ``observal-server`` is only ever placed on
 ``sys.path`` -- the same arrangement ``tests/conftest.py`` uses.
 

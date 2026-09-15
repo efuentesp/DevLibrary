@@ -8,8 +8,8 @@ Use sandbox components when an agent needs a reviewed runtime for running comman
 ## What to fill in
 
 | Field | What it means | Example |
-|-------|---------------|---------|
-| Runtime type | Local runtime used by `observal-sandbox-run` | `docker` |
+| ------- | --------------- | --------- |
+| Runtime type | Local runtime used by `dev-library-sandbox-run` | `docker` |
 | Image / artifact ref | Docker image, LXC image ref, WASM module path, or runtime artifact | `python:3.12-slim` |
 | Entrypoint | Default command when the agent does not pass one | `pytest` |
 | Network policy | Docker network mode or runtime policy hint | `none` |
@@ -116,7 +116,7 @@ docker build -t ghcr.io/acme/python-pytest:1.0.0 .
 Submit a sandbox from a JSON file like the examples above:
 
 ```bash
-observal registry sandbox submit --from-file sandbox.json
+dev-library registry sandbox submit --from-file sandbox.json
 ```
 
 ## Sources

@@ -870,7 +870,7 @@ async def test_public_visibility_change_creates_and_cancels_review_request(monke
 async def test_owned_listing_counts_names_singular_plural_and_public_predicates():
     team_id = uuid.uuid4()
     database = _db()
-    database.scalar.side_effect = [1, 2, 0, 0, 0, 3, 1]
+    database.scalar.side_effect = [1, 2, 0, 0, 0, 3, 0, 1]
 
     counts = await teams._team_owned_listing_counts(database, team_id)
 
@@ -880,14 +880,14 @@ async def test_owned_listing_counts_names_singular_plural_and_public_predicates(
         "sandboxes": 3,
         "component source": 1,
     }
-    assert database.scalar.await_count == 7
+    assert database.scalar.await_count == 8
     assert all("team_id" in _sql(call.args[0]) for call in database.scalar.await_args_list)
 
     public_db = _db()
-    public_db.scalar.side_effect = [0, 1, 0, 0, 0, 0, 2]
+    public_db.scalar.side_effect = [0, 1, 0, 0, 0, 0, 0, 2]
     public_counts = await teams._team_owned_listing_counts(public_db, team_id, public_only=True)
     assert public_counts == {"MCP server": 1, "component sources": 2}
-    assert public_db.scalar.await_count == 7
+    assert public_db.scalar.await_count == 8
     statements = [_sql(call.args[0]) for call in public_db.scalar.await_args_list]
     assert all("is_private IS false" in statement for statement in statements[:-1])
     assert "is_public IS true" in statements[-1]

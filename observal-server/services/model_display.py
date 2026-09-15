@@ -6,7 +6,7 @@
 Returns the (primary, secondary, is_rolling) tuple used by every UI surface.
 Mirrored at:
   - ``web/src/lib/model-display.ts`` (frontend)
-  - ``observal_cli/render.py`` (``format_model`` helper)
+  - ``dev_library_cli/render.py`` (``format_model`` helper)
 
 Behavioural rules (kept in sync with ``tests/fixtures/model_display_cases.json``):
 

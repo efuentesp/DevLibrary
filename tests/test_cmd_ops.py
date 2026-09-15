@@ -18,10 +18,10 @@ from rich.console import Console
 from typer.main import get_command
 from typer.testing import CliRunner
 
-from observal_cli import cmd_ops as ops
-from observal_cli.install_detector import InstallInfo, InstallMethod
-from observal_cli.main import app as cli_app
-from observal_cli.upgrade_lock import UpgradeLockError
+from dev_library_cli import cmd_ops as ops
+from dev_library_cli.install_detector import InstallInfo, InstallMethod
+from dev_library_cli.main import app as cli_app
+from dev_library_cli.upgrade_lock import UpgradeLockError
 
 runner = CliRunner()
 
@@ -247,7 +247,7 @@ def test_review_reject_posts_the_reason(cli, monkeypatch, agent, bundle, path, r
 
 
 def test_telemetry_status_reports_server_and_outbox_state(cli, monkeypatch):
-    from observal_cli import telemetry_buffer
+    from dev_library_cli import telemetry_buffer
 
     monkeypatch.setattr(
         ops.client,
@@ -279,7 +279,7 @@ def test_telemetry_status_reports_server_and_outbox_state(cli, monkeypatch):
 
 
 def test_telemetry_status_tolerates_unavailable_local_stats(cli, monkeypatch):
-    from observal_cli import telemetry_buffer
+    from dev_library_cli import telemetry_buffer
 
     monkeypatch.setattr(ops.client, "get", lambda path: {})
     monkeypatch.setattr(telemetry_buffer, "stats", raises(OSError("unavailable")))
@@ -1118,7 +1118,7 @@ def test_format_tokens_compacts_large_counts(input_tokens, output_tokens, expect
 
 
 def test_do_install_delegates_to_upgrade_executor(cli, monkeypatch):
-    from observal_cli import upgrade_executor
+    from dev_library_cli import upgrade_executor
 
     calls = []
     install = object()
@@ -1144,7 +1144,7 @@ def install_info(
 
 
 def test_upgrade_rejects_invalid_versions(cli, monkeypatch):
-    from observal_cli import install_detector, version_check
+    from dev_library_cli import install_detector, version_check
 
     monkeypatch.setattr(version_check, "get_current_version", lambda: "1.0.0")
     monkeypatch.setattr(install_detector, "detect", lambda: install_info())
@@ -1157,7 +1157,7 @@ def test_upgrade_rejects_invalid_versions(cli, monkeypatch):
 
 
 def test_upgrade_reports_release_lookup_failures(cli, monkeypatch):
-    from observal_cli import install_detector, version_check
+    from dev_library_cli import install_detector, version_check
 
     monkeypatch.setattr(version_check, "get_current_version", lambda: "1.0.0")
     monkeypatch.setattr(install_detector, "detect", lambda: install_info())
@@ -1171,7 +1171,7 @@ def test_upgrade_reports_release_lookup_failures(cli, monkeypatch):
 
 
 def test_upgrade_honors_declined_confirmation(cli, monkeypatch):
-    from observal_cli import install_detector, version_check
+    from dev_library_cli import install_detector, version_check
 
     confirmations = []
     monkeypatch.setattr(version_check, "get_current_version", lambda: "1.0.0")
@@ -1186,7 +1186,7 @@ def test_upgrade_honors_declined_confirmation(cli, monkeypatch):
 
 
 def test_upgrade_reports_lock_contention(cli, monkeypatch):
-    from observal_cli import install_detector, upgrade_lock, version_check
+    from dev_library_cli import install_detector, upgrade_lock, version_check
 
     monkeypatch.setattr(version_check, "get_current_version", lambda: "1.0.0")
     monkeypatch.setattr(install_detector, "detect", lambda: install_info())
@@ -1200,7 +1200,7 @@ def test_upgrade_reports_lock_contention(cli, monkeypatch):
 
 
 def test_upgrade_installs_releases_lock_and_returns_json(cli, monkeypatch):
-    from observal_cli import install_detector, upgrade_lock, version_check
+    from dev_library_cli import install_detector, upgrade_lock, version_check
 
     calls = []
     info = install_info()
@@ -1235,7 +1235,7 @@ def test_upgrade_installs_releases_lock_and_returns_json(cli, monkeypatch):
 
 
 def test_downgrade_reports_empty_release_lists(cli, monkeypatch):
-    from observal_cli import version_check
+    from dev_library_cli import version_check
 
     monkeypatch.setattr(version_check, "get_current_version", lambda: "2.0.0")
     monkeypatch.setattr(version_check, "fetch_all_releases", lambda: [])
@@ -1248,7 +1248,7 @@ def test_downgrade_reports_empty_release_lists(cli, monkeypatch):
 
 
 def test_downgrade_list_supports_table_and_json(cli, monkeypatch):
-    from observal_cli import version_check
+    from dev_library_cli import version_check
 
     releases = [
         {"version": "2.0.0", "published_at": "2026-06-02"},
@@ -1279,7 +1279,7 @@ def test_downgrade_list_supports_table_and_json(cli, monkeypatch):
     [("invalid", "Invalid target version"), ("0.9.0", "Cannot downgrade below")],
 )
 def test_downgrade_validates_target_versions(cli, monkeypatch, version, message):
-    from observal_cli import version_check
+    from dev_library_cli import version_check
 
     monkeypatch.setattr(version_check, "get_current_version", lambda: "2.0.0")
 
@@ -1291,7 +1291,7 @@ def test_downgrade_validates_target_versions(cli, monkeypatch, version, message)
 
 
 def test_downgrade_blocks_managed_installations(cli, monkeypatch):
-    from observal_cli import install_detector, version_check
+    from dev_library_cli import install_detector, version_check
 
     monkeypatch.setattr(version_check, "get_current_version", lambda: "2.0.0")
     monkeypatch.setattr(install_detector, "detect", lambda: install_info(InstallMethod.SYSTEM_PACKAGE, "apt"))
@@ -1304,7 +1304,7 @@ def test_downgrade_blocks_managed_installations(cli, monkeypatch):
 
 
 def test_downgrade_honors_declined_confirmation(cli, monkeypatch):
-    from observal_cli import install_detector, version_check
+    from dev_library_cli import install_detector, version_check
 
     monkeypatch.setattr(version_check, "get_current_version", lambda: "2.0.0")
     monkeypatch.setattr(install_detector, "detect", lambda: install_info())
@@ -1315,7 +1315,7 @@ def test_downgrade_honors_declined_confirmation(cli, monkeypatch):
 
 
 def test_downgrade_reports_lock_contention(cli, monkeypatch):
-    from observal_cli import install_detector, upgrade_lock, version_check
+    from dev_library_cli import install_detector, upgrade_lock, version_check
 
     monkeypatch.setattr(version_check, "get_current_version", lambda: "2.0.0")
     monkeypatch.setattr(install_detector, "detect", lambda: install_info())
@@ -1329,7 +1329,7 @@ def test_downgrade_reports_lock_contention(cli, monkeypatch):
 
 
 def test_downgrade_installs_when_current_version_is_nonstandard(cli, monkeypatch):
-    from observal_cli import install_detector, upgrade_lock, version_check
+    from dev_library_cli import install_detector, upgrade_lock, version_check
 
     calls = []
     info = install_info()
@@ -1358,7 +1358,7 @@ def backup_path(monkeypatch, tmp_path: Path, exists: bool) -> Path:
 
 
 def test_rollback_reports_missing_backups(cli, monkeypatch, tmp_path):
-    from observal_cli import install_detector
+    from dev_library_cli import install_detector
 
     backup_path(monkeypatch, tmp_path, False)
     monkeypatch.setattr(install_detector, "detect", lambda: install_info(InstallMethod.BINARY, "curl"))
@@ -1371,7 +1371,7 @@ def test_rollback_reports_missing_backups(cli, monkeypatch, tmp_path):
 
 
 def test_rollback_rejects_non_binary_installs(cli, monkeypatch, tmp_path):
-    from observal_cli import install_detector
+    from dev_library_cli import install_detector
 
     backup_path(monkeypatch, tmp_path, True)
     monkeypatch.setattr(install_detector, "detect", lambda: install_info())
@@ -1384,7 +1384,7 @@ def test_rollback_rejects_non_binary_installs(cli, monkeypatch, tmp_path):
 
 
 def test_rollback_honors_declined_confirmation(cli, monkeypatch, tmp_path):
-    from observal_cli import install_detector
+    from dev_library_cli import install_detector
 
     backup_path(monkeypatch, tmp_path, True)
     monkeypatch.setattr(
@@ -1399,7 +1399,7 @@ def test_rollback_honors_declined_confirmation(cli, monkeypatch, tmp_path):
 
 
 def test_rollback_atomically_restores_binary_and_returns_json(cli, monkeypatch, tmp_path):
-    from observal_cli import install_detector, upgrade_lock
+    from dev_library_cli import install_detector, upgrade_lock
 
     backup = backup_path(monkeypatch, tmp_path, True)
     target = tmp_path / "observal"
@@ -1431,7 +1431,7 @@ def test_rollback_atomically_restores_binary_and_returns_json(cli, monkeypatch, 
     ],
 )
 def test_status_reports_update_availability(cli, monkeypatch, release, newer, message):
-    from observal_cli import install_detector, version_check
+    from dev_library_cli import install_detector, version_check
 
     monkeypatch.setattr(version_check, "get_current_version", lambda: "1.0.0")
     monkeypatch.setattr(version_check, "_fetch_from_github", lambda: release)
@@ -1447,7 +1447,7 @@ def test_status_reports_update_availability(cli, monkeypatch, release, newer, me
 
 
 def test_self_status_json_and_command_inventory(cli, monkeypatch):
-    from observal_cli import install_detector, version_check
+    from dev_library_cli import install_detector, version_check
 
     monkeypatch.setattr(version_check, "get_current_version", lambda: "1.0.0")
     monkeypatch.setattr(version_check, "_fetch_from_github", lambda: {"latest_version": "2.0.0"})
@@ -1476,7 +1476,7 @@ def test_self_status_json_and_command_inventory(cli, monkeypatch):
 
 
 def test_self_json_mutations_require_force(cli, monkeypatch, tmp_path):
-    from observal_cli import install_detector, version_check
+    from dev_library_cli import install_detector, version_check
 
     monkeypatch.setattr(version_check, "get_current_version", lambda: "2.0.0")
     monkeypatch.setattr(install_detector, "detect", lambda: install_info())
@@ -1504,7 +1504,7 @@ def test_self_json_mutations_require_force(cli, monkeypatch, tmp_path):
 
 
 def test_self_json_install_failure_suppresses_executor_output(cli, monkeypatch):
-    from observal_cli import upgrade_executor
+    from dev_library_cli import upgrade_executor
 
     def fail_install(*args, **kwargs):
         print("sensitive installer detail")
@@ -1539,7 +1539,7 @@ def test_every_remaining_ops_workflow_has_output_and_dead_commands_are_removed()
 
 
 def test_telemetry_status_json_combines_server_and_outbox(cli, monkeypatch):
-    from observal_cli import telemetry_buffer
+    from dev_library_cli import telemetry_buffer
 
     server = {"status": "ok", "tool_call_events": 2, "agent_interaction_events": 3}
     monkeypatch.setattr(ops.client, "get", lambda path: server)

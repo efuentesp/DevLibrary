@@ -68,7 +68,7 @@ class TestServerOptic:
 
 
 class TestCLIOptic:
-    """Tests for observal_cli/optic.py setup."""
+    """Tests for dev_library_cli/optic.py setup."""
 
     def setup_method(self):
         """Remove all sinks before each test."""
@@ -76,7 +76,7 @@ class TestCLIOptic:
 
     def test_setup_no_flags_is_silent(self, capsys):
         """With no flags, no sinks are added - loguru is silent."""
-        from observal_cli.optic import setup_optic
+        from dev_library_cli.optic import setup_optic
 
         setup_optic(debug=False, verbose=False)
 
@@ -89,7 +89,7 @@ class TestCLIOptic:
 
     def test_setup_verbose_shows_info(self, capsys):
         """--verbose shows INFO+ on stderr."""
-        from observal_cli.optic import setup_optic
+        from dev_library_cli.optic import setup_optic
 
         setup_optic(verbose=True)
 
@@ -102,7 +102,7 @@ class TestCLIOptic:
 
     def test_setup_debug_shows_debug(self, capsys):
         """--debug shows DEBUG+ on stderr."""
-        from observal_cli.optic import setup_optic
+        from dev_library_cli.optic import setup_optic
 
         setup_optic(debug=True)
 
@@ -113,9 +113,9 @@ class TestCLIOptic:
 
     def test_setup_debug_creates_log_file(self, tmp_path: Path):
         """--debug creates a CLI log file."""
-        from observal_cli.optic import setup_optic
+        from dev_library_cli.optic import setup_optic
 
-        with patch("observal_cli.optic.Path.home", return_value=tmp_path):
+        with patch("dev_library_cli.optic.Path.home", return_value=tmp_path):
             setup_optic(debug=True)
 
         log_dir = tmp_path / ".observal" / "logs"

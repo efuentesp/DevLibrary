@@ -76,32 +76,32 @@ class TestEnvVarFiltering:
     """Test _is_filtered_env_var for both CLI analyzer and server validator."""
 
     def test_internal_vars_filtered(self):
-        from observal_cli.analyzer import _is_filtered_env_var
+        from dev_library_cli.analyzer import _is_filtered_env_var
 
         for var in ("PATH", "HOME", "NODE_ENV", "PORT", "APP", "DEBUG"):
             assert _is_filtered_env_var(var), f"{var} should be filtered"
 
     def test_ci_prefix_filtered(self):
-        from observal_cli.analyzer import _is_filtered_env_var
+        from dev_library_cli.analyzer import _is_filtered_env_var
 
         for var in ("CI_PIPELINE_ID", "GITHUB_SHA", "GITLAB_CI", "DOCKER_BUILDKIT"):
             assert _is_filtered_env_var(var), f"{var} should be filtered"
 
     def test_allowed_vars_bypass_prefix_filter(self):
-        from observal_cli.analyzer import _is_filtered_env_var
+        from dev_library_cli.analyzer import _is_filtered_env_var
 
         for var in ("GITHUB_TOKEN", "GITHUB_PERSONAL_ACCESS_TOKEN", "DOCKER_HOST"):
             assert not _is_filtered_env_var(var), f"{var} should NOT be filtered"
 
     def test_user_facing_vars_pass(self):
-        from observal_cli.analyzer import _is_filtered_env_var
+        from dev_library_cli.analyzer import _is_filtered_env_var
 
         for var in ("OPENAI_API_KEY", "SLACK_TOKEN", "DATABASE_URL"):
             assert not _is_filtered_env_var(var), f"{var} should pass"
 
     def test_server_validator_matches_cli(self):
         """Server-side filtering must match CLI-side."""
-        from observal_cli.analyzer import _is_filtered_env_var as cli_filter
+        from dev_library_cli.analyzer import _is_filtered_env_var as cli_filter
         from services.mcp_validator import _is_filtered_env_var as server_filter
 
         test_vars = [
@@ -125,7 +125,7 @@ class TestEnvVarFiltering:
 
 class TestTestFileFiltering:
     def test_skip_test_dirs(self):
-        from observal_cli.analyzer import _is_test_file
+        from dev_library_cli.analyzer import _is_test_file
 
         assert _is_test_file(Path("tests/test_foo.py"))
         assert _is_test_file(Path("test/main_test.go"))
@@ -134,13 +134,13 @@ class TestTestFileFiltering:
         assert _is_test_file(Path("node_modules/pkg/index.js"))
 
     def test_skip_test_files(self):
-        from observal_cli.analyzer import _is_test_file
+        from dev_library_cli.analyzer import _is_test_file
 
         assert _is_test_file(Path("cmd/server_test.go"))
         assert _is_test_file(Path("test_config.py"))
 
     def test_pass_normal_files(self):
-        from observal_cli.analyzer import _is_test_file
+        from dev_library_cli.analyzer import _is_test_file
 
         assert not _is_test_file(Path("cmd/server.go"))
         assert not _is_test_file(Path("src/main.py"))
@@ -156,7 +156,7 @@ class TestTier1ServerJson:
     """Tier 1: server.json manifest is authoritative."""
 
     def test_packages_runtime_arguments(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         manifest = {
             "packages": [
@@ -173,7 +173,7 @@ class TestTier1ServerJson:
         assert "GITHUB_PERSONAL_ACCESS_TOKEN" in names
 
     def test_remotes_variables(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         manifest = {
             "remotes": [
@@ -193,7 +193,7 @@ class TestTier1ServerJson:
 
     def test_manifest_stops_further_scanning(self):
         """If server.json exists (even with 0 env vars), skip all other tiers."""
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files(
             {
@@ -207,7 +207,7 @@ class TestTier1ServerJson:
 
     def test_invalid_json_falls_through(self):
         """Malformed server.json should fall through to next tier."""
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files(
             {
@@ -224,7 +224,7 @@ class TestTier2Readme:
     """Tier 2: README env var extraction."""
 
     def test_docker_e_flag(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files({"README.md": "docker run -e MY_API_KEY -e MY_SECRET image:latest"})
         result = _detect_env_vars(tmp)
@@ -233,7 +233,7 @@ class TestTier2Readme:
         assert "MY_SECRET" in names
 
     def test_export_statement(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files({"README.md": "export OPENAI_API_KEY=sk-..."})
         result = _detect_env_vars(tmp)
@@ -241,7 +241,7 @@ class TestTier2Readme:
         assert "OPENAI_API_KEY" in names
 
     def test_json_config_key(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files({"README.md": '{\n  "SLACK_TOKEN": "xoxb-..."\n}'})
         result = _detect_env_vars(tmp)
@@ -249,7 +249,7 @@ class TestTier2Readme:
         assert "SLACK_TOKEN" in names
 
     def test_filters_internal_vars_from_readme(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files(
             {"README.md": "export PATH=/usr/bin\nexport NODE_ENV=production\nexport MY_TOKEN=abc"}
@@ -261,7 +261,7 @@ class TestTier2Readme:
         assert "NODE_ENV" not in names
 
     def test_readme_stops_further_scanning(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files(
             {
@@ -281,7 +281,7 @@ class TestTier3EnvExample:
     """Tier 3: .env.example file."""
 
     def test_env_example_detected(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files({".env.example": "API_KEY=\nDATABASE_URL=postgres://localhost/db\n"})
         result = _detect_env_vars(tmp)
@@ -290,7 +290,7 @@ class TestTier3EnvExample:
         assert "DATABASE_URL" in names
 
     def test_skips_comments_and_blanks(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files({".env.example": "# This is a comment\n\nSECRET_KEY=mysecret\n"})
         result = _detect_env_vars(tmp)
@@ -300,7 +300,7 @@ class TestTier3EnvExample:
 
     def test_skips_env_and_env_local(self):
         """Should not scan .env or .env.local (actual secrets)."""
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files(
             {
@@ -316,7 +316,7 @@ class TestTier4SourceCode:
     """Tier 4: Source code scanning (last resort)."""
 
     def test_python_os_environ(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files(
             {"src/main.py": 'import os\ntoken = os.environ["MY_TOKEN"]\nkey = os.getenv("MY_KEY")\n'}
@@ -327,7 +327,7 @@ class TestTier4SourceCode:
         assert "MY_KEY" in names
 
     def test_go_os_getenv(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files(
             {"cmd/main.go": 'package main\nimport "os"\nfunc main() { os.Getenv("API_TOKEN") }\n'}
@@ -337,7 +337,7 @@ class TestTier4SourceCode:
         assert "API_TOKEN" in names
 
     def test_typescript_process_env(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files(
             {"src/index.ts": 'const key = process.env.OPENAI_KEY;\nconst s = process.env["MY_SECRET"];\n'}
@@ -348,7 +348,7 @@ class TestTier4SourceCode:
         assert "MY_SECRET" in names
 
     def test_skips_test_directories(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files(
             {
@@ -362,7 +362,7 @@ class TestTier4SourceCode:
         assert "TEST_ONLY_VAR" not in names
 
     def test_filters_internal_vars_from_code(self):
-        from observal_cli.analyzer import _detect_env_vars
+        from dev_library_cli.analyzer import _detect_env_vars
 
         tmp = _make_tmpdir_with_files(
             {"src/app.py": 'os.environ["PATH"]\nos.getenv("HOME")\nos.getenv("MY_CUSTOM_VAR")\n'}
@@ -875,46 +875,46 @@ class TestGenerateConfigSSE:
 
 class TestDollarVarDetection:
     def test_extract_from_args(self):
-        from observal_cli.cmd_mcp import _extract_dollar_vars
+        from dev_library_cli.cmd_mcp import _extract_dollar_vars
 
         result = _extract_dollar_vars(["-v", "$USER_VOLUME_PATH:/data", "--host", "$SERVER_HOST"], {})
         assert "USER_VOLUME_PATH" in result
         assert "SERVER_HOST" in result
 
     def test_extract_from_env_values(self):
-        from observal_cli.cmd_mcp import _extract_dollar_vars
+        from dev_library_cli.cmd_mcp import _extract_dollar_vars
 
         result = _extract_dollar_vars([], {"JIRA_URL": "$JIRA_BASE_URL", "TOKEN": "$JIRA_TOKEN"})
         assert "JIRA_BASE_URL" in result
         assert "JIRA_TOKEN" in result
 
     def test_extract_braces_form(self):
-        from observal_cli.cmd_mcp import _extract_dollar_vars
+        from dev_library_cli.cmd_mcp import _extract_dollar_vars
 
         result = _extract_dollar_vars(["${MY_VAR}"], {})
         assert "MY_VAR" in result
 
     def test_filters_system_vars(self):
-        from observal_cli.cmd_mcp import _extract_dollar_vars
+        from dev_library_cli.cmd_mcp import _extract_dollar_vars
 
         result = _extract_dollar_vars(["$HOME/path", "$MY_CUSTOM"], {})
         assert "MY_CUSTOM" in result
         assert "HOME" not in result
 
     def test_dedup_across_args_and_env(self):
-        from observal_cli.cmd_mcp import _extract_dollar_vars
+        from dev_library_cli.cmd_mcp import _extract_dollar_vars
 
         result = _extract_dollar_vars(["$JIRA_URL"], {"URL": "$JIRA_URL"})
         assert result.count("JIRA_URL") == 1
 
     def test_ignores_lowercase(self):
-        from observal_cli.cmd_mcp import _extract_dollar_vars
+        from dev_library_cli.cmd_mcp import _extract_dollar_vars
 
         result = _extract_dollar_vars(["$lowercase_var"], {})
         assert result == []
 
     def test_multiple_vars_in_one_arg(self):
-        from observal_cli.cmd_mcp import _extract_dollar_vars
+        from dev_library_cli.cmd_mcp import _extract_dollar_vars
 
         result = _extract_dollar_vars(["$USER_PATH:/data/$SUBDIR"], {})
         assert "USER_PATH" in result
@@ -971,7 +971,7 @@ class TestDollarVarSubstitution:
 
 class TestParseDirectConfigDollarVars:
     def test_detects_dollar_vars_in_args(self):
-        from observal_cli.cmd_mcp import _parse_direct_config
+        from dev_library_cli.cmd_mcp import _parse_direct_config
 
         cfg = {
             "command": "docker",
@@ -984,7 +984,7 @@ class TestParseDirectConfigDollarVars:
         assert "USER_PATH" in parsed["_dollar_vars_detected"]
 
     def test_merges_env_keys_and_dollar_vars(self):
-        from observal_cli.cmd_mcp import _parse_direct_config
+        from dev_library_cli.cmd_mcp import _parse_direct_config
 
         cfg = {
             "command": "docker",
@@ -1001,7 +1001,7 @@ class TestParseDirectConfigDollarVars:
         assert len(names) == len(set(names))
 
     def test_no_flag_when_no_dollar_vars(self):
-        from observal_cli.cmd_mcp import _parse_direct_config
+        from dev_library_cli.cmd_mcp import _parse_direct_config
 
         cfg = {
             "command": "python",
@@ -1019,43 +1019,43 @@ class TestParseDirectConfigDollarVars:
 
 class TestDollarToPlaceholder:
     def test_bearer_single_token(self):
-        from observal_cli.cmd_mcp import _dollar_to_placeholder
+        from dev_library_cli.cmd_mcp import _dollar_to_placeholder
 
         assert _dollar_to_placeholder("Bearer $TOKEN") == "Bearer <TOKEN>"
 
     def test_bearer_braces_form(self):
-        from observal_cli.cmd_mcp import _dollar_to_placeholder
+        from dev_library_cli.cmd_mcp import _dollar_to_placeholder
 
         assert _dollar_to_placeholder("Bearer ${TOKEN}") == "Bearer <TOKEN>"
 
     def test_bearer_multiple_tokens(self):
-        from observal_cli.cmd_mcp import _dollar_to_placeholder
+        from dev_library_cli.cmd_mcp import _dollar_to_placeholder
 
         assert _dollar_to_placeholder("Bearer $TOKEN1 $TOKEN2") == "Bearer <TOKEN1> <TOKEN2>"
 
     def test_bearer_mixed_literal(self):
-        from observal_cli.cmd_mcp import _dollar_to_placeholder
+        from dev_library_cli.cmd_mcp import _dollar_to_placeholder
 
         result = _dollar_to_placeholder("Bearer $TOKEN1, token2")
         assert result == "Bearer <TOKEN1>, token2"
 
     def test_bare_variable(self):
-        from observal_cli.cmd_mcp import _dollar_to_placeholder
+        from dev_library_cli.cmd_mcp import _dollar_to_placeholder
 
         assert _dollar_to_placeholder("$API_KEY") == "<API_KEY>"
 
     def test_no_variables(self):
-        from observal_cli.cmd_mcp import _dollar_to_placeholder
+        from dev_library_cli.cmd_mcp import _dollar_to_placeholder
 
         assert _dollar_to_placeholder("static-value") == "static-value"
 
     def test_empty_string(self):
-        from observal_cli.cmd_mcp import _dollar_to_placeholder
+        from dev_library_cli.cmd_mcp import _dollar_to_placeholder
 
         assert _dollar_to_placeholder("") == ""
 
     def test_multiple_vars_in_path(self):
-        from observal_cli.cmd_mcp import _dollar_to_placeholder
+        from dev_library_cli.cmd_mcp import _dollar_to_placeholder
 
         assert _dollar_to_placeholder("$HOST:$PORT/api") == "<HOST>:<PORT>/api"
 
@@ -1067,7 +1067,7 @@ class TestDollarToPlaceholder:
 
 class TestBuildConfigPreviewPlaceholders:
     def test_sse_header_bearer_token_placeholder(self):
-        from observal_cli.cmd_mcp import _build_config_preview
+        from dev_library_cli.cmd_mcp import _build_config_preview
 
         parsed = {
             "transport": "sse",
@@ -1082,7 +1082,7 @@ class TestBuildConfigPreviewPlaceholders:
         assert headers["Authorization"] == "Bearer <TOKEN>"
 
     def test_sse_header_multiple_dollar_vars(self):
-        from observal_cli.cmd_mcp import _build_config_preview
+        from dev_library_cli.cmd_mcp import _build_config_preview
 
         parsed = {
             "transport": "sse",
@@ -1097,7 +1097,7 @@ class TestBuildConfigPreviewPlaceholders:
         assert headers["Authorization"] == "Bearer <TOKEN1> <TOKEN2>"
 
     def test_sse_header_no_dollar_uses_name_fallback(self):
-        from observal_cli.cmd_mcp import _build_config_preview
+        from dev_library_cli.cmd_mcp import _build_config_preview
 
         parsed = {
             "transport": "sse",
@@ -1112,7 +1112,7 @@ class TestBuildConfigPreviewPlaceholders:
         assert headers["X-Custom"] == "<X-Custom>"
 
     def test_stdio_args_dollar_vars_replaced(self):
-        from observal_cli.cmd_mcp import _build_config_preview
+        from dev_library_cli.cmd_mcp import _build_config_preview
 
         parsed = {
             "transport": "stdio",
@@ -1129,7 +1129,7 @@ class TestBuildConfigPreviewPlaceholders:
         assert "<HOST>" in args
 
     def test_stdio_args_no_dollar_unchanged(self):
-        from observal_cli.cmd_mcp import _build_config_preview
+        from dev_library_cli.cmd_mcp import _build_config_preview
 
         parsed = {
             "transport": "stdio",

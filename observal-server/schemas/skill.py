@@ -6,12 +6,41 @@
 
 import uuid
 from datetime import datetime
+from typing import Literal
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 
 from models.mcp import ListingStatus
+from observal_shared.skill_files import (
+    check_extra_file_set,
+    normalize_extra_file_path,
+    validate_extra_file_entry,
+)
 from schemas.constants import VALID_SKILL_TASK_TYPES, Visibility, make_harness_list_validator, make_option_validator
 from schemas.skill_commands import normalize_slash_command
+
+
+class SkillExtraFile(BaseModel):
+    """One auxiliary file in a multi-file (registry_direct) skill.
+
+    Paths are relative to the skill directory and validated by
+    ``observal_shared.skill_files``; see that module for the shared contract
+    and caps enforced on both server and CLI.
+    """
+
+    path: str
+    content: str
+    encoding: Literal["utf-8", "base64"] = "utf-8"
+
+    @field_validator("path")
+    @classmethod
+    def _normalize_path(cls, v: str) -> str:
+        return normalize_extra_file_path(v)
+
+    @model_validator(mode="after")
+    def _check_entry(self):
+        validate_extra_file_entry(self.model_dump())
+        return self
 
 
 class SkillSubmitRequest(BaseModel):
@@ -28,6 +57,7 @@ class SkillSubmitRequest(BaseModel):
     delivery_mode: str = "git_fetch"
     script_content: str | None = None
     script_filename: str | None = None
+    extra_files: list[SkillExtraFile] | None = None
     target_agents: list[str] = []
     task_type: str
     slash_command: str | None = None
@@ -40,6 +70,12 @@ class SkillSubmitRequest(BaseModel):
     @classmethod
     def _validate_slash_command(cls, v: str | None) -> str | None:
         return normalize_slash_command(v)
+
+    @model_validator(mode="after")
+    def _validate_extra_files(self):
+        if self.extra_files is not None:
+            check_extra_file_set([e.model_dump() for e in self.extra_files], script_filename=self.script_filename)
+        return self
 
 
 class SkillDraftRequest(BaseModel):
@@ -56,6 +92,7 @@ class SkillDraftRequest(BaseModel):
     delivery_mode: str = "git_fetch"
     script_content: str | None = None
     script_filename: str | None = None
+    extra_files: list[SkillExtraFile] | None = None
     target_agents: list[str] = []
     task_type: str = "general"
     slash_command: str | None = None
@@ -67,6 +104,12 @@ class SkillDraftRequest(BaseModel):
     @classmethod
     def _validate_slash_command(cls, v: str | None) -> str | None:
         return normalize_slash_command(v)
+
+    @model_validator(mode="after")
+    def _validate_extra_files(self):
+        if self.extra_files is not None:
+            check_extra_file_set([e.model_dump() for e in self.extra_files], script_filename=self.script_filename)
+        return self
 
 
 class SkillUpdateRequest(BaseModel):
@@ -83,6 +126,7 @@ class SkillUpdateRequest(BaseModel):
     delivery_mode: str | None = None
     script_content: str | None = None
     script_filename: str | None = None
+    extra_files: list[SkillExtraFile] | None = None
     target_agents: list[str] | None = None
     task_type: str | None = None
     slash_command: str | None = None
@@ -92,6 +136,12 @@ class SkillUpdateRequest(BaseModel):
     @classmethod
     def _validate_slash_command(cls, v: str | None) -> str | None:
         return normalize_slash_command(v)
+
+    @model_validator(mode="after")
+    def _validate_extra_files(self):
+        if self.extra_files is not None:
+            check_extra_file_set([e.model_dump() for e in self.extra_files], script_filename=self.script_filename)
+        return self
 
 
 class SkillListingResponse(BaseModel):
@@ -116,6 +166,7 @@ class SkillListingResponse(BaseModel):
     delivery_mode: str = "git_fetch"
     script_content: str | None = None
     script_filename: str | None = None
+    extra_files: list[SkillExtraFile] | None = None
     validated: bool = False
     slash_command: str | None = None
     status: ListingStatus

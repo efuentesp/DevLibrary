@@ -12,6 +12,7 @@ import re
 from fastapi import HTTPException
 from loguru import logger as optic
 
+from observal_shared.skill_files import ExtraFileError, validate_extra_files
 from schemas.skill_commands import normalize_slash_command
 from services.skill_validator import SkillValidationError, validate_skill_md_content_frontmatter
 
@@ -45,6 +46,7 @@ SKILL_FIELDS = {
     "task_type",
     "slash_command",
     "has_scripts",
+    "extra_files",
 }
 
 PROMPT_FIELDS = {
@@ -78,6 +80,8 @@ SANDBOX_FIELDS = {
     "network_policy",
     "entrypoint",
     "runtime_config",
+    "env_vars",
+    "allowed_mounts",
     "source_url",
     "source_ref",
     "resolved_sha",
@@ -90,6 +94,7 @@ REQUIRED_FIELDS: dict[str, set[str]] = {
     "prompt": {"category", "template"},
     "mcp": set(),
     "sandbox": set(),
+    "workflow": set(),
 }
 
 ALLOWED_FIELDS: dict[str, set[str]] = {
@@ -145,7 +150,10 @@ FIELD_TYPES: dict[str, type | tuple[type, ...]] = {
     "runtime_config": dict,
     # list fields
     "tool_filter": list,
+    "env_vars": list,
+    "allowed_mounts": list,
     "file_pattern": list,
+    "extra_files": list,
     "target_agents": list,
     "triggers": list,
     "activation_keywords": list,
@@ -239,7 +247,9 @@ def validate_and_extract(component_type: str, extra: dict | None) -> dict:
                 )
                 if analysis.slash_command is not None:
                     clean["slash_command"] = analysis.slash_command
-        except (SkillValidationError, ValueError) as exc:
+            if "extra_files" in clean and clean["extra_files"] is not None:
+                clean["extra_files"] = validate_extra_files(clean["extra_files"])
+        except (SkillValidationError, ExtraFileError, ValueError) as exc:
             raise HTTPException(status_code=422, detail=f"Invalid skill metadata: {exc}") from exc
 
     if component_type == "sandbox":

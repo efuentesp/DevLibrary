@@ -9,9 +9,9 @@ from pathlib import Path
 
 import pytest
 
-from observal_cli import telemetry_buffer
-from observal_cli.harness import SessionSource
-from observal_cli.sessions import base
+from dev_library_cli import telemetry_buffer
+from dev_library_cli.harness import SessionSource
+from dev_library_cli.sessions import base
 
 
 def config() -> dict:
@@ -868,7 +868,7 @@ def test_build_payload_caches_layer_metadata_and_evicts_it_on_stop(monkeypatch):
 
 
 def test_layer_hash_and_canonical_checks_are_fail_soft(monkeypatch):
-    from observal_cli import layer, lockfile
+    from dev_library_cli import layer, lockfile
 
     hash_calls = []
     monkeypatch.setattr(
@@ -913,7 +913,7 @@ def test_layer_hash_and_canonical_checks_are_fail_soft(monkeypatch):
 def test_layer_snapshot_upload_skips_unchanged_and_saves_success(tmp_path: Path, monkeypatch):
     import httpx
 
-    from observal_cli import layer
+    from dev_library_cli import layer
 
     decisions = iter([False, True])
     builds = []
@@ -948,7 +948,7 @@ def test_layer_snapshot_upload_skips_unchanged_and_saves_success(tmp_path: Path,
 def test_layer_snapshot_upload_failures_are_soft(monkeypatch, failure: str):
     import httpx
 
-    from observal_cli import layer
+    from dev_library_cli import layer
 
     monkeypatch.setattr(layer, "needs_upload", lambda _layer_hash: True)
     monkeypatch.setattr(layer, "build_upload_payload", lambda *_args, **_kwargs: {"hash": "layer-hash"})
@@ -965,7 +965,7 @@ def test_layer_snapshot_upload_failures_are_soft(monkeypatch, failure: str):
 
 
 def test_explicit_identity_adapters_do_not_fall_back_without_an_agent_id(monkeypatch):
-    from observal_cli import harness
+    from dev_library_cli import harness
 
     class ExplicitIdentityAdapter:
         @staticmethod
@@ -981,7 +981,7 @@ def test_explicit_identity_adapters_do_not_fall_back_without_an_agent_id(monkeyp
 
 
 def test_lockfile_lookup_helpers_cover_success_fallback_and_errors(monkeypatch):
-    from observal_cli import lockfile
+    from dev_library_cli import lockfile
     from observal_shared import harness_registry
 
     calls = []

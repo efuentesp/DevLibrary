@@ -6,7 +6,7 @@
 Covers _parse_server_json_manifest, _parse_direct_config, and _unwrap_mcp_config.
 """
 
-from observal_cli.cmd_mcp import (
+from dev_library_cli.cmd_mcp import (
     _parse_direct_config,
     _parse_server_json_manifest,
     _unwrap_mcp_config,

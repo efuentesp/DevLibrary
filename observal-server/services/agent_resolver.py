@@ -19,9 +19,10 @@ from models.mcp import ListingStatus, McpListing
 from models.prompt import PromptListing
 from models.sandbox import SandboxListing
 from models.skill import SkillListing
+from models.workflow import WorkflowListing
 from services.shared.utils import registry_item_slug
 
-ComponentType = Literal["mcp", "skill", "hook", "prompt", "sandbox"]
+ComponentType = Literal["mcp", "skill", "hook", "prompt", "sandbox", "workflow"]
 
 # Maps component_type string to its ORM model
 _LISTING_MODELS: dict[str, type] = {
@@ -30,6 +31,7 @@ _LISTING_MODELS: dict[str, type] = {
     "hook": HookListing,
     "prompt": PromptListing,
     "sandbox": SandboxListing,
+    "workflow": WorkflowListing,
 }
 
 
@@ -134,6 +136,8 @@ def _extract_extra(listing, component_type: str) -> dict:
             "network_policy": getattr(listing, "network_policy", "none"),
             "entrypoint": getattr(listing, "entrypoint", None),
             "runtime_config": getattr(listing, "runtime_config", {}),
+            "env_vars": getattr(listing, "env_vars", []),
+            "allowed_mounts": getattr(listing, "allowed_mounts", []),
         }
         if getattr(listing, "sandbox_path", None):
             extra["sandbox_path"] = listing.sandbox_path
@@ -177,7 +181,9 @@ async def resolve_agent(
         by_type.setdefault(comp.component_type, []).append(comp)
 
     # Fetch all listings per type in one query each
-    found: dict[uuid.UUID, object] = {}
+    found: dict[
+        uuid.UUID, McpListing | SkillListing | HookListing | PromptListing | SandboxListing | WorkflowListing
+    ] = {}
     for comp_type, comps in by_type.items():
         model = _LISTING_MODELS[comp_type]
         ids = [c.component_id for c in comps]

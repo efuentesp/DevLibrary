@@ -111,9 +111,9 @@ Used only by Docker Compose. Prometheus and Grafana ports apply only when `docke
 
 Only used when the optional Grafana overlay or Terraform `observability_stack = "grafana"` is enabled.
 
-| Variable                 | Default | Description            |
+| Variable | Default | Description |
 | ------------------------ | ------- | ---------------------- |
-| `GRAFANA_ADMIN_USER`     | `admin` | Grafana admin username |
+| `GRAFANA_ADMIN_USER` | `admin` | Grafana admin username |
 | `GRAFANA_ADMIN_PASSWORD` | `admin` | Direct Grafana admin password for existing installs |
 | `GRAFANA_ADMIN_PASSWORD_FILE` | generated file in server package | Grafana administrator password file |
 | `GRAFANA_CLICKHOUSE_PASSWORD_FILE` | generated file in server package | ClickHouse datasource password file mounted only into Grafana |
@@ -141,7 +141,7 @@ Example CI usage:
 export OBSERVAL_SERVER_URL=https://observal.your-company.internal
 export OBSERVAL_API_KEY=<key>
 
-observal ops traces --limit 100 --output json | jq
+dev-library ops traces --limit 100 --output json | jq
 ```
 
 ## Related

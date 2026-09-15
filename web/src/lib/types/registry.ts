@@ -7,6 +7,8 @@
 // SPDX-FileCopyrightText: 2026 Swathi Saravanan <ss4522@cornell.edu>
 // SPDX-License-Identifier: Apache-2.0
 
+import type { SkillExtraFile } from "../skill-files";
+
 // ── Registry ────────────────────────────────────────────────────────
 
 /** GET /registry/resolve: canonical identity for a UUID or namespace/slug reference. */
@@ -165,6 +167,7 @@ export interface ComponentVersionSummary {
 	script_filename?: string;
 	source_path?: string;
 	requirements?: string[];
+	extra_files?: SkillExtraFile[];
 	// Skill fields
 	skill_path?: string;
 	git_url?: string;
@@ -191,6 +194,8 @@ export interface ComponentVersionSummary {
 	network_policy?: string;
 	entrypoint?: string;
 	runtime_config?: Record<string, unknown>;
+	env_vars?: string[];
+	allowed_mounts?: string[];
 	sandbox_path?: string;
 }
 
@@ -317,6 +322,7 @@ export interface ReviewItem {
 	target_agents?: string[];
 	task_type?: string;
 	slash_command?: string;
+	extra_files?: SkillExtraFile[];
 
 	// Hook-specific
 	event?: string;
@@ -347,8 +353,21 @@ export interface ReviewItem {
 	resource_limits?: Record<string, unknown>;
 	network_policy?: string;
 	entrypoint?: string;
+	env_vars?: string[];
+	allowed_mounts?: string[];
 	sandbox_path?: string;
 	validated_at?: string;
+	validation_results?: {
+		status?: string;
+		registry?: string;
+		repository?: string;
+		reference?: string;
+		digest?: string | null;
+		size_bytes?: number;
+		architectures?: string[];
+		checked_at?: string;
+		detail?: string | null;
+	};
 
 	// Agent-specific
 	prompt?: string;

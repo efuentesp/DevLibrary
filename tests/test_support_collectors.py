@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Naraen Rammoorthi <naraen13@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for observal_cli/support/collectors.py — local system collector.
+"""Tests for dev_library_cli/support/collectors.py — local system collector.
 
 Covers:
 - system_info collector returns correct structure
@@ -18,8 +18,8 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from observal_cli.cmd_support import CollectorResult
-from observal_cli.support.collectors import (
+from dev_library_cli.cmd_support import CollectorResult
+from dev_library_cli.support.collectors import (
     _detect_container_runtime,
     _get_memory_available,
     _get_memory_total,
@@ -155,22 +155,22 @@ class TestMemoryHelpers:
         assert val is None or (isinstance(val, int) and val > 0)
 
     def test_memory_total_fallback_on_non_posix(self):
-        with patch("observal_cli.support.collectors.os.sysconf", create=True, side_effect=AttributeError):
+        with patch("dev_library_cli.support.collectors.os.sysconf", create=True, side_effect=AttributeError):
             val = _get_memory_total()
             assert val is None
 
     def test_memory_available_fallback_on_non_posix(self):
-        with patch("observal_cli.support.collectors.os.sysconf", create=True, side_effect=AttributeError):
+        with patch("dev_library_cli.support.collectors.os.sysconf", create=True, side_effect=AttributeError):
             val = _get_memory_available()
             assert val is None
 
     def test_memory_total_fallback_on_os_error(self):
-        with patch("observal_cli.support.collectors.os.sysconf", create=True, side_effect=OSError):
+        with patch("dev_library_cli.support.collectors.os.sysconf", create=True, side_effect=OSError):
             val = _get_memory_total()
             assert val is None
 
     def test_memory_available_fallback_on_value_error(self):
-        with patch("observal_cli.support.collectors.os.sysconf", create=True, side_effect=ValueError):
+        with patch("dev_library_cli.support.collectors.os.sysconf", create=True, side_effect=ValueError):
             val = _get_memory_available()
             assert val is None
 
@@ -180,22 +180,22 @@ class TestMemoryHelpers:
 
 class TestContainerRuntimeDetection:
     def test_detects_docker(self):
-        with patch("observal_cli.support.collectors.os.path.exists") as mock_exists:
+        with patch("dev_library_cli.support.collectors.os.path.exists") as mock_exists:
             mock_exists.side_effect = lambda p: p == "/.dockerenv"
             assert _detect_container_runtime() == "docker"
 
     def test_detects_podman(self):
-        with patch("observal_cli.support.collectors.os.path.exists") as mock_exists:
+        with patch("dev_library_cli.support.collectors.os.path.exists") as mock_exists:
             mock_exists.side_effect = lambda p: p == "/run/.containerenv"
             assert _detect_container_runtime() == "podman"
 
     def test_returns_none_when_no_container(self):
-        with patch("observal_cli.support.collectors.os.path.exists", return_value=False):
+        with patch("dev_library_cli.support.collectors.os.path.exists", return_value=False):
             assert _detect_container_runtime() is None
 
     def test_docker_takes_precedence_over_podman(self):
         """If both markers exist, Docker is detected first."""
-        with patch("observal_cli.support.collectors.os.path.exists", return_value=True):
+        with patch("dev_library_cli.support.collectors.os.path.exists", return_value=True):
             assert _detect_container_runtime() == "docker"
 
 
@@ -204,7 +204,7 @@ class TestContainerRuntimeDetection:
 
 class TestErrorHandling:
     def test_returns_ok_false_on_exception(self):
-        with patch("observal_cli.support.collectors.platform.system", side_effect=RuntimeError("boom")):
+        with patch("dev_library_cli.support.collectors.platform.system", side_effect=RuntimeError("boom")):
             result = system_info({}, {})
             assert result.ok is False
             assert result.error == "boom"
@@ -212,7 +212,7 @@ class TestErrorHandling:
             assert result.name == "system_info"
 
     def test_disk_usage_failure_sets_none(self):
-        with patch("observal_cli.support.collectors.shutil.disk_usage", side_effect=OSError("no disk")):
+        with patch("dev_library_cli.support.collectors.shutil.disk_usage", side_effect=OSError("no disk")):
             result = system_info({}, {})
             assert result.ok is True
             assert result.data["disk_total_bytes"] is None

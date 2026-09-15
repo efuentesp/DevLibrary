@@ -8,7 +8,7 @@
 
 Everything you need to get Observal running locally for development or self-hosted production.
 
-> **Full operator docs** live at [observal.gitbook.io](https://observal.gitbook.io/observal) ([`/docs`](docs/) in this repo). This file covers the fastest path from zero to a working stack.
+> **Full operator docs** live at [observal.gitbook.io](https://dev-library.gitbook.io/dev-library) ([`/docs`](docs/) in this repo). This file covers the fastest path from zero to a working stack.
 >
 > The steps below use the source Compose stack for development. The one-line server-package installer instead generates restricted files under `secrets/`, stores only `NAME_FILE` paths in `.env`, and binds published ports to loopback. The same install command runs guided setup with a terminal or safe defaults without one, so CI and coding agents need no special flag. See [Configuration](docs/self-hosting/configuration.md#secret-files) for the packaged layout and rotation rules.
 
@@ -86,7 +86,7 @@ curl http://localhost/health
 # {"status":"ok","initialized":true}
 ```
 
-Open the web UI at **http://localhost**.
+Open the web UI at **<http://localhost>**.
 
 ---
 
@@ -108,17 +108,17 @@ uv tool install observal-cli
 **Via Homebrew** (macOS Apple Silicon, Linux x64/arm64):
 
 ```bash
-brew install Observal/observal/observal-cli
+brew install Observal/dev-library/dev-library-cli
 ```
 
-Verify: `observal --version`
+Verify: `dev-library --version`
 
 ---
 
 ## 5. Log in
 
 ```bash
-observal auth login
+dev-library auth login
 ```
 
 On a fresh server this prompts:
@@ -137,10 +137,10 @@ On a fresh server this prompts:
 Check it worked:
 
 ```bash
-observal auth whoami
+dev-library auth whoami
 # super@demo.example (super_admin)
 
-observal auth status
+dev-library auth status
 # Server:  http://localhost - OK
 # Auth:    super@demo.example (super_admin)
 # Buffer:  0 pending events
@@ -159,7 +159,7 @@ Or directly:
 
 ```bash
 cd observal-server && uv run --with pytest --with pytest-asyncio --with pyyaml \
-  pytest ../tests/ tests/ ../observal_cli/tests/ -q
+  pytest ../tests/ tests/ ../dev_library_cli/tests/ -q
 ```
 
 All tests mock external services. No Docker or live databases needed to run tests.
@@ -171,9 +171,9 @@ All tests mock external services. No Docker or live databases needed to run test
 Already have Claude Code, Kiro, Cursor, or another harness configured? Install session telemetry hooks without changing MCP commands:
 
 ```bash
-observal scan                              # read-only: see what's installed
-observal doctor patch --all-harnesses      # install session telemetry hooks
-observal doctor                            # verify everything wired correctly
+dev-library scan                              # read-only: see what's installed
+dev-library doctor patch --all-harnesses      # install session telemetry hooks
+dev-library doctor                            # verify everything wired correctly
 ```
 
 `scan` never modifies files. `doctor patch` only manages session telemetry hooks.
