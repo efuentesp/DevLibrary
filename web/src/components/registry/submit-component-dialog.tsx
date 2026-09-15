@@ -137,6 +137,7 @@ const COMPONENT_HELP_DOCS = {
 	skills: { file: "registry-skill-helper.md", label: "Skill helper" },
 	hooks: { file: "registry-hook-helper.md", label: "Hook helper" },
 	sandboxes: { file: "registry-sandbox-helper.md", label: "Sandbox helper" },
+	workflows: { file: "registry-workflow-helper.md", label: "Workflow helper" },
 	prompts: { file: "cli/prompt.md", label: "Prompt helper" },
 	agents: { file: "core-concepts/README.md", label: "Agent helper" },
 } as const;
@@ -407,6 +408,7 @@ export function SubmitComponentDialog({
 		(d?.network_policy as string) ?? "none",
 	);
 	const [entrypoint, setEntrypoint] = useState((d?.entrypoint as string) ?? "");
+	const [workflowScript, setWorkflowScript] = useState((d?.script_content as string) ?? "");
 	const [sandboxResourceLimits, setSandboxResourceLimits] = useState(
 		d?.resource_limits && typeof d.resource_limits === "object"
 			? JSON.stringify(d.resource_limits, null, 2)
@@ -612,6 +614,8 @@ export function SubmitComponentDialog({
 			}
 			case "prompts":
 				return { ...base, category: promptCategory, template };
+			case "workflows":
+				return { ...base, script_content: workflowScript };
 			case "sandboxes": {
 				const body: Record<string, unknown> = {
 					...base,
@@ -656,6 +660,9 @@ export function SubmitComponentDialog({
 		}
 		if (type === "prompts" && !template) {
 			return "Template is required";
+		}
+		if (type === "workflows" && !workflowScript.trim()) {
+			return "Workflow script is required";
 		}
 		if (type === "sandboxes" && !image) {
 			return "Image is required";
@@ -1411,6 +1418,19 @@ export function SubmitComponentDialog({
 								/>
 							</div>
 						</>
+					)}
+
+					{/* ── Workflow-specific ─────────────────────────── */}
+					{type === "workflows" && (
+						<div className="space-y-1.5">
+							<Label>Workflow script (JavaScript)</Label>
+							<textarea
+								value={workflowScript}
+								onChange={(e) => setWorkflowScript(e.target.value)}
+								placeholder="// Self-contained workflow script (no imports, no fs/network)…"
+								className="min-h-[240px] font-mono text-sm"
+							/>
+						</div>
 					)}
 
 					{/* ── Sandbox-specific ──────────────────────────── */}

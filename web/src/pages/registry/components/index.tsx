@@ -79,6 +79,7 @@ const TYPES: { value: RegistryType; label: string }[] = [
   { value: "skills", label: "Skills" },
   { value: "prompts", label: "Prompts" },
   { value: "mcps", label: "MCPs" },
+  { value: "workflows", label: "Workflows" },
   { value: "hooks", label: "Hooks" },
   { value: "sandboxes", label: "Sandboxes" },
 ];

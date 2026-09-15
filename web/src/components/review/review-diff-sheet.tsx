@@ -344,6 +344,7 @@ const TYPE_MAP: Record<string, string> = {
 	hook: "hooks",
 	prompt: "prompts",
 	sandbox: "sandboxes",
+	workflow: "workflows",
 };
 
 function LinkedComponentDetail({

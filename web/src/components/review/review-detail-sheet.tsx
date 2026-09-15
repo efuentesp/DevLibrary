@@ -201,6 +201,24 @@ function PromptConfigSection({ detail }: { detail: ReviewItem }) {
 	);
 }
 
+function WorkflowConfigSection({ detail }: { detail: ReviewItem }) {
+	return (
+		<dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+			<DetailField label="Supported Harnesses" value={detail.supported_harnesses} />
+			{detail.script_content && (
+				<div className="col-span-full">
+					<dt className="text-xs font-medium text-muted-foreground">Workflow Script</dt>
+					<dd className="mt-0.5">
+						<pre className="max-h-80 overflow-auto rounded bg-muted p-2 text-[11px] font-mono leading-relaxed break-words">
+							{detail.script_content}
+						</pre>
+					</dd>
+				</div>
+			)}
+		</dl>
+	);
+}
+
 function SandboxConfigSection({ detail }: { detail: ReviewItem }) {
 	return (
 		<dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
@@ -299,6 +317,7 @@ function AgentConfigSection({ detail }: { detail: ReviewItem }) {
 							const description = comp.description as string | undefined;
 							const CONTENT_KEYS = [
 								"template",
+								"script_content",
 								"skill_md_content",
 								"handler_config",
 								"input_schema",
@@ -358,6 +377,8 @@ function ConfigSection({ detail }: { detail: ReviewItem }) {
 			return <PromptConfigSection detail={detail} />;
 		case "sandbox":
 			return <SandboxConfigSection detail={detail} />;
+		case "workflow":
+			return <WorkflowConfigSection detail={detail} />;
 		case "agent":
 			return <AgentConfigSection detail={detail} />;
 		default:

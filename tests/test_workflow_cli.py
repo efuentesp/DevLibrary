@@ -270,9 +270,7 @@ def test_install_user_scope_uses_home(monkeypatch, tmp_path):
 
 def test_install_dry_run_does_not_write(monkeypatch):
     snippet = {"workflows": [{"path": ".pi/workflows/cosmic-sizing.js", "content": SCRIPT}]}
-    monkeypatch.setattr(
-        workflow.client, "post", MagicMock(return_value={"config_snippet": snippet, "warnings": []})
-    )
+    monkeypatch.setattr(workflow.client, "post", MagicMock(return_value={"config_snippet": snippet, "warnings": []}))
     monkeypatch.setattr(workflow.client, "resolve_registry_reference", MagicMock(return_value="workflow-1"))
 
     result = runner.invoke(
@@ -292,9 +290,7 @@ def test_install_rejects_unknown_harness(monkeypatch):
 
 
 def test_install_rejects_empty_snippet(monkeypatch):
-    monkeypatch.setattr(
-        workflow.client, "post", MagicMock(return_value={"config_snippet": {}, "warnings": []})
-    )
+    monkeypatch.setattr(workflow.client, "post", MagicMock(return_value={"config_snippet": {}, "warnings": []}))
     monkeypatch.setattr(workflow.client, "resolve_registry_reference", MagicMock(return_value="workflow-1"))
 
     result = runner.invoke(app, ["registry", "workflow", "install", "acme/cosmic-sizing", "-i", "pi"])

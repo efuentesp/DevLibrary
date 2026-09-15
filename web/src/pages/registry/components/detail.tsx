@@ -746,6 +746,7 @@ function ComponentMetadata({ item }: { item: RegistryItem }) {
   if ("source_url" in item && item.source_url != null) fields.push({ label: "Source URL", value: String(item.source_url), href: String(item.source_url) });
   if ("sandbox_path" in item && item.sandbox_path != null) fields.push({ label: "Sandbox Path", value: String(item.sandbox_path), mono: true });
 
+  const workflowScript = "script_content" in item && item.script_content != null && !("task_type" in item) ? String(item.script_content) : null;
   const setupInstructions = "setup_instructions" in item && item.setup_instructions ? String(item.setup_instructions) : null;
   const changelog = "changelog" in item && item.changelog ? String(item.changelog) : null;
   const skillMd = "skill_md_content" in item && item.skill_md_content ? String(item.skill_md_content) : null;

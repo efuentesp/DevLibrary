@@ -35,6 +35,7 @@ function componentRouteType(type: string) {
     hook: "hooks",
     prompt: "prompts",
     sandbox: "sandboxes",
+    workflow: "workflows",
   } as const)[type] ?? "mcps";
 }
 

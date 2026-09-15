@@ -428,7 +428,8 @@ export type RegistryType =
 	| "skills"
 	| "hooks"
 	| "prompts"
-	| "sandboxes";
+	| "sandboxes"
+	| "workflows";
 
 // GET /registry/resolve takes the singular form of each registry type.
 const SINGULAR_REGISTRY_TYPE: Record<RegistryType, string> = {
@@ -438,6 +439,7 @@ const SINGULAR_REGISTRY_TYPE: Record<RegistryType, string> = {
 	hooks: "hook",
 	prompts: "prompt",
 	sandboxes: "sandbox",
+	workflows: "workflow",
 };
 
 export const registry = {

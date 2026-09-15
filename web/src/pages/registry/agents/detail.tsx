@@ -118,6 +118,7 @@ const COMPONENT_TYPES = [
   { value: "skills", singular: "skill", label: "Skills" },
   { value: "prompts", singular: "prompt", label: "Prompts" },
   { value: "mcps", singular: "mcp", label: "MCPs" },
+  { value: "workflows", singular: "workflow", label: "Workflows" },
   { value: "hooks", singular: "hook", label: "Hooks" },
   { value: "sandboxes", singular: "sandbox", label: "Sandboxes" },
 ] as const;
@@ -206,7 +207,7 @@ function groupComponents(
       groups[getComponentGroup(component)].push(component);
       return groups;
     },
-    { mcps: [], skills: [], hooks: [], prompts: [], sandboxes: [] },
+    { mcps: [], skills: [], hooks: [], prompts: [], sandboxes: [], workflows: [] },
   );
 }
 

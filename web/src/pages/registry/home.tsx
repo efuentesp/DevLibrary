@@ -473,7 +473,7 @@ export default function RegistryHome() {
               href="/components"
               icon={Blocks}
               title="Browse components"
-              description="Find MCPs, skills, hooks, prompts, and sandboxes."
+              description="Find MCPs, skills, workflows, hooks, prompts, and sandboxes."
             />
           </section>
 

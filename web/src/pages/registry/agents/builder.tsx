@@ -178,6 +178,7 @@ function AgentBuilderInner() {
     skills: [],
     prompts: [],
     mcps: [],
+    workflows: [],
     hooks: [],
     sandboxes: [],
   });
@@ -233,6 +234,7 @@ function AgentBuilderInner() {
         skills: [],
         prompts: [],
         mcps: [],
+        workflows: [],
         hooks: [],
         sandboxes: [],
       };
@@ -936,7 +938,7 @@ function AgentBuilderInner() {
                   Components
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Select the MCPs, skills, hooks, prompts, and sandboxes for
+                  Select the MCPs, skills, workflows, hooks, prompts, and sandboxes for
                   this agent. Drag to reorder.
                 </p>
               </div>

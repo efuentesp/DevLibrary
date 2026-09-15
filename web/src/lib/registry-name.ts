@@ -169,7 +169,9 @@ export type RegistryRouteType =
 	| "prompt"
 	| "prompts"
 	| "sandbox"
-	| "sandboxes";
+	| "sandboxes"
+	| "workflow"
+	| "workflows";
 
 const COMPONENT_ROUTE_TYPE: Record<
 	Exclude<RegistryRouteType, "agent" | "agents">,
@@ -185,6 +187,8 @@ const COMPONENT_ROUTE_TYPE: Record<
 	prompts: "prompts",
 	sandbox: "sandboxes",
 	sandboxes: "sandboxes",
+	workflow: "workflows",
+	workflows: "workflows",
 };
 
 /** Canonical web path when possible, otherwise the always-resolvable UUID path. */

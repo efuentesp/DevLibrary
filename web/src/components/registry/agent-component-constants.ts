@@ -11,6 +11,7 @@ export const COMPONENT_TYPES: {
   { value: "skills", label: "Skills", singular: "Skill" },
   { value: "prompts", label: "Prompts", singular: "Prompt" },
   { value: "mcps", label: "MCPs", singular: "MCP" },
+  { value: "workflows", label: "Workflows", singular: "Workflow" },
   { value: "hooks", label: "Hooks", singular: "Hook" },
   { value: "sandboxes", label: "Sandboxes", singular: "Sandbox" },
 ];
@@ -21,6 +22,7 @@ export const TYPE_MAP: Record<string, string> = {
   hooks: "hook",
   prompts: "prompt",
   sandboxes: "sandbox",
+  workflows: "workflow",
 };
 
 export const REVERSE_TYPE_MAP: Record<string, RegistryType> = {
@@ -29,4 +31,5 @@ export const REVERSE_TYPE_MAP: Record<string, RegistryType> = {
   hook: "hooks",
   prompt: "prompts",
   sandbox: "sandboxes",
+  workflow: "workflows",
 };
