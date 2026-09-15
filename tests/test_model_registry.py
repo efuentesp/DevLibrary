@@ -30,7 +30,7 @@ def test_dynamic_catalogs_have_expected_sources():
 
 
 def test_cli_catalog_filters_by_harness():
-    from observal_cli import model_catalog
+    from dev_library_cli import model_catalog
 
     rows = model_catalog.fetch_catalog(harness="claude-code")["models"]
     assert rows
@@ -39,7 +39,7 @@ def test_cli_catalog_filters_by_harness():
 
 
 def test_cli_catalog_rejects_unknown_harness():
-    from observal_cli import model_catalog
+    from dev_library_cli import model_catalog
 
     with pytest.raises(ValueError, match="Unknown harness 'claude'"):
         model_catalog.fetch_catalog(harness="claude")

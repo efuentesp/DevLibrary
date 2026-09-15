@@ -7,8 +7,8 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
-from observal_cli.lockfile import get_agent_by_name
-from observal_cli.sessions.base import _lookup_lockfile_agent, _resolve_agent
+from dev_library_cli.lockfile import get_agent_by_name
+from dev_library_cli.sessions.base import _lookup_lockfile_agent, _resolve_agent
 
 
 def _make_lockfile_entry(
@@ -64,8 +64,8 @@ class TestResolveAgentVersionFromLockfile:
 
         with (
             patch.dict("os.environ", {"OBSERVAL_AGENT_ID": "wrong-hook-uuid"}, clear=True),
-            patch("observal_cli.lockfile.get_agent_by_name", return_value=entry) as lookup,
-            patch("observal_cli.sessions.base._lookup_lockfile_agent_by_id") as id_lookup,
+            patch("dev_library_cli.lockfile.get_agent_by_name", return_value=entry) as lookup,
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent_by_id") as id_lookup,
         ):
             agent_id, agent_version = _resolve_agent("", [], transcript, harness="kiro")
 
@@ -79,8 +79,8 @@ class TestResolveAgentVersionFromLockfile:
         transcript = _write_kiro_session(tmp_path, "local-agent")
         with (
             patch.dict("os.environ", {"OBSERVAL_AGENT_ID": "pulled-agent-uuid"}, clear=True),
-            patch("observal_cli.lockfile.get_agent_by_name", return_value=None),
-            patch("observal_cli.sessions.base._lookup_lockfile_agent_by_id") as id_lookup,
+            patch("dev_library_cli.lockfile.get_agent_by_name", return_value=None),
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent_by_id") as id_lookup,
         ):
             agent_id, agent_version = _resolve_agent(str(tmp_path), [], transcript, harness="kiro")
 
@@ -93,8 +93,8 @@ class TestResolveAgentVersionFromLockfile:
         transcript = _write_kiro_session(tmp_path, "kiro_default")
         with (
             patch.dict("os.environ", {"OBSERVAL_AGENT_ID": "pulled-agent-uuid"}, clear=True),
-            patch("observal_cli.lockfile.get_agent_by_name") as name_lookup,
-            patch("observal_cli.sessions.base._lookup_lockfile_agent_by_id") as id_lookup,
+            patch("dev_library_cli.lockfile.get_agent_by_name") as name_lookup,
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent_by_id") as id_lookup,
         ):
             agent_id, agent_version = _resolve_agent(str(tmp_path), [], transcript, harness="kiro")
 
@@ -109,8 +109,8 @@ class TestResolveAgentVersionFromLockfile:
         transcript.write_text('{"kind":"Prompt"}\n')
         with (
             patch.dict("os.environ", {"OBSERVAL_AGENT_ID": "uuid-123"}, clear=True),
-            patch("observal_cli.lockfile.get_agent_by_name") as name_lookup,
-            patch("observal_cli.sessions.base._lookup_lockfile_agent_by_id") as id_lookup,
+            patch("dev_library_cli.lockfile.get_agent_by_name") as name_lookup,
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent_by_id") as id_lookup,
         ):
             agent_id, agent_version = _resolve_agent(str(tmp_path), [], transcript, harness="kiro")
 
@@ -129,9 +129,9 @@ class TestResolveAgentVersionFromLockfile:
 
         with (
             patch.dict("os.environ", {}, clear=True),
-            patch("observal_cli.harness.ensure_loaded"),
-            patch("observal_cli.harness.get_adapter", return_value=LegacyAdapter()),
-            patch("observal_cli.sessions.base._lookup_lockfile_agent", return_value=None),
+            patch("dev_library_cli.harness.ensure_loaded"),
+            patch("dev_library_cli.harness.get_adapter", return_value=LegacyAdapter()),
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent", return_value=None),
         ):
             agent_id, agent_version = _resolve_agent("", [], None, harness="legacy")
 
@@ -144,7 +144,7 @@ class TestResolveAgentVersionFromLockfile:
 
         with (
             patch.dict("os.environ", {"OBSERVAL_AGENT_NAME": "my-agent"}),
-            patch("observal_cli.sessions.base._lookup_lockfile_agent", return_value=entry),
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent", return_value=entry),
         ):
             agent_id, agent_version = _resolve_agent(str(tmp_path), [], None)
 
@@ -155,7 +155,7 @@ class TestResolveAgentVersionFromLockfile:
         """When lockfile is missing, version should be None (graceful degradation)."""
         with (
             patch.dict("os.environ", {"OBSERVAL_AGENT_NAME": "my-agent"}),
-            patch("observal_cli.sessions.base._lookup_lockfile_agent", return_value=None),
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent", return_value=None),
         ):
             agent_id, agent_version = _resolve_agent("/some/dir", [], None)
 
@@ -169,7 +169,7 @@ class TestResolveAgentVersionFromLockfile:
 
         with (
             patch.dict("os.environ", {}, clear=True),
-            patch("observal_cli.sessions.base._lookup_lockfile_agent", return_value=entry),
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent", return_value=entry),
         ):
             import os
 
@@ -187,7 +187,7 @@ class TestResolveAgentVersionFromLockfile:
 
         with (
             patch.dict("os.environ", {}, clear=True),
-            patch("observal_cli.sessions.base._lookup_lockfile_agent", return_value=entry),
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent", return_value=entry),
         ):
             import os
 
@@ -201,7 +201,7 @@ class TestResolveAgentVersionFromLockfile:
         """When nothing matches, returns (None, None)."""
         with (
             patch.dict("os.environ", {}, clear=True),
-            patch("observal_cli.sessions.base._lookup_lockfile_agent", return_value=None),
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent", return_value=None),
         ):
             import os
 
@@ -222,7 +222,7 @@ class TestResolveAgentVersionFromLockfile:
 
         with (
             patch.dict("os.environ", {"OBSERVAL_AGENT_NAME": "my-agent"}),
-            patch("observal_cli.sessions.base._lookup_lockfile_agent", return_value=entry),
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent", return_value=entry),
         ):
             agent_id, agent_version = _resolve_agent(str(tmp_path), [], None)
 
@@ -237,7 +237,7 @@ class TestResolveAgentVersionFromLockfile:
 
         with (
             patch.dict("os.environ", {"OBSERVAL_AGENT_NAME": "my-agent"}),
-            patch("observal_cli.sessions.base._lookup_lockfile_agent", return_value=entry),
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent", return_value=entry),
         ):
             agent_id, agent_version = _resolve_agent("", [], None)
 
@@ -263,7 +263,7 @@ class TestResolveAgentVersionFromLockfile:
 
         with (
             patch("observal_shared.harness_registry.get_valid_harnesses", return_value=["kiro"]),
-            patch("observal_cli.lockfile.read_registry_lockfile", return_value=({}, data)),
+            patch("dev_library_cli.lockfile.read_registry_lockfile", return_value=({}, data)),
         ):
             entry = _lookup_lockfile_agent(str(tmp_path), agent_name="my-agent")
 
@@ -291,7 +291,7 @@ class TestResolveAgentVersionFromLockfile:
 
         with (
             patch("observal_shared.harness_registry.get_valid_harnesses", return_value=["kiro"]),
-            patch("observal_cli.lockfile.read_registry_lockfile", return_value=({}, data)),
+            patch("dev_library_cli.lockfile.read_registry_lockfile", return_value=({}, data)),
         ):
             entry = _lookup_lockfile_agent(str(tmp_path / "repo"), agent_name="my-agent")
 
@@ -304,7 +304,7 @@ class TestResolveAgentVersionFromLockfile:
         entry["local_name"] = "alice-shared"
         data = {"harnesses": {"kiro": {"agents": [entry]}}}
 
-        with patch("observal_cli.lockfile.read_registry_lockfile", return_value=({}, data)):
+        with patch("dev_library_cli.lockfile.read_registry_lockfile", return_value=({}, data)):
             matched = get_agent_by_name("alice-shared", harness="kiro")
 
         assert matched is entry
@@ -316,7 +316,7 @@ class TestResolveAgentVersionFromLockfile:
         first["local_name"] = second["local_name"] = "shared-agent"
         data = {"harnesses": {"kiro": {"agents": [first, second]}}}
 
-        with patch("observal_cli.lockfile.read_registry_lockfile", return_value=({}, data)):
+        with patch("dev_library_cli.lockfile.read_registry_lockfile", return_value=({}, data)):
             ambiguous = get_agent_by_name("shared-agent", harness="kiro")
             scoped = get_agent_by_name("shared-agent", harness="kiro", directory="/project/two")
 

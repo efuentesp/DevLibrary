@@ -3,11 +3,16 @@
 
 import type { RegistryType } from "@/lib/api";
 
-export const COMPONENT_TYPES: { value: RegistryType; label: string; singular: string }[] = [
-  { value: "mcps", label: "MCPs", singular: "MCP" },
+export const COMPONENT_TYPES: {
+  value: RegistryType;
+  label: string;
+  singular: string;
+}[] = [
   { value: "skills", label: "Skills", singular: "Skill" },
-  { value: "hooks", label: "Hooks", singular: "Hook" },
   { value: "prompts", label: "Prompts", singular: "Prompt" },
+  { value: "mcps", label: "MCPs", singular: "MCP" },
+  { value: "workflows", label: "Workflows", singular: "Workflow" },
+  { value: "hooks", label: "Hooks", singular: "Hook" },
   { value: "sandboxes", label: "Sandboxes", singular: "Sandbox" },
 ];
 
@@ -17,6 +22,7 @@ export const TYPE_MAP: Record<string, string> = {
   hooks: "hook",
   prompts: "prompt",
   sandboxes: "sandbox",
+  workflows: "workflow",
 };
 
 export const REVERSE_TYPE_MAP: Record<string, RegistryType> = {
@@ -25,4 +31,5 @@ export const REVERSE_TYPE_MAP: Record<string, RegistryType> = {
   hook: "hooks",
   prompt: "prompts",
   sandbox: "sandboxes",
+  workflow: "workflows",
 };

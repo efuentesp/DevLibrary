@@ -5,7 +5,6 @@
 // SPDX-FileCopyrightText: 2026 Vishnu Muthiah <vishnu.muthiah04@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
 import { useState, useCallback, useEffect, useRef } from "react";
 import { CheckCircle2, XCircle, Loader2, Maximize2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,6 +37,8 @@ function buildMarkdownBody(
 	prompt?: string,
 	pendingBodies?: Record<string, Record<string, unknown>>,
 ): string {
+	// description is intentionally unused: the server renders registry
+	// metadata itself; only component bodies travel with the prompt.
 	const lines: string[] = [];
 
 	for (const [type, items] of Object.entries(selectedComponents)) {
@@ -95,9 +96,9 @@ export function PreviewPanel({
 	validationResult,
 }: PreviewPanelProps) {
 	const { data: harnessList } = useHarnesses();
-	const [harness, setHarness] = useState("claude-code");
+	const [harness, setHarness] = useState("pi");
 	const [modalOpen, setModalOpen] = useState(false);
-	const [modalHarness, setModalHarness] = useState("claude-code");
+	const [modalHarness, setModalHarness] = useState("pi");
 	const [fullConfigs, setFullConfigs] = useState<Record<
 		string,
 		Record<string, string>
@@ -108,8 +109,10 @@ export function PreviewPanel({
 
 	useEffect(() => {
 		if (!harnessList || harnessList.length === 0) return;
-		if (!harnessList.some((opt) => opt.name === harness)) setHarness(harnessList[0].name);
-		if (!harnessList.some((opt) => opt.name === modalHarness)) setModalHarness(harnessList[0].name);
+		if (!harnessList.some((opt) => opt.name === harness))
+			setHarness(harnessList[0].name);
+		if (!harnessList.some((opt) => opt.name === modalHarness))
+			setModalHarness(harnessList[0].name);
 	}, [harnessList, harness, modalHarness]);
 
 	const body = buildMarkdownBody(
@@ -120,7 +123,10 @@ export function PreviewPanel({
 	);
 
 	const files: PreviewFile[] = fullConfigs?.[harness]
-		? Object.entries(fullConfigs[harness]).map(([path, content]) => ({ path, content }))
+		? Object.entries(fullConfigs[harness]).map(([path, content]) => ({
+				path,
+				content,
+			}))
 		: [];
 
 	const fetchFullConfig = useCallback(async () => {
@@ -135,7 +141,11 @@ export function PreviewPanel({
 							? "hook"
 							: type === "prompts"
 								? "prompt"
-								: null;
+								: type === "sandboxes"
+									? "sandbox"
+									: type === "workflows"
+										? "workflow"
+										: null;
 			if (!componentType) continue;
 			for (const item of items) {
 				components.push({
@@ -149,18 +159,35 @@ export function PreviewPanel({
 		setFullError(null);
 
 		try {
+			// The server assembles component sections itself; only in-memory
+			// pending component bodies (not yet in the registry) must ride
+			// along with the prompt. Sending the full pre-built body here
+			// duplicated every registry component section.
+			const pendingOnly = Object.fromEntries(
+				Object.entries(selectedComponents).map(([type, items]) => [
+					type,
+					items.filter((item) => pendingComponentBodies?.[item.id]),
+				]),
+			);
+			const previewPrompt =
+				prompt && Object.keys(pendingComponentBodies ?? {}).length > 0
+					? buildMarkdownBody(
+							description,
+							pendingOnly,
+							prompt,
+							pendingComponentBodies,
+						)
+					: (prompt ?? "");
 			const res = await registry.previewConfig({
 				name: name || "untitled",
 				description,
-				prompt: body,
+				prompt: previewPrompt,
 				model_name: modelName ?? "",
 				components,
 			});
 			setFullConfigs(res.configs);
 		} catch (e) {
-			setFullError(
-				e instanceof Error ? e.message : "Failed to generate config",
-			);
+			setFullError(e instanceof Error ? e.message : "Failed to generate config");
 		} finally {
 			setFullLoading(false);
 		}
@@ -211,9 +238,7 @@ export function PreviewPanel({
 							{validationResult.valid ? (
 								<>
 									<CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-									<span className="text-emerald-600 dark:text-emerald-400">
-										Valid
-									</span>
+									<span className="text-emerald-600 dark:text-emerald-400">Valid</span>
 								</>
 							) : (
 								<>
@@ -279,10 +304,10 @@ export function PreviewPanel({
 			</Card>
 
 			<p className="text-[11px] text-muted-foreground">
-				Telemetry hooks and environment variables are configured during
-				installation via{" "}
+				Telemetry hooks and environment variables are configured during installation
+				via{" "}
 				<code className="font-[family-name:var(--font-mono)]">
-					observal pull
+					dev-library pull
 				</code>
 				.
 			</p>
@@ -295,7 +320,7 @@ export function PreviewPanel({
 						<DialogDescription>
 							Exact files written by{" "}
 							<code className="font-[family-name:var(--font-mono)]">
-								observal pull
+								dev-library pull
 							</code>
 							. Server URLs are placeholders.
 						</DialogDescription>
@@ -362,9 +387,7 @@ export function PreviewPanel({
 							</div>
 						) : modalFiles.length === 0 ? (
 							<div className="flex items-center justify-center py-16 text-muted-foreground">
-								<span className="text-sm">
-									No config generated for this harness.
-								</span>
+								<span className="text-sm">No config generated for this harness.</span>
 							</div>
 						) : (
 							<div className="space-y-3">

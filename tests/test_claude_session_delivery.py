@@ -9,8 +9,8 @@ import time
 from typing import TYPE_CHECKING
 from unittest.mock import patch
 
-from observal_cli.harness import ensure_loaded, get_adapter
-from observal_cli.hooks import session_push
+from dev_library_cli.harness import ensure_loaded, get_adapter
+from dev_library_cli.hooks import session_push
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -122,13 +122,13 @@ def test_finalizer_waits_then_finalizes_parent_and_child(tmp_path: Path, monkeyp
 
 
 def test_claude_hook_spec_uses_generic_harness_entrypoint():
-    from observal_cli.harness_specs.claude_code_hooks_spec import get_desired_hooks
+    from dev_library_cli.harness_specs.claude_code_hooks_spec import get_desired_hooks
 
     commands = {
         hook["command"] for groups in get_desired_hooks().values() for group in groups for hook in group["hooks"]
     }
     assert len(commands) == 1
-    assert "observal_cli.hooks.session_push --harness claude-code" in commands.pop()
+    assert "dev_library_cli.hooks.session_push --harness claude-code" in commands.pop()
 
 
 def test_main_never_raises_on_invalid_input(monkeypatch):

@@ -8,7 +8,7 @@ Use skill components when an agent needs reusable instructions, checklists, scri
 ## What to fill in
 
 | Field | What it means | Example |
-|-------|---------------|---------|
+| ------- | --------------- | --------- |
 | Name | Registry slug for the skill | `summarize-changes` |
 | Task type | Broad category for browsing | `code-review` |
 | Delivery mode | `git_fetch` for repo-backed skills, `registry_direct` for inline content | `registry_direct` |
@@ -53,7 +53,7 @@ Reference supporting files from `SKILL.md` only when they are useful. Keep the m
 Submit a skill directly from its `SKILL.md` file:
 
 ```bash
-observal registry skill submit --skill-md ./SKILL.md --git-url https://github.com/org/repo
+dev-library registry skill submit --skill-md ./SKILL.md --git-url https://github.com/org/repo
 ```
 
 ## Sources

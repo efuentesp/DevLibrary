@@ -18,6 +18,22 @@ from schemas.constants import (
 )
 
 _REF_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/@+-]{0,499}$")
+_ENV_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(=.*)?$")
+_MOUNT_RE = re.compile(r"^[^:]+:[^:]+(:ro|:rw)?$")
+
+
+def _validate_env_vars(env_vars: list[str]) -> list[str]:
+    for entry in env_vars:
+        if not _ENV_RE.match(entry):
+            raise ValueError(f"invalid env_vars entry {entry!r}: expected KEY or KEY=value")
+    return env_vars
+
+
+def _validate_allowed_mounts(mounts: list[str]) -> list[str]:
+    for entry in mounts:
+        if not _MOUNT_RE.match(entry):
+            raise ValueError(f"invalid allowed_mounts entry {entry!r}: expected host_path:container_path[:ro|:rw]")
+    return mounts
 
 
 def _validate_runtime_config(runtime_type: str | None, image: str | None, runtime_config: dict | None) -> None:
@@ -50,6 +66,8 @@ class SandboxSubmitRequest(BaseModel):
     network_policy: str = "none"
     entrypoint: str | None = None
     runtime_config: dict = {}
+    env_vars: list[str] = []
+    allowed_mounts: list[str] = []
     supported_harnesses: list[str] = []
     # Source tracking
     source_url: str | None = None
@@ -63,6 +81,8 @@ class SandboxSubmitRequest(BaseModel):
         make_option_validator("network_policy", VALID_SANDBOX_NETWORK_POLICIES)
     )
     _validate_ides = field_validator("supported_harnesses")(make_harness_list_validator())
+    _validate_env = field_validator("env_vars")(_validate_env_vars)
+    _validate_mounts = field_validator("allowed_mounts")(_validate_allowed_mounts)
 
     @model_validator(mode="after")
     def _validate_runtime(self):
@@ -83,6 +103,8 @@ class SandboxDraftRequest(BaseModel):
     network_policy: str = "none"
     entrypoint: str | None = None
     runtime_config: dict = {}
+    env_vars: list[str] = []
+    allowed_mounts: list[str] = []
     supported_harnesses: list[str] = []
     source_url: str | None = None
     source_ref: str | None = None
@@ -95,6 +117,8 @@ class SandboxDraftRequest(BaseModel):
         make_option_validator("network_policy", VALID_SANDBOX_NETWORK_POLICIES)
     )
     _validate_ides = field_validator("supported_harnesses")(make_harness_list_validator())
+    _validate_env = field_validator("env_vars")(_validate_env_vars)
+    _validate_mounts = field_validator("allowed_mounts")(_validate_allowed_mounts)
 
 
 class SandboxUpdateRequest(BaseModel):
@@ -110,6 +134,8 @@ class SandboxUpdateRequest(BaseModel):
     network_policy: str | None = None
     entrypoint: str | None = None
     runtime_config: dict | None = None
+    env_vars: list[str] | None = None
+    allowed_mounts: list[str] | None = None
     supported_harnesses: list[str] | None = None
     source_url: str | None = None
     source_ref: str | None = None
@@ -141,6 +167,8 @@ class SandboxListingResponse(BaseModel):
     network_policy: str
     entrypoint: str | None = None
     runtime_config: dict = {}
+    env_vars: list[str] = []
+    allowed_mounts: list[str] = []
     source_url: str | None = None
     source_ref: str | None = None
     resolved_sha: str | None = None
@@ -157,6 +185,11 @@ class SandboxListingResponse(BaseModel):
     @classmethod
     def _coerce_dicts(cls, v):
         return v if isinstance(v, dict) else {}
+
+    @field_validator("env_vars", "allowed_mounts", mode="before")
+    @classmethod
+    def _coerce_lists(cls, v):
+        return v if isinstance(v, list) else []
 
     @field_validator(
         "entrypoint", "resolved_sha", "sandbox_path", "source_ref", "source_url", "user_permission", mode="before"
@@ -182,6 +215,8 @@ class SandboxListingSummary(BaseModel):
     network_policy: str = "none"
     entrypoint: str | None = None
     runtime_config: dict = {}
+    env_vars: list[str] = []
+    allowed_mounts: list[str] = []
     source_url: str | None = None
     source_ref: str | None = None
     sandbox_path: str | None = None

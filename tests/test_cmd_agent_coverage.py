@@ -18,8 +18,8 @@ from click import Group
 from typer.main import get_command
 from typer.testing import CliRunner
 
-import observal_cli.cmd_agent as agent
-from observal_cli.main import app as cli_app
+import dev_library_cli.cmd_agent as agent
+from dev_library_cli.main import app as cli_app
 
 runner = CliRunner()
 

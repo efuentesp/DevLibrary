@@ -1,13 +1,13 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for observal_cli.server.backup."""
+"""Tests for dev_library_cli.server.backup."""
 
 from __future__ import annotations
 
 import pytest
 
-from observal_cli.server import backup
+from dev_library_cli.server import backup
 
 
 @pytest.fixture(autouse=True)

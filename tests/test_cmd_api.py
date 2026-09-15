@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 Observal Contributors
+# SPDX-FileCopyrightText: 2026 DevLibrary Contributors
 # SPDX-License-Identifier: Apache-2.0
 
 """Behavioral coverage for the authenticated API escape hatch."""
@@ -12,7 +12,7 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-import observal_cli.cmd_api as api
+import dev_library_cli.cmd_api as api
 
 runner = CliRunner()
 api_app = typer.Typer()
@@ -44,8 +44,8 @@ def test_get_preserves_raw_api_array_json(api_call):
         "/api/v1/teams",
         params={"limit": "10"},
         json_data=None,
-        operation="Call Observal API",
-        resource="Observal API endpoint",
+        operation="Call DevLibrary API",
+        resource="DevLibrary API endpoint",
     )
 
 
@@ -66,8 +66,8 @@ def test_post_reads_json_file_and_returns_direct_object(tmp_path, api_call):
         "/api/v1/teams",
         params=None,
         json_data={"name": "Platform"},
-        operation="Call Observal API",
-        resource="Observal API endpoint",
+        operation="Call DevLibrary API",
+        resource="DevLibrary API endpoint",
     )
 
 
@@ -87,8 +87,8 @@ def test_patch_reads_json_stdin(api_call):
         "/api/v1/teams/team-1/visibility",
         params=None,
         json_data={"visibility": "private"},
-        operation="Call Observal API",
-        resource="Observal API endpoint",
+        operation="Call DevLibrary API",
+        resource="DevLibrary API endpoint",
     )
 
 
@@ -122,7 +122,7 @@ def test_invalid_method_path_and_params_fail_before_http(arguments, api_call):
 
 
 def test_json_validation_error_keeps_stdout_clean(api_call, monkeypatch: pytest.MonkeyPatch):
-    import observal_cli.main as main
+    import dev_library_cli.main as main
 
     monkeypatch.setattr(main, "_migrate_legacy_mcp_configs", lambda: None)
     monkeypatch.setattr(main, "_try_lockfile_migration", lambda: None)

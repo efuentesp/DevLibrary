@@ -7,7 +7,7 @@
 """Canonical valid-option lists for all registry submit fields.
 
 This module is the single source of truth for constrained field values.
-The CLI mirrors these in ``observal_cli/constants.py`` -- a sync test
+The CLI mirrors these in ``dev_library_cli/constants.py`` -- a sync test
 (``tests/test_constants_sync.py``) ensures they stay in lockstep.
 
 harness-specific data (features, paths, scopes) is defined in
@@ -34,13 +34,14 @@ VALID_HARNESSES: list[str] = get_valid_harnesses()
 # ── harness feature capabilities ──────────────────────────────────
 # HARNESS_CAPABILITY_NAMES defines the vocabulary of possible features (used by
 # Pydantic validators).  HARNESS_CAPABILITIES is derived from the
-# registry. The same vocabulary is mirrored in observal_cli/constants.py.
+# registry. The same vocabulary is mirrored in dev_library_cli/constants.py.
 
 HARNESS_CAPABILITY_NAMES: list[str] = [
     "skills",
     "hooks",
     "mcp_servers",
     "prompts",
+    "workflows",
 ]
 
 HARNESS_CAPABILITIES: dict[str, set[str]] = get_harness_capability_matrix()

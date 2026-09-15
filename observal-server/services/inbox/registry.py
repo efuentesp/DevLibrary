@@ -105,7 +105,7 @@ def _review_show_command(subject: Subject, ctx: dict[str, Any]) -> str | None:
     if subject.id is None:
         return None
     suffix = " --agent" if subject.type == "agent" else ""
-    return f"observal admin review show {subject.id}{suffix}"
+    return f"dev-library admin review show {subject.id}{suffix}"
 
 
 # An upgrade target is a namespace/slug pair or a UUID; a harness is a registry key.
@@ -123,10 +123,10 @@ def _upgrade_command(subject: Subject, ctx: dict[str, Any]) -> str | None:
         return None
 
     if subject.type == "agent":
-        prefix = "observal agent pull"
+        prefix = "dev-library agent pull"
         prompt_flag = " --no-prompt"
     elif subject.type in {"mcp", "skill", "hook"}:
-        prefix = f"observal registry {subject.type} install"
+        prefix = f"dev-library registry {subject.type} install"
         prompt_flag = " --no-prompt" if subject.type == "mcp" else ""
     else:
         return None
@@ -156,7 +156,7 @@ class KindSpec:
     # recipient already resolved. True fits one-shot facts that can become true
     # again (a resubmitted version re-entering review). False fits recurring
     # reports of a fact that never stopped being true: ``update_available``
-    # arrives on every ``observal outdated`` run, and reopening a dismissed
+    # arrives on every ``dev-library outdated`` run, and reopening a dismissed
     # notice each time would make dismissal meaningless.
     reopen_on_redelivery: bool = True
     # Reserved kinds are declared but have no producer: nothing in the codebase

@@ -82,7 +82,7 @@ dev = [
 ]
 
 [tool.coverage.run]
-source = ["../observal_cli", "."]
+source = ["../dev_library_cli", "."]
 omit = ["tests/*", "**/tests/*"]
 
 [tool.coverage.report]

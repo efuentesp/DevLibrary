@@ -21,6 +21,7 @@ class ConfigContext:
     rules_content: str = ""
     skill_configs: list = field(default_factory=list)
     hook_configs: list = field(default_factory=list)
+    workflow_configs: list = field(default_factory=list)
     options: dict = field(default_factory=dict)
     platform: str = ""
     compatibility_warnings: list = field(default_factory=list)
@@ -29,6 +30,7 @@ class ConfigContext:
     skill_listings: dict | None = None
     sandbox_listings: dict | None = None
     prompt_listings: dict | None = None
+    workflow_listings: dict | None = None
     component_names: dict | None = None
 
 
@@ -179,6 +181,7 @@ def generate_agent_config(
     hook_listings: dict | None = None,
     prompt_listings: dict | None = None,
     sandbox_listings: dict | None = None,
+    workflow_listings: dict | None = None,
 ) -> dict:
     """Generate harness-specific config for an agent.
 
@@ -192,6 +195,7 @@ def generate_agent_config(
         _build_rules_content,
         _build_sandbox_mcp_entry,
         _build_skill_configs,
+        _build_workflow_configs,
         _check_harness_compatibility,
         _sanitize_name,
     )
@@ -222,6 +226,7 @@ def generate_agent_config(
     )
     skill_configs = _build_skill_configs(agent, skill_listings)
     hook_configs = _build_hook_configs(agent, hook_listings)
+    workflow_configs = _build_workflow_configs(agent, workflow_listings)
     compatibility_warnings = _check_harness_compatibility(agent, harness)
 
     ctx = ConfigContext(
@@ -233,6 +238,7 @@ def generate_agent_config(
         rules_content=rules_content,
         skill_configs=skill_configs,
         hook_configs=hook_configs,
+        workflow_configs=workflow_configs,
         options=options,
         platform=platform,
         compatibility_warnings=compatibility_warnings,
@@ -240,6 +246,7 @@ def generate_agent_config(
         hook_listings=hook_listings,
         skill_listings=skill_listings,
         sandbox_listings=sandbox_listings,
+        workflow_listings=workflow_listings,
         prompt_listings=prompt_listings,
         component_names=component_names,
     )

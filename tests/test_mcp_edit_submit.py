@@ -15,8 +15,8 @@ from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
 
-from observal_cli.errors import CliError, ErrorCategory
-from observal_cli.main import app as cli_app
+from dev_library_cli.errors import CliError, ErrorCategory
+from dev_library_cli.main import app as cli_app
 
 runner = CliRunner()
 
@@ -31,15 +31,15 @@ _FAKE_CONFIG = {"server_url": "http://localhost:8000", "api_key": "test-key", "u
 
 
 def _patch_config():
-    return patch("observal_cli.config.get_or_exit", return_value=_FAKE_CONFIG)
+    return patch("dev_library_cli.config.get_or_exit", return_value=_FAKE_CONFIG)
 
 
 def _patch_config_load():
-    return patch("observal_cli.config.load", return_value=_FAKE_CONFIG)
+    return patch("dev_library_cli.config.load", return_value=_FAKE_CONFIG)
 
 
 def _patch_resolve_alias(resolved="abc-123"):
-    return patch("observal_cli.config.resolve_alias", return_value=resolved)
+    return patch("dev_library_cli.config.resolve_alias", return_value=resolved)
 
 
 # ── edit_mcp: interactive JSON paste mode ─────────────────────────
@@ -61,8 +61,8 @@ class TestEditMcpInteractive:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
         ):
             result = runner.invoke(cli_app, ["registry", "mcp", "edit", "test-mcp"], input=f"{config_json}\n\ny\n")
 
@@ -77,7 +77,7 @@ class TestEditMcpInteractive:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
         ):
             result = runner.invoke(cli_app, ["registry", "mcp", "edit", "test-mcp"], input="\n")
 
@@ -92,7 +92,7 @@ class TestEditMcpInteractive:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
         ):
             result = runner.invoke(cli_app, ["registry", "mcp", "edit", "test-mcp"], input="not json at all{{\n\n")
 
@@ -108,8 +108,8 @@ class TestEditMcpInteractive:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
         ):
             result = runner.invoke(cli_app, ["registry", "mcp", "edit", "test-mcp"], input=f"{config_json}\n\nn\n")
 
@@ -127,8 +127,8 @@ class TestEditMcpInteractive:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
         ):
             result = runner.invoke(cli_app, ["registry", "mcp", "edit", "test-mcp", "--name", "new-name"])
 
@@ -150,8 +150,8 @@ class TestEditMcpInteractive:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
             patch("builtins.open", create=True) as mock_open,
         ):
             mock_open.return_value.__enter__ = lambda s: MagicMock(read=lambda: file_content)
@@ -181,9 +181,9 @@ class TestEditMcpVersionPublish:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
-            patch("observal_cli.cmd_mcp.select_one", return_value="patch"),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.select_one", return_value="patch"),
         ):
             # Input: config JSON, blank line, confirm, changelog
             result = runner.invoke(
@@ -208,9 +208,9 @@ class TestEditMcpVersionPublish:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
-            patch("observal_cli.cmd_mcp.select_one", return_value="minor"),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.select_one", return_value="minor"),
         ):
             result = runner.invoke(
                 cli_app, ["registry", "mcp", "edit", "my-mcp"], input=f"{config_json}\n\ny\nNew feature\n"
@@ -231,9 +231,9 @@ class TestEditMcpVersionPublish:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
-            patch("observal_cli.cmd_mcp.select_one", return_value="major"),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.select_one", return_value="major"),
         ):
             result = runner.invoke(
                 cli_app, ["registry", "mcp", "edit", "my-mcp"], input=f"{config_json}\n\ny\nBreaking change\n"
@@ -258,9 +258,9 @@ class TestEditMcpVersionPublish:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
-            patch("observal_cli.cmd_mcp.text_input") as prompt,
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.text_input") as prompt,
         ):
             result = runner.invoke(
                 cli_app,
@@ -299,9 +299,9 @@ class TestEditMcpVersionPublish:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
-            patch("observal_cli.cmd_mcp.select_one", return_value="patch"),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.select_one", return_value="patch"),
         ):
             result = runner.invoke(cli_app, ["registry", "mcp", "edit", "my-mcp"], input=f"{config_json}\n\ny\n\n")
 
@@ -324,9 +324,9 @@ class TestSubmitCommand:
         with (
             _patch_config(),
             _patch_config_load(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
-            patch("observal_cli.cmd_mcp.select_one", return_value="general"),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.select_one", return_value="general"),
         ):
             result = runner.invoke(
                 cli_app,
@@ -355,8 +355,8 @@ class TestSubmitCommand:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias("abc-123"),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
         ):
             result = runner.invoke(cli_app, ["registry", "mcp", "submit", "--submit", "abc-123"])
 
@@ -383,8 +383,8 @@ class TestSubmitCommand:
         with (
             _patch_config(),
             _patch_config_load(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
         ):
             result = runner.invoke(
                 cli_app,
@@ -409,9 +409,9 @@ class TestSubmitCommand:
         with (
             _patch_config(),
             _patch_config_load(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
-            patch("observal_cli.cmd_mcp.select_one", return_value="general"),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.select_one", return_value="general"),
         ):
             # Input: config + blank line, confirm, name prompt accepts default,
             # empty spaces for description (triggers required), then real description, owner
@@ -476,8 +476,8 @@ class TestEditMcpEdgeCases:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
         ):
             result = runner.invoke(cli_app, ["registry", "mcp", "edit", "test-mcp", "--name", "new-name"])
 
@@ -502,9 +502,9 @@ class TestEditMcpEdgeCases:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
-            patch("observal_cli.cmd_mcp.select_one", return_value="patch"),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.select_one", return_value="patch"),
         ):
             result = runner.invoke(
                 cli_app, ["registry", "mcp", "edit", "my-mcp"], input=f"{config_json}\n\ny\nChangelog\n"
@@ -529,8 +529,8 @@ class TestEditMcpEdgeCases:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
         ):
             result = runner.invoke(cli_app, ["registry", "mcp", "edit", "test-mcp", "--description", "New desc"])
 
@@ -558,8 +558,8 @@ class TestEditMcpEdgeCases:
             _patch_config(),
             _patch_config_load(),
             _patch_resolve_alias(),
-            patch("observal_cli.cmd_mcp.client", mock_client),
-            patch("observal_cli.cmd_mcp.spinner", MagicMock()),
+            patch("dev_library_cli.cmd_mcp.client", mock_client),
+            patch("dev_library_cli.cmd_mcp.spinner", MagicMock()),
         ):
             result = runner.invoke(cli_app, ["registry", "mcp", "edit", "old-name"], input=f"{config_json}\n\ny\n")
 

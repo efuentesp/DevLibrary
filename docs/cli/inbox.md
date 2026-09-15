@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Observal Contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal inbox`
+# `dev-library inbox`
 
 View and update the signed-in user's work and event feed. Inbox items cover reviews, decisions, teamspace activity, update notices, completed insights, and system notices.
 
@@ -12,9 +12,9 @@ The Inbox is self-only. There is no option for reading another user's items.
 The direct and explicit list forms are equivalent:
 
 ```bash
-observal inbox --output json
-observal inbox list --state open --action-required --output json
-observal inbox list --subject-type mcp --search postgres --sort oldest --output json
+dev-library inbox --output json
+dev-library inbox list --state open --action-required --output json
+dev-library inbox list --subject-type mcp --search postgres --sort oldest --output json
 ```
 
 | Option | Description |
@@ -61,8 +61,8 @@ An empty `items` array is successful. Continue with `--page N` while the returne
 ## Count items
 
 ```bash
-observal inbox count --output json
-observal inbox count --facets --facet-state open --output json
+dev-library inbox count --output json
+dev-library inbox count --facets --facet-state open --output json
 ```
 
 The basic result includes `unread`, `action_required`, `open`, `done`, and `dismissed`. `--facets` also returns `by_kind` and `by_subject_type`; `--facet-state` restricts those breakdowns and requires `--facets`.
@@ -70,7 +70,7 @@ The basic result includes `unread`, `action_required`, `open`, `done`, and `dism
 ## Show an item
 
 ```bash
-observal inbox show 11111111-1111-1111-1111-111111111111 --output json
+dev-library inbox show 11111111-1111-1111-1111-111111111111 --output json
 ```
 
 The detail result includes the item's body, related subject, exact action URL or command, and append-only history. The CLI displays an action command but never runs it automatically.
@@ -80,11 +80,11 @@ The detail result includes the item's body, related subject, exact action URL or
 Every mutation supports table and JSON output:
 
 ```bash
-observal inbox read 11111111-1111-1111-1111-111111111111 --output json
-observal inbox unread 11111111-1111-1111-1111-111111111111 --output json
-observal inbox done 11111111-1111-1111-1111-111111111111 --output json
-observal inbox dismiss 11111111-1111-1111-1111-111111111111 --output json
-observal inbox reopen 11111111-1111-1111-1111-111111111111 --output json
+dev-library inbox read 11111111-1111-1111-1111-111111111111 --output json
+dev-library inbox unread 11111111-1111-1111-1111-111111111111 --output json
+dev-library inbox done 11111111-1111-1111-1111-111111111111 --output json
+dev-library inbox dismiss 11111111-1111-1111-1111-111111111111 --output json
+dev-library inbox reopen 11111111-1111-1111-1111-111111111111 --output json
 ```
 
 Read state and lifecycle state are separate:
@@ -99,8 +99,8 @@ JSON returns the updated item directly.
 ## Mark a filtered set read
 
 ```bash
-observal inbox read-all --kind update_available
-observal inbox read-all --state open --subject-type mcp --search postgres --yes --output json
+dev-library inbox read-all --kind update_available
+dev-library inbox read-all --state open --subject-type mcp --search postgres --yes --output json
 ```
 
 `read-all` affects only unread items matching the supplied state, kind, action-required, subject-type, and search filters. Human mode asks for confirmation unless `--yes` is present. JSON mode never prompts and therefore requires `--yes`.
@@ -121,5 +121,5 @@ In JSON mode, stdout contains only the successful result. Failures leave stdout 
 
 ## Related
 
-* [`observal outdated`](outdated.md): report installed updates to Inbox
-* [`observal registry`](registry.md): inspect Registry subjects referenced by Inbox items
+* [`dev-library outdated`](outdated.md): report installed updates to Inbox
+* [`dev-library registry`](registry.md): inspect Registry subjects referenced by Inbox items

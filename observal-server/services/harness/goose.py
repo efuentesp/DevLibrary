@@ -25,8 +25,8 @@ from services.harness.helpers import (
     _merge_hook_components_into_config,
 )
 
-_GOOSE_SESSION_PUSH_CMD = "python3 -m observal_cli.hooks.session_push --harness goose"
-# Mirrors observal_cli.harness_specs.goose_hooks_spec; the CLI cannot be imported here.
+_GOOSE_SESSION_PUSH_CMD = "python3 -m dev_library_cli.hooks.session_push --harness goose"
+# Mirrors dev_library_cli.harness_specs.goose_hooks_spec; the CLI cannot be imported here.
 _GOOSE_HOOK_EVENTS = ("SessionStart", "UserPromptSubmit", "Stop", "SessionEnd")
 _HOOK_TIMEOUT_SECONDS = 30
 _DEFAULT_EXTENSION_TIMEOUT = 300
@@ -45,7 +45,9 @@ def _goose_hooks_config(platform: str = "") -> dict:
     treats ``matcher`` as a regular expression, not a glob.
     """
     command = (
-        "python -m observal_cli.hooks.session_push --harness goose" if platform == "win32" else _GOOSE_SESSION_PUSH_CMD
+        "python -m dev_library_cli.hooks.session_push --harness goose"
+        if platform == "win32"
+        else _GOOSE_SESSION_PUSH_CMD
     )
     return {
         "hooks": {

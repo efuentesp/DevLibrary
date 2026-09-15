@@ -154,13 +154,13 @@ git clone git@github.com:YOUR-USERNAME/Observal.git
 cd Observal
 ```
 
-3. Add the upstream remote so you can pull in changes from the main repo:
+1. Add the upstream remote so you can pull in changes from the main repo:
 
 ```bash
 git remote add upstream https://github.com/Observal/Observal.git
 ```
 
-4. Verify your remotes:
+1. Verify your remotes:
 
 ```bash
 git remote -v
@@ -236,7 +236,7 @@ uv tool install --editable .
 ### Log in
 
 ```bash
-observal auth login
+dev-library auth login
 ```
 
 On a fresh server, this bootstraps the admin account automatically. Use `super@demo.example` / `super-changeme` for the super\_admin account.
@@ -293,7 +293,7 @@ Observal is a monorepo:
 
 ```
 observal-server/    FastAPI backend (Python)
-observal_cli/       CLI and session exporters (Python)
+dev_library_cli/       CLI and session exporters (Python)
 web/                Next.js 16 / React 19 frontend (TypeScript)
 tests/              Shared test suite (~1500 tests, 96 files)
 docker/             Docker Compose and Dockerfiles
@@ -380,11 +380,12 @@ git push origin feature/my-feature --force-with-lease
 ### Submitting a pull request
 
 1. Make sure your branch is rebased on the latest `main` (see above).
-2.  Push to your fork:
+2. Push to your fork:
 
     ```bash
     git push origin feature/my-feature
     ```
+
 3. GitHub will show a banner on your fork offering to open a PR. Click it, or go to the [Observal repository](https://github.com/Observal/Observal) directly.
 4. Fill in the PR template completely. PRs that do not follow the template will be closed.
 5. Link the related issue if one exists (`Fixes #123` in the PR body closes it automatically on merge).
@@ -437,7 +438,7 @@ Coverage is collected automatically on the `3.13` matrix run in CI. To generate 
 
 ```bash
 cd observal-server
-uv run pytest ../tests/ --cov=../observal_cli --cov=. --cov-report=html -q
+uv run pytest ../tests/ --cov=../dev_library_cli --cov=. --cov-report=html -q
 # open htmlcov/index.html in your browser
 ```
 
@@ -578,9 +579,9 @@ uv tool install --editable . --reinstall
 Run a harness session with hooks installed, then reconcile and inspect exporter status:
 
 ```bash
-observal reconcile --dry-run
-observal auth status
-observal ops telemetry status
+dev-library reconcile --dry-run
+dev-library auth status
+dev-library ops telemetry status
 ```
 
 Session records remain in the local outbox until the server acknowledges them.

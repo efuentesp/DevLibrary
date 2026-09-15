@@ -27,11 +27,11 @@
 <p>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square" alt="License"></a>
   <img src="https://img.shields.io/badge/python-3.11+-3776ab?style=flat-square&logo=python&logoColor=white" alt="Python">
-  <a href="https://pypi.org/project/observal-cli/"><img src="https://img.shields.io/pypi/v/observal-cli?style=flat-square&logo=pypi&logoColor=white&label=pypi" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/dev-library-cli/"><img src="https://img.shields.io/pypi/v/dev-library-cli?style=flat-square&logo=pypi&logoColor=white&label=pypi" alt="PyPI version"></a>
   <a href="https://github.com/Observal/Observal/graphs/contributors"><img src="https://img.shields.io/github/contributors/Observal/Observal?style=flat-square&logo=github" alt="Contributors"></a>
   <a href="https://discord.gg/SFPjnTWddk"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fdiscord.com%2Fapi%2Fv10%2Finvites%2FSFPjnTWddk%3Fwith_counts%3Dtrue&query=%24.approximate_member_count&label=Discord&logo=discord&color=5865F2&style=flat-square" alt="Discord Server"></a>
   <a href="https://github.com/orgs/Observal/packages?repo_name=Observal"><img src="https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/Haz3-jolt/b28aba6d0efebb0b430d43c8068feb91/raw/ghcr-pulls.json&style=flat-square" alt="GHCR pulls"></a>
-  <a href="https://artifacthub.io/packages/search?repo=observal"><img src="https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/observal" alt="Artifact Hub"></a>
+  <a href="https://artifacthub.io/packages/search?repo=observal"><img src="https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/dev-library" alt="Artifact Hub"></a>
   <a href="https://cla-assistant.io/Observal/Observal"><img src="https://cla-assistant.io/readme/badge/Observal/Observal" alt="CLA assistant" /></a>
   <a href="https://scorecard.dev/viewer/?uri=github.com/Observal/Observal"><img src="https://api.scorecard.dev/projects/github.com/Observal/Observal/badge" alt="OpenSSF Scorecard"></a>
   <a href="https://www.bestpractices.dev/projects/13472"><img src="https://www.bestpractices.dev/projects/13472/badge" alt="OpenSSF Best Practices"></a>
@@ -73,7 +73,7 @@ Observal supports Claude Code, Cursor, Kiro, Pi, Copilot, Codex, OpenCode, and o
 ## Supported harnesses
 
 | harness |
-|-----|
+| ----- |
 | Claude Code |
 | Kiro |
 | Cursor |
@@ -138,18 +138,18 @@ uv tool install observal-cli
 ### 3. Connect your harness
 
 ```bash
-observal auth login
-observal doctor --patch
+dev-library auth login
+dev-library doctor --patch
 ```
 
 This authenticates with your server, detects your harness, installs telemetry hooks, starts capturing sessions automatically, and prepares it for agent installs and registry commands.
 
-Once logged in, run `/observal` inside your harness and it takes the wheel. Pull agents, submit components, browse the registry, run diagnostics:
+Once logged in, run `/dev-library` inside your harness and it takes the wheel. Pull agents, submit components, browse the registry, run diagnostics:
 
 ```
-/observal pull security-auditor
-/observal scan
-/observal doctor
+/dev-library pull security-auditor
+/dev-library scan
+/dev-library doctor
 ```
 
 Or just tell your agent what you want and it figures out the right commands.
@@ -163,7 +163,7 @@ Or just tell your agent what you want and it figures out the right commands.
 An agent bundles 5 component types into a single installable package: **MCP servers**, **skills**, **hooks**, **prompts**, and **sandboxes**. You define the agent once, publish it to the registry, and Observal generates the right config files for whichever supported harness the user runs.
 
 ```bash
-observal pull security-auditor --harness pi
+dev-library pull security-auditor --harness pi
 ```
 
 ### The registry is the distribution layer
@@ -251,7 +251,7 @@ Full docs at **[docs.observal.io](https://docs.observal.io/)**.
 Start here for deployment and operations:
 
 | Need | Link |
-|------|------|
+| ------ | ------ |
 | Fast local or source setup | [SETUP.md](SETUP.md) |
 | Self-hosting overview | [docs/self-hosting/README.md](docs/self-hosting/README.md) |
 | Production deployment | [docs/self-hosting/production-deploy.md](docs/self-hosting/production-deploy.md) |
@@ -266,7 +266,7 @@ Start here for deployment and operations:
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+| ------- | ----------- |
 | Frontend | Vite 6, React 19, TanStack Router, Tailwind CSS 4, shadcn/ui |
 | Backend | Python 3.11+, FastAPI, Strawberry GraphQL |
 | Databases | PostgreSQL 16 (registry), ClickHouse (telemetry) |
@@ -294,22 +294,22 @@ See [AGENTS.md](AGENTS.md) for internal codebase context.
 ## Reporting Issues
 
 ```bash
-observal doctor support bundle
+dev-library doctor support bundle
 ```
 
-Produces a redacted diagnostic archive. Review before sharing: `observal doctor support inspect observal-support-*.tar.gz`
+Produces a redacted diagnostic archive. Review before sharing: `dev-library doctor support inspect observal-support-*.tar.gz`
 
 For live debugging, Observal uses loguru-based dev logging (internally called "optic"). Stream logs with:
 
 ```bash
-observal logs
+dev-library logs
 ```
 
 Logs are written to `~/.observal/logs/dev.log` and include structured context for every request, background job, and telemetry event.
 
 ## Security
 
-Report vulnerabilities via [GitHub Private Vulnerability Reporting](https://github.com/Observal/Observal/security/advisories) or email contact@observal.io. Do not open a public issue. See [SECURITY.md](SECURITY.md).
+Report vulnerabilities via [GitHub Private Vulnerability Reporting](https://github.com/Observal/Observal/security/advisories) or email <contact@observal.io>. Do not open a public issue. See [SECURITY.md](SECURITY.md).
 
 ## License
 

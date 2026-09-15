@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from observal_cli import telemetry_buffer as outbox
+from dev_library_cli import telemetry_buffer as outbox
 
 if TYPE_CHECKING:
     from pathlib import Path

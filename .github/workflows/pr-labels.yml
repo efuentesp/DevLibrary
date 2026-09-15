@@ -93,7 +93,7 @@ jobs:
               /\.spec\.[jt]sx?$/.test(p)
             );
 
-            const isCli = paths.some((p) => /^observal_cli\//.test(p));
+            const isCli = paths.some((p) => /^dev_library_cli\//.test(p));
 
             const isServer = paths.some((p) => /^observal-server\//.test(p));
 

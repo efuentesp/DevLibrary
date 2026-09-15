@@ -8,9 +8,9 @@ import os
 import time
 from typing import TYPE_CHECKING
 
-from observal_cli.harness import ensure_loaded, get_adapter
-from observal_cli.harness_specs.codex_hooks_spec import build_codex_hooks
-from observal_cli.hooks import session_push
+from dev_library_cli.harness import ensure_loaded, get_adapter
+from dev_library_cli.harness_specs.codex_hooks_spec import build_codex_hooks
+from dev_library_cli.hooks import session_push
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -90,4 +90,4 @@ def test_codex_hook_spec_uses_shared_engine():
     hooks = build_codex_hooks()["hooks"]
     commands = {hook["command"] for groups in hooks.values() for group in groups for hook in group["hooks"]}
     assert len(commands) == 1
-    assert "observal_cli.hooks.session_push --harness codex" in commands.pop()
+    assert "dev_library_cli.hooks.session_push --harness codex" in commands.pop()

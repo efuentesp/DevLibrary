@@ -10,7 +10,7 @@ Run the full Observal stack on a single VM with Docker Compose. Best for teams o
 ## When to use this vs. the Terraform module
 
 | | Single-node (this guide) | [Production Terraform](aws-terraform.md) |
-|---|---|---|
+| --- | --- | --- |
 | **Best for** | Small/mid teams, internal use, POCs | Enterprise, SLA-bound, high-traffic |
 | **Infra** | 1 VM, any cloud or on-prem | ~100 managed AWS resources |
 | **Cost** | $20–150/mo | ~$255/mo |
@@ -58,7 +58,7 @@ Everything runs as Docker containers on a single host. The nginx LB routes traff
 ## Prerequisites
 
 | Requirement | Minimum | Recommended |
-|---|---|---|
+| --- | --- | --- |
 | **VM** | 2 vCPU, 4 GB RAM, 40 GB SSD | 4 vCPU, 8 GB RAM, 100 GB SSD |
 | **OS** | Ubuntu 22.04+ / Amazon Linux 2023 / Debian 12 | Ubuntu 24.04 LTS |
 | **Docker** | Engine ≥ 24.0 with Compose v2 | Latest stable |
@@ -68,7 +68,7 @@ Everything runs as Docker containers on a single host. The nginx LB routes traff
 ### Sizing guide
 
 | Team size | VM spec | Estimated cost (AWS) |
-|---|---|---|
+| --- | --- | --- |
 | 1–10 users | `t3.medium` (2 vCPU / 4 GB) | ~$30/mo |
 | 10–30 users | `t3.large` (2 vCPU / 8 GB) | ~$60/mo |
 | 30–50 users | `t3.xlarge` (4 vCPU / 16 GB) | ~$120/mo |
@@ -91,6 +91,7 @@ aws ec2 run-instances \
 ```
 
 For other clouds:
+
 - **GCP:** `e2-standard-2` with 100 GB balanced persistent disk
 - **Azure:** `Standard_B2ms` with 100 GB Premium SSD
 - **Hetzner:** `CPX31` (4 vCPU / 8 GB, ~€15/mo)
@@ -211,6 +212,7 @@ docker compose -f docker/docker-compose.yml logs -f observal-init observal-api
 ```
 
 Wait for:
+
 ```
 observal-init  | INFO - Database up to date.
 observal-api   | INFO - Application startup complete.
@@ -298,7 +300,7 @@ curl -fsSL https://raw.githubusercontent.com/Observal/Observal/main/install.sh |
 Log in:
 
 ```bash
-observal auth login
+dev-library auth login
 # Server URL: https://observal.yourcompany.com
 # Email: (create your admin account or use demo creds if you kept them)
 ```
@@ -306,8 +308,8 @@ observal auth login
 Verify:
 
 ```bash
-observal auth whoami
-observal auth status
+dev-library auth whoami
+dev-library auth status
 ```
 
 ## Upgrades
@@ -325,7 +327,7 @@ The Compose init service applies migrations before API startup. See [Upgrades](u
 Or use the CLI:
 
 ```bash
-observal server upgrade --version 1.5.0 --force --output json
+dev-library server upgrade --version 1.5.0 --force --output json
 ```
 
 ## Monitoring
@@ -369,7 +371,7 @@ Before exposing to the internet:
 When you outgrow a single node:
 
 | Symptom | Fix |
-|---|---|
+| --- | --- |
 | API response times increasing | Increase `API_WORKERS` in `.env` (default 2), or bump to a bigger VM |
 | ClickHouse queries slow | Increase `CLICKHOUSE_MEMORY_LIMIT`, move to a bigger VM, or externalize to [ClickHouse Cloud](https://clickhouse.cloud) |
 | Disk filling up | Reduce `DATA_RETENTION_DAYS`, add a bigger disk, or move ClickHouse data to a separate volume |

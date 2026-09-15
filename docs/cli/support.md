@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2026-present Observal
 SPDX-License-Identifier: Apache-2.0
 -->
 
-# `observal doctor support`
+# `dev-library doctor support`
 
 Generate and inspect redacted diagnostic support bundles.
 
@@ -12,13 +12,13 @@ Both workflows support `--output table|json`. Bundle generation writes a `.tar.g
 ## Generate a bundle
 
 ```bash
-observal doctor support bundle --output json
+dev-library doctor support bundle --output json
 ```
 
 Choose the archive path with the hard-renamed `--file/-f` option:
 
 ```bash
-observal doctor support bundle \
+dev-library doctor support bundle \
   --file /tmp/observal-support.tar.gz \
   --logs-since 2h \
   --no-include-system \
@@ -92,13 +92,13 @@ The uncompressed budget is 100 MB. Human mode asks before exceeding it. JSON mod
 ## Inspect a bundle
 
 ```bash
-observal doctor support inspect ./observal-support.tar.gz --output json
+dev-library doctor support inspect ./observal-support.tar.gz --output json
 ```
 
 Show one regular file:
 
 ```bash
-observal doctor support inspect ./observal-support.tar.gz \
+dev-library doctor support inspect ./observal-support.tar.gz \
   --show health/postgres.json \
   --output json
 ```
@@ -127,6 +127,6 @@ Inspection never extracts files. It rejects traversal paths, links requested thr
 
 ## Related
 
-* [`observal doctor`](doctor.md): diagnose and repair telemetry instrumentation
-* [`observal ops telemetry status`](ops.md): check telemetry flow
+* [`dev-library doctor`](doctor.md): diagnose and repair telemetry instrumentation
+* [`dev-library ops telemetry status`](ops.md): check telemetry flow
 * [Troubleshooting](../self-hosting/troubleshooting.md): deployment diagnosis

@@ -3,12 +3,12 @@
 
 # Sandboxes
 
-Sandboxes are versioned execution environments registered in Observal. When an agent has a sandbox component, Observal installs an `observal-sandbox` MCP server that exposes one callable tool per sandbox.
+Sandboxes are versioned execution environments registered in Observal. When an agent has a sandbox component, Observal installs an `dev-library-sandbox` MCP server that exposes one callable tool per sandbox.
 
 ## Runtime support
 
 | Runtime | Artifact field | Local requirement | Notes |
-|---------|----------------|-------------------|-------|
+| --------- | ---------------- | ------------------- | ------- |
 | `docker` | `image` | Docker daemon + Python Docker SDK | Supports any Docker/OCI image the local daemon can pull and run, for example `python:3.12-slim` or `ghcr.io/org/runner:1.0.0`. |
 | `lxc` | `image` | local `lxc`/LXD CLI | Uses LXC/LXD image refs, not arbitrary OCI image refs. |
 | `firecracker` | `runtime_config` | local `firecracker` binary | Requires `runtime_config.config_path` or `kernel_image_path` + `rootfs_path`. |
@@ -21,7 +21,7 @@ Docker is the common path. The other runtimes are local-runtime dispatchers: Obs
 A sandbox version stores:
 
 | Field | Description |
-|-------|-------------|
+| ------- | ------------- |
 | `runtime_type` | `docker`, `lxc`, `firecracker`, or `wasm` |
 | `image` | Docker/OCI image, LXC image ref, or WASM module path/ref |
 | `resource_limits` | JSON object such as `{"timeout": 60, "memory_mb": 512, "cpu_count": 1}` |
@@ -55,19 +55,19 @@ Then submit:
 ## How it works
 
 ```text
-observal agent pull my-agent --harness claude-code
+dev-library agent pull my-agent --harness claude-code
     │
-    ├── Registers "observal-sandbox" MCP server
+    ├── Registers "dev-library-sandbox" MCP server
     │   └── Exposes run_sandbox_<name> as a callable tool
     │
     └── Agent calls run_sandbox_python_pytest(command="pytest tests/")
-        └── MCP server → observal-sandbox-run → local runtime → output
+        └── MCP server → dev-library-sandbox-run → local runtime → output
 ```
 
 ## Submit a sandbox
 
 ```bash
-observal registry sandbox submit \
+dev-library registry sandbox submit \
   --name python-pytest \
   --version 1.0.0 \
   --description "Run Python tests" \
@@ -78,7 +78,7 @@ observal registry sandbox submit \
   --output json
 ```
 
-Sandbox submission returns the direct server result in JSON mode. Standalone Sandbox installation is not supported. Add the returned sandbox UUID to an agent with `observal agent add sandbox <sandbox-uuid>`.
+Sandbox submission returns the direct server result in JSON mode. Standalone Sandbox installation is not supported. Add the returned sandbox UUID to an agent with `dev-library agent add sandbox <sandbox-uuid>`.
 
 From JSON:
 
@@ -99,7 +99,7 @@ From JSON:
 ## Publish a new sandbox version
 
 ```bash
-observal registry version publish sandbox python-pytest \
+dev-library registry version publish sandbox python-pytest \
   --version 1.1.0 \
   --description "Move to Python 3.12 slim" \
   --extra '{"runtime_type":"docker","image":"python:3.12-slim","resource_limits":{"timeout":60}}'
@@ -112,7 +112,7 @@ Like skills and MCPs, a new sandbox version is submitted for review. Approval mo
 Docker:
 
 ```bash
-observal-sandbox-run \
+dev-library-sandbox-run \
   --sandbox-id s-123 \
   --runtime-type docker \
   --image python:3.12-slim \
@@ -124,16 +124,56 @@ observal-sandbox-run \
 WASM:
 
 ```bash
-observal-sandbox-run \
+dev-library-sandbox-run \
   --sandbox-id s-123 \
   --runtime-type wasm \
   --image ./runner.wasm \
   --command "--help"
 ```
 
+## Persistent sessions
+
+Ephemeral runs lose all state between calls. Sessions keep a container alive
+so consecutive commands share filesystem state:
+
+```text
+sandbox_session_start_python_pytest()   → session_id (container + /workspace volume)
+run_sandbox_python_pytest(command="pytest -q", session_id="…")
+sandbox_file_write(session_id, "src/main.py", content)
+sandbox_file_read(session_id, "out/report.txt")
+sandbox_session_stop(session_id)          → removes container and workspace
+```
+
+- Sessions survive MCP and harness restarts (registry in
+  `~/.observal/sandbox_sessions.json`).
+- Idle sessions are garbage collected automatically (~30 min default;
+  override with `OBSERVAL_SANDBOX_SESSION_TTL` seconds).
+- `sandbox_session_stop(session_id, keep_workspace=true)` keeps the volume
+  for a future session.
+- Docker runtime only; session exec emits the same telemetry as ephemeral runs.
+- Manual runner access: `dev-library-sandbox-run --action start|exec|stop|list|files-get|files-put|gc`.
+
 ## Security notes
 
 - Docker `network_policy: "none"` maps to Docker's no-network mode.
+- `network_policy: "restricted"` is real egress control: the runner starts a
+  loopback allowlist proxy, attaches the container to a dedicated bridge
+  network, and routes HTTP(S) through `host.docker.internal`. Only hosts in
+  `runtime_config.egress_allowlist` (exact or subdomain match) are reachable;
+  an empty allowlist means total isolation. Restricted **sessions** use a
+  dedicated internal network without the proxy — the proxy spans a single
+  ephemeral run only, and the runner says so on stderr instead of silently
+  claiming egress control.
 - Docker `memory_mb` and `cpu_count` are passed to the local Docker daemon.
 - Non-Docker isolation is only as strong as the local runtime configuration.
 - No registry-side Dockerfile build service exists yet; use prebuilt image/artifact refs.
+
+## Telemetry
+
+Every `dev-library-sandbox-run` invocation reports one event to
+`POST /api/v1/ingest/sandbox-exec` (exit code, OOM kill, timeout, latency,
+ container id, 4KB output preview). Delivery is best-effort with a local
+spool (`~/.observal/sandbox_spans.jsonl`) that retries on the next
+execution when the server is unreachable; executions never block on
+telemetry. Events land in the ClickHouse `sandbox_exec_events` table with
+the authenticated user stamped server-side.

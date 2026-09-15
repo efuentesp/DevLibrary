@@ -5,7 +5,7 @@
 # SPDX-FileCopyrightText: 2026 Shreem Seth <shreemseth26@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for the `observal pull` command."""
+"""Tests for the `dev-library pull` command."""
 
 from __future__ import annotations
 
@@ -21,8 +21,8 @@ import pytest
 import yaml
 from typer.testing import CliRunner
 
-from observal_cli.errors import CliError, ErrorCategory
-from observal_cli.main import app as cli_app
+from dev_library_cli.errors import CliError, ErrorCategory
+from dev_library_cli.main import app as cli_app
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -46,10 +46,10 @@ _FAKE_CONFIG = {"server_url": "http://localhost:8000", "api_key": "test-key"}
 def _patch_config():
     """Patch config access so the CLI doesn't need real credentials."""
     with (
-        patch("observal_cli.config.get_or_exit", return_value=_FAKE_CONFIG),
-        patch("observal_cli.config.load", return_value=_FAKE_CONFIG),
+        patch("dev_library_cli.config.get_or_exit", return_value=_FAKE_CONFIG),
+        patch("dev_library_cli.config.load", return_value=_FAKE_CONFIG),
         patch(
-            "observal_cli.cmd_pull.subprocess.run",
+            "dev_library_cli.cmd_pull.subprocess.run",
             return_value=subprocess.CompletedProcess(["claude"], 0, "", ""),
         ),
     ):
@@ -58,8 +58,8 @@ def _patch_config():
 
 @pytest.fixture(autouse=True)
 def isolated_lockfile(tmp_path, monkeypatch):
-    monkeypatch.setattr("observal_cli.lockfile.LOCKFILE_PATH", tmp_path / ".observal/lockfile.json")
-    monkeypatch.setattr("observal_cli.lockfile._LOCKFILE_LOCK", tmp_path / ".observal/lockfile.lock")
+    monkeypatch.setattr("dev_library_cli.lockfile.LOCKFILE_PATH", tmp_path / ".observal/lockfile.json")
+    monkeypatch.setattr("dev_library_cli.lockfile._LOCKFILE_LOCK", tmp_path / ".observal/lockfile.lock")
 
 
 @contextmanager
@@ -67,8 +67,8 @@ def _patch_post(return_value: dict):
     """Patch authenticated writes and public install requests with one mock."""
     request = MagicMock(return_value=return_value)
     with (
-        patch("observal_cli.client.post", request),
-        patch("observal_cli.client.post_public", request),
+        patch("dev_library_cli.client.post", request),
+        patch("dev_library_cli.client.post_public", request),
     ):
         yield request
 
@@ -84,7 +84,7 @@ _AGENT_DETAIL_NO_ENV = {
 
 def _patch_get_agent(detail: dict = _AGENT_DETAIL_NO_ENV):
     """Patch client.get to return a canned agent detail response."""
-    return patch("observal_cli.client.get", return_value=detail)
+    return patch("dev_library_cli.client.get", return_value=detail)
 
 
 # ── Fixtures for common server responses ─────────────────────
@@ -363,8 +363,8 @@ class TestPullKiro:
                         "name": "my-agent",
                         "tools": ["search"],
                         "hooks": {
-                            "userPromptSubmit": [{"command": "python3 -m observal_cli.hooks.kiro_session_push"}],
-                            "stop": [{"command": "python3 -m observal_cli.hooks.kiro_session_push"}],
+                            "userPromptSubmit": [{"command": "python3 -m dev_library_cli.hooks.kiro_session_push"}],
+                            "stop": [{"command": "python3 -m dev_library_cli.hooks.kiro_session_push"}],
                         },
                     },
                 }
@@ -635,7 +635,7 @@ class TestPullEdgeCases:
             _patch_config(),
             _patch_get_agent(),
             _patch_post(_codex_snippet()),
-            patch("observal_cli.cmd_pull.config.resolve_alias", return_value="real-uuid") as mock_resolve,
+            patch("dev_library_cli.cmd_pull.config.resolve_alias", return_value="real-uuid") as mock_resolve,
         ):
             result = runner.invoke(
                 cli_app, ["agent", "pull", "@myagent", "--harness", "codex", "--dir", str(tmp_path), "--no-prompt"]
@@ -678,7 +678,7 @@ class TestPullEnvVarPrompting:
 
         with (
             _patch_config(),
-            patch("observal_cli.client.get", side_effect=mock_get),
+            patch("dev_library_cli.client.get", side_effect=mock_get),
             _patch_post(_cursor_snippet()) as mock_post,
         ):
             result = runner.invoke(
@@ -712,7 +712,7 @@ class TestPullEnvVarPrompting:
                 return mcp_no_env
             return agent_no_env
 
-        with _patch_config(), patch("observal_cli.client.get", side_effect=mock_get), _patch_post(_cursor_snippet()):
+        with _patch_config(), patch("dev_library_cli.client.get", side_effect=mock_get), _patch_post(_cursor_snippet()):
             result = runner.invoke(
                 cli_app,
                 ["agent", "pull", "agent-uuid", "--harness", "cursor", "--dir", str(tmp_path), "--no-prompt"],
@@ -744,7 +744,7 @@ class TestPullHelp:
 
 
 def _make_agent_yaml(tmp_path: Path, **overrides) -> Path:
-    """Write a minimal observal-agent.yaml and return its path."""
+    """Write a minimal dev-library-agent.yaml and return its path."""
     data = {
         "name": "test-agent",
         "version": "1.0.0",
@@ -755,24 +755,24 @@ def _make_agent_yaml(tmp_path: Path, **overrides) -> Path:
         "components": [],
     }
     data.update(overrides)
-    yaml_path = tmp_path / "observal-agent.yaml"
+    yaml_path = tmp_path / "dev-library-agent.yaml"
     yaml_path.write_text(yaml.dump(data, default_flow_style=False, sort_keys=False))
     return yaml_path
 
 
 def _patch_get(return_value):
-    return patch("observal_cli.client.get", return_value=return_value)
+    return patch("dev_library_cli.client.get", return_value=return_value)
 
 
 def _patch_put(return_value):
-    return patch("observal_cli.client.put", return_value=return_value)
+    return patch("dev_library_cli.client.put", return_value=return_value)
 
 
 class TestAgentInit:
     def test_creates_yaml_with_correct_fields(self, tmp_path: Path):
         """Interactive prompts produce a valid YAML file."""
         inputs = "my-agent\n1.0.0\nA cool agent\nclaude-sonnet-4\nDo helpful things\n"
-        with patch("observal_cli.config.load", return_value={"username": "my-team"}):
+        with patch("dev_library_cli.config.load", return_value={"username": "my-team"}):
             result = runner.invoke(
                 cli_app,
                 ["agent", "init", "--dir", str(tmp_path)],
@@ -781,7 +781,7 @@ class TestAgentInit:
         assert result.exit_code == 0, result.output
         assert "Created" in result.output
 
-        yaml_path = tmp_path / "observal-agent.yaml"
+        yaml_path = tmp_path / "dev-library-agent.yaml"
         assert yaml_path.exists()
 
         data = yaml.safe_load(yaml_path.read_text())
@@ -815,7 +815,7 @@ class TestAgentInit:
             input=inputs,
         )
         assert result.exit_code == 0, result.output
-        data = yaml.safe_load((tmp_path / "observal-agent.yaml").read_text())
+        data = yaml.safe_load((tmp_path / "dev-library-agent.yaml").read_text())
         assert data["name"] == "new-agent"
 
 
@@ -830,7 +830,7 @@ class TestAgentAdd:
         assert result.exit_code == 0, result.output
         assert "Added" in result.output
 
-        data = yaml.safe_load((tmp_path / "observal-agent.yaml").read_text())
+        data = yaml.safe_load((tmp_path / "dev-library-agent.yaml").read_text())
         assert len(data["components"]) == 1
         assert data["components"][0]["component_type"] == "mcp"
         assert data["components"][0]["component_id"] == "11111111-1111-1111-1111-111111111111"
@@ -861,7 +861,7 @@ class TestAgentAdd:
         assert "already exists" in result.output
 
     def test_fails_if_no_yaml(self, tmp_path: Path):
-        """Fails if observal-agent.yaml does not exist."""
+        """Fails if dev-library-agent.yaml does not exist."""
         result = runner.invoke(
             cli_app,
             ["agent", "add", "mcp", "33333333-3333-3333-3333-333333333333", "--dir", str(tmp_path)],
@@ -895,7 +895,7 @@ class TestAgentBuild:
 
         with (
             _patch_config(),
-            patch("observal_cli.client.get", side_effect=mock_get),
+            patch("dev_library_cli.client.get", side_effect=mock_get),
             _patch_post({"valid": True, "issues": []}) as mock_post_fn,
         ):
             result = runner.invoke(
@@ -924,7 +924,7 @@ class TestAgentBuild:
 
         with (
             _patch_config(),
-            patch("observal_cli.client.get", side_effect=mock_get),
+            patch("dev_library_cli.client.get", side_effect=mock_get),
             _patch_post({"valid": True, "issues": []}) as mock_post_fn,
         ):
             result = runner.invoke(
@@ -956,7 +956,7 @@ class TestAgentBuild:
 
         with (
             _patch_config(),
-            patch("observal_cli.client.get", side_effect=mock_get),
+            patch("dev_library_cli.client.get", side_effect=mock_get),
             _patch_post({"valid": True, "issues": []}),
         ):
             result = runner.invoke(
@@ -990,7 +990,7 @@ class TestAgentBuild:
         }
         with (
             _patch_config(),
-            patch("observal_cli.client.get", side_effect=mock_get),
+            patch("dev_library_cli.client.get", side_effect=mock_get),
             _patch_post(scope_result),
         ):
             result = runner.invoke(
@@ -1002,7 +1002,7 @@ class TestAgentBuild:
         assert "Component belongs to another teamspace" in result.output
 
     def test_fails_if_no_yaml(self, tmp_path: Path):
-        """Fails if observal-agent.yaml does not exist."""
+        """Fails if dev-library-agent.yaml does not exist."""
         result = runner.invoke(
             cli_app,
             ["agent", "build", "--dir", str(tmp_path)],
@@ -1030,7 +1030,7 @@ class TestAgentPublish:
         assert result.exit_code == 0, result.output
         assert "Agent submitted!" in result.output
         assert "new-agent-uuid" in result.output
-        assert "observal agent pull tester/test-agent" in result.output
+        assert "dev-library agent pull tester/test-agent" in result.output
         # A public publish stays in the review queue, so the CLI must say so.
         assert "an admin must approve it" in result.output
 
@@ -1063,7 +1063,7 @@ class TestAgentPublish:
             )
         assert result.exit_code == 0, result.output
         assert "Agent submitted!" in result.output
-        assert "observal agent pull platform/test-agent" in result.output
+        assert "dev-library agent pull platform/test-agent" in result.output
         assert "must approve" not in result.output
 
         payload = mock_post_fn.call_args[0][1]
@@ -1097,7 +1097,7 @@ class TestAgentPublish:
         assert "existing-uuid" in put_call[0][0]
 
     def test_fails_if_no_yaml(self, tmp_path: Path):
-        """Fails if observal-agent.yaml does not exist."""
+        """Fails if dev-library-agent.yaml does not exist."""
         with _patch_config():
             result = runner.invoke(
                 cli_app,

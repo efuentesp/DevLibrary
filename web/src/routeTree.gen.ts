@@ -8,663 +8,663 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthedRouteImport } from './routes/_authed'
-import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
-import { Route as AuthedTeamspacesRouteImport } from './routes/_authed/teamspaces'
-import { Route as AuthedLeaderboardRouteImport } from './routes/_authed/leaderboard'
-import { Route as AuthedUserRouteImport } from './routes/_authed/_user'
-import { Route as AuthedAdminRouteImport } from './routes/_authed/_admin'
-import { Route as authRegisterRouteImport } from './routes/(auth)/register'
-import { Route as authLoginRouteImport } from './routes/(auth)/login'
-import { Route as authDeviceRouteImport } from './routes/(auth)/device'
-import { Route as AuthedWikiIndexRouteImport } from './routes/_authed/wiki/index'
-import { Route as AuthedComponentsIndexRouteImport } from './routes/_authed/components/index'
-import { Route as AuthedAgentsIndexRouteImport } from './routes/_authed/agents/index'
-import { Route as AuthedTeamspacesHandleRouteImport } from './routes/_authed/teamspaces.$handle'
-import { Route as AuthedTeamInvitesTokenRouteImport } from './routes/_authed/team-invites.$token'
-import { Route as AuthedInsightsReportIdRouteImport } from './routes/_authed/insights/$reportId'
-import { Route as AuthedComponentsComponentIdRouteImport } from './routes/_authed/components/$componentId'
-import { Route as AuthedAgentsBuilderRouteImport } from './routes/_authed/agents/builder'
-import { Route as AuthedAgentsAgentIdRouteImport } from './routes/_authed/agents/$agentId'
-import { Route as AuthedUserInboxRouteImport } from './routes/_authed/_user/inbox'
-import { Route as AuthedUserAccountRouteImport } from './routes/_authed/_user/account'
-import { Route as AuthedAdminUsersRouteImport } from './routes/_authed/_admin/users'
-import { Route as AuthedAdminSsoRouteImport } from './routes/_authed/_admin/sso'
-import { Route as AuthedAdminSettingsRouteImport } from './routes/_authed/_admin/settings'
-import { Route as AuthedAdminSecurityEventsRouteImport } from './routes/_authed/_admin/security-events'
-import { Route as AuthedAdminReviewRouteImport } from './routes/_authed/_admin/review'
-import { Route as AuthedAdminDiagnosticsRouteImport } from './routes/_authed/_admin/diagnostics'
-import { Route as AuthedAdminDashboardRouteImport } from './routes/_authed/_admin/dashboard'
-import { Route as AuthedAdminAuditLogRouteImport } from './routes/_authed/_admin/audit-log'
-import { Route as AuthedUserTracesIndexRouteImport } from './routes/_authed/_user/traces/index'
-import { Route as AuthedAgentsNamespaceSlugRouteImport } from './routes/_authed/agents/$namespace.$slug'
-import { Route as AuthedUserTracesTraceIdRouteImport } from './routes/_authed/_user/traces/$traceId'
-import { Route as AuthedComponentsTypeNamespaceSlugRouteImport } from './routes/_authed/components/$type.$namespace.$slug'
-import { Route as AuthedAgentsAgentIdInsightsReportIdRouteImport } from './routes/_authed/agents/$agentId/insights/$reportId'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as AuthedRouteImport } from "./routes/_authed";
+import { Route as AuthedIndexRouteImport } from "./routes/_authed/index";
+import { Route as AuthedTeamspacesRouteImport } from "./routes/_authed/teamspaces";
+import { Route as AuthedLeaderboardRouteImport } from "./routes/_authed/leaderboard";
+import { Route as AuthedUserRouteImport } from "./routes/_authed/_user";
+import { Route as AuthedAdminRouteImport } from "./routes/_authed/_admin";
+import { Route as authRegisterRouteImport } from "./routes/(auth)/register";
+import { Route as authLoginRouteImport } from "./routes/(auth)/login";
+import { Route as authDeviceRouteImport } from "./routes/(auth)/device";
+import { Route as AuthedWikiIndexRouteImport } from "./routes/_authed/wiki/index";
+import { Route as AuthedComponentsIndexRouteImport } from "./routes/_authed/components/index";
+import { Route as AuthedAgentsIndexRouteImport } from "./routes/_authed/agents/index";
+import { Route as AuthedTeamspacesHandleRouteImport } from "./routes/_authed/teamspaces.$handle";
+import { Route as AuthedTeamInvitesTokenRouteImport } from "./routes/_authed/team-invites.$token";
+import { Route as AuthedInsightsReportIdRouteImport } from "./routes/_authed/insights/$reportId";
+import { Route as AuthedComponentsComponentIdRouteImport } from "./routes/_authed/components/$componentId";
+import { Route as AuthedAgentsBuilderRouteImport } from "./routes/_authed/agents/builder";
+import { Route as AuthedAgentsAgentIdRouteImport } from "./routes/_authed/agents/$agentId";
+import { Route as AuthedUserInboxRouteImport } from "./routes/_authed/_user/inbox";
+import { Route as AuthedUserAccountRouteImport } from "./routes/_authed/_user/account";
+import { Route as AuthedAdminUsersRouteImport } from "./routes/_authed/_admin/users";
+import { Route as AuthedAdminSsoRouteImport } from "./routes/_authed/_admin/sso";
+import { Route as AuthedAdminSettingsRouteImport } from "./routes/_authed/_admin/settings";
+import { Route as AuthedAdminSecurityEventsRouteImport } from "./routes/_authed/_admin/security-events";
+import { Route as AuthedAdminReviewRouteImport } from "./routes/_authed/_admin/review";
+import { Route as AuthedAdminDiagnosticsRouteImport } from "./routes/_authed/_admin/diagnostics";
+import { Route as AuthedAdminDashboardRouteImport } from "./routes/_authed/_admin/dashboard";
+import { Route as AuthedAdminAuditLogRouteImport } from "./routes/_authed/_admin/audit-log";
+import { Route as AuthedUserTracesIndexRouteImport } from "./routes/_authed/_user/traces/index";
+import { Route as AuthedAgentsNamespaceSlugRouteImport } from "./routes/_authed/agents/$namespace.$slug";
+import { Route as AuthedUserTracesTraceIdRouteImport } from "./routes/_authed/_user/traces/$traceId";
+import { Route as AuthedComponentsTypeNamespaceSlugRouteImport } from "./routes/_authed/components/$type.$namespace.$slug";
+import { Route as AuthedAgentsAgentIdInsightsReportIdRouteImport } from "./routes/_authed/agents/$agentId/insights/$reportId";
 
 const AuthedRoute = AuthedRouteImport.update({
-  id: '/_authed',
+  id: "/_authed",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AuthedIndexRoute = AuthedIndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => AuthedRoute,
-} as any)
+} as any);
 const AuthedTeamspacesRoute = AuthedTeamspacesRouteImport.update({
-  id: '/teamspaces',
-  path: '/teamspaces',
+  id: "/teamspaces",
+  path: "/teamspaces",
   getParentRoute: () => AuthedRoute,
-} as any)
+} as any);
 const AuthedLeaderboardRoute = AuthedLeaderboardRouteImport.update({
-  id: '/leaderboard',
-  path: '/leaderboard',
+  id: "/leaderboard",
+  path: "/leaderboard",
   getParentRoute: () => AuthedRoute,
-} as any)
+} as any);
 const AuthedUserRoute = AuthedUserRouteImport.update({
-  id: '/_user',
+  id: "/_user",
   getParentRoute: () => AuthedRoute,
-} as any)
+} as any);
 const AuthedAdminRoute = AuthedAdminRouteImport.update({
-  id: '/_admin',
+  id: "/_admin",
   getParentRoute: () => AuthedRoute,
-} as any)
+} as any);
 const authRegisterRoute = authRegisterRouteImport.update({
-  id: '/(auth)/register',
-  path: '/register',
+  id: "/(auth)/register",
+  path: "/register",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const authLoginRoute = authLoginRouteImport.update({
-  id: '/(auth)/login',
-  path: '/login',
+  id: "/(auth)/login",
+  path: "/login",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const authDeviceRoute = authDeviceRouteImport.update({
-  id: '/(auth)/device',
-  path: '/device',
+  id: "/(auth)/device",
+  path: "/device",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const AuthedWikiIndexRoute = AuthedWikiIndexRouteImport.update({
-  id: '/wiki/',
-  path: '/wiki/',
+  id: "/wiki/",
+  path: "/wiki/",
   getParentRoute: () => AuthedRoute,
-} as any)
+} as any);
 const AuthedComponentsIndexRoute = AuthedComponentsIndexRouteImport.update({
-  id: '/components/',
-  path: '/components/',
+  id: "/components/",
+  path: "/components/",
   getParentRoute: () => AuthedRoute,
-} as any)
+} as any);
 const AuthedAgentsIndexRoute = AuthedAgentsIndexRouteImport.update({
-  id: '/agents/',
-  path: '/agents/',
+  id: "/agents/",
+  path: "/agents/",
   getParentRoute: () => AuthedRoute,
-} as any)
+} as any);
 const AuthedTeamspacesHandleRoute = AuthedTeamspacesHandleRouteImport.update({
-  id: '/$handle',
-  path: '/$handle',
+  id: "/$handle",
+  path: "/$handle",
   getParentRoute: () => AuthedTeamspacesRoute,
-} as any)
+} as any);
 const AuthedTeamInvitesTokenRoute = AuthedTeamInvitesTokenRouteImport.update({
-  id: '/team-invites/$token',
-  path: '/team-invites/$token',
+  id: "/team-invites/$token",
+  path: "/team-invites/$token",
   getParentRoute: () => AuthedRoute,
-} as any)
+} as any);
 const AuthedInsightsReportIdRoute = AuthedInsightsReportIdRouteImport.update({
-  id: '/insights/$reportId',
-  path: '/insights/$reportId',
+  id: "/insights/$reportId",
+  path: "/insights/$reportId",
   getParentRoute: () => AuthedRoute,
-} as any)
+} as any);
 const AuthedComponentsComponentIdRoute =
   AuthedComponentsComponentIdRouteImport.update({
-    id: '/components/$componentId',
-    path: '/components/$componentId',
+    id: "/components/$componentId",
+    path: "/components/$componentId",
     getParentRoute: () => AuthedRoute,
-  } as any)
+  } as any);
 const AuthedAgentsBuilderRoute = AuthedAgentsBuilderRouteImport.update({
-  id: '/agents/builder',
-  path: '/agents/builder',
+  id: "/agents/builder",
+  path: "/agents/builder",
   getParentRoute: () => AuthedRoute,
-} as any)
+} as any);
 const AuthedAgentsAgentIdRoute = AuthedAgentsAgentIdRouteImport.update({
-  id: '/agents/$agentId',
-  path: '/agents/$agentId',
+  id: "/agents/$agentId",
+  path: "/agents/$agentId",
   getParentRoute: () => AuthedRoute,
-} as any)
+} as any);
 const AuthedUserInboxRoute = AuthedUserInboxRouteImport.update({
-  id: '/inbox',
-  path: '/inbox',
+  id: "/inbox",
+  path: "/inbox",
   getParentRoute: () => AuthedUserRoute,
-} as any)
+} as any);
 const AuthedUserAccountRoute = AuthedUserAccountRouteImport.update({
-  id: '/account',
-  path: '/account',
+  id: "/account",
+  path: "/account",
   getParentRoute: () => AuthedUserRoute,
-} as any)
+} as any);
 const AuthedAdminUsersRoute = AuthedAdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
+  id: "/users",
+  path: "/users",
   getParentRoute: () => AuthedAdminRoute,
-} as any)
+} as any);
 const AuthedAdminSsoRoute = AuthedAdminSsoRouteImport.update({
-  id: '/sso',
-  path: '/sso',
+  id: "/sso",
+  path: "/sso",
   getParentRoute: () => AuthedAdminRoute,
-} as any)
+} as any);
 const AuthedAdminSettingsRoute = AuthedAdminSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+  id: "/settings",
+  path: "/settings",
   getParentRoute: () => AuthedAdminRoute,
-} as any)
+} as any);
 const AuthedAdminSecurityEventsRoute =
   AuthedAdminSecurityEventsRouteImport.update({
-    id: '/security-events',
-    path: '/security-events',
+    id: "/security-events",
+    path: "/security-events",
     getParentRoute: () => AuthedAdminRoute,
-  } as any)
+  } as any);
 const AuthedAdminReviewRoute = AuthedAdminReviewRouteImport.update({
-  id: '/review',
-  path: '/review',
+  id: "/review",
+  path: "/review",
   getParentRoute: () => AuthedAdminRoute,
-} as any)
+} as any);
 const AuthedAdminDiagnosticsRoute = AuthedAdminDiagnosticsRouteImport.update({
-  id: '/diagnostics',
-  path: '/diagnostics',
+  id: "/diagnostics",
+  path: "/diagnostics",
   getParentRoute: () => AuthedAdminRoute,
-} as any)
+} as any);
 const AuthedAdminDashboardRoute = AuthedAdminDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+  id: "/dashboard",
+  path: "/dashboard",
   getParentRoute: () => AuthedAdminRoute,
-} as any)
+} as any);
 const AuthedAdminAuditLogRoute = AuthedAdminAuditLogRouteImport.update({
-  id: '/audit-log',
-  path: '/audit-log',
+  id: "/audit-log",
+  path: "/audit-log",
   getParentRoute: () => AuthedAdminRoute,
-} as any)
+} as any);
 const AuthedUserTracesIndexRoute = AuthedUserTracesIndexRouteImport.update({
-  id: '/traces/',
-  path: '/traces/',
+  id: "/traces/",
+  path: "/traces/",
   getParentRoute: () => AuthedUserRoute,
-} as any)
+} as any);
 const AuthedAgentsNamespaceSlugRoute =
   AuthedAgentsNamespaceSlugRouteImport.update({
-    id: '/agents/$namespace/$slug',
-    path: '/agents/$namespace/$slug',
+    id: "/agents/$namespace/$slug",
+    path: "/agents/$namespace/$slug",
     getParentRoute: () => AuthedRoute,
-  } as any)
+  } as any);
 const AuthedUserTracesTraceIdRoute = AuthedUserTracesTraceIdRouteImport.update({
-  id: '/traces/$traceId',
-  path: '/traces/$traceId',
+  id: "/traces/$traceId",
+  path: "/traces/$traceId",
   getParentRoute: () => AuthedUserRoute,
-} as any)
+} as any);
 const AuthedComponentsTypeNamespaceSlugRoute =
   AuthedComponentsTypeNamespaceSlugRouteImport.update({
-    id: '/components/$type/$namespace/$slug',
-    path: '/components/$type/$namespace/$slug',
+    id: "/components/$type/$namespace/$slug",
+    path: "/components/$type/$namespace/$slug",
     getParentRoute: () => AuthedRoute,
-  } as any)
+  } as any);
 const AuthedAgentsAgentIdInsightsReportIdRoute =
   AuthedAgentsAgentIdInsightsReportIdRouteImport.update({
-    id: '/insights/$reportId',
-    path: '/insights/$reportId',
+    id: "/insights/$reportId",
+    path: "/insights/$reportId",
     getParentRoute: () => AuthedAgentsAgentIdRoute,
-  } as any)
+  } as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthedIndexRoute
-  '/device': typeof authDeviceRoute
-  '/login': typeof authLoginRoute
-  '/register': typeof authRegisterRoute
-  '/leaderboard': typeof AuthedLeaderboardRoute
-  '/teamspaces': typeof AuthedTeamspacesRouteWithChildren
-  '/audit-log': typeof AuthedAdminAuditLogRoute
-  '/dashboard': typeof AuthedAdminDashboardRoute
-  '/diagnostics': typeof AuthedAdminDiagnosticsRoute
-  '/review': typeof AuthedAdminReviewRoute
-  '/security-events': typeof AuthedAdminSecurityEventsRoute
-  '/settings': typeof AuthedAdminSettingsRoute
-  '/sso': typeof AuthedAdminSsoRoute
-  '/users': typeof AuthedAdminUsersRoute
-  '/account': typeof AuthedUserAccountRoute
-  '/inbox': typeof AuthedUserInboxRoute
-  '/agents/$agentId': typeof AuthedAgentsAgentIdRouteWithChildren
-  '/agents/builder': typeof AuthedAgentsBuilderRoute
-  '/components/$componentId': typeof AuthedComponentsComponentIdRoute
-  '/insights/$reportId': typeof AuthedInsightsReportIdRoute
-  '/team-invites/$token': typeof AuthedTeamInvitesTokenRoute
-  '/teamspaces/$handle': typeof AuthedTeamspacesHandleRoute
-  '/agents/': typeof AuthedAgentsIndexRoute
-  '/components/': typeof AuthedComponentsIndexRoute
-  '/wiki/': typeof AuthedWikiIndexRoute
-  '/traces/$traceId': typeof AuthedUserTracesTraceIdRoute
-  '/agents/$namespace/$slug': typeof AuthedAgentsNamespaceSlugRoute
-  '/traces/': typeof AuthedUserTracesIndexRoute
-  '/agents/$agentId/insights/$reportId': typeof AuthedAgentsAgentIdInsightsReportIdRoute
-  '/components/$type/$namespace/$slug': typeof AuthedComponentsTypeNamespaceSlugRoute
+  "/": typeof AuthedIndexRoute;
+  "/device": typeof authDeviceRoute;
+  "/login": typeof authLoginRoute;
+  "/register": typeof authRegisterRoute;
+  "/leaderboard": typeof AuthedLeaderboardRoute;
+  "/teamspaces": typeof AuthedTeamspacesRouteWithChildren;
+  "/audit-log": typeof AuthedAdminAuditLogRoute;
+  "/dashboard": typeof AuthedAdminDashboardRoute;
+  "/diagnostics": typeof AuthedAdminDiagnosticsRoute;
+  "/review": typeof AuthedAdminReviewRoute;
+  "/security-events": typeof AuthedAdminSecurityEventsRoute;
+  "/settings": typeof AuthedAdminSettingsRoute;
+  "/sso": typeof AuthedAdminSsoRoute;
+  "/users": typeof AuthedAdminUsersRoute;
+  "/account": typeof AuthedUserAccountRoute;
+  "/inbox": typeof AuthedUserInboxRoute;
+  "/agents/$agentId": typeof AuthedAgentsAgentIdRouteWithChildren;
+  "/agents/builder": typeof AuthedAgentsBuilderRoute;
+  "/components/$componentId": typeof AuthedComponentsComponentIdRoute;
+  "/insights/$reportId": typeof AuthedInsightsReportIdRoute;
+  "/team-invites/$token": typeof AuthedTeamInvitesTokenRoute;
+  "/teamspaces/$handle": typeof AuthedTeamspacesHandleRoute;
+  "/agents/": typeof AuthedAgentsIndexRoute;
+  "/components/": typeof AuthedComponentsIndexRoute;
+  "/wiki/": typeof AuthedWikiIndexRoute;
+  "/traces/$traceId": typeof AuthedUserTracesTraceIdRoute;
+  "/agents/$namespace/$slug": typeof AuthedAgentsNamespaceSlugRoute;
+  "/traces/": typeof AuthedUserTracesIndexRoute;
+  "/agents/$agentId/insights/$reportId": typeof AuthedAgentsAgentIdInsightsReportIdRoute;
+  "/components/$type/$namespace/$slug": typeof AuthedComponentsTypeNamespaceSlugRoute;
 }
 export interface FileRoutesByTo {
-  '/device': typeof authDeviceRoute
-  '/login': typeof authLoginRoute
-  '/register': typeof authRegisterRoute
-  '/': typeof AuthedIndexRoute
-  '/leaderboard': typeof AuthedLeaderboardRoute
-  '/teamspaces': typeof AuthedTeamspacesRouteWithChildren
-  '/audit-log': typeof AuthedAdminAuditLogRoute
-  '/dashboard': typeof AuthedAdminDashboardRoute
-  '/diagnostics': typeof AuthedAdminDiagnosticsRoute
-  '/review': typeof AuthedAdminReviewRoute
-  '/security-events': typeof AuthedAdminSecurityEventsRoute
-  '/settings': typeof AuthedAdminSettingsRoute
-  '/sso': typeof AuthedAdminSsoRoute
-  '/users': typeof AuthedAdminUsersRoute
-  '/account': typeof AuthedUserAccountRoute
-  '/inbox': typeof AuthedUserInboxRoute
-  '/agents/$agentId': typeof AuthedAgentsAgentIdRouteWithChildren
-  '/agents/builder': typeof AuthedAgentsBuilderRoute
-  '/components/$componentId': typeof AuthedComponentsComponentIdRoute
-  '/insights/$reportId': typeof AuthedInsightsReportIdRoute
-  '/team-invites/$token': typeof AuthedTeamInvitesTokenRoute
-  '/teamspaces/$handle': typeof AuthedTeamspacesHandleRoute
-  '/agents': typeof AuthedAgentsIndexRoute
-  '/components': typeof AuthedComponentsIndexRoute
-  '/wiki': typeof AuthedWikiIndexRoute
-  '/traces/$traceId': typeof AuthedUserTracesTraceIdRoute
-  '/agents/$namespace/$slug': typeof AuthedAgentsNamespaceSlugRoute
-  '/traces': typeof AuthedUserTracesIndexRoute
-  '/agents/$agentId/insights/$reportId': typeof AuthedAgentsAgentIdInsightsReportIdRoute
-  '/components/$type/$namespace/$slug': typeof AuthedComponentsTypeNamespaceSlugRoute
+  "/device": typeof authDeviceRoute;
+  "/login": typeof authLoginRoute;
+  "/register": typeof authRegisterRoute;
+  "/": typeof AuthedIndexRoute;
+  "/leaderboard": typeof AuthedLeaderboardRoute;
+  "/teamspaces": typeof AuthedTeamspacesRouteWithChildren;
+  "/audit-log": typeof AuthedAdminAuditLogRoute;
+  "/dashboard": typeof AuthedAdminDashboardRoute;
+  "/diagnostics": typeof AuthedAdminDiagnosticsRoute;
+  "/review": typeof AuthedAdminReviewRoute;
+  "/security-events": typeof AuthedAdminSecurityEventsRoute;
+  "/settings": typeof AuthedAdminSettingsRoute;
+  "/sso": typeof AuthedAdminSsoRoute;
+  "/users": typeof AuthedAdminUsersRoute;
+  "/account": typeof AuthedUserAccountRoute;
+  "/inbox": typeof AuthedUserInboxRoute;
+  "/agents/$agentId": typeof AuthedAgentsAgentIdRouteWithChildren;
+  "/agents/builder": typeof AuthedAgentsBuilderRoute;
+  "/components/$componentId": typeof AuthedComponentsComponentIdRoute;
+  "/insights/$reportId": typeof AuthedInsightsReportIdRoute;
+  "/team-invites/$token": typeof AuthedTeamInvitesTokenRoute;
+  "/teamspaces/$handle": typeof AuthedTeamspacesHandleRoute;
+  "/agents": typeof AuthedAgentsIndexRoute;
+  "/components": typeof AuthedComponentsIndexRoute;
+  "/wiki": typeof AuthedWikiIndexRoute;
+  "/traces/$traceId": typeof AuthedUserTracesTraceIdRoute;
+  "/agents/$namespace/$slug": typeof AuthedAgentsNamespaceSlugRoute;
+  "/traces": typeof AuthedUserTracesIndexRoute;
+  "/agents/$agentId/insights/$reportId": typeof AuthedAgentsAgentIdInsightsReportIdRoute;
+  "/components/$type/$namespace/$slug": typeof AuthedComponentsTypeNamespaceSlugRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/_authed': typeof AuthedRouteWithChildren
-  '/(auth)/device': typeof authDeviceRoute
-  '/(auth)/login': typeof authLoginRoute
-  '/(auth)/register': typeof authRegisterRoute
-  '/_authed/_admin': typeof AuthedAdminRouteWithChildren
-  '/_authed/_user': typeof AuthedUserRouteWithChildren
-  '/_authed/leaderboard': typeof AuthedLeaderboardRoute
-  '/_authed/teamspaces': typeof AuthedTeamspacesRouteWithChildren
-  '/_authed/': typeof AuthedIndexRoute
-  '/_authed/_admin/audit-log': typeof AuthedAdminAuditLogRoute
-  '/_authed/_admin/dashboard': typeof AuthedAdminDashboardRoute
-  '/_authed/_admin/diagnostics': typeof AuthedAdminDiagnosticsRoute
-  '/_authed/_admin/review': typeof AuthedAdminReviewRoute
-  '/_authed/_admin/security-events': typeof AuthedAdminSecurityEventsRoute
-  '/_authed/_admin/settings': typeof AuthedAdminSettingsRoute
-  '/_authed/_admin/sso': typeof AuthedAdminSsoRoute
-  '/_authed/_admin/users': typeof AuthedAdminUsersRoute
-  '/_authed/_user/account': typeof AuthedUserAccountRoute
-  '/_authed/_user/inbox': typeof AuthedUserInboxRoute
-  '/_authed/agents/$agentId': typeof AuthedAgentsAgentIdRouteWithChildren
-  '/_authed/agents/builder': typeof AuthedAgentsBuilderRoute
-  '/_authed/components/$componentId': typeof AuthedComponentsComponentIdRoute
-  '/_authed/insights/$reportId': typeof AuthedInsightsReportIdRoute
-  '/_authed/team-invites/$token': typeof AuthedTeamInvitesTokenRoute
-  '/_authed/teamspaces/$handle': typeof AuthedTeamspacesHandleRoute
-  '/_authed/agents/': typeof AuthedAgentsIndexRoute
-  '/_authed/components/': typeof AuthedComponentsIndexRoute
-  '/_authed/wiki/': typeof AuthedWikiIndexRoute
-  '/_authed/_user/traces/$traceId': typeof AuthedUserTracesTraceIdRoute
-  '/_authed/agents/$namespace/$slug': typeof AuthedAgentsNamespaceSlugRoute
-  '/_authed/_user/traces/': typeof AuthedUserTracesIndexRoute
-  '/_authed/agents/$agentId/insights/$reportId': typeof AuthedAgentsAgentIdInsightsReportIdRoute
-  '/_authed/components/$type/$namespace/$slug': typeof AuthedComponentsTypeNamespaceSlugRoute
+  __root__: typeof rootRouteImport;
+  "/_authed": typeof AuthedRouteWithChildren;
+  "/(auth)/device": typeof authDeviceRoute;
+  "/(auth)/login": typeof authLoginRoute;
+  "/(auth)/register": typeof authRegisterRoute;
+  "/_authed/_admin": typeof AuthedAdminRouteWithChildren;
+  "/_authed/_user": typeof AuthedUserRouteWithChildren;
+  "/_authed/leaderboard": typeof AuthedLeaderboardRoute;
+  "/_authed/teamspaces": typeof AuthedTeamspacesRouteWithChildren;
+  "/_authed/": typeof AuthedIndexRoute;
+  "/_authed/_admin/audit-log": typeof AuthedAdminAuditLogRoute;
+  "/_authed/_admin/dashboard": typeof AuthedAdminDashboardRoute;
+  "/_authed/_admin/diagnostics": typeof AuthedAdminDiagnosticsRoute;
+  "/_authed/_admin/review": typeof AuthedAdminReviewRoute;
+  "/_authed/_admin/security-events": typeof AuthedAdminSecurityEventsRoute;
+  "/_authed/_admin/settings": typeof AuthedAdminSettingsRoute;
+  "/_authed/_admin/sso": typeof AuthedAdminSsoRoute;
+  "/_authed/_admin/users": typeof AuthedAdminUsersRoute;
+  "/_authed/_user/account": typeof AuthedUserAccountRoute;
+  "/_authed/_user/inbox": typeof AuthedUserInboxRoute;
+  "/_authed/agents/$agentId": typeof AuthedAgentsAgentIdRouteWithChildren;
+  "/_authed/agents/builder": typeof AuthedAgentsBuilderRoute;
+  "/_authed/components/$componentId": typeof AuthedComponentsComponentIdRoute;
+  "/_authed/insights/$reportId": typeof AuthedInsightsReportIdRoute;
+  "/_authed/team-invites/$token": typeof AuthedTeamInvitesTokenRoute;
+  "/_authed/teamspaces/$handle": typeof AuthedTeamspacesHandleRoute;
+  "/_authed/agents/": typeof AuthedAgentsIndexRoute;
+  "/_authed/components/": typeof AuthedComponentsIndexRoute;
+  "/_authed/wiki/": typeof AuthedWikiIndexRoute;
+  "/_authed/_user/traces/$traceId": typeof AuthedUserTracesTraceIdRoute;
+  "/_authed/agents/$namespace/$slug": typeof AuthedAgentsNamespaceSlugRoute;
+  "/_authed/_user/traces/": typeof AuthedUserTracesIndexRoute;
+  "/_authed/agents/$agentId/insights/$reportId": typeof AuthedAgentsAgentIdInsightsReportIdRoute;
+  "/_authed/components/$type/$namespace/$slug": typeof AuthedComponentsTypeNamespaceSlugRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/device'
-    | '/login'
-    | '/register'
-    | '/leaderboard'
-    | '/teamspaces'
-    | '/audit-log'
-    | '/dashboard'
-    | '/diagnostics'
-    | '/review'
-    | '/security-events'
-    | '/settings'
-    | '/sso'
-    | '/users'
-    | '/account'
-    | '/inbox'
-    | '/agents/$agentId'
-    | '/agents/builder'
-    | '/components/$componentId'
-    | '/insights/$reportId'
-    | '/team-invites/$token'
-    | '/teamspaces/$handle'
-    | '/agents/'
-    | '/components/'
-    | '/wiki/'
-    | '/traces/$traceId'
-    | '/agents/$namespace/$slug'
-    | '/traces/'
-    | '/agents/$agentId/insights/$reportId'
-    | '/components/$type/$namespace/$slug'
-  fileRoutesByTo: FileRoutesByTo
+    | "/"
+    | "/device"
+    | "/login"
+    | "/register"
+    | "/leaderboard"
+    | "/teamspaces"
+    | "/audit-log"
+    | "/dashboard"
+    | "/diagnostics"
+    | "/review"
+    | "/security-events"
+    | "/settings"
+    | "/sso"
+    | "/users"
+    | "/account"
+    | "/inbox"
+    | "/agents/$agentId"
+    | "/agents/builder"
+    | "/components/$componentId"
+    | "/insights/$reportId"
+    | "/team-invites/$token"
+    | "/teamspaces/$handle"
+    | "/agents/"
+    | "/components/"
+    | "/wiki/"
+    | "/traces/$traceId"
+    | "/agents/$namespace/$slug"
+    | "/traces/"
+    | "/agents/$agentId/insights/$reportId"
+    | "/components/$type/$namespace/$slug";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/device'
-    | '/login'
-    | '/register'
-    | '/'
-    | '/leaderboard'
-    | '/teamspaces'
-    | '/audit-log'
-    | '/dashboard'
-    | '/diagnostics'
-    | '/review'
-    | '/security-events'
-    | '/settings'
-    | '/sso'
-    | '/users'
-    | '/account'
-    | '/inbox'
-    | '/agents/$agentId'
-    | '/agents/builder'
-    | '/components/$componentId'
-    | '/insights/$reportId'
-    | '/team-invites/$token'
-    | '/teamspaces/$handle'
-    | '/agents'
-    | '/components'
-    | '/wiki'
-    | '/traces/$traceId'
-    | '/agents/$namespace/$slug'
-    | '/traces'
-    | '/agents/$agentId/insights/$reportId'
-    | '/components/$type/$namespace/$slug'
+    | "/device"
+    | "/login"
+    | "/register"
+    | "/"
+    | "/leaderboard"
+    | "/teamspaces"
+    | "/audit-log"
+    | "/dashboard"
+    | "/diagnostics"
+    | "/review"
+    | "/security-events"
+    | "/settings"
+    | "/sso"
+    | "/users"
+    | "/account"
+    | "/inbox"
+    | "/agents/$agentId"
+    | "/agents/builder"
+    | "/components/$componentId"
+    | "/insights/$reportId"
+    | "/team-invites/$token"
+    | "/teamspaces/$handle"
+    | "/agents"
+    | "/components"
+    | "/wiki"
+    | "/traces/$traceId"
+    | "/agents/$namespace/$slug"
+    | "/traces"
+    | "/agents/$agentId/insights/$reportId"
+    | "/components/$type/$namespace/$slug";
   id:
-    | '__root__'
-    | '/_authed'
-    | '/(auth)/device'
-    | '/(auth)/login'
-    | '/(auth)/register'
-    | '/_authed/_admin'
-    | '/_authed/_user'
-    | '/_authed/leaderboard'
-    | '/_authed/teamspaces'
-    | '/_authed/'
-    | '/_authed/_admin/audit-log'
-    | '/_authed/_admin/dashboard'
-    | '/_authed/_admin/diagnostics'
-    | '/_authed/_admin/review'
-    | '/_authed/_admin/security-events'
-    | '/_authed/_admin/settings'
-    | '/_authed/_admin/sso'
-    | '/_authed/_admin/users'
-    | '/_authed/_user/account'
-    | '/_authed/_user/inbox'
-    | '/_authed/agents/$agentId'
-    | '/_authed/agents/builder'
-    | '/_authed/components/$componentId'
-    | '/_authed/insights/$reportId'
-    | '/_authed/team-invites/$token'
-    | '/_authed/teamspaces/$handle'
-    | '/_authed/agents/'
-    | '/_authed/components/'
-    | '/_authed/wiki/'
-    | '/_authed/_user/traces/$traceId'
-    | '/_authed/agents/$namespace/$slug'
-    | '/_authed/_user/traces/'
-    | '/_authed/agents/$agentId/insights/$reportId'
-    | '/_authed/components/$type/$namespace/$slug'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/_authed"
+    | "/(auth)/device"
+    | "/(auth)/login"
+    | "/(auth)/register"
+    | "/_authed/_admin"
+    | "/_authed/_user"
+    | "/_authed/leaderboard"
+    | "/_authed/teamspaces"
+    | "/_authed/"
+    | "/_authed/_admin/audit-log"
+    | "/_authed/_admin/dashboard"
+    | "/_authed/_admin/diagnostics"
+    | "/_authed/_admin/review"
+    | "/_authed/_admin/security-events"
+    | "/_authed/_admin/settings"
+    | "/_authed/_admin/sso"
+    | "/_authed/_admin/users"
+    | "/_authed/_user/account"
+    | "/_authed/_user/inbox"
+    | "/_authed/agents/$agentId"
+    | "/_authed/agents/builder"
+    | "/_authed/components/$componentId"
+    | "/_authed/insights/$reportId"
+    | "/_authed/team-invites/$token"
+    | "/_authed/teamspaces/$handle"
+    | "/_authed/agents/"
+    | "/_authed/components/"
+    | "/_authed/wiki/"
+    | "/_authed/_user/traces/$traceId"
+    | "/_authed/agents/$namespace/$slug"
+    | "/_authed/_user/traces/"
+    | "/_authed/agents/$agentId/insights/$reportId"
+    | "/_authed/components/$type/$namespace/$slug";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  AuthedRoute: typeof AuthedRouteWithChildren
-  authDeviceRoute: typeof authDeviceRoute
-  authLoginRoute: typeof authLoginRoute
-  authRegisterRoute: typeof authRegisterRoute
+  AuthedRoute: typeof AuthedRouteWithChildren;
+  authDeviceRoute: typeof authDeviceRoute;
+  authLoginRoute: typeof authLoginRoute;
+  authRegisterRoute: typeof authRegisterRoute;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/_authed': {
-      id: '/_authed'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authed/': {
-      id: '/_authed/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthedIndexRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/teamspaces': {
-      id: '/_authed/teamspaces'
-      path: '/teamspaces'
-      fullPath: '/teamspaces'
-      preLoaderRoute: typeof AuthedTeamspacesRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/leaderboard': {
-      id: '/_authed/leaderboard'
-      path: '/leaderboard'
-      fullPath: '/leaderboard'
-      preLoaderRoute: typeof AuthedLeaderboardRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/_user': {
-      id: '/_authed/_user'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthedUserRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/_admin': {
-      id: '/_authed/_admin'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthedAdminRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/(auth)/register': {
-      id: '/(auth)/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof authRegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)/login': {
-      id: '/(auth)/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof authLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(auth)/device': {
-      id: '/(auth)/device'
-      path: '/device'
-      fullPath: '/device'
-      preLoaderRoute: typeof authDeviceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authed/wiki/': {
-      id: '/_authed/wiki/'
-      path: '/wiki'
-      fullPath: '/wiki/'
-      preLoaderRoute: typeof AuthedWikiIndexRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/components/': {
-      id: '/_authed/components/'
-      path: '/components'
-      fullPath: '/components/'
-      preLoaderRoute: typeof AuthedComponentsIndexRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/agents/': {
-      id: '/_authed/agents/'
-      path: '/agents'
-      fullPath: '/agents/'
-      preLoaderRoute: typeof AuthedAgentsIndexRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/teamspaces/$handle': {
-      id: '/_authed/teamspaces/$handle'
-      path: '/$handle'
-      fullPath: '/teamspaces/$handle'
-      preLoaderRoute: typeof AuthedTeamspacesHandleRouteImport
-      parentRoute: typeof AuthedTeamspacesRoute
-    }
-    '/_authed/team-invites/$token': {
-      id: '/_authed/team-invites/$token'
-      path: '/team-invites/$token'
-      fullPath: '/team-invites/$token'
-      preLoaderRoute: typeof AuthedTeamInvitesTokenRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/insights/$reportId': {
-      id: '/_authed/insights/$reportId'
-      path: '/insights/$reportId'
-      fullPath: '/insights/$reportId'
-      preLoaderRoute: typeof AuthedInsightsReportIdRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/components/$componentId': {
-      id: '/_authed/components/$componentId'
-      path: '/components/$componentId'
-      fullPath: '/components/$componentId'
-      preLoaderRoute: typeof AuthedComponentsComponentIdRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/agents/builder': {
-      id: '/_authed/agents/builder'
-      path: '/agents/builder'
-      fullPath: '/agents/builder'
-      preLoaderRoute: typeof AuthedAgentsBuilderRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/agents/$agentId': {
-      id: '/_authed/agents/$agentId'
-      path: '/agents/$agentId'
-      fullPath: '/agents/$agentId'
-      preLoaderRoute: typeof AuthedAgentsAgentIdRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/_user/inbox': {
-      id: '/_authed/_user/inbox'
-      path: '/inbox'
-      fullPath: '/inbox'
-      preLoaderRoute: typeof AuthedUserInboxRouteImport
-      parentRoute: typeof AuthedUserRoute
-    }
-    '/_authed/_user/account': {
-      id: '/_authed/_user/account'
-      path: '/account'
-      fullPath: '/account'
-      preLoaderRoute: typeof AuthedUserAccountRouteImport
-      parentRoute: typeof AuthedUserRoute
-    }
-    '/_authed/_admin/users': {
-      id: '/_authed/_admin/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof AuthedAdminUsersRouteImport
-      parentRoute: typeof AuthedAdminRoute
-    }
-    '/_authed/_admin/sso': {
-      id: '/_authed/_admin/sso'
-      path: '/sso'
-      fullPath: '/sso'
-      preLoaderRoute: typeof AuthedAdminSsoRouteImport
-      parentRoute: typeof AuthedAdminRoute
-    }
-    '/_authed/_admin/settings': {
-      id: '/_authed/_admin/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AuthedAdminSettingsRouteImport
-      parentRoute: typeof AuthedAdminRoute
-    }
-    '/_authed/_admin/security-events': {
-      id: '/_authed/_admin/security-events'
-      path: '/security-events'
-      fullPath: '/security-events'
-      preLoaderRoute: typeof AuthedAdminSecurityEventsRouteImport
-      parentRoute: typeof AuthedAdminRoute
-    }
-    '/_authed/_admin/review': {
-      id: '/_authed/_admin/review'
-      path: '/review'
-      fullPath: '/review'
-      preLoaderRoute: typeof AuthedAdminReviewRouteImport
-      parentRoute: typeof AuthedAdminRoute
-    }
-    '/_authed/_admin/diagnostics': {
-      id: '/_authed/_admin/diagnostics'
-      path: '/diagnostics'
-      fullPath: '/diagnostics'
-      preLoaderRoute: typeof AuthedAdminDiagnosticsRouteImport
-      parentRoute: typeof AuthedAdminRoute
-    }
-    '/_authed/_admin/dashboard': {
-      id: '/_authed/_admin/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthedAdminDashboardRouteImport
-      parentRoute: typeof AuthedAdminRoute
-    }
-    '/_authed/_admin/audit-log': {
-      id: '/_authed/_admin/audit-log'
-      path: '/audit-log'
-      fullPath: '/audit-log'
-      preLoaderRoute: typeof AuthedAdminAuditLogRouteImport
-      parentRoute: typeof AuthedAdminRoute
-    }
-    '/_authed/_user/traces/': {
-      id: '/_authed/_user/traces/'
-      path: '/traces'
-      fullPath: '/traces/'
-      preLoaderRoute: typeof AuthedUserTracesIndexRouteImport
-      parentRoute: typeof AuthedUserRoute
-    }
-    '/_authed/agents/$namespace/$slug': {
-      id: '/_authed/agents/$namespace/$slug'
-      path: '/agents/$namespace/$slug'
-      fullPath: '/agents/$namespace/$slug'
-      preLoaderRoute: typeof AuthedAgentsNamespaceSlugRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/_user/traces/$traceId': {
-      id: '/_authed/_user/traces/$traceId'
-      path: '/traces/$traceId'
-      fullPath: '/traces/$traceId'
-      preLoaderRoute: typeof AuthedUserTracesTraceIdRouteImport
-      parentRoute: typeof AuthedUserRoute
-    }
-    '/_authed/components/$type/$namespace/$slug': {
-      id: '/_authed/components/$type/$namespace/$slug'
-      path: '/components/$type/$namespace/$slug'
-      fullPath: '/components/$type/$namespace/$slug'
-      preLoaderRoute: typeof AuthedComponentsTypeNamespaceSlugRouteImport
-      parentRoute: typeof AuthedRoute
-    }
-    '/_authed/agents/$agentId/insights/$reportId': {
-      id: '/_authed/agents/$agentId/insights/$reportId'
-      path: '/insights/$reportId'
-      fullPath: '/agents/$agentId/insights/$reportId'
-      preLoaderRoute: typeof AuthedAgentsAgentIdInsightsReportIdRouteImport
-      parentRoute: typeof AuthedAgentsAgentIdRoute
-    }
+    "/_authed": {
+      id: "/_authed";
+      path: "";
+      fullPath: "/";
+      preLoaderRoute: typeof AuthedRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_authed/": {
+      id: "/_authed/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof AuthedIndexRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/teamspaces": {
+      id: "/_authed/teamspaces";
+      path: "/teamspaces";
+      fullPath: "/teamspaces";
+      preLoaderRoute: typeof AuthedTeamspacesRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/leaderboard": {
+      id: "/_authed/leaderboard";
+      path: "/leaderboard";
+      fullPath: "/leaderboard";
+      preLoaderRoute: typeof AuthedLeaderboardRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/_user": {
+      id: "/_authed/_user";
+      path: "";
+      fullPath: "/";
+      preLoaderRoute: typeof AuthedUserRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/_admin": {
+      id: "/_authed/_admin";
+      path: "";
+      fullPath: "/";
+      preLoaderRoute: typeof AuthedAdminRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/(auth)/register": {
+      id: "/(auth)/register";
+      path: "/register";
+      fullPath: "/register";
+      preLoaderRoute: typeof authRegisterRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/(auth)/login": {
+      id: "/(auth)/login";
+      path: "/login";
+      fullPath: "/login";
+      preLoaderRoute: typeof authLoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/(auth)/device": {
+      id: "/(auth)/device";
+      path: "/device";
+      fullPath: "/device";
+      preLoaderRoute: typeof authDeviceRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/_authed/wiki/": {
+      id: "/_authed/wiki/";
+      path: "/wiki";
+      fullPath: "/wiki/";
+      preLoaderRoute: typeof AuthedWikiIndexRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/components/": {
+      id: "/_authed/components/";
+      path: "/components";
+      fullPath: "/components/";
+      preLoaderRoute: typeof AuthedComponentsIndexRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/agents/": {
+      id: "/_authed/agents/";
+      path: "/agents";
+      fullPath: "/agents/";
+      preLoaderRoute: typeof AuthedAgentsIndexRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/teamspaces/$handle": {
+      id: "/_authed/teamspaces/$handle";
+      path: "/$handle";
+      fullPath: "/teamspaces/$handle";
+      preLoaderRoute: typeof AuthedTeamspacesHandleRouteImport;
+      parentRoute: typeof AuthedTeamspacesRoute;
+    };
+    "/_authed/team-invites/$token": {
+      id: "/_authed/team-invites/$token";
+      path: "/team-invites/$token";
+      fullPath: "/team-invites/$token";
+      preLoaderRoute: typeof AuthedTeamInvitesTokenRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/insights/$reportId": {
+      id: "/_authed/insights/$reportId";
+      path: "/insights/$reportId";
+      fullPath: "/insights/$reportId";
+      preLoaderRoute: typeof AuthedInsightsReportIdRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/components/$componentId": {
+      id: "/_authed/components/$componentId";
+      path: "/components/$componentId";
+      fullPath: "/components/$componentId";
+      preLoaderRoute: typeof AuthedComponentsComponentIdRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/agents/builder": {
+      id: "/_authed/agents/builder";
+      path: "/agents/builder";
+      fullPath: "/agents/builder";
+      preLoaderRoute: typeof AuthedAgentsBuilderRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/agents/$agentId": {
+      id: "/_authed/agents/$agentId";
+      path: "/agents/$agentId";
+      fullPath: "/agents/$agentId";
+      preLoaderRoute: typeof AuthedAgentsAgentIdRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/_user/inbox": {
+      id: "/_authed/_user/inbox";
+      path: "/inbox";
+      fullPath: "/inbox";
+      preLoaderRoute: typeof AuthedUserInboxRouteImport;
+      parentRoute: typeof AuthedUserRoute;
+    };
+    "/_authed/_user/account": {
+      id: "/_authed/_user/account";
+      path: "/account";
+      fullPath: "/account";
+      preLoaderRoute: typeof AuthedUserAccountRouteImport;
+      parentRoute: typeof AuthedUserRoute;
+    };
+    "/_authed/_admin/users": {
+      id: "/_authed/_admin/users";
+      path: "/users";
+      fullPath: "/users";
+      preLoaderRoute: typeof AuthedAdminUsersRouteImport;
+      parentRoute: typeof AuthedAdminRoute;
+    };
+    "/_authed/_admin/sso": {
+      id: "/_authed/_admin/sso";
+      path: "/sso";
+      fullPath: "/sso";
+      preLoaderRoute: typeof AuthedAdminSsoRouteImport;
+      parentRoute: typeof AuthedAdminRoute;
+    };
+    "/_authed/_admin/settings": {
+      id: "/_authed/_admin/settings";
+      path: "/settings";
+      fullPath: "/settings";
+      preLoaderRoute: typeof AuthedAdminSettingsRouteImport;
+      parentRoute: typeof AuthedAdminRoute;
+    };
+    "/_authed/_admin/security-events": {
+      id: "/_authed/_admin/security-events";
+      path: "/security-events";
+      fullPath: "/security-events";
+      preLoaderRoute: typeof AuthedAdminSecurityEventsRouteImport;
+      parentRoute: typeof AuthedAdminRoute;
+    };
+    "/_authed/_admin/review": {
+      id: "/_authed/_admin/review";
+      path: "/review";
+      fullPath: "/review";
+      preLoaderRoute: typeof AuthedAdminReviewRouteImport;
+      parentRoute: typeof AuthedAdminRoute;
+    };
+    "/_authed/_admin/diagnostics": {
+      id: "/_authed/_admin/diagnostics";
+      path: "/diagnostics";
+      fullPath: "/diagnostics";
+      preLoaderRoute: typeof AuthedAdminDiagnosticsRouteImport;
+      parentRoute: typeof AuthedAdminRoute;
+    };
+    "/_authed/_admin/dashboard": {
+      id: "/_authed/_admin/dashboard";
+      path: "/dashboard";
+      fullPath: "/dashboard";
+      preLoaderRoute: typeof AuthedAdminDashboardRouteImport;
+      parentRoute: typeof AuthedAdminRoute;
+    };
+    "/_authed/_admin/audit-log": {
+      id: "/_authed/_admin/audit-log";
+      path: "/audit-log";
+      fullPath: "/audit-log";
+      preLoaderRoute: typeof AuthedAdminAuditLogRouteImport;
+      parentRoute: typeof AuthedAdminRoute;
+    };
+    "/_authed/_user/traces/": {
+      id: "/_authed/_user/traces/";
+      path: "/traces";
+      fullPath: "/traces/";
+      preLoaderRoute: typeof AuthedUserTracesIndexRouteImport;
+      parentRoute: typeof AuthedUserRoute;
+    };
+    "/_authed/agents/$namespace/$slug": {
+      id: "/_authed/agents/$namespace/$slug";
+      path: "/agents/$namespace/$slug";
+      fullPath: "/agents/$namespace/$slug";
+      preLoaderRoute: typeof AuthedAgentsNamespaceSlugRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/_user/traces/$traceId": {
+      id: "/_authed/_user/traces/$traceId";
+      path: "/traces/$traceId";
+      fullPath: "/traces/$traceId";
+      preLoaderRoute: typeof AuthedUserTracesTraceIdRouteImport;
+      parentRoute: typeof AuthedUserRoute;
+    };
+    "/_authed/components/$type/$namespace/$slug": {
+      id: "/_authed/components/$type/$namespace/$slug";
+      path: "/components/$type/$namespace/$slug";
+      fullPath: "/components/$type/$namespace/$slug";
+      preLoaderRoute: typeof AuthedComponentsTypeNamespaceSlugRouteImport;
+      parentRoute: typeof AuthedRoute;
+    };
+    "/_authed/agents/$agentId/insights/$reportId": {
+      id: "/_authed/agents/$agentId/insights/$reportId";
+      path: "/insights/$reportId";
+      fullPath: "/agents/$agentId/insights/$reportId";
+      preLoaderRoute: typeof AuthedAgentsAgentIdInsightsReportIdRouteImport;
+      parentRoute: typeof AuthedAgentsAgentIdRoute;
+    };
   }
 }
 
 interface AuthedAdminRouteChildren {
-  AuthedAdminAuditLogRoute: typeof AuthedAdminAuditLogRoute
-  AuthedAdminDashboardRoute: typeof AuthedAdminDashboardRoute
-  AuthedAdminDiagnosticsRoute: typeof AuthedAdminDiagnosticsRoute
-  AuthedAdminReviewRoute: typeof AuthedAdminReviewRoute
-  AuthedAdminSecurityEventsRoute: typeof AuthedAdminSecurityEventsRoute
-  AuthedAdminSettingsRoute: typeof AuthedAdminSettingsRoute
-  AuthedAdminSsoRoute: typeof AuthedAdminSsoRoute
-  AuthedAdminUsersRoute: typeof AuthedAdminUsersRoute
+  AuthedAdminAuditLogRoute: typeof AuthedAdminAuditLogRoute;
+  AuthedAdminDashboardRoute: typeof AuthedAdminDashboardRoute;
+  AuthedAdminDiagnosticsRoute: typeof AuthedAdminDiagnosticsRoute;
+  AuthedAdminReviewRoute: typeof AuthedAdminReviewRoute;
+  AuthedAdminSecurityEventsRoute: typeof AuthedAdminSecurityEventsRoute;
+  AuthedAdminSettingsRoute: typeof AuthedAdminSettingsRoute;
+  AuthedAdminSsoRoute: typeof AuthedAdminSsoRoute;
+  AuthedAdminUsersRoute: typeof AuthedAdminUsersRoute;
 }
 
 const AuthedAdminRouteChildren: AuthedAdminRouteChildren = {
@@ -676,17 +676,17 @@ const AuthedAdminRouteChildren: AuthedAdminRouteChildren = {
   AuthedAdminSettingsRoute: AuthedAdminSettingsRoute,
   AuthedAdminSsoRoute: AuthedAdminSsoRoute,
   AuthedAdminUsersRoute: AuthedAdminUsersRoute,
-}
+};
 
 const AuthedAdminRouteWithChildren = AuthedAdminRoute._addFileChildren(
   AuthedAdminRouteChildren,
-)
+);
 
 interface AuthedUserRouteChildren {
-  AuthedUserAccountRoute: typeof AuthedUserAccountRoute
-  AuthedUserInboxRoute: typeof AuthedUserInboxRoute
-  AuthedUserTracesTraceIdRoute: typeof AuthedUserTracesTraceIdRoute
-  AuthedUserTracesIndexRoute: typeof AuthedUserTracesIndexRoute
+  AuthedUserAccountRoute: typeof AuthedUserAccountRoute;
+  AuthedUserInboxRoute: typeof AuthedUserInboxRoute;
+  AuthedUserTracesTraceIdRoute: typeof AuthedUserTracesTraceIdRoute;
+  AuthedUserTracesIndexRoute: typeof AuthedUserTracesIndexRoute;
 }
 
 const AuthedUserRouteChildren: AuthedUserRouteChildren = {
@@ -694,51 +694,51 @@ const AuthedUserRouteChildren: AuthedUserRouteChildren = {
   AuthedUserInboxRoute: AuthedUserInboxRoute,
   AuthedUserTracesTraceIdRoute: AuthedUserTracesTraceIdRoute,
   AuthedUserTracesIndexRoute: AuthedUserTracesIndexRoute,
-}
+};
 
 const AuthedUserRouteWithChildren = AuthedUserRoute._addFileChildren(
   AuthedUserRouteChildren,
-)
+);
 
 interface AuthedTeamspacesRouteChildren {
-  AuthedTeamspacesHandleRoute: typeof AuthedTeamspacesHandleRoute
+  AuthedTeamspacesHandleRoute: typeof AuthedTeamspacesHandleRoute;
 }
 
 const AuthedTeamspacesRouteChildren: AuthedTeamspacesRouteChildren = {
   AuthedTeamspacesHandleRoute: AuthedTeamspacesHandleRoute,
-}
+};
 
 const AuthedTeamspacesRouteWithChildren =
-  AuthedTeamspacesRoute._addFileChildren(AuthedTeamspacesRouteChildren)
+  AuthedTeamspacesRoute._addFileChildren(AuthedTeamspacesRouteChildren);
 
 interface AuthedAgentsAgentIdRouteChildren {
-  AuthedAgentsAgentIdInsightsReportIdRoute: typeof AuthedAgentsAgentIdInsightsReportIdRoute
+  AuthedAgentsAgentIdInsightsReportIdRoute: typeof AuthedAgentsAgentIdInsightsReportIdRoute;
 }
 
 const AuthedAgentsAgentIdRouteChildren: AuthedAgentsAgentIdRouteChildren = {
   AuthedAgentsAgentIdInsightsReportIdRoute:
     AuthedAgentsAgentIdInsightsReportIdRoute,
-}
+};
 
 const AuthedAgentsAgentIdRouteWithChildren =
-  AuthedAgentsAgentIdRoute._addFileChildren(AuthedAgentsAgentIdRouteChildren)
+  AuthedAgentsAgentIdRoute._addFileChildren(AuthedAgentsAgentIdRouteChildren);
 
 interface AuthedRouteChildren {
-  AuthedAdminRoute: typeof AuthedAdminRouteWithChildren
-  AuthedUserRoute: typeof AuthedUserRouteWithChildren
-  AuthedLeaderboardRoute: typeof AuthedLeaderboardRoute
-  AuthedTeamspacesRoute: typeof AuthedTeamspacesRouteWithChildren
-  AuthedIndexRoute: typeof AuthedIndexRoute
-  AuthedAgentsAgentIdRoute: typeof AuthedAgentsAgentIdRouteWithChildren
-  AuthedAgentsBuilderRoute: typeof AuthedAgentsBuilderRoute
-  AuthedComponentsComponentIdRoute: typeof AuthedComponentsComponentIdRoute
-  AuthedInsightsReportIdRoute: typeof AuthedInsightsReportIdRoute
-  AuthedTeamInvitesTokenRoute: typeof AuthedTeamInvitesTokenRoute
-  AuthedAgentsIndexRoute: typeof AuthedAgentsIndexRoute
-  AuthedComponentsIndexRoute: typeof AuthedComponentsIndexRoute
-  AuthedWikiIndexRoute: typeof AuthedWikiIndexRoute
-  AuthedAgentsNamespaceSlugRoute: typeof AuthedAgentsNamespaceSlugRoute
-  AuthedComponentsTypeNamespaceSlugRoute: typeof AuthedComponentsTypeNamespaceSlugRoute
+  AuthedAdminRoute: typeof AuthedAdminRouteWithChildren;
+  AuthedUserRoute: typeof AuthedUserRouteWithChildren;
+  AuthedLeaderboardRoute: typeof AuthedLeaderboardRoute;
+  AuthedTeamspacesRoute: typeof AuthedTeamspacesRouteWithChildren;
+  AuthedIndexRoute: typeof AuthedIndexRoute;
+  AuthedAgentsAgentIdRoute: typeof AuthedAgentsAgentIdRouteWithChildren;
+  AuthedAgentsBuilderRoute: typeof AuthedAgentsBuilderRoute;
+  AuthedComponentsComponentIdRoute: typeof AuthedComponentsComponentIdRoute;
+  AuthedInsightsReportIdRoute: typeof AuthedInsightsReportIdRoute;
+  AuthedTeamInvitesTokenRoute: typeof AuthedTeamInvitesTokenRoute;
+  AuthedAgentsIndexRoute: typeof AuthedAgentsIndexRoute;
+  AuthedComponentsIndexRoute: typeof AuthedComponentsIndexRoute;
+  AuthedWikiIndexRoute: typeof AuthedWikiIndexRoute;
+  AuthedAgentsNamespaceSlugRoute: typeof AuthedAgentsNamespaceSlugRoute;
+  AuthedComponentsTypeNamespaceSlugRoute: typeof AuthedComponentsTypeNamespaceSlugRoute;
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
@@ -758,17 +758,17 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedAgentsNamespaceSlugRoute: AuthedAgentsNamespaceSlugRoute,
   AuthedComponentsTypeNamespaceSlugRoute:
     AuthedComponentsTypeNamespaceSlugRoute,
-}
+};
 
 const AuthedRouteWithChildren =
-  AuthedRoute._addFileChildren(AuthedRouteChildren)
+  AuthedRoute._addFileChildren(AuthedRouteChildren);
 
 const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
   authDeviceRoute: authDeviceRoute,
   authLoginRoute: authLoginRoute,
   authRegisterRoute: authRegisterRoute,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();

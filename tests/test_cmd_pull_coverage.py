@@ -21,7 +21,7 @@ import typer
 import yaml
 from typer.testing import CliRunner
 
-import observal_cli.cmd_pull as cmd_pull
+import dev_library_cli.cmd_pull as cmd_pull
 
 RUNNER = CliRunner()
 
@@ -60,11 +60,11 @@ def pull_app() -> typer.Typer:
 
 @pytest.fixture
 def boundaries(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> SimpleNamespace:
-    import observal_cli.audit as audit
-    import observal_cli.cmd_skill as cmd_skill
-    import observal_cli.layer as layer
-    import observal_cli.lockfile as lockfile
-    import observal_cli.model_catalog as model_catalog
+    import dev_library_cli.audit as audit
+    import dev_library_cli.cmd_skill as cmd_skill
+    import dev_library_cli.layer as layer
+    import dev_library_cli.lockfile as lockfile
+    import dev_library_cli.model_catalog as model_catalog
 
     adapter = MagicMock(name="adapter")
     adapter.saved_model.return_value = None
@@ -150,7 +150,7 @@ def _invoke(
 
 
 def test_component_conflicts_report_only_other_agent_versions(monkeypatch: pytest.MonkeyPatch) -> None:
-    import observal_cli.lockfile as lockfile
+    import dev_library_cli.lockfile as lockfile
 
     registry = {
         "harnesses": {
@@ -465,7 +465,7 @@ def test_write_file_yaml_merges_or_preserves_existing_content(tmp_path: Path) ->
 
 
 def test_rewrite_kiro_hooks_replaces_observal_entries_and_keeps_user_hooks(monkeypatch: pytest.MonkeyPatch) -> None:
-    import observal_cli.harness_specs.kiro_hooks_spec as spec
+    import dev_library_cli.harness_specs.kiro_hooks_spec as spec
 
     build = MagicMock(
         return_value={
@@ -482,7 +482,7 @@ def test_rewrite_kiro_hooks_replaces_observal_entries_and_keeps_user_hooks(monke
     content = {
         "hooks": {
             "stop": [
-                {"command": "python -m observal_cli.old"},
+                {"command": "python -m dev_library_cli.old"},
                 {"command": "echo user"},
             ],
             "custom": [{"command": "custom"}],
@@ -500,7 +500,7 @@ def test_rewrite_kiro_hooks_replaces_observal_entries_and_keeps_user_hooks(monke
 
 
 def test_rewrite_copilot_hooks_removes_both_legacy_commands(monkeypatch: pytest.MonkeyPatch) -> None:
-    import observal_cli.harness_specs.copilot_cli_hooks_spec as spec
+    import dev_library_cli.harness_specs.copilot_cli_hooks_spec as spec
 
     build = MagicMock(
         return_value={"hooks": {"sessionStart": [{"bash": "new attributed"}], "stop": [{"bash": "new stop"}]}}
@@ -509,8 +509,8 @@ def test_rewrite_copilot_hooks_removes_both_legacy_commands(monkeypatch: pytest.
     content = {
         "hooks": {
             "sessionStart": [
-                {"bash": "python -m observal_cli.hooks.copilot_cli_session_push"},
-                {"bash": "python -m observal_cli.hooks.session_push --harness copilot-cli"},
+                {"bash": "python -m dev_library_cli.hooks.copilot_cli_session_push"},
+                {"bash": "python -m dev_library_cli.hooks.session_push --harness copilot-cli"},
                 {"bash": "echo user"},
             ]
         }
@@ -576,7 +576,7 @@ def test_parse_model_overrides_and_saved_model_delegate(monkeypatch: pytest.Monk
 
 
 def test_collect_install_options_interactively_selects_scope_model_and_tools(monkeypatch: pytest.MonkeyPatch) -> None:
-    import observal_cli.model_catalog as catalog
+    import dev_library_cli.model_catalog as catalog
     import observal_shared.harness_registry as registry
 
     adapter = MagicMock()
@@ -622,8 +622,8 @@ def test_collect_install_options_interactively_selects_scope_model_and_tools(mon
 def test_collect_install_options_handles_catalog_and_model_format_failures(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    import observal_cli.model_catalog as catalog
-    import observal_cli.render as render
+    import dev_library_cli.model_catalog as catalog
+    import dev_library_cli.render as render
     import observal_shared.harness_registry as registry
 
     adapter = MagicMock()
@@ -746,7 +746,7 @@ def test_pull_full_project_flow_writes_every_shape_and_exact_side_effects(
             "path": ".config/hooks.json",
             "content": {
                 "hooks": {
-                    "new": [{"command": "python3 -m observal_cli.hooks.session_push"}],
+                    "new": [{"command": "python3 -m dev_library_cli.hooks.session_push"}],
                 }
             },
             "merge": True,
@@ -880,7 +880,7 @@ def test_pull_full_project_flow_writes_every_shape_and_exact_side_effects(
     assert json.loads(hooks_path.read_text()) == {
         "hooks": {
             "old": [{"command": "echo user"}],
-            "new": [{"command": f"{sys.executable} -m observal_cli.hooks.session_push"}],
+            "new": [{"command": f"{sys.executable} -m dev_library_cli.hooks.session_push"}],
             "adapter": [{"agent_id": "agent-uuid"}],
         },
         "keep": True,

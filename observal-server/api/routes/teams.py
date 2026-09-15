@@ -787,6 +787,7 @@ async def _team_owned_listing_counts(
     from models.prompt import PromptListing
     from models.sandbox import SandboxListing
     from models.skill import SkillListing
+    from models.workflow import WorkflowListing
 
     # (singular, plural) so a count of one does not read "1 skills".
     labels = {
@@ -796,6 +797,7 @@ async def _team_owned_listing_counts(
         HookListing: ("hook", "hooks"),
         PromptListing: ("prompt", "prompts"),
         SandboxListing: ("sandbox", "sandboxes"),
+        WorkflowListing: ("workflow", "workflows"),
         ComponentSource: ("component source", "component sources"),
     }
     counts: dict[str, int] = {}

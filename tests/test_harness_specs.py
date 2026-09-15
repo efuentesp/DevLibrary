@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Madhumidha <madhumidha072005@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-from observal_cli.harness_specs import claude_code_hooks_spec, kiro_hooks_spec
-from observal_cli.shared.utils import is_observal_hook_entry, is_observal_matcher_group
+from dev_library_cli.harness_specs import claude_code_hooks_spec, kiro_hooks_spec
+from dev_library_cli.shared.utils import is_observal_hook_entry, is_observal_matcher_group
 
 
 def test_hooks_spec_version_is_string():
@@ -32,7 +32,7 @@ def test_claude_get_desired_env():
 
 
 def test_is_observal_hook_entry_matches_new_path():
-    assert is_observal_hook_entry({"type": "command", "command": "python -m observal_cli.hooks.session_push"})
+    assert is_observal_hook_entry({"type": "command", "command": "python -m dev_library_cli.hooks.session_push"})
 
 
 def test_is_observal_hook_entry_matches_legacy():

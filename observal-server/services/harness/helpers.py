@@ -37,8 +37,8 @@ _KIRO_EVENT_MAP = {
 }
 
 # Session push hook command - reads JSONL incrementally, only needs 2 events.
-_SESSION_PUSH_CMD = "python3 -m observal_cli.hooks.session_push"
-_CURSOR_SESSION_PUSH_CMD = "python3 -m observal_cli.hooks.session_push --harness cursor"
+_SESSION_PUSH_CMD = "python3 -m dev_library_cli.hooks.session_push"
+_CURSOR_SESSION_PUSH_CMD = "python3 -m dev_library_cli.hooks.session_push --harness cursor"
 
 
 # The two events that drive JSONL-based telemetry collection.
@@ -124,7 +124,7 @@ def _cursor_hooks_config(platform: str = "") -> dict:
     (fires when the agent loop ends).
     """
     cmd = (
-        "python -m observal_cli.hooks.session_push --harness cursor"
+        "python -m dev_library_cli.hooks.session_push --harness cursor"
         if platform == "win32"
         else _CURSOR_SESSION_PUSH_CMD
     )
@@ -146,8 +146,8 @@ def _vscode_copilot_hooks_config() -> dict:
     - "timeoutSec" for timeout (not "timeout")
     - PascalCase event names for VS Code compatible payloads
     """
-    cmd = "python3 -m observal_cli.hooks.session_push --harness copilot --json-response"
-    ps_cmd = "python -m observal_cli.hooks.session_push --harness copilot --json-response"
+    cmd = "python3 -m dev_library_cli.hooks.session_push --harness copilot --json-response"
+    ps_cmd = "python -m dev_library_cli.hooks.session_push --harness copilot --json-response"
     return {
         "version": 1,
         "hooks": {
@@ -162,8 +162,8 @@ def _vscode_copilot_hooks_frontmatter_lines() -> list[str]:
 
     Uses the official Copilot hooks format with bash/powershell keys.
     """
-    cmd = "python3 -m observal_cli.hooks.session_push --harness copilot --json-response"
-    ps_cmd = "python -m observal_cli.hooks.session_push --harness copilot --json-response"
+    cmd = "python3 -m dev_library_cli.hooks.session_push --harness copilot --json-response"
+    ps_cmd = "python -m dev_library_cli.hooks.session_push --harness copilot --json-response"
     return [
         "hooks:",
         "  UserPromptSubmit:",
@@ -293,7 +293,7 @@ def _sandbox_str(value, default: str = "") -> str:
 def _build_sandbox_mcp_entry(sandbox_listings: dict, harness: str) -> dict:
     """Build an MCP server entry for sandbox components.
 
-    Returns a dict like {"observal-sandbox": {"command": ..., "args": [...]}}
+    Returns a dict like {"dev-library-sandbox": {"command": ..., "args": [...]}}
     that exposes sandboxes as callable tools via the sandbox MCP server.
     """
     if not sandbox_listings:
@@ -319,6 +319,8 @@ def _build_sandbox_mcp_entry(sandbox_listings: dict, harness: str) -> dict:
                 "entrypoint": _sandbox_str(getattr(listing, "entrypoint", None), "bash") or "bash",
                 "network_policy": _sandbox_str(getattr(listing, "network_policy", "none"), "none"),
                 "runtime_config": runtime_config,
+                "env_vars": list(getattr(listing, "env_vars", []) or []),
+                "allowed_mounts": list(getattr(listing, "allowed_mounts", []) or []),
             }
         )
 
@@ -328,9 +330,9 @@ def _build_sandbox_mcp_entry(sandbox_listings: dict, harness: str) -> dict:
     import json as _json
 
     return {
-        "observal-sandbox": {
+        "dev-library-sandbox": {
             "command": "python3",
-            "args": ["-m", "observal_cli.sandbox_mcp", "--sandboxes", _json.dumps(sandboxes_json)],
+            "args": ["-m", "dev_library_cli.sandbox_mcp", "--sandboxes", _json.dumps(sandboxes_json)],
         }
     }
 
@@ -443,7 +445,35 @@ def _build_skill_configs(
     return skills
 
 
-def _generate_skill(skill: dict, harness: str, scope: str = "project") -> dict:
+def _build_workflow_configs(
+    agent: Agent,
+    workflow_listings: dict | None = None,
+) -> list[dict]:
+    """Build workflow metadata from registry workflow components.
+
+    Each entry carries the sanitized slug and the full script body so a
+    harness adapter can emit a self-contained .js file per workflow.
+    """
+    workflow_listings = workflow_listings or {}
+    workflows: list[dict] = []
+    for comp in agent.components:
+        if comp.component_type != "workflow":
+            continue
+        listing = workflow_listings.get(comp.component_id)
+        if not listing:
+            continue
+        slug = getattr(listing, "slug", None) or str(listing.id)
+        workflows.append(
+            {
+                "name": _sanitize_name(slug),
+                "description": getattr(listing, "description", "") or "",
+                "script_content": getattr(listing, "script_content", None),
+            }
+        )
+    return workflows
+
+
+def _generate_skill(skill: dict, harness: str, scope: str = "project") -> dict | None:
     """Generate an harness-specific skill file entry.
 
     Returns a dict with 'path' and 'content' keys, or None for
@@ -567,7 +597,7 @@ def _collect_opencode_hook_plugins(hook_configs: list[dict]) -> list[dict]:
         command = handler_config.get("command", "")
         name = hc.get("name", "") or f"hook-{event.lower()}"
         safe_name = _sanitize_name(name)
-        ide_event = events_map.get(event, event)
+        ide_event: str = events_map.get(event) or event
 
         # Script-based hooks: write the script to .opencode/hooks/ and reference it
         script_filename = hc.get("script_filename")
@@ -602,7 +632,7 @@ def _opencode_command_hook_plugin(name: str, event: str, command: str) -> str:
     cmd_json = _json.dumps(command)
     return f"""// Observal hook plugin: {name}
 // Event: {event}
-// Auto-generated by `observal pull`
+// Auto-generated by `dev-library pull`
 
 import {{ execSync }} from "child_process";
 
@@ -643,7 +673,7 @@ def _opencode_http_hook_plugin(name: str, event: str, url: str, timeout: int = 1
     req_module = "https" if is_https else "http"
     return f"""// Observal hook plugin: {name}
 // Event: {event}
-// Auto-generated by `observal pull`
+// Auto-generated by `dev-library pull`
 
 import {{ request }} from "{req_module}";
 
@@ -715,6 +745,7 @@ def _build_rules_content(
         "hook": ("Hooks", "hook"),
         "prompt": ("Prompts", "prompt"),
         "sandbox": ("Sandboxes", "sandbox"),
+        "workflow": ("Workflows", "workflow"),
     }
 
     for comp_type, (heading, _singular) in type_labels.items():
@@ -768,7 +799,7 @@ def _build_rules_content(
                 if entrypoint:
                     lines.append(f"- **Default command:** `{entrypoint}`")
                 lines.append(
-                    f'- **Run:** `observal-sandbox-run --sandbox-id {sandbox_id} --image {image} --timeout {timeout} --command "<your command>"`'
+                    f'- **Run:** `dev-library-sandbox-run --sandbox-id {sandbox_id} --image {image} --timeout {timeout} --command "<your command>"`'
                 )
             sections.append("\n".join(lines))
         else:

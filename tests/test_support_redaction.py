@@ -8,7 +8,7 @@ from collections import Counter
 
 import pytest
 
-from observal_cli.support.redaction import (
+from dev_library_cli.support.redaction import (
     AWS_KEY_PATTERN,
     JWT_PATTERN,
     REDACTED,

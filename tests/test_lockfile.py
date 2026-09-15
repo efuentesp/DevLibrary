@@ -19,7 +19,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from observal_cli import config, lockfile
+from dev_library_cli import config, lockfile
 
 NOW = "2026-07-01T12:30:45+00:00"
 

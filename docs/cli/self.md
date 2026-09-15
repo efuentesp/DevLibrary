@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal self`
+# `dev-library self`
 
 Inspect or change the installed CLI version.
 
@@ -21,7 +21,7 @@ The destructive uninstall workflow has been removed.
 ## Status
 
 ```bash
-observal self status --output json
+dev-library self status --output json
 ```
 
 JSON returns:
@@ -46,19 +46,19 @@ The command always checks GitHub. An unreachable GitHub service remains a succes
 Install the latest stable release:
 
 ```bash
-observal self upgrade --force --output json
+dev-library self upgrade --force --output json
 ```
 
 Install a specific release:
 
 ```bash
-observal self upgrade --version 2.5.0 --force --output json
+dev-library self upgrade --version 2.5.0 --force --output json
 ```
 
 Include prereleases when resolving the latest version:
 
 ```bash
-observal self upgrade --pre --force --output json
+dev-library self upgrade --pre --force --output json
 ```
 
 A completed JSON result contains the prior version, target version, install method, and executable path. When the current version already matches the target, status is `up_to_date` and no installation occurs.
@@ -70,7 +70,7 @@ The command rejects invalid versions and targets older than the current version.
 List available releases:
 
 ```bash
-observal self downgrade --list --output json
+dev-library self downgrade --list --output json
 ```
 
 JSON returns `current_version` and release `items`, each with a `current` boolean.
@@ -78,7 +78,7 @@ JSON returns `current_version` and release `items`, each with a `current` boolea
 Install an older release:
 
 ```bash
-observal self downgrade --version 2.4.0 --force --output json
+dev-library self downgrade --version 2.4.0 --force --output json
 ```
 
 `--list` and `--version` are mutually exclusive. The target must be older than the current version and at least the CLI version floor. Homebrew and system-package installations must use their package manager.
@@ -88,7 +88,7 @@ Releases before 1.10.4 are pinned by disabling their legacy automatic-update set
 ## Rollback
 
 ```bash
-observal self rollback --force --output json
+dev-library self rollback --force --output json
 ```
 
 Rollback is available only for standalone binary installations with `~/.observal/bin/observal.prev`. It acquires the same version-change lock as upgrade and downgrade, copies the backup to a temporary file, restores executable permissions, and atomically replaces the current binary.
@@ -118,6 +118,6 @@ Human mode may explicitly confirm an unsigned binary. JSON mode never prompts an
 
 ## Related
 
-* [`observal server`](server.md): manage server stack versions separately
+* [`dev-library server`](server.md): manage server stack versions separately
 * [Upgrades](../self-hosting/upgrades.md): server and CLI upgrade procedures
 * [Environment variables](../reference/environment-variables.md): update-check settings

@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal registry version`
+# `dev-library registry version`
 
 Publish and inspect versioned releases for MCP servers, skills, hooks, prompts, and sandboxes.
 
@@ -17,7 +17,7 @@ Valid component types are `mcp`, `skill`, `hook`, `prompt`, and `sandbox`.
 ## Publish
 
 ```bash
-observal registry version publish mcp acme/server \
+dev-library registry version publish mcp acme/server \
   --version 2.0.0 \
   --description "New authentication flow" \
   --changelog "Breaking change" \
@@ -40,8 +40,8 @@ The extra value must be a JSON object. Versions and harnesses are validated befo
 ## List
 
 ```bash
-observal registry version list mcp acme/server --output json
-observal registry version list hook acme/guard --page 2 --page-size 100 --output json
+dev-library registry version list mcp acme/server --output json
+dev-library registry version list hook acme/guard --page 2 --page-size 100 --output json
 ```
 
 | Option | Description |
@@ -69,5 +69,5 @@ JSON returns the direct paginated server object with `items`, `total`, `page`, a
 
 ## Related
 
-* [`observal registry`](registry.md): component management
-* [`observal outdated`](outdated.md): compare installed and latest versions
+* [`dev-library registry`](registry.md): component management
+* [`dev-library outdated`](outdated.md): compare installed and latest versions

@@ -15,8 +15,8 @@ from unittest.mock import MagicMock, call
 import httpx
 import pytest
 
-from observal_cli.server import orchestrator as orchestrator_module
-from observal_cli.server.orchestrator import Orchestrator, ServiceError
+from dev_library_cli.server import orchestrator as orchestrator_module
+from dev_library_cli.server.orchestrator import Orchestrator, ServiceError
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -88,7 +88,7 @@ def isolated_runtime(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> SimpleN
     console = FakeConsole()
 
     constants = {
-        "OBSERVAL_HOME": root,
+        "DEVLIBRARY_HOME": root,
         "CONFIG_DIR": root / "config",
         "DATA_DIR": root / "data",
         "KEYS_DIR": root / "keys",
@@ -849,7 +849,7 @@ class TestDependencyDiscovery:
     def test_find_server_dir_in_source_tree(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delattr(orchestrator_module.sys, "_MEIPASS", raising=False)
         repo = tmp_path / "repo"
-        fake_module = repo / "observal_cli/server/orchestrator.py"
+        fake_module = repo / "dev_library_cli/server/orchestrator.py"
         server_dir = repo / "observal-server"
         server_dir.mkdir(parents=True)
         monkeypatch.setattr(orchestrator_module, "__file__", str(fake_module))
@@ -858,7 +858,7 @@ class TestDependencyDiscovery:
 
     def test_find_server_dir_reports_missing_dependency(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delattr(orchestrator_module.sys, "_MEIPASS", raising=False)
-        fake_module = tmp_path / "repo/observal_cli/server/orchestrator.py"
+        fake_module = tmp_path / "repo/dev_library_cli/server/orchestrator.py"
         monkeypatch.setattr(orchestrator_module, "__file__", str(fake_module))
 
         with pytest.raises(ServiceError, match="Cannot locate observal-server"):
@@ -879,7 +879,7 @@ class TestDependencyDiscovery:
     ) -> None:
         monkeypatch.delattr(orchestrator_module.sys, "_MEIPASS", raising=False)
         repo = tmp_path / "repo"
-        fake_module = repo / "observal_cli/server/orchestrator.py"
+        fake_module = repo / "dev_library_cli/server/orchestrator.py"
         venv_python = repo / ".venv/bin/python"
         if venv_exists:
             venv_python.parent.mkdir(parents=True)
@@ -1035,7 +1035,7 @@ class TestBootstrapAndCliConfiguration:
     def test_configure_cli_preserves_current_login_without_placeholder_tokens(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        from observal_cli import config as cli_config
+        from dev_library_cli import config as cli_config
 
         save = MagicMock()
         remove = MagicMock()
@@ -1051,7 +1051,7 @@ class TestBootstrapAndCliConfiguration:
         remove.assert_not_called()
 
     def test_configure_cli_persists_real_bootstrap_tokens(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        from observal_cli import config as cli_config
+        from dev_library_cli import config as cli_config
 
         save = MagicMock()
         remove = MagicMock()
@@ -1079,8 +1079,8 @@ class TestHookInstallation:
         isolated_runtime: SimpleNamespace,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        from observal_cli import cmd_doctor, settings_reconciler
-        from observal_cli.harness_specs import claude_code_hooks_spec
+        from dev_library_cli import cmd_doctor, settings_reconciler
+        from dev_library_cli.harness_specs import claude_code_hooks_spec
 
         (isolated_runtime.home / ".claude").mkdir(parents=True)
         (isolated_runtime.home / ".kiro/agents").mkdir(parents=True)
@@ -1104,8 +1104,8 @@ class TestHookInstallation:
         isolated_runtime: SimpleNamespace,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        from observal_cli import cmd_doctor, settings_reconciler
-        from observal_cli.harness_specs import claude_code_hooks_spec
+        from dev_library_cli import cmd_doctor, settings_reconciler
+        from dev_library_cli.harness_specs import claude_code_hooks_spec
 
         (isolated_runtime.home / ".claude").mkdir(parents=True)
         (isolated_runtime.home / ".kiro/agents").mkdir(parents=True)

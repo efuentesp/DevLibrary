@@ -149,6 +149,7 @@ class TestListPending:
             _result_with(version),  # mcp: pending versions
             _result_with(listing),  # mcp: listings load
             _empty_result(),  # skill: pending versions (empty → continue)
+            _empty_result(),  # workflow: pending versions (empty → continue)
             _empty_result(),  # hook: pending versions (empty → continue)
             _empty_result(),  # prompt: pending versions (empty → continue)
             _empty_result(),  # sandbox: pending versions (empty → continue)
@@ -178,6 +179,7 @@ class TestListPending:
             _result_with(version),  # mcp: pending versions
             _result_with(listing),  # mcp: listings load
             _empty_result(),  # skill: pending versions (empty → continue)
+            _empty_result(),  # workflow: pending versions (empty → continue)
             _empty_result(),  # hook: pending versions (empty → continue)
             _empty_result(),  # prompt: pending versions (empty → continue)
             _empty_result(),  # sandbox: pending versions (empty → continue)
@@ -216,6 +218,7 @@ class TestListPending:
             _result_with(version),  # mcp: pending versions
             _result_with(listing),  # mcp: listings load
             _empty_result(),  # skill: pending versions (empty → continue)
+            _empty_result(),  # workflow: pending versions (empty → continue)
             _empty_result(),  # hook: pending versions (empty → continue)
             _empty_result(),  # prompt: pending versions (empty → continue)
             _empty_result(),  # sandbox: pending versions (empty → continue)
@@ -240,6 +243,7 @@ class TestListPending:
             _result_with(version),  # mcp: pending versions
             _result_with(listing),  # mcp: listings load
             _empty_result(),  # skill: pending versions (empty → continue)
+            _empty_result(),  # workflow: pending versions (empty → continue)
             _empty_result(),  # hook: pending versions (empty → continue)
             _empty_result(),  # prompt: pending versions (empty → continue)
             _empty_result(),  # sandbox: pending versions (empty → continue)
@@ -264,6 +268,7 @@ class TestListPending:
             _result_with(version),  # mcp: pending versions
             _result_with(listing),  # mcp: listings load
             _empty_result(),  # skill: pending versions (empty → continue)
+            _empty_result(),  # workflow: pending versions (empty → continue)
             _empty_result(),  # hook: pending versions (empty → continue)
             _empty_result(),  # prompt: pending versions (empty → continue)
             _empty_result(),  # sandbox: pending versions (empty → continue)
@@ -325,6 +330,7 @@ class TestListPending:
             _result_with(mcp_listing),  # mcp: listings load
             _result_with(skill_version),  # skill: pending versions
             _result_with(skill_listing),  # skill: listings load
+            _empty_result(),  # workflow: pending versions (empty → continue)
             _empty_result(),  # hook: pending versions (empty → continue)
             _empty_result(),  # prompt: pending versions (empty → continue)
             _empty_result(),  # sandbox: pending versions (empty → continue)

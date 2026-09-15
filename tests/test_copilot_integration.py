@@ -34,7 +34,7 @@ class TestRegistryAndFrontend:
 
     def test_copilot_feature_matrix(self):
         """Copilot features == {"mcp_servers", "hooks", "skills", "prompts"}."""
-        from observal_cli.constants import HARNESS_CAPABILITIES
+        from dev_library_cli.constants import HARNESS_CAPABILITIES
 
         assert HARNESS_CAPABILITIES["copilot"] == {"mcp_servers", "hooks", "skills", "prompts"}
 
@@ -103,7 +103,7 @@ class TestCopilotAdapterDetectHooks:
 
     def test_returns_installed_when_hooks_present(self, tmp_path, monkeypatch):
         """Returns 'installed' when .github/hooks has observal hook file."""
-        from observal_cli.harness.copilot import CopilotAdapter
+        from dev_library_cli.harness.copilot import CopilotAdapter
 
         hooks_dir = tmp_path / ".github" / "hooks"
         hooks_dir.mkdir(parents=True)
@@ -112,7 +112,7 @@ class TestCopilotAdapterDetectHooks:
                 {
                     "hooks": {
                         "UserPromptSubmit": [
-                            {"bash": "python -m observal_cli.hooks.session_push --harness copilot-cli"}
+                            {"bash": "python -m dev_library_cli.hooks.session_push --harness copilot-cli"}
                         ]
                     }
                 }
@@ -124,7 +124,7 @@ class TestCopilotAdapterDetectHooks:
 
     def test_returns_missing_when_no_hooks(self, tmp_path, monkeypatch):
         """Returns 'missing' when no hook files exist."""
-        from observal_cli.harness.copilot import CopilotAdapter
+        from dev_library_cli.harness.copilot import CopilotAdapter
 
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
         adapter = CopilotAdapter()
@@ -135,7 +135,7 @@ class TestCopilotAdapterScan:
     """CopilotAdapter scan_home and scan_project."""
 
     def test_scan_home_finds_mcps(self, tmp_path):
-        from observal_cli.harness.copilot import CopilotAdapter
+        from dev_library_cli.harness.copilot import CopilotAdapter
 
         vscode_dir = tmp_path / ".vscode"
         vscode_dir.mkdir()
@@ -149,14 +149,14 @@ class TestCopilotAdapterScan:
         assert result.mcps[0].name == "test-srv"
 
     def test_scan_home_empty_when_no_vscode(self, tmp_path):
-        from observal_cli.harness.copilot import CopilotAdapter
+        from dev_library_cli.harness.copilot import CopilotAdapter
 
         adapter = CopilotAdapter()
         result = adapter.scan_home(home=tmp_path)
         assert result.mcps == []
 
     def test_scan_project_finds_mcps(self, tmp_path):
-        from observal_cli.harness.copilot import CopilotAdapter
+        from dev_library_cli.harness.copilot import CopilotAdapter
 
         vscode_dir = tmp_path / ".vscode"
         vscode_dir.mkdir()
@@ -174,7 +174,7 @@ class TestCopilotCliAdapterSkills:
     """CopilotCliAdapter._scan_skills_dir() finds skills."""
 
     def test_finds_skills_at_project_path(self, tmp_path):
-        from observal_cli.harness.copilot_cli import CopilotCliAdapter
+        from dev_library_cli.harness.copilot_cli import CopilotCliAdapter
 
         skills_dir = tmp_path / ".agents" / "skills" / "my-skill"
         skills_dir.mkdir(parents=True)
@@ -185,7 +185,7 @@ class TestCopilotCliAdapterSkills:
         assert result.skills[0].name == "my-skill"
 
     def test_finds_skills_at_user_path(self, tmp_path):
-        from observal_cli.harness.copilot_cli import CopilotCliAdapter
+        from dev_library_cli.harness.copilot_cli import CopilotCliAdapter
 
         copilot_dir = tmp_path / ".copilot"
         copilot_dir.mkdir()
@@ -202,7 +202,7 @@ class TestCopilotCliAdapterAgents:
     """CopilotCliAdapter._scan_agents_dir() finds .github/agents/*.agent.md."""
 
     def test_finds_agent_md_files(self, tmp_path):
-        from observal_cli.harness.copilot_cli import CopilotCliAdapter
+        from dev_library_cli.harness.copilot_cli import CopilotCliAdapter
 
         agents_dir = tmp_path / ".github" / "agents"
         agents_dir.mkdir(parents=True)
@@ -220,7 +220,7 @@ class TestCopilotCliAdapterDetectHooks:
     """CopilotCliAdapter.detect_hooks() finds observal markers."""
 
     def test_finds_hooks_in_user_path(self, tmp_path, monkeypatch):
-        from observal_cli.harness.copilot_cli import CopilotCliAdapter
+        from dev_library_cli.harness.copilot_cli import CopilotCliAdapter
 
         hooks_dir = tmp_path / ".copilot" / "hooks"
         hooks_dir.mkdir(parents=True)
@@ -233,7 +233,7 @@ class TestCopilotCliAdapterDetectHooks:
                         "sessionStart": [
                             {
                                 "type": "command",
-                                "bash": "python -m observal_cli.hooks.session_push --harness copilot-cli",
+                                "bash": "python -m dev_library_cli.hooks.session_push --harness copilot-cli",
                             }
                         ]
                     },
@@ -245,7 +245,7 @@ class TestCopilotCliAdapterDetectHooks:
         assert adapter.detect_hooks(tmp_path) == "installed"
 
     def test_finds_hooks_in_project_path(self, tmp_path, monkeypatch):
-        from observal_cli.harness.copilot_cli import CopilotCliAdapter
+        from dev_library_cli.harness.copilot_cli import CopilotCliAdapter
 
         # No user-level hooks
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
@@ -261,7 +261,7 @@ class TestCopilotCliAdapterDetectHooks:
                         "preToolUse": [
                             {
                                 "type": "command",
-                                "bash": "python -m observal_cli.hooks.session_push --harness copilot-cli",
+                                "bash": "python -m dev_library_cli.hooks.session_push --harness copilot-cli",
                             }
                         ]
                     },
@@ -272,7 +272,7 @@ class TestCopilotCliAdapterDetectHooks:
         assert adapter.detect_hooks(tmp_path) == "installed"
 
     def test_returns_missing_when_no_hooks(self, tmp_path, monkeypatch):
-        from observal_cli.harness.copilot_cli import CopilotCliAdapter
+        from dev_library_cli.harness.copilot_cli import CopilotCliAdapter
 
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
         adapter = CopilotCliAdapter()
@@ -283,21 +283,21 @@ class TestCopilotCliAdapterHookSpec:
     """CopilotCliAdapter.get_hook_spec() returns correct event names and format."""
 
     def test_hook_spec_events(self):
-        from observal_cli.harness.copilot_cli import CopilotCliAdapter
+        from dev_library_cli.harness.copilot_cli import CopilotCliAdapter
 
         adapter = CopilotCliAdapter()
         spec = adapter.get_hook_spec()
         assert set(spec.events) == {"sessionStart", "sessionEnd", "userPromptSubmitted", "preToolUse", "postToolUse"}
 
     def test_hook_spec_format(self):
-        from observal_cli.harness.copilot_cli import CopilotCliAdapter
+        from dev_library_cli.harness.copilot_cli import CopilotCliAdapter
 
         adapter = CopilotCliAdapter()
         spec = adapter.get_hook_spec()
         assert spec.format == "command"
 
     def test_hook_spec_markers(self):
-        from observal_cli.harness.copilot_cli import CopilotCliAdapter
+        from dev_library_cli.harness.copilot_cli import CopilotCliAdapter
 
         adapter = CopilotCliAdapter()
         spec = adapter.get_hook_spec()
@@ -313,20 +313,20 @@ class TestBuildCopilotCliHooks:
     """build_copilot_cli_hooks() returns correct structure."""
 
     def test_returns_version_1(self):
-        from observal_cli.harness_specs.copilot_cli_hooks_spec import build_copilot_cli_hooks
+        from dev_library_cli.harness_specs.copilot_cli_hooks_spec import build_copilot_cli_hooks
 
         result = build_copilot_cli_hooks()
         assert result["version"] == 1
 
     def test_contains_all_5_events(self):
-        from observal_cli.harness_specs.copilot_cli_hooks_spec import build_copilot_cli_hooks
+        from dev_library_cli.harness_specs.copilot_cli_hooks_spec import build_copilot_cli_hooks
 
         result = build_copilot_cli_hooks()
         expected_events = {"sessionStart", "sessionEnd", "userPromptSubmitted", "preToolUse", "postToolUse"}
         assert set(result["hooks"].keys()) == expected_events
 
     def test_each_event_has_bash_key(self):
-        from observal_cli.harness_specs.copilot_cli_hooks_spec import build_copilot_cli_hooks
+        from dev_library_cli.harness_specs.copilot_cli_hooks_spec import build_copilot_cli_hooks
 
         result = build_copilot_cli_hooks()
         for event, entries in result["hooks"].items():
@@ -334,7 +334,7 @@ class TestBuildCopilotCliHooks:
             assert "bash" in entries[0], f"Event {event} missing 'bash' key"
 
     def test_each_event_has_timeout(self):
-        from observal_cli.harness_specs.copilot_cli_hooks_spec import build_copilot_cli_hooks
+        from dev_library_cli.harness_specs.copilot_cli_hooks_spec import build_copilot_cli_hooks
 
         result = build_copilot_cli_hooks()
         for event, entries in result["hooks"].items():
@@ -342,7 +342,7 @@ class TestBuildCopilotCliHooks:
 
     def test_no_agent_id_omits_observal_agent_id(self):
         """Without an agent_id, commands carry no OBSERVAL_AGENT_ID prefix."""
-        from observal_cli.harness_specs.copilot_cli_hooks_spec import build_copilot_cli_hooks
+        from dev_library_cli.harness_specs.copilot_cli_hooks_spec import build_copilot_cli_hooks
 
         result = build_copilot_cli_hooks()
         for entries in result["hooks"].values():
@@ -356,7 +356,7 @@ class TestBuildCopilotCliHooks:
         hook carried no agent identity. The UUID must reach the push hook so
         _resolve_agent can map it to an agent+version via the lockfile.
         """
-        from observal_cli.harness_specs.copilot_cli_hooks_spec import build_copilot_cli_hooks
+        from dev_library_cli.harness_specs.copilot_cli_hooks_spec import build_copilot_cli_hooks
 
         result = build_copilot_cli_hooks(agent_id="agent-uuid-42")
         for event, entries in result["hooks"].items():
@@ -373,7 +373,7 @@ class TestRewriteCopilotCliHooks:
 
     def _server_content(self) -> dict:
         """Generic hook file as the server emits it (no agent identity)."""
-        push = "python3 -m observal_cli.hooks.session_push --harness copilot-cli"
+        push = "python3 -m dev_library_cli.hooks.session_push --harness copilot-cli"
         return {
             "version": 1,
             "hooks": {
@@ -383,7 +383,7 @@ class TestRewriteCopilotCliHooks:
         }
 
     def test_stamps_agent_id_into_observal_hooks(self):
-        from observal_cli.cmd_pull import _rewrite_copilot_cli_hooks
+        from dev_library_cli.cmd_pull import _rewrite_copilot_cli_hooks
 
         out = _rewrite_copilot_cli_hooks(self._server_content(), agent_id="uuid-99")
         for entries in out["hooks"].values():
@@ -392,7 +392,7 @@ class TestRewriteCopilotCliHooks:
             assert "OBSERVAL_AGENT_ID=uuid-99" in obs[0]["bash"]
 
     def test_preserves_user_added_hooks(self):
-        from observal_cli.cmd_pull import _rewrite_copilot_cli_hooks
+        from dev_library_cli.cmd_pull import _rewrite_copilot_cli_hooks
 
         content = self._server_content()
         content["hooks"]["sessionStart"].append({"type": "command", "bash": "echo user-hook", "timeoutSec": 5})
@@ -402,7 +402,7 @@ class TestRewriteCopilotCliHooks:
 
     def test_is_idempotent_no_duplicate_observal_hooks(self):
         """Re-pulling must not accumulate duplicate Observal entries."""
-        from observal_cli.cmd_pull import _rewrite_copilot_cli_hooks
+        from dev_library_cli.cmd_pull import _rewrite_copilot_cli_hooks
 
         content = _rewrite_copilot_cli_hooks(self._server_content(), agent_id="uuid-1")
         content = _rewrite_copilot_cli_hooks(content, agent_id="uuid-2")
@@ -412,7 +412,7 @@ class TestRewriteCopilotCliHooks:
             assert "OBSERVAL_AGENT_ID=uuid-2" in obs[0]["bash"], "latest UUID wins"
 
     def test_no_hooks_key_returns_unchanged(self):
-        from observal_cli.cmd_pull import _rewrite_copilot_cli_hooks
+        from dev_library_cli.cmd_pull import _rewrite_copilot_cli_hooks
 
         assert _rewrite_copilot_cli_hooks({}, agent_id="uuid-1") == {}
 
@@ -427,7 +427,7 @@ class TestResolveAgentCopilotUuidFallback:
         """
         from unittest.mock import patch
 
-        from observal_cli.sessions.base import _resolve_agent
+        from dev_library_cli.sessions.base import _resolve_agent
 
         entry = {"id": "uuid-cp", "name": "test", "version": "1.2.0"}
 
@@ -439,7 +439,7 @@ class TestResolveAgentCopilotUuidFallback:
 
         with (
             patch.dict("os.environ", {"OBSERVAL_AGENT_ID": "uuid-cp"}, clear=True),
-            patch("observal_cli.sessions.base._lookup_lockfile_agent_by_id", side_effect=by_id),
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent_by_id", side_effect=by_id),
         ):
             # harness reported by the push payload differs from the lockfile key
             assert _resolve_agent("/repo", [], None, harness="copilot-cli") == ("uuid-cp", "1.2.0")
@@ -449,12 +449,12 @@ class TestResolveAgentCopilotUuidFallback:
     def test_unknown_uuid_stays_unattributed(self):
         from unittest.mock import patch
 
-        from observal_cli.sessions.base import _resolve_agent
+        from dev_library_cli.sessions.base import _resolve_agent
 
         with (
             patch.dict("os.environ", {"OBSERVAL_AGENT_ID": "nope"}, clear=True),
-            patch("observal_cli.sessions.base._lookup_lockfile_agent_by_id", return_value=None),
-            patch("observal_cli.sessions.base._lookup_lockfile_agent") as cwd_lookup,
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent_by_id", return_value=None),
+            patch("dev_library_cli.sessions.base._lookup_lockfile_agent") as cwd_lookup,
         ):
             assert _resolve_agent("/repo", [], None, harness="copilot-cli") == (None, None)
             cwd_lookup.assert_not_called()
@@ -464,10 +464,10 @@ class TestPatchCopilot:
     """_patch_copilot: hook installation for VS Code Copilot."""
 
     def test_installs_hooks_file(self, tmp_path, monkeypatch):
-        from observal_cli.cmd_doctor import _patch_copilot
+        from dev_library_cli.cmd_doctor import _patch_copilot
 
         monkeypatch.chdir(tmp_path)
-        monkeypatch.setattr("observal_cli.config.load", lambda: {"server_url": "http://localhost:8000"})
+        monkeypatch.setattr("dev_library_cli.config.load", lambda: {"server_url": "http://localhost:8000"})
 
         result = _patch_copilot(dry_run=False)
         assert result is True
@@ -479,10 +479,10 @@ class TestPatchCopilot:
         assert "UserPromptSubmit" in data["hooks"]
 
     def test_is_idempotent(self, tmp_path, monkeypatch):
-        from observal_cli.cmd_doctor import _patch_copilot
+        from dev_library_cli.cmd_doctor import _patch_copilot
 
         monkeypatch.chdir(tmp_path)
-        monkeypatch.setattr("observal_cli.config.load", lambda: {"server_url": "http://localhost:8000"})
+        monkeypatch.setattr("dev_library_cli.config.load", lambda: {"server_url": "http://localhost:8000"})
 
         _patch_copilot(dry_run=False)
         result = _patch_copilot(dry_run=False)
@@ -493,7 +493,7 @@ class TestPatchCopilotCli:
     """_patch_copilot_cli: hook installation."""
 
     def test_writes_to_correct_path(self, tmp_path, monkeypatch):
-        from observal_cli.cmd_doctor import _patch_copilot_cli
+        from dev_library_cli.cmd_doctor import _patch_copilot_cli
 
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
 
@@ -503,7 +503,7 @@ class TestPatchCopilotCli:
         assert hooks_file.exists()
 
     def test_creates_directory(self, tmp_path, monkeypatch):
-        from observal_cli.cmd_doctor import _patch_copilot_cli
+        from dev_library_cli.cmd_doctor import _patch_copilot_cli
 
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
 
@@ -513,7 +513,7 @@ class TestPatchCopilotCli:
         assert hooks_dir.is_dir()
 
     def test_is_idempotent(self, tmp_path, monkeypatch):
-        from observal_cli.cmd_doctor import _patch_copilot_cli
+        from dev_library_cli.cmd_doctor import _patch_copilot_cli
 
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
 
@@ -526,7 +526,7 @@ class TestPatchCopilotCli:
         assert result2 is False
 
     def test_merges_with_existing_hooks(self, tmp_path, monkeypatch):
-        from observal_cli.cmd_doctor import _patch_copilot_cli
+        from dev_library_cli.cmd_doctor import _patch_copilot_cli
 
         monkeypatch.setattr(Path, "home", lambda: tmp_path)
 
@@ -568,7 +568,7 @@ class TestCliParseEventLine:
     """CLI-side parse_event_line(): all event types, envelope unwrapping."""
 
     def test_user_message(self):
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         line = json.dumps(
             {
@@ -585,7 +585,7 @@ class TestCliParseEventLine:
         assert result["payload"] == {"content": "Hello"}
 
     def test_tool_call(self):
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         line = json.dumps(
             {
@@ -600,7 +600,7 @@ class TestCliParseEventLine:
         assert result["payload"]["name"] == "read_file"
 
     def test_tool_result(self):
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         line = json.dumps(
             {
@@ -614,7 +614,7 @@ class TestCliParseEventLine:
         assert result["event_type"] == "tool.result"
 
     def test_assistant_message(self):
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         line = json.dumps(
             {
@@ -628,7 +628,7 @@ class TestCliParseEventLine:
         assert result["event_type"] == "assistant.message"
 
     def test_session_start(self):
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         line = json.dumps(
             {
@@ -642,7 +642,7 @@ class TestCliParseEventLine:
         assert result["event_type"] == "session.start"
 
     def test_session_end(self):
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         line = json.dumps(
             {
@@ -660,7 +660,7 @@ class TestCliParseEventLineEdgeCases:
     """CLI-side edge cases: U+2028/U+2029, trailing NUL, malformed, empty."""
 
     def test_u2028_replacement(self):
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         # U+2028 in the JSON string value
         raw = '{"agentId":"a","ts":"t","event":{"type":"user.message","content":"line\u2028sep"}}'
@@ -669,14 +669,14 @@ class TestCliParseEventLineEdgeCases:
         assert result["event_type"] == "user.message"
 
     def test_u2029_replacement(self):
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         raw = '{"agentId":"a","ts":"t","event":{"type":"user.message","content":"para\u2029sep"}}'
         result = parse_event_line(raw)
         assert result is not None
 
     def test_trailing_nul_bytes(self):
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         line = json.dumps({"agentId": "a", "ts": "t", "event": {"type": "tool.call", "name": "x"}}) + "\x00\x00\x00"
         result = parse_event_line(line)
@@ -684,27 +684,27 @@ class TestCliParseEventLineEdgeCases:
         assert result["event_type"] == "tool.call"
 
     def test_malformed_json(self):
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         result = parse_event_line("{not valid json")
         assert result is None
 
     def test_empty_line(self):
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         assert parse_event_line("") is None
         assert parse_event_line("   ") is None
         assert parse_event_line("\n") is None
 
     def test_missing_event_key(self):
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         line = json.dumps({"agentId": "a", "ts": "t"})
         result = parse_event_line(line)
         assert result is None
 
     def test_event_not_dict(self):
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         line = json.dumps({"agentId": "a", "ts": "t", "event": "not a dict"})
         result = parse_event_line(line)
@@ -715,7 +715,7 @@ class TestCliDiscoverSessions:
     """CLI-side discover_sessions(): glob discovery."""
 
     def test_discovers_events_jsonl(self, tmp_path):
-        from observal_cli.sessions.copilot_cli import discover_sessions
+        from dev_library_cli.sessions.copilot_cli import discover_sessions
 
         sessions_dir = tmp_path / ".copilot" / "session-state"
         session1 = sessions_dir / "uuid-1"
@@ -731,7 +731,7 @@ class TestCliDiscoverSessions:
         assert all(p.name == "events.jsonl" for p in results)
 
     def test_returns_empty_when_no_sessions(self, tmp_path):
-        from observal_cli.sessions.copilot_cli import discover_sessions
+        from dev_library_cli.sessions.copilot_cli import discover_sessions
 
         results = discover_sessions(home=tmp_path)
         assert results == []
@@ -864,7 +864,7 @@ class TestCopilotCliSessionPush:
     """Legacy module entry point routes through the shared delivery hook."""
 
     def test_compatibility_entry_point_uses_shared_hook(self, monkeypatch):
-        import observal_cli.hooks.copilot_cli_session_push as hook
+        import dev_library_cli.hooks.copilot_cli_session_push as hook
 
         calls = []
         monkeypatch.setattr(hook, "_shared_main", lambda harness, home=None: calls.append((harness, home)))
@@ -1035,7 +1035,7 @@ class TestPropertySessionParserRoundTrip:
 
         Generate random valid events.jsonl lines, verify parse-serialize-parse equivalence.
         """
-        from observal_cli.sessions.copilot_cli import parse_event_line
+        from dev_library_cli.sessions.copilot_cli import parse_event_line
 
         line = json.dumps(envelope)
         result1 = parse_event_line(line)

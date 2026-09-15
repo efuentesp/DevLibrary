@@ -16,8 +16,8 @@ from services.harness.helpers import (
 )
 
 # Session push command used in generated hook files
-_SESSION_PUSH_CMD = "python3 -m observal_cli.hooks.session_push --harness copilot-cli"
-_SESSION_PUSH_CMD_WIN = "python -m observal_cli.hooks.session_push --harness copilot-cli"
+_SESSION_PUSH_CMD = "python3 -m dev_library_cli.hooks.session_push --harness copilot-cli"
+_SESSION_PUSH_CMD_WIN = "python -m dev_library_cli.hooks.session_push --harness copilot-cli"
 
 # Events that Copilot CLI hooks support
 _COPILOT_CLI_HOOK_EVENTS = (

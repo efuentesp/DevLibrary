@@ -40,6 +40,7 @@ from models.skill import SkillListing
 from models.team import Team, TeamJoinRequestStatus, TeamMembership, TeamMembershipRequest, TeamRole
 from models.team_invite import TeamInvite
 from models.user import User, UserRole
+from models.workflow import WorkflowListing, WorkflowVersion
 
 _GLOBAL_ROLES = (UserRole.user, UserRole.reviewer, UserRole.admin, UserRole.super_admin)
 _ADMIN_ROLES = (UserRole.admin, UserRole.super_admin)
@@ -55,6 +56,8 @@ _TABLES = [
     Agent.__table__,
     McpListing.__table__,
     SkillListing.__table__,
+    WorkflowListing.__table__,
+    WorkflowVersion.__table__,
     HookListing.__table__,
     PromptListing.__table__,
     SandboxListing.__table__,

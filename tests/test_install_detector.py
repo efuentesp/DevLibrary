@@ -1,14 +1,14 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for observal_cli.install_detector."""
+"""Tests for dev_library_cli.install_detector."""
 
 from __future__ import annotations
 
 from pathlib import Path
 from unittest.mock import patch
 
-from observal_cli.install_detector import (
+from dev_library_cli.install_detector import (
     InstallInfo,
     InstallMethod,
     _detect_from_path,
@@ -58,7 +58,7 @@ class TestDetectFromPath:
         assert result.managed_by == "uv"
 
     def test_pipx_path_detected(self, monkeypatch, tmp_path):
-        pipx_dir = tmp_path / ".local" / "share" / "pipx" / "venvs" / "observal-cli" / "bin"
+        pipx_dir = tmp_path / ".local" / "share" / "pipx" / "venvs" / "dev-library-cli" / "bin"
         pipx_dir.mkdir(parents=True)
         binary = pipx_dir / "observal"
         binary.touch()
@@ -85,8 +85,8 @@ class TestDetectFromPath:
         path = Path("/home/user/.venv/bin/observal")
         with (
             patch("os.access", return_value=True),
-            patch("observal_cli.install_detector._check_uv_tool_list", return_value=False),
-            patch("observal_cli.install_detector._check_pipx_list", return_value=False),
+            patch("dev_library_cli.install_detector._check_uv_tool_list", return_value=False),
+            patch("dev_library_cli.install_detector._check_pipx_list", return_value=False),
         ):
             result = _detect_from_path(path, str(path).lower())
         assert result.method == InstallMethod.PIP
@@ -98,8 +98,8 @@ class TestWritableCheck:
         path = Path("/tmp/observal")
         with (
             patch("os.access", return_value=True),
-            patch("observal_cli.install_detector._check_uv_tool_list", return_value=False),
-            patch("observal_cli.install_detector._check_pipx_list", return_value=False),
+            patch("dev_library_cli.install_detector._check_uv_tool_list", return_value=False),
+            patch("dev_library_cli.install_detector._check_pipx_list", return_value=False),
         ):
             result = _detect_from_path(path, str(path).lower())
         assert result.writable is True
@@ -114,7 +114,7 @@ class TestWritableCheck:
 class TestUpgradeCommand:
     def test_pipx_command(self):
         info = InstallInfo(InstallMethod.PIPX, Path("/fake/observal"), True, "pipx")
-        assert upgrade_command("1.2.0", info) == "pipx install --force observal-cli==1.2.0"
+        assert upgrade_command("1.2.0", info) == "pipx install --force dev-library-cli==1.2.0"
 
     def test_curl_command_uses_installer(self):
         info = InstallInfo(InstallMethod.BINARY, Path("/fake/observal"), True, "curl")
@@ -125,4 +125,4 @@ class TestUpgradeCommand:
 
     def test_unknown_command_uses_noninteractive_self_upgrade(self):
         info = InstallInfo(InstallMethod.UNKNOWN, Path("/fake/observal"), True, None)
-        assert upgrade_command("1.2.0", info) == "observal self upgrade --version 1.2.0 --force"
+        assert upgrade_command("1.2.0", info) == "dev-library self upgrade --version 1.2.0 --force"

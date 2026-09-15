@@ -228,7 +228,7 @@ jobs:
         run: uv sync --frozen --group release
 
       - name: Build binary
-        run: uv run --frozen --group release pyinstaller observal_cli/pyinstaller.spec --noconfirm
+        run: uv run --frozen --group release pyinstaller dev_library_cli/pyinstaller.spec --noconfirm
         env:
           TARGET_ARCH: ${{ matrix.arch }}
 

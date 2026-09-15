@@ -11,7 +11,7 @@ AI failures rarely produce one reliable error code. Observal preserves the sessi
 Open `/traces` in the web UI or list recent sessions:
 
 ```bash
-observal ops traces --limit 50
+dev-library ops traces --limit 50
 ```
 
 Filter by harness, agent, user, model, or time range. Select the session that matches the reported failure.
@@ -21,7 +21,7 @@ Filter by harness, agent, user, model, or time range. Select the session that ma
 Expand the session to review prompts, assistant responses, tool calls, tool results, lifecycle events, and subagent activity in source order. The CLI can unfold the same session structure:
 
 ```bash
-observal ops traces --turn --limit 10
+dev-library ops traces --turn --limit 10
 ```
 
 Look for repeated tool calls, error results, missing inputs, unexpected model responses, or a stop event that occurred before the expected work completed.
@@ -45,7 +45,7 @@ The detail available for a tool call depends on the harness transcript. When pre
 If the local harness still contains the session source, run:
 
 ```bash
-observal reconcile
+dev-library reconcile
 ```
 
 Reconciliation resumes from the acknowledged checkpoint and replays missing source records idempotently.

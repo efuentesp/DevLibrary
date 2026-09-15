@@ -20,10 +20,10 @@ import typer
 from click import Group
 from typer.testing import CliRunner
 
-from observal_cli import client
-from observal_cli.error_context import OPERATION_LABELS, RESOURCE_LABELS
-from observal_cli.errors import CliError, ErrorCategory, ErrorHandlingGroup, ExitCode, _uses_json_output, emit_error
-from observal_cli.main import app
+from dev_library_cli import client
+from dev_library_cli.error_context import OPERATION_LABELS, RESOURCE_LABELS
+from dev_library_cli.errors import CliError, ErrorCategory, ErrorHandlingGroup, ExitCode, _uses_json_output, emit_error
+from dev_library_cli.main import app
 
 _MISSING = object()
 
@@ -71,29 +71,29 @@ def isolated_client(monkeypatch):
 
 def test_get_timeout_default():
     """Default timeout is 30s."""
-    from observal_cli.config import get_timeout
+    from dev_library_cli.config import get_timeout
 
     with (
-        patch("observal_cli.config.load", return_value={"timeout": 30}),
+        patch("dev_library_cli.config.load", return_value={"timeout": 30}),
         patch.dict("os.environ", {}, clear=True),
     ):
         assert get_timeout() == 30
 
 
 def test_get_timeout_env_override():
-    """OBSERVAL_TIMEOUT env var overrides config."""
-    from observal_cli.config import get_timeout
+    """DEVLIBRARY_TIMEOUT env var overrides config."""
+    from dev_library_cli.config import get_timeout
 
-    with patch.dict("os.environ", {"OBSERVAL_TIMEOUT": "60"}):
+    with patch.dict("os.environ", {"DEVLIBRARY_TIMEOUT": "60"}):
         assert get_timeout() == 60
 
 
 def test_get_timeout_config_override():
     """Config file timeout is used when no env var."""
-    from observal_cli.config import get_timeout
+    from dev_library_cli.config import get_timeout
 
     with (
-        patch("observal_cli.config.load", return_value={"timeout": 45}),
+        patch("dev_library_cli.config.load", return_value={"timeout": 45}),
         patch.dict("os.environ", {}, clear=True),
     ):
         assert get_timeout() == 45
@@ -132,7 +132,7 @@ def test_handle_error_preserves_request_id_and_http_status():
 
 def test_config_save_sets_permissions(tmp_path):
     """Config save sets 0o600 permissions."""
-    from observal_cli import config
+    from dev_library_cli import config
 
     with (
         patch.object(config, "CONFIG_DIR", tmp_path),
@@ -145,7 +145,7 @@ def test_config_save_sets_permissions(tmp_path):
 
 
 def test_config_write_permission_failure_is_categorized(monkeypatch):
-    from observal_cli import config
+    from dev_library_cli import config
 
     denied = PermissionError(13, "denied", str(config.CONFIG_FILE))
     monkeypatch.setattr(config, "_write_json", MagicMock(side_effect=denied))
@@ -159,7 +159,7 @@ def test_config_write_permission_failure_is_categorized(monkeypatch):
 
 def test_render_error_helper():
     """render.error() prints formatted error."""
-    from observal_cli.render import error, success, warning
+    from dev_library_cli.render import error, success, warning
 
     # These should not raise
     error("test error", hint="try this")
@@ -225,7 +225,7 @@ def test_request_requires_authenticated_configuration(monkeypatch):
 
 
 def test_version_enforcement_runs_once(monkeypatch):
-    from observal_cli import version_check
+    from dev_library_cli import version_check
 
     check = MagicMock()
     monkeypatch.setattr(version_check, "check_version_compatibility", check)
@@ -245,7 +245,7 @@ def test_version_enforcement_runs_once(monkeypatch):
     ],
 )
 def test_version_enforcement_exempts_recovery_commands(monkeypatch, argv):
-    from observal_cli import version_check
+    from dev_library_cli import version_check
 
     check = MagicMock()
     monkeypatch.setattr(version_check, "check_version_compatibility", check)
@@ -258,7 +258,7 @@ def test_version_enforcement_exempts_recovery_commands(monkeypatch, argv):
 
 
 def test_version_enforcement_without_subcommand_still_checks(monkeypatch):
-    from observal_cli import version_check
+    from dev_library_cli import version_check
 
     check = MagicMock()
     monkeypatch.setattr(version_check, "check_version_compatibility", check)
@@ -325,7 +325,7 @@ def test_not_found_has_browse_remediation():
     with pytest.raises(CliError) as raised:
         client._handle_error(error, "/api/v1/sandboxes/id", operation="Show sandbox", resource="sandbox id")
 
-    assert "observal registry sandbox list" in raised.value.remediation
+    assert "dev-library registry sandbox list" in raised.value.remediation
 
 
 def test_rate_limit_uses_retry_after_header():
@@ -453,7 +453,7 @@ def test_root_boundary_emits_json_usage_error_to_stderr():
     assert result.stdout == ""
     payload = json.loads(result.stderr)
     assert payload["error"]["category"] == "usage"
-    assert payload["error"]["operation"] == "Run observal agent show"
+    assert payload["error"]["operation"] == "Run dev-library agent show"
 
 
 def test_missing_authentication_uses_stable_json_contract(monkeypatch):
@@ -505,7 +505,7 @@ def test_team_visibility_json_failure_uses_audited_context(monkeypatch):
 def test_all_cli_api_calls_have_custom_error_context():
     methods = {"get", "get_text", "get_with_headers", "request_json", "post", "put", "patch", "delete"}
     missing = []
-    cli_root = Path(__file__).resolve().parents[1] / "observal_cli"
+    cli_root = Path(__file__).resolve().parents[1] / "dev_library_cli"
     paths = [*cli_root.glob("cmd_*.py"), cli_root / "lockfile_reconcile.py"]
     for path in paths:
         tree = ast.parse(path.read_text())
@@ -544,7 +544,7 @@ def test_root_group_enforces_error_contract_for_all_commands():
                 walk(child)
 
     walk(root)
-    assert len(executable) == 197
+    assert len(executable) == 205
 
 
 @pytest.mark.parametrize(
@@ -887,7 +887,7 @@ def test_request_json_forwards_method_query_and_body(monkeypatch):
         "/api/v1/items/id",
         params={"notify": "true"},
         json_data={"name": "updated"},
-        operation="Call Observal API",
+        operation="Call DevLibrary API",
         resource="API endpoint",
     )
 
@@ -1237,7 +1237,7 @@ def test_health_connection_failure_returns_zero_latency(monkeypatch):
 
 
 def test_server_supports_fetches_and_caches_effective_version(monkeypatch):
-    from observal_cli import features
+    from dev_library_cli import features
 
     get = MagicMock(return_value={"server_version": "2.0.0"})
     available = MagicMock(return_value=True)
@@ -1262,7 +1262,7 @@ def test_server_supports_returns_false_when_version_lookup_fails(monkeypatch):
 
 
 def test_server_supports_uses_server_string_when_version_parsing_fails(monkeypatch):
-    from observal_cli import features
+    from dev_library_cli import features
 
     available = MagicMock(return_value=False)
     monkeypatch.setattr(client, "_server_version_cache", "development")

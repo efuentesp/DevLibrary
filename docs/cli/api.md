@@ -1,17 +1,17 @@
 <!-- SPDX-FileCopyrightText: 2026 Observal Contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal api`
+# `dev-library api`
 
 Call an authenticated JSON endpoint when no dedicated high-level command exists.
 
 ## Examples
 
 ```bash
-observal api GET /api/v1/teams --output json
-observal api GET /api/v1/agents --param limit=10 --param page=2 --output json
-observal api POST /api/v1/teams --from-file team.json --output json
-cat team.json | observal api POST /api/v1/teams --output json
+dev-library api GET /api/v1/teams --output json
+dev-library api GET /api/v1/agents --param limit=10 --param page=2 --output json
+dev-library api POST /api/v1/teams --from-file team.json --output json
+cat team.json | dev-library api POST /api/v1/teams --output json
 ```
 
 Methods are `GET`, `POST`, `PUT`, `PATCH`, and `DELETE`. Paths must be canonical relative `/api/v1/` paths. Full URLs, traversal segments, fragments, and inline query strings are rejected. Use repeatable `--param KEY=VALUE` options for query parameters.

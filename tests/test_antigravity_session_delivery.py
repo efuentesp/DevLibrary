@@ -6,10 +6,10 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
-from observal_cli import telemetry_buffer
-from observal_cli.harness.antigravity import AntigravityAdapter
-from observal_cli.hooks import session_push
-from observal_cli.sessions import base
+from dev_library_cli import telemetry_buffer
+from dev_library_cli.harness.antigravity import AntigravityAdapter
+from dev_library_cli.hooks import session_push
+from dev_library_cli.sessions import base
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -83,8 +83,8 @@ def test_hook_spools_before_detached_delivery(tmp_path: Path, monkeypatch):
 
 
 def test_public_reconcile_uses_shared_drain(tmp_path: Path, monkeypatch):
-    from observal_cli import cmd_reconcile_cli
-    from observal_cli.harness import SessionSource
+    from dev_library_cli import cmd_reconcile_cli
+    from dev_library_cli.harness import SessionSource
 
     transcript = tmp_path / "transcript.jsonl"
     transcript.write_text("{}\n")

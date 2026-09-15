@@ -37,6 +37,7 @@ from models.prompt import PromptListing, PromptVersion
 from models.sandbox import SandboxListing, SandboxVersion
 from models.skill import SkillListing, SkillVersion
 from models.team import TeamMembership
+from models.workflow import WorkflowListing, WorkflowVersion
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
@@ -51,6 +52,7 @@ COMPONENT_MODELS: dict[str, tuple[Any, Any]] = {
     "prompt": (PromptListing, PromptVersion),
     "mcp": (McpListing, McpVersion),
     "sandbox": (SandboxListing, SandboxVersion),
+    "workflow": (WorkflowListing, WorkflowVersion),
 }
 
 ALL_COMPONENT_TYPES: tuple[str, ...] = tuple(COMPONENT_MODELS)

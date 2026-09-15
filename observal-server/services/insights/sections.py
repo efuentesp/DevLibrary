@@ -297,7 +297,7 @@ If "Agent Configuration" is present:
 - If users repeatedly attempt tasks the agent can't do, suggest a skill
 - If the system prompt is missing guidance for common user requests, suggest specific prompt additions
 - If tool_errors are high, suggest a validation hook
-- For registry components, include: `observal agent add skill <id>`
+- For registry components, include: `dev-library agent add skill <id>`
 
 SKILLS (include at least 1 skill suggestion, reused or new):
 - Identify the user's most repetitive workflows from goal_categories and session summaries

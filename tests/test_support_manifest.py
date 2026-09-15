@@ -6,7 +6,7 @@
 import hashlib
 import json
 
-from observal_cli.support.manifest import (
+from dev_library_cli.support.manifest import (
     BundleManifest,
     FileEntry,
     compute_file_entry,

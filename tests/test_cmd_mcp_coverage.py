@@ -13,10 +13,10 @@ import pytest
 import typer
 from typer.testing import CliRunner
 
-import observal_cli.cmd_mcp as mcp
-from observal_cli import lockfile
-from observal_cli.errors import CliError, ErrorCategory
-from observal_cli.main import app
+import dev_library_cli.cmd_mcp as mcp
+from dev_library_cli import lockfile
+from dev_library_cli.errors import CliError, ErrorCategory
+from dev_library_cli.main import app
 
 runner = CliRunner()
 

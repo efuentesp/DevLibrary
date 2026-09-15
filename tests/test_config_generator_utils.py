@@ -6,9 +6,9 @@ import tomllib
 
 import pytest
 
-from observal_cli.cmd_pull import _dict_to_toml, _write_file
-from observal_cli.config import migrate_shimmed_mcp_configs
-from observal_cli.shared.utils import extract_mcp_servers as _parse_project_mcp_servers
+from dev_library_cli.cmd_pull import _dict_to_toml, _write_file
+from dev_library_cli.config import migrate_shimmed_mcp_configs
+from dev_library_cli.shared.utils import extract_mcp_servers as _parse_project_mcp_servers
 
 
 def test_dict_to_toml():

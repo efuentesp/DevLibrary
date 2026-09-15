@@ -9,7 +9,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [project]
-name = "observal-cli"
+name = "dev-library-cli"
 version = "1.13.1"
 description = "Observal MCP Server Registry & Agent Registry CLI"
 readme = "README.md"
@@ -55,27 +55,27 @@ Changelog = "https://github.com/Observal/Observal/blob/main/CHANGELOG.md"
 Issues = "https://github.com/Observal/Observal/issues"
 
 [project.scripts]
-observal = "observal_cli.main:app"
-observal-sandbox-run = "observal_cli.sandbox_runner:main"
-observal-sandbox-mcp = "observal_cli.sandbox_mcp:main"
-#observal-graphrag-proxy = "observal_cli.graphrag_proxy:main"
+dev-library = "dev_library_cli.main:app"
+dev-library-sandbox-run = "dev_library_cli.sandbox_runner:main"
+dev-library-sandbox-mcp = "dev_library_cli.sandbox_mcp:main"
+#dev-library-graphrag-proxy = "dev_library_cli.graphrag_proxy:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["observal_cli", "packages/observal-shared/observal_shared"]
+packages = ["dev_library_cli", "packages/observal-shared/observal_shared"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"packages/pi-extension/extensions/observal.ts" = "observal_cli/_bundled/observal.ts"
+"packages/pi-extension/extensions/observal.ts" = "dev_library_cli/_bundled/observal.ts"
 
 # ── Ruff ─────────────────────────────────────────────────
 
 [tool.ruff]
 target-version = "py311"
 line-length = 120
-src = ["observal_cli", "observal-server", "tests"]
+src = ["dev_library_cli", "observal-server", "tests"]
 
 [tool.ruff.lint]
 select = [
@@ -103,13 +103,13 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["observal_cli", "observal_shared", "models", "schemas", "services", "api"]
+known-first-party = ["dev_library_cli", "observal_shared", "models", "schemas", "services", "api"]
 
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["F841", "RUF059", "B007", "TID251"]  # unused vars in tests
 "observal-server/tests/*" = ["F841", "RUF059", "B007", "TID251", "E402"]  # same for server tests; E402 for importorskip guards
-"observal_cli/main.py" = ["E402"]       # imports after app = typer.Typer()
+"dev_library_cli/main.py" = ["E402"]       # imports after app = typer.Typer()
 "demo/*" = ["E402"]
 
 [tool.ruff.format]

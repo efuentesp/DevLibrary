@@ -3,7 +3,7 @@
 
 """Pi harness adapter for agent config generation.
 
-Pi is harness-centric: `observal pull` writes AGENTS.md which becomes pi's
+Pi is harness-centric: `dev-library pull` writes AGENTS.md which becomes pi's
 entire system prompt, effectively reconfiguring the whole agent runtime.
 MCP servers are written to ~/.pi/agent/mcp.json (read by pi-mcp-adapter).
 Skills go to .pi/skills/ or ~/.pi/agent/skills/.
@@ -78,6 +78,20 @@ class PiAdapter(BaseHarnessAdapter):
                     skill_copy["path"] = _rewrite_path(skill_path.format(name=name))
                 rewritten_skills.append(skill_copy)
             result["skill_components"] = rewritten_skills
+
+        # ── Workflows (self-contained .js for the pi workflow runtime) ──
+        if ctx.workflow_configs:
+            wf_path_spec = HARNESS_REGISTRY["pi"].get("workflows")
+            if wf_path_spec:
+                wf_path = wf_path_spec.get(scope, wf_path_spec.get("user"))
+                result["workflows"] = [
+                    {
+                        "path": _rewrite_path(wf_path.format(name=cfg["name"])),
+                        "content": cfg.get("script_content") or "",
+                    }
+                    for cfg in ctx.workflow_configs
+                    if cfg.get("script_content")
+                ]
 
         return result
 

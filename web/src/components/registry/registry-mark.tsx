@@ -10,7 +10,13 @@ import { useDeploymentConfig } from "@/hooks/use-deployment-config";
  * own mark, not Observal's. Decorative by default — the surrounding text
  * carries the meaning, so the image stays out of the accessibility tree.
  */
-export function RegistryMark({ size = 16, className = "" }: { size?: number; className?: string }) {
+export function RegistryMark({
+	size = 16,
+	className = "",
+}: {
+	size?: number;
+	className?: string;
+}) {
 	const { brandingLogo } = useDeploymentConfig();
 	return (
 		<img
@@ -27,5 +33,5 @@ export function RegistryMark({ size = 16, className = "" }: { size?: number; cla
 /** The instance's display name, for use in sentences like "Already in X". */
 export function useRegistryName(): string {
 	const { brandingAppName } = useDeploymentConfig();
-	return brandingAppName || "Observal";
+	return brandingAppName || "Dev-Library";
 }

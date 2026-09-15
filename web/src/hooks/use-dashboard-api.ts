@@ -9,43 +9,59 @@
 // SPDX-FileCopyrightText: 2026 Vishnu Muthiah <vishnu.muthiah04@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import {
-  dashboard,
-  exec,
-} from "@/lib/api";
+import { dashboard, exec } from "@/lib/api";
 
 // ── Dashboard ───────────────────────────────────────────────────────
 
 export function useOverviewStats(range?: string) {
-  return useQuery({ queryKey: ["overview", "stats", range], queryFn: () => dashboard.stats(range) });
+  return useQuery({
+    queryKey: ["overview", "stats", range],
+    queryFn: () => dashboard.stats(range),
+  });
 }
 
 export function useTopMcps() {
-  return useQuery({ queryKey: ["overview", "top-mcps"], queryFn: dashboard.topMcps });
+  return useQuery({
+    queryKey: ["overview", "top-mcps"],
+    queryFn: dashboard.topMcps,
+  });
 }
 
 export function useTopAgents(limit?: number) {
-  return useQuery({ queryKey: ["overview", "top-agents", limit], queryFn: () => dashboard.topAgents(limit) });
+  return useQuery({
+    queryKey: ["overview", "top-agents", limit],
+    queryFn: () => dashboard.topAgents(limit),
+  });
 }
 
 export function useTrends(range?: string) {
-  return useQuery({ queryKey: ["overview", "trends", range], queryFn: () => dashboard.trends(range) });
+  return useQuery({
+    queryKey: ["overview", "trends", range],
+    queryFn: () => dashboard.trends(range),
+  });
 }
 
 // ── New Dashboard Hooks ─────────────────────────────────────────────
 
 export function useTokenStats(range?: string) {
-  return useQuery({ queryKey: ['dashboard', 'tokens', range], queryFn: () => dashboard.tokenStats(range) });
+  return useQuery({
+    queryKey: ["dashboard", "tokens", range],
+    queryFn: () => dashboard.tokenStats(range),
+  });
 }
 export function useHarnessUsage() {
-  return useQuery({ queryKey: ['dashboard', 'harness-usage'], queryFn: dashboard.harnessUsage });
+  return useQuery({
+    queryKey: ["dashboard", "harness-usage"],
+    queryFn: dashboard.harnessUsage,
+  });
+}
+export function useSandboxMetrics(range?: string) {
+  return useQuery({
+    queryKey: ["dashboard", "sandbox-metrics", range],
+    queryFn: () => dashboard.sandboxMetrics(range),
+  });
 }
 // ── Exec Dashboard ─────────────────────────────────────────────────
 
@@ -54,15 +70,24 @@ export function useExecAdoption() {
 }
 
 export function useExecAgentCounts() {
-  return useQuery({ queryKey: ["exec", "agent-counts"], queryFn: exec.agentCounts });
+  return useQuery({
+    queryKey: ["exec", "agent-counts"],
+    queryFn: exec.agentCounts,
+  });
 }
 
 export function useExecUsageByCategory(range?: string) {
-  return useQuery({ queryKey: ["exec", "usage-by-category", range], queryFn: () => exec.usageByCategory(range) });
+  return useQuery({
+    queryKey: ["exec", "usage-by-category", range],
+    queryFn: () => exec.usageByCategory(range),
+  });
 }
 
 export function useExecPlatformCoverage() {
-  return useQuery({ queryKey: ["exec", "platform-coverage"], queryFn: exec.platformCoverage });
+  return useQuery({
+    queryKey: ["exec", "platform-coverage"],
+    queryFn: exec.platformCoverage,
+  });
 }
 
 export function useExecPlatforms() {
@@ -74,19 +99,31 @@ export function useExecVelocity() {
 }
 
 export function useExecTopAgents(limit?: number) {
-  return useQuery({ queryKey: ["exec", "top-agents", limit], queryFn: () => exec.topAgents(limit) });
+  return useQuery({
+    queryKey: ["exec", "top-agents", limit],
+    queryFn: () => exec.topAgents(limit),
+  });
 }
 
 export function useExecDepartments(range?: string) {
-  return useQuery({ queryKey: ["exec", "departments", range], queryFn: () => exec.departments(range) });
+  return useQuery({
+    queryKey: ["exec", "departments", range],
+    queryFn: () => exec.departments(range),
+  });
 }
 
 export function useExecDeptTokens(range?: string) {
-  return useQuery({ queryKey: ["exec", "dept-tokens", range], queryFn: () => exec.deptTokens(range) });
+  return useQuery({
+    queryKey: ["exec", "dept-tokens", range],
+    queryFn: () => exec.deptTokens(range),
+  });
 }
 
 export function useExecCostSummary(range?: string) {
-  return useQuery({ queryKey: ["exec", "cost-summary", range], queryFn: () => exec.costSummary(range) });
+  return useQuery({
+    queryKey: ["exec", "cost-summary", range],
+    queryFn: () => exec.costSummary(range),
+  });
 }
 
 export function useExecConfig() {
@@ -94,23 +131,38 @@ export function useExecConfig() {
 }
 
 export function useExecROIProjections() {
-  return useQuery({ queryKey: ["exec", "roi-projections"], queryFn: exec.roiProjections });
+  return useQuery({
+    queryKey: ["exec", "roi-projections"],
+    queryFn: exec.roiProjections,
+  });
 }
 
 export function useExecStrategicInsights() {
-  return useQuery({ queryKey: ["exec", "strategic-insights"], queryFn: exec.strategicInsights });
+  return useQuery({
+    queryKey: ["exec", "strategic-insights"],
+    queryFn: exec.strategicInsights,
+  });
 }
 
 export function useExecDeveloperBreakdown(limit?: number) {
-  return useQuery({ queryKey: ["exec", "developer-breakdown", limit], queryFn: () => exec.developerBreakdown(limit) });
+  return useQuery({
+    queryKey: ["exec", "developer-breakdown", limit],
+    queryFn: () => exec.developerBreakdown(limit),
+  });
 }
 
 export function useExecInactivityAlerts() {
-  return useQuery({ queryKey: ["exec", "inactivity-alerts"], queryFn: exec.inactivityAlerts });
+  return useQuery({
+    queryKey: ["exec", "inactivity-alerts"],
+    queryFn: exec.inactivityAlerts,
+  });
 }
 
 export function useExecTimeToValue() {
-  return useQuery({ queryKey: ["exec", "time-to-value"], queryFn: exec.timeToValue });
+  return useQuery({
+    queryKey: ["exec", "time-to-value"],
+    queryFn: exec.timeToValue,
+  });
 }
 
 export function useExecAIInsights() {

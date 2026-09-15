@@ -8,8 +8,14 @@
 // SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
-import { Suspense, useState, useMemo, useCallback, useEffect, useRef } from "react";
+import {
+  Suspense,
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
 import { useRouter, useSearch } from "@tanstack/react-router";
 import {
   Trash2,
@@ -27,17 +33,24 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { PickerSelect } from "@/components/ui/picker-select";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/layouts/page-header";
-import { useRegistryItem, useAgentValidation, useTeams, useWhoami, useSaveDraft, useUpdateDraft, useStartEdit } from "@/hooks/use-api";
+import {
+  useRegistryItem,
+  useAgentValidation,
+  useTeams,
+  useWhoami,
+  useSaveDraft,
+  useUpdateDraft,
+  useStartEdit,
+} from "@/hooks/use-api";
 import { useAuthGuard } from "@/hooks/use-auth";
 import { registry, type RegistryType } from "@/lib/api";
-import { isValidAgentName, normalizeAgentName, slugifyRegistryText } from "@/lib/registry-name";
+import {
+  isValidAgentName,
+  normalizeAgentName,
+  slugifyRegistryText,
+} from "@/lib/registry-name";
 import type { RegistryItem, SuccessCriteria } from "@/lib/types";
 import type { ValidationResult } from "@/lib/types";
 
@@ -54,11 +67,16 @@ import { SubmitComponentDialog } from "@/components/registry/submit-component-di
 import { ValidationPanel } from "@/components/builder/validation-panel";
 import { PreviewPanel } from "@/components/builder/preview-panel";
 import { ModelPicker } from "@/components/builder/model-picker";
-import { COMPONENT_TYPES, REVERSE_TYPE_MAP, TYPE_MAP } from "@/components/registry/agent-component-constants";
+import {
+  COMPONENT_TYPES,
+  REVERSE_TYPE_MAP,
+  TYPE_MAP,
+} from "@/components/registry/agent-component-constants";
 import { ComponentPicker } from "@/components/registry/component-picker";
 import { VersionBumpDialog } from "@/components/registry/version-bump-dialog";
 
-const AGENT_NAME_ERROR = "Must start with a letter/digit, only lowercase letters, digits, hyphens, underscores.";
+const AGENT_NAME_ERROR =
+  "Must start with a letter/digit, only lowercase letters, digits, hyphens, underscores.";
 const CATEGORIES = [
   "Code Review",
   "Testing",
@@ -86,12 +104,19 @@ function AgentBuilderInner() {
   const helpCtx = useHelp();
 
   const router = useRouter();
-  const { edit: editId, draft: draftParam, team: teamParam } = useSearch({ from: "/_authed/agents/builder" });
+  const {
+    edit: editId,
+    draft: draftParam,
+    team: teamParam,
+  } = useSearch({ from: "/_authed/agents/builder" });
   const isEditMode = !!editId;
 
   const { data: whoami } = useWhoami();
   const { data: teams = [] } = useTeams();
-  const { data: existingAgent } = useRegistryItem("agents", editId ?? draftParam ?? undefined);
+  const { data: existingAgent } = useRegistryItem(
+    "agents",
+    editId ?? draftParam ?? undefined,
+  );
 
   const [name, setName] = useState("");
   const [nameError, setNameError] = useState("");
@@ -100,18 +125,21 @@ function AgentBuilderInner() {
   const [version, setVersion] = useState("1.0.0");
   const [category, setCategory] = useState("");
   const [modelName, setModelName] = useState("");
-  const [modelsByHarness, setModelsByIde] = useState<Record<string, string>>({});
+  const [modelsByHarness, setModelsByIde] = useState<Record<string, string>>(
+    {},
+  );
   const [publishing, setPublishing] = useState(false);
-  const [activeTab, setActiveTab] = useState<RegistryType>("mcps");
+  const [activeTab, setActiveTab] = useState<RegistryType>("skills");
   const [teamId, setTeamId] = useState(teamParam ?? "");
   const [visibility, setVisibility] = useState<"public" | "team">("public");
   const selectedTeam = teams.find((team) => team.id === teamId);
-  const visibilityOptions = selectedTeam?.visibility === "private"
-    ? [{ value: "team", label: "Team members only" }]
-    : [
-        { value: "public", label: "Public" },
-        { value: "team", label: "Team members only" },
-      ];
+  const visibilityOptions =
+    selectedTeam?.visibility === "private"
+      ? [{ value: "team", label: "Team members only" }]
+      : [
+          { value: "public", label: "Public" },
+          { value: "team", label: "Team members only" },
+        ];
 
   useEffect(() => {
     if (selectedTeam?.visibility === "private") setVisibility("team");
@@ -125,13 +153,17 @@ function AgentBuilderInner() {
   const [savingDraft, setSavingDraft] = useState(false);
   const [showRestoreBanner, setShowRestoreBanner] = useState(false);
   // Components created in-builder, held in memory until agent submit
-  const [pendingComponents, setPendingComponents] = useState<Array<{
-    id: string; // local temp id
-    type: RegistryType;
-    name: string;
-    body: Record<string, unknown>;
-  }>>([]);
-  const [createDialogType, setCreateDialogType] = useState<RegistryType | null>(null);
+  const [pendingComponents, setPendingComponents] = useState<
+    Array<{
+      id: string; // local temp id
+      type: RegistryType;
+      name: string;
+      body: Record<string, unknown>;
+    }>
+  >([]);
+  const [createDialogType, setCreateDialogType] = useState<RegistryType | null>(
+    null,
+  );
   const saveDraft = useSaveDraft();
   const updateDraft = useUpdateDraft();
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -143,15 +175,17 @@ function AgentBuilderInner() {
   const [selectedComponents, setSelectedComponents] = useState<
     Record<string, RegistryItem[]>
   >({
-    mcps: [],
     skills: [],
-    hooks: [],
     prompts: [],
+    mcps: [],
+    workflows: [],
+    hooks: [],
     sandboxes: [],
   });
 
   const [systemPrompt, setSystemPrompt] = useState<string>("");
-  const [successCriteria, setSuccessCriteria] = useState<SuccessCriteria | null>(null);
+  const [successCriteria, setSuccessCriteria] =
+    useState<SuccessCriteria | null>(null);
 
   // Goal template sections
 
@@ -172,28 +206,43 @@ function AgentBuilderInner() {
     if (typeof agentVersion === "string") setVersion(agentVersion);
     const agentModel = (existingAgent as Record<string, unknown>).model_name;
     if (typeof agentModel === "string") setModelName(agentModel);
-    const agentModelsByIde = (existingAgent as Record<string, unknown>).models_by_harness;
-    if (agentModelsByIde && typeof agentModelsByIde === "object" && !Array.isArray(agentModelsByIde)) {
+    const agentModelsByIde = (existingAgent as Record<string, unknown>)
+      .models_by_harness;
+    if (
+      agentModelsByIde &&
+      typeof agentModelsByIde === "object" &&
+      !Array.isArray(agentModelsByIde)
+    ) {
       setModelsByIde(agentModelsByIde as Record<string, string>);
     }
     const agentCategory = (existingAgent as Record<string, unknown>).category;
     if (typeof agentCategory === "string") setCategory(agentCategory);
     const agentTeamId = (existingAgent as Record<string, unknown>).team_id;
     if (typeof agentTeamId === "string") setTeamId(agentTeamId);
-    const agentVisibility = (existingAgent as Record<string, unknown>).visibility;
-    if (agentVisibility === "public" || agentVisibility === "team") setVisibility(agentVisibility);
+    const agentVisibility = (existingAgent as Record<string, unknown>)
+      .visibility;
+    if (agentVisibility === "public" || agentVisibility === "team")
+      setVisibility(agentVisibility);
 
     if (draftParam) setDraftId(draftParam);
 
     // Load components if available
-    const agentComponents = (existingAgent as Record<string, unknown>).components;
+    const agentComponents = (existingAgent as Record<string, unknown>)
+      .components;
     if (Array.isArray(agentComponents)) {
       const grouped: Record<string, RegistryItem[]> = {
-        mcps: [], skills: [], hooks: [], prompts: [], sandboxes: [],
+        skills: [],
+        prompts: [],
+        mcps: [],
+        workflows: [],
+        hooks: [],
+        sandboxes: [],
       };
       for (const comp of agentComponents) {
         const c = comp as Record<string, unknown>;
-        const pluralType = REVERSE_TYPE_MAP[c.component_type as string] ?? (c.component_type as string);
+        const pluralType =
+          REVERSE_TYPE_MAP[c.component_type as string] ??
+          (c.component_type as string);
         if (grouped[pluralType]) {
           grouped[pluralType].push({
             id: c.component_id as string,
@@ -205,12 +254,16 @@ function AgentBuilderInner() {
       setSelectedComponents(grouped);
     }
 
-
     const promptField = (existingAgent as Record<string, unknown>).prompt;
     if (typeof promptField === "string") setSystemPrompt(promptField);
 
-    const agentCriteria = (existingAgent as Record<string, unknown>).success_criteria;
-    if (agentCriteria && typeof agentCriteria === "object" && !Array.isArray(agentCriteria)) {
+    const agentCriteria = (existingAgent as Record<string, unknown>)
+      .success_criteria;
+    if (
+      agentCriteria &&
+      typeof agentCriteria === "object" &&
+      !Array.isArray(agentCriteria)
+    ) {
       setSuccessCriteria(agentCriteria as SuccessCriteria);
     }
   }, [existingAgent, draftParam]);
@@ -227,7 +280,9 @@ function AgentBuilderInner() {
     editLockAcquiredRef.current = true;
 
     startEdit.mutate(agentIdParam, {
-      onError: () => { editLockAcquiredRef.current = false; },
+      onError: () => {
+        editLockAcquiredRef.current = false;
+      },
     });
 
     const releaseLock = () => {
@@ -286,7 +341,12 @@ function AgentBuilderInner() {
         {
           onSuccess: (result) => setValidationResult(result),
           onError: () =>
-            setValidationResult({ valid: false, issues: [{ severity: "error", message: "Validation request failed" }] }),
+            setValidationResult({
+              valid: false,
+              issues: [
+                { severity: "error", message: "Validation request failed" },
+              ],
+            }),
         },
       );
     }, 500);
@@ -294,9 +354,9 @@ function AgentBuilderInner() {
     return () => {
       if (validateTimerRef.current) clearTimeout(validateTimerRef.current);
     };
-  // The target is part of the question: the same components are valid for a
-  // team-private agent and invalid for a public one, so a change of teamspace or
-  // visibility has to revalidate.
+    // The target is part of the question: the same components are valid for a
+    // team-private agent and invalid for a public one, so a change of teamspace or
+    // visibility has to revalidate.
   }, [selectedComponents, teamId, visibility]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check for localStorage draft on mount (skip if in edit mode)
@@ -318,7 +378,11 @@ function AgentBuilderInner() {
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
 
     autoSaveTimerRef.current = setTimeout(() => {
-      const hasContent = name || description || modelName || version !== "1.0.0" ||
+      const hasContent =
+        name ||
+        description ||
+        modelName ||
+        version !== "1.0.0" ||
         Object.keys(modelsByHarness).length > 0 ||
         Object.values(selectedComponents).some((items) => items.length > 0) ||
         systemPrompt.trim().length > 0 ||
@@ -353,7 +417,20 @@ function AgentBuilderInner() {
     return () => {
       if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     };
-  }, [name, description, version, modelName, modelsByHarness, selectedComponents, systemPrompt, successCriteria, draftId, teamId, visibility, isEditMode]);
+  }, [
+    name,
+    description,
+    version,
+    modelName,
+    modelsByHarness,
+    selectedComponents,
+    systemPrompt,
+    successCriteria,
+    draftId,
+    teamId,
+    visibility,
+    isEditMode,
+  ]);
 
   function restoreLocalDraft() {
     try {
@@ -364,19 +441,26 @@ function AgentBuilderInner() {
       if (draft.description) setDescription(draft.description);
       if (draft.version) setVersion(draft.version);
       if (draft.model_name) setModelName(draft.model_name);
-      if (draft.models_by_harness && typeof draft.models_by_harness === "object") {
+      if (
+        draft.models_by_harness &&
+        typeof draft.models_by_harness === "object"
+      ) {
         setModelsByIde(draft.models_by_harness);
       }
       if (draft.components) setSelectedComponents(draft.components);
       if (typeof draft.prompt === "string") setSystemPrompt(draft.prompt);
-      if (draft.success_criteria && typeof draft.success_criteria === "object") {
+      if (
+        draft.success_criteria &&
+        typeof draft.success_criteria === "object"
+      ) {
         setSuccessCriteria(draft.success_criteria as SuccessCriteria);
       }
       if (draft.draft_id) setDraftId(draft.draft_id);
       // Restore the publication target too. A draft saved for a teamspace must
       // not come back as a personal public agent.
       if (typeof draft.team_id === "string") setTeamId(draft.team_id);
-      if (draft.visibility === "public" || draft.visibility === "team") setVisibility(draft.visibility);
+      if (draft.visibility === "public" || draft.visibility === "team")
+        setVisibility(draft.visibility);
       setShowRestoreBanner(false);
       toast.success("Draft restored");
     } catch {
@@ -402,9 +486,12 @@ function AgentBuilderInner() {
       toast.error(`Invalid agent name. ${AGENT_NAME_ERROR}`);
       return;
     }
-    const hasPromptComponent = Object.values(selectedComponents).flat().some(
-      (item: RegistryItem) => selectedComponents.prompts?.find((p) => p.id === item.id)
-    ) || (selectedComponents.prompts ?? []).length > 0;
+    const hasPromptComponent =
+      Object.values(selectedComponents)
+        .flat()
+        .some((item: RegistryItem) =>
+          selectedComponents.prompts?.find((p) => p.id === item.id),
+        ) || (selectedComponents.prompts ?? []).length > 0;
     if (!systemPrompt.trim() && !hasPromptComponent) {
       setPromptError("An agent prompt is required.");
       toast.error("An agent prompt is required.");
@@ -478,15 +565,15 @@ function AgentBuilderInner() {
     [],
   );
 
-
-
-
   function buildRequestBody(versionOverride?: string) {
     const components: { component_type: string; component_id: string }[] = [];
     for (const [type, items] of Object.entries(selectedComponents)) {
       const singularType = TYPE_MAP[type] ?? type;
       for (const item of items) {
-        components.push({ component_type: singularType, component_id: item.id });
+        components.push({
+          component_type: singularType,
+          component_id: item.id,
+        });
       }
     }
 
@@ -514,9 +601,12 @@ function AgentBuilderInner() {
       toast.error("Agent name is required");
       return;
     }
-    const hasPromptComponent = Object.values(selectedComponents).flat().some(
-      (item: RegistryItem) => selectedComponents.prompts?.find((p) => p.id === item.id)
-    ) || (selectedComponents.prompts ?? []).length > 0;
+    const hasPromptComponent =
+      Object.values(selectedComponents)
+        .flat()
+        .some((item: RegistryItem) =>
+          selectedComponents.prompts?.find((p) => p.id === item.id),
+        ) || (selectedComponents.prompts ?? []).length > 0;
     if (!systemPrompt.trim() && !hasPromptComponent) {
       setPromptError("An agent prompt is required.");
       toast.error("An agent prompt is required.");
@@ -556,7 +646,10 @@ function AgentBuilderInner() {
         // Update selected components synchronously via ref trick, rebuild body after
         for (const { type, id, name } of flushedIds) {
           const plural = type as string;
-          selectedComponents[plural] = [...(selectedComponents[plural] ?? []), { id, name }];
+          selectedComponents[plural] = [
+            ...(selectedComponents[plural] ?? []),
+            { id, name },
+          ];
         }
         setPendingComponents([]);
       }
@@ -567,12 +660,24 @@ function AgentBuilderInner() {
         if (agentStatus && agentStatus !== "pending") {
           await registry.submitDraft(draftId);
         }
-        toast.success(!agentStatus || agentStatus === "pending" ? "Changes saved." : "Agent resubmitted for review.");
-        router.navigate({ to: "/agents/$agentId", params: { agentId: draftId } });
+        toast.success(
+          !agentStatus || agentStatus === "pending"
+            ? "Changes saved."
+            : "Agent resubmitted for review.",
+        );
+        router.navigate({
+          to: "/agents/$agentId",
+          params: { agentId: draftId },
+        });
       } else {
         const created = await registry.create("agents", body);
-        toast.success("Agent submitted for review. An admin must approve it before it becomes visible.");
-        router.navigate({ to: "/agents/$agentId", params: { agentId: created.id } });
+        toast.success(
+          "Agent submitted for review. An admin must approve it before it becomes visible.",
+        );
+        router.navigate({
+          to: "/agents/$agentId",
+          params: { agentId: created.id },
+        });
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to publish agent";
@@ -660,7 +765,10 @@ function AgentBuilderInner() {
                   placeholder="my-agent"
                   value={name}
                   onChange={(e) => {
-                    const slugged = slugifyRegistryText(e.target.value, { allowUnderscore: true, preserveTrailingSeparator: true });
+                    const slugged = slugifyRegistryText(e.target.value, {
+                      allowUnderscore: true,
+                      preserveTrailingSeparator: true,
+                    });
                     setName(slugged);
                     if (slugged && !isValidAgentName(slugged)) {
                       setNameError(AGENT_NAME_ERROR);
@@ -695,7 +803,10 @@ function AgentBuilderInner() {
               </div>
               <div className="grid gap-4 max-w-3xl sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="agent-version" className="text-sm font-medium">
+                  <Label
+                    htmlFor="agent-version"
+                    className="text-sm font-medium"
+                  >
                     Version
                   </Label>
                   <Input
@@ -706,16 +817,24 @@ function AgentBuilderInner() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="agent-category" className="text-sm font-medium">
+                  <Label
+                    htmlFor="agent-category"
+                    className="text-sm font-medium"
+                  >
                     Category
                   </Label>
                   <PickerSelect
                     value={category || "__none__"}
-                    onValueChange={(v) => setCategory(v === "__none__" ? "" : v)}
+                    onValueChange={(v) =>
+                      setCategory(v === "__none__" ? "" : v)
+                    }
                     placeholder="Select category..."
                     options={[
                       { value: "__none__", label: "Select category..." },
-                      ...CATEGORIES.map((item) => ({ value: item, label: item })),
+                      ...CATEGORIES.map((item) => ({
+                        value: item,
+                        label: item,
+                      })),
                     ]}
                   />
                 </div>
@@ -730,13 +849,22 @@ function AgentBuilderInner() {
                       setTeamId(next);
                       if (!next) {
                         setVisibility("public");
-                      } else if (teams.find((team) => team.id === next)?.visibility === "private") {
+                      } else if (
+                        teams.find((team) => team.id === next)?.visibility ===
+                        "private"
+                      ) {
                         setVisibility("team");
                       }
                     }}
                     options={[
-                      { value: "personal", label: `Personal (${whoami?.username || whoami?.email || "me"})` },
-                      ...teams.map((team) => ({ value: team.id, label: `Team: ${team.name}` })),
+                      {
+                        value: "personal",
+                        label: `Personal (${whoami?.username || whoami?.email || "me"})`,
+                      },
+                      ...teams.map((team) => ({
+                        value: team.id,
+                        label: `Team: ${team.name}`,
+                      })),
                     ]}
                   />
                 </div>
@@ -777,14 +905,20 @@ function AgentBuilderInner() {
                   id="agent-prompt"
                   placeholder="You are a senior Python engineer. You write tests first, prefer composition over inheritance, always explain your reasoning, and never delete existing tests."
                   value={systemPrompt}
-                  onChange={(e) => { setSystemPrompt(e.target.value); if (e.target.value.trim()) setPromptError(""); }}
+                  onChange={(e) => {
+                    setSystemPrompt(e.target.value);
+                    if (e.target.value.trim()) setPromptError("");
+                  }}
                   rows={8}
                   className={`resize-y text-sm font-mono${promptError ? " border-destructive" : ""}`}
                 />
                 {promptError ? (
                   <p className="text-sm text-destructive">{promptError}</p>
                 ) : (
-                  <p className="text-xs text-muted-foreground">Required. Or link a Prompt component in the Components section below.</p>
+                  <p className="text-xs text-muted-foreground">
+                    Required. Or link a Prompt component in the Components
+                    section below.
+                  </p>
                 )}
               </div>
             </section>
@@ -804,8 +938,8 @@ function AgentBuilderInner() {
                   Components
                 </h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Select the MCPs, skills, hooks, prompts, and sandboxes for
-                  this agent. Drag to reorder.
+                  Select the MCPs, skills, workflows, hooks, prompts, and
+                  sandboxes for this agent. Drag to reorder.
                 </p>
               </div>
 
@@ -816,8 +950,7 @@ function AgentBuilderInner() {
                 <TabsList>
                   {COMPONENT_TYPES.map((ct) => {
                     const count =
-                      (selectedComponents[ct.value] ?? []).length +
-                      0;
+                      (selectedComponents[ct.value] ?? []).length + 0;
                     return (
                       <TabsTrigger key={ct.value} value={ct.value}>
                         {ct.label}
@@ -839,20 +972,35 @@ function AgentBuilderInner() {
                       selected={selectedIds}
                       onToggle={handleToggle(ct.value)}
                       onCreateNew={() => setCreateDialogType(ct.value)}
-                      targetTeamId={visibility === "team" ? teamId || undefined : undefined}
+                      targetTeamId={
+                        visibility === "team" ? teamId || undefined : undefined
+                      }
                     />
                     {/* In-memory components not yet submitted */}
-                    {pendingComponents.filter((p) => p.type === ct.value).map((p) => (
-                      <div key={p.id} className="mt-2 flex items-center gap-2 rounded border border-dashed border-border px-3 py-1.5 text-xs">
-                        <span className="font-medium">{p.name}</span>
-                        <span className="text-muted-foreground italic">not yet submitted</span>
-                        <button
-                          type="button"
-                          className="ml-auto text-muted-foreground hover:text-destructive"
-                          onClick={() => setPendingComponents((prev) => prev.filter((x) => x.id !== p.id))}
-                        >✕</button>
-                      </div>
-                    ))}
+                    {pendingComponents
+                      .filter((p) => p.type === ct.value)
+                      .map((p) => (
+                        <div
+                          key={p.id}
+                          className="mt-2 flex items-center gap-2 rounded border border-dashed border-border px-3 py-1.5 text-xs"
+                        >
+                          <span className="font-medium">{p.name}</span>
+                          <span className="text-muted-foreground italic">
+                            not yet submitted
+                          </span>
+                          <button
+                            type="button"
+                            className="ml-auto text-muted-foreground hover:text-destructive"
+                            onClick={() =>
+                              setPendingComponents((prev) =>
+                                prev.filter((x) => x.id !== p.id),
+                              )
+                            }
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
 
                     {/* Sortable selected list */}
                     {(selectedComponents[ct.value] ?? []).length > 0 && (
@@ -866,7 +1014,6 @@ function AgentBuilderInner() {
                         />
                       </div>
                     )}
-
                   </TabsContent>
                 ))}
               </Tabs>
@@ -878,13 +1025,14 @@ function AgentBuilderInner() {
               />
             </section>
 
-
             <Separator />
 
             {/* Publish */}
             <div className="flex items-start gap-2 rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
               <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-              <span>Only submit agents you created or are the point-of-contact for.</span>
+              <span>
+                Only submit agents you created or are the point-of-contact for.
+              </span>
             </div>
             <div className="flex items-center gap-3 animate-in stagger-3">
               {!isEditMode && (
@@ -912,7 +1060,11 @@ function AgentBuilderInner() {
                 ) : (
                   <ArrowRight className="mr-2 h-4 w-4" />
                 )}
-                {isEditMode ? "Update Agent" : existingAgent?.status === "pending" ? "Save Changes" : "Submit for Review"}
+                {isEditMode
+                  ? "Update Agent"
+                  : existingAgent?.status === "pending"
+                    ? "Save Changes"
+                    : "Submit for Review"}
               </Button>
             </div>
           </div>
@@ -927,19 +1079,28 @@ function AgentBuilderInner() {
                 selectedComponents={Object.fromEntries(
                   Object.entries({
                     ...Object.fromEntries(
-                      Object.entries(selectedComponents).map(([k, v]) =>
-                        [k, v.map((item) => ({ id: item.id, name: item.name }))]
-                      )
+                      Object.entries(selectedComponents).map(([k, v]) => [
+                        k,
+                        v.map((item) => ({ id: item.id, name: item.name })),
+                      ]),
                     ),
                     // Merge in-memory pending components so they show in preview
-                    ...pendingComponents.reduce((acc, pc) => {
-                      acc[pc.type as string] = [...(acc[pc.type as string] ?? []), { id: pc.id, name: `${pc.name} (pending)` }];
-                      return acc;
-                    }, {} as Record<string, { id: string; name: string }[]>),
-                  }).map(([k, v]) => [k, v])
+                    ...pendingComponents.reduce(
+                      (acc, pc) => {
+                        acc[pc.type as string] = [
+                          ...(acc[pc.type as string] ?? []),
+                          { id: pc.id, name: `${pc.name} (pending)` },
+                        ];
+                        return acc;
+                      },
+                      {} as Record<string, { id: string; name: string }[]>,
+                    ),
+                  }).map(([k, v]) => [k, v]),
                 )}
                 prompt={systemPrompt}
-                pendingComponentBodies={Object.fromEntries(pendingComponents.map((pc) => [pc.id, pc.body]))}
+                pendingComponentBodies={Object.fromEntries(
+                  pendingComponents.map((pc) => [pc.id, pc.body]),
+                )}
                 validationResult={validationResult}
               />
             </div>
@@ -952,22 +1113,38 @@ function AgentBuilderInner() {
         <SubmitComponentDialog
           key={createDialogType}
           open={!!createDialogType}
-          onOpenChange={(v) => { if (!v) setCreateDialogType(null); }}
+          onOpenChange={(v) => {
+            if (!v) setCreateDialogType(null);
+          }}
           type={createDialogType}
           editItem={null}
           onSubmit={(body) => {
             const tempId = Math.random().toString(36).slice(2);
-            const name = (body.name as string) || createDialogType.replace(/s$/, "");
-            const targetBody = teamId && !body.team_id ? { ...body, team_id: teamId, visibility } : body;
-            setPendingComponents((prev) => [...prev, { id: tempId, type: createDialogType!, name, body: targetBody }]);
+            const name =
+              (body.name as string) || createDialogType.replace(/s$/, "");
+            const targetBody =
+              teamId && !body.team_id
+                ? { ...body, team_id: teamId, visibility }
+                : body;
+            setPendingComponents((prev) => [
+              ...prev,
+              { id: tempId, type: createDialogType!, name, body: targetBody },
+            ]);
             setCreateDialogType(null);
             toast.success(`${name} added, will be submitted with the agent.`);
           }}
           onSaveDraft={(body) => {
             const tempId = Math.random().toString(36).slice(2);
-            const name = (body.name as string) || createDialogType.replace(/s$/, "");
-            const targetBody = teamId && !body.team_id ? { ...body, team_id: teamId, visibility } : body;
-            setPendingComponents((prev) => [...prev, { id: tempId, type: createDialogType!, name, body: targetBody }]);
+            const name =
+              (body.name as string) || createDialogType.replace(/s$/, "");
+            const targetBody =
+              teamId && !body.team_id
+                ? { ...body, team_id: teamId, visibility }
+                : body;
+            setPendingComponents((prev) => [
+              ...prev,
+              { id: tempId, type: createDialogType!, name, body: targetBody },
+            ]);
             setCreateDialogType(null);
             toast.success(`${name} added, will be submitted with the agent.`);
           }}

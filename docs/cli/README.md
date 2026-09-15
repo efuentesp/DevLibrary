@@ -15,29 +15,29 @@ Complete reference for the `observal` CLI. Every subcommand has its own page; th
 
 | Command                                                                                    | What it does                                                                          |
 | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
-| [`observal api`](api.md)                                                                   | Call authenticated JSON endpoints without a dedicated command                         |
-| [`observal auth`](auth.md)                                                                 | Authentication and account management                                                 |
-| [`observal config`](config.md)                                                             | Local CLI configuration, aliases                                                      |
-| [`observal scan`](scan.md)                                                                 | Discover what's installed across your harnesses (read-only)                           |
-| [`observal outdated`](outdated.md)                                                         | Compare installed agent and component versions with the active registry               |
-| [`observal reconcile`](reconcile.md)                                                       | Backfill sessions missed by automatic telemetry delivery                              |
-| [`observal inbox`](inbox.md)                                                               | Read and update the signed-in user's work and event feed                               |
-| [`observal agent pull`](pull.md)                                                           | Install a published agent into a harness                                               |
-| [`observal registry`](registry.md)                                                         | Publish and manage components (MCP / skill / hook / prompt / sandbox)                 |
-| [`observal registry recommend`](recommend.md)                                              | Get personalized component recommendations                                            |
-| [`observal registry version`](component.md)                                                | Publish and inspect component versions                                                |
-| [`observal registry models`](models.md)                                                    | Inspect packaged harness model catalogs                                               |
-| [`observal agent`](agent.md)                                                               | Create, install, and manage agents                                                     |
-| [`observal team`](team.md)                                                                 | Manage teamspaces, members, join requests, and invitations                            |
-| [`observal ops`](ops.md)                                                                   | Observability and operations (sessions, telemetry, logs, insights)                    |
-| [`observal admin`](admin.md)                                                               | Core administration and submission review                                             |
-| [`observal doctor support`](support.md)                                                   | Generate and inspect redacted diagnostic bundles                                      |
-| [`observal doctor`](doctor.md)                                                             | Diagnose harness compatibility; `doctor patch` applies instrumentation                |
-| [`observal server migrate`](https://github.com/Observal/Observal/blob/main/docs/cli/migrate.md) | Export/import PostgreSQL registry (shallow copy) and ClickHouse telemetry (deep copy) |
-| [`observal self`](self.md)                                                                 | Upgrade or downgrade the CLI                                                          |
-| [`observal registry prompt`](prompt.md)                                                    | Manage reusable prompts in the registry                                               |
-| [`observal server`](server.md)                                                             | Manage the embedded server (start, stop, upgrade, rollback)                           |
-| [`observal registry skill`](skill.md)                                                      | Submit, browse, and install portable skill packages                                   |
+| [`dev-library api`](api.md)                                                                   | Call authenticated JSON endpoints without a dedicated command                         |
+| [`dev-library auth`](auth.md)                                                                 | Authentication and account management                                                 |
+| [`dev-library config`](config.md)                                                             | Local CLI configuration, aliases                                                      |
+| [`dev-library scan`](scan.md)                                                                 | Discover what's installed across your harnesses (read-only)                           |
+| [`dev-library outdated`](outdated.md)                                                         | Compare installed agent and component versions with the active registry               |
+| [`dev-library reconcile`](reconcile.md)                                                       | Backfill sessions missed by automatic telemetry delivery                              |
+| [`dev-library inbox`](inbox.md)                                                               | Read and update the signed-in user's work and event feed                               |
+| [`dev-library agent pull`](pull.md)                                                           | Install a published agent into a harness                                               |
+| [`dev-library registry`](registry.md)                                                         | Publish and manage components (MCP / skill / hook / prompt / sandbox)                 |
+| [`dev-library registry recommend`](recommend.md)                                              | Get personalized component recommendations                                            |
+| [`dev-library registry version`](component.md)                                                | Publish and inspect component versions                                                |
+| [`dev-library registry models`](models.md)                                                    | Inspect packaged harness model catalogs                                               |
+| [`dev-library agent`](agent.md)                                                               | Create, install, and manage agents                                                     |
+| [`dev-library team`](team.md)                                                                 | Manage teamspaces, members, join requests, and invitations                            |
+| [`dev-library ops`](ops.md)                                                                   | Observability and operations (sessions, telemetry, logs, insights)                    |
+| [`dev-library admin`](admin.md)                                                               | Core administration and submission review                                             |
+| [`dev-library doctor support`](support.md)                                                   | Generate and inspect redacted diagnostic bundles                                      |
+| [`dev-library doctor`](doctor.md)                                                             | Diagnose harness compatibility; `doctor patch` applies instrumentation                |
+| [`dev-library server migrate`](https://github.com/Observal/Observal/blob/main/docs/cli/migrate.md) | Export/import PostgreSQL registry (shallow copy) and ClickHouse telemetry (deep copy) |
+| [`dev-library self`](self.md)                                                                 | Upgrade or downgrade the CLI                                                          |
+| [`dev-library registry prompt`](prompt.md)                                                    | Manage reusable prompts in the registry                                               |
+| [`dev-library server`](server.md)                                                             | Manage the embedded server (start, stop, upgrade, rollback)                           |
+| [`dev-library registry skill`](skill.md)                                                      | Submit, browse, and install portable skill packages                                   |
 
 ## Global options
 
@@ -63,7 +63,7 @@ Every dedicated list command returns the same envelope:
 }
 ```
 
-Paginated commands preserve server totals and requested pages. Unpaginated commands use page 1 and the returned item count as `page_size`. Detail and mutation commands return direct objects. `observal api` intentionally preserves raw endpoint JSON.
+Paginated commands preserve server totals and requested pages. Unpaginated commands use page 1 and the returned item count as `page_size`. Detail and mutation commands return direct objects. `dev-library api` intentionally preserves raw endpoint JSON.
 
 ## Exit codes
 
@@ -110,7 +110,7 @@ For scripts and CI, pair flags with environment variables:
 export OBSERVAL_SERVER_URL=https://observal.your-company.internal
 export OBSERVAL_API_KEY=<your-key>
 
-observal ops traces --limit 100 --output json | jq
+dev-library ops traces --limit 100 --output json | jq
 ```
 
 Full env var reference: [Environment variables](../reference/environment-variables.md).
@@ -120,8 +120,8 @@ Full env var reference: [Environment variables](../reference/environment-variabl
 Read-heavy commands (`list`, `show`, `traces`, `spans`) support `--output`:
 
 ```bash
-observal registry mcp list --output table    # default, TTY-friendly
-observal registry mcp list --output json     # machine-readable
+dev-library registry mcp list --output table    # default, TTY-friendly
+dev-library registry mcp list --output json     # machine-readable
 ```
 
 ## Aliases
@@ -129,12 +129,12 @@ observal registry mcp list --output json     # machine-readable
 IDs get long fast. Create shortcuts:
 
 ```bash
-observal config alias my-mcp 498c17ac-1234-4567-89ab-cdef01234567
-observal registry mcp show @my-mcp
+dev-library config alias my-mcp 498c17ac-1234-4567-89ab-cdef01234567
+dev-library registry mcp show @my-mcp
 ```
 
-See [`observal config`](config.md) for details.
+See [`dev-library config`](config.md) for details.
 
 ## Next
 
-→ [`observal auth`](auth.md): you'll need to log in first.
+→ [`dev-library auth`](auth.md): you'll need to log in first.

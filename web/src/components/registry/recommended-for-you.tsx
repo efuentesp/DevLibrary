@@ -8,6 +8,7 @@ import {
   GitBranch,
   MessageSquareText,
   PlugZap,
+  Workflow,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -37,6 +38,11 @@ const TYPE_META: Record<
     label: "Sandbox",
     icon: Box,
     color: "text-component-sandbox",
+  },
+  workflow: {
+    label: "Workflow",
+    icon: Workflow,
+    color: "text-component-hook",
   },
 };
 
@@ -142,7 +148,9 @@ export function RecommendedForYou({ limit = 6 }: { limit?: number }) {
                   <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">
                     {item.description}
                   </p>
-                  <p className="mt-1 text-sm text-foreground/85">{item.reason}</p>
+                  <p className="mt-1 text-sm text-foreground/85">
+                    {item.reason}
+                  </p>
                 </div>
                 <div className="flex items-start gap-2">
                   {item.download_count > 0 && (

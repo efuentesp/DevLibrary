@@ -147,7 +147,7 @@ async def test_snapshot_handles_non_dict_models_by_harness():
 
 
 def test_agent_saved_model_prefers_per_ide_override():
-    from observal_cli.cmd_pull import _agent_saved_model
+    from dev_library_cli.cmd_pull import _agent_saved_model
 
     detail = {
         "model_name": "claude-sonnet-4-5",
@@ -158,7 +158,7 @@ def test_agent_saved_model_prefers_per_ide_override():
 
 
 def test_agent_saved_model_falls_back_to_model_name_only_for_claude_code():
-    from observal_cli.cmd_pull import _agent_saved_model
+    from dev_library_cli.cmd_pull import _agent_saved_model
 
     detail = {
         "model_name": "claude-sonnet-4-5",
@@ -171,7 +171,7 @@ def test_agent_saved_model_falls_back_to_model_name_only_for_claude_code():
 
 
 def test_agent_saved_model_returns_none_when_missing():
-    from observal_cli.cmd_pull import _agent_saved_model
+    from dev_library_cli.cmd_pull import _agent_saved_model
 
     assert _agent_saved_model(None, "kiro") is None
     assert _agent_saved_model({}, "kiro") is None
@@ -180,7 +180,7 @@ def test_agent_saved_model_returns_none_when_missing():
 
 def test_collect_install_options_skips_picker_when_agent_has_saved_model():
     """The whole point of the bug fix: per-harness overrides should bypass the prompt."""
-    from observal_cli.cmd_pull import _collect_install_options
+    from dev_library_cli.cmd_pull import _collect_install_options
 
     agent_detail = {
         "model_name": "claude-sonnet-4-5",
@@ -188,7 +188,7 @@ def test_collect_install_options_skips_picker_when_agent_has_saved_model():
     }
 
     with (
-        patch("observal_cli.prompts.select_one") as mock_picker,
+        patch("dev_library_cli.prompts.select_one") as mock_picker,
         patch("sys.stdin.isatty", return_value=True),
     ):
         opts = _collect_install_options(
@@ -209,7 +209,7 @@ def test_collect_install_options_skips_picker_when_agent_has_saved_model():
 
 
 def test_collect_install_options_explicit_override_wins_over_saved():
-    from observal_cli.cmd_pull import _collect_install_options
+    from dev_library_cli.cmd_pull import _collect_install_options
 
     agent_detail = {
         "model_name": "claude-sonnet-4-5",
@@ -233,7 +233,7 @@ def test_collect_install_options_explicit_override_wins_over_saved():
 def test_collect_install_options_no_saved_no_explicit_no_tty_omits_model():
     """Non-interactive with nothing chosen: don't pass options.model so the
     server falls back to its own default."""
-    from observal_cli.cmd_pull import _collect_install_options
+    from dev_library_cli.cmd_pull import _collect_install_options
 
     with patch("sys.stdin.isatty", return_value=False):
         opts = _collect_install_options(

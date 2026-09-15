@@ -24,6 +24,7 @@ from models.mcp import McpListing
 from models.prompt import PromptListing
 from models.sandbox import SandboxListing
 from models.skill import SkillListing
+from models.workflow import WorkflowListing
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
@@ -37,6 +38,7 @@ _LISTING_MODELS = {
     "hook": HookListing,
     "prompt": PromptListing,
     "sandbox": SandboxListing,
+    "workflow": WorkflowListing,
 }
 
 

@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Nithin-Bhargav-07 <gaddamnithinbhargav@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal registry skill`
+# `dev-library registry skill`
 
 Submit, browse, install, edit, archive, restore, transfer, and manage co-authors for portable skill packages.
 
@@ -27,7 +27,7 @@ Every command that returns structured data supports table and JSON output. Archi
 Git-backed skills require a Git URL. Registry-direct skills store SKILL.md and an optional script in Observal.
 
 ```bash
-observal registry skill submit \
+dev-library registry skill submit \
   --skill-md ./SKILL.md \
   --git-url https://github.com/acme/review-skill \
   --name review-skill \
@@ -35,7 +35,7 @@ observal registry skill submit \
   --task-type code-review \
   --output json
 
-observal registry skill submit \
+dev-library registry skill submit \
   --skill-md ./SKILL.md \
   --delivery-mode registry_direct \
   --name review-skill \
@@ -51,10 +51,10 @@ Valid task types are `code-review`, `code-generation`, `testing`, `documentation
 ## List and show
 
 ```bash
-observal registry skill list --task-type code-review --output json
-observal registry skill list --harness claude-code --output json
-observal registry skill my --output json
-observal registry skill show acme/review-skill --output json
+dev-library registry skill list --task-type code-review --output json
+dev-library registry skill list --harness claude-code --output json
+dev-library registry skill my --output json
+dev-library registry skill show acme/review-skill --output json
 ```
 
 Row numbers are scoped to the latest Skill list. Empty lists clear previous Skill row references.
@@ -62,10 +62,10 @@ Row numbers are scoped to the latest Skill list. Empty lists clear previous Skil
 ## Install
 
 ```bash
-observal registry skill install acme/review-skill --harness claude-code --scope user --output json
-observal registry skill install acme/review-skill --harness pi --scope project --output json
-observal registry skill install acme/review-skill --harness pi --no-write --output json
-observal registry skill install acme/review-skill --harness pi --raw
+dev-library registry skill install acme/review-skill --harness claude-code --scope user --output json
+dev-library registry skill install acme/review-skill --harness pi --scope project --output json
+dev-library registry skill install acme/review-skill --harness pi --no-write --output json
+dev-library registry skill install acme/review-skill --harness pi --raw
 ```
 
 JSON output performs the installation unless no-write is selected. It reports `write_performed` and `installed_path`. Raw mode emits only the generated config and performs no write. Lockfile state is recorded only after the skill content is written successfully.
@@ -75,13 +75,13 @@ The command fails if the harness lacks skill support, the source cannot be insta
 ## Edit
 
 ```bash
-observal registry skill edit acme/review-skill --description "Updated" --output json
-observal registry skill edit acme/review-skill --from-file updates.json --output json
+dev-library registry skill edit acme/review-skill --description "Updated" --output json
+dev-library registry skill edit acme/review-skill --from-file updates.json --output json
 ```
 
 Edit-lock conflicts preserve conflict exit code 6. Invalid fields and files use the shared validation, not-found, permission, and unavailable categories.
 
 ## Related
 
-* [`observal registry`](registry.md): complete registry reference
-* [`observal agent`](agent.md): attach skills to agents
+* [`dev-library registry`](registry.md): complete registry reference
+* [`dev-library agent`](agent.md): attach skills to agents

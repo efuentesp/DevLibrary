@@ -62,3 +62,51 @@ export interface HarnessRow {
 export interface HarnessUsageData {
 	harnesses: HarnessRow[];
 }
+
+// ── Sandbox executions ────────────────────────────────────────────────
+
+export interface SandboxRunEvent {
+	event_id: string;
+	sandbox_id: string;
+	image: string;
+	runtime_type: string;
+	command: string;
+	status: string;
+	exit_code: number;
+	oom_killed: boolean;
+	timed_out: boolean;
+	latency_ms: number;
+	harness: string;
+	agent_id?: string | null;
+	start_time: string;
+	output_preview?: string;
+}
+
+export interface SandboxTrendPoint {
+	date: string;
+	runs: number;
+	failures: number;
+}
+
+export interface SandboxTopItem {
+	sandbox_id: string;
+	image: string;
+	runs: number;
+	failure_rate: number;
+	avg_latency_ms: number;
+}
+
+export interface SandboxStatsData {
+	total_runs: number;
+	success_count: number;
+	error_count: number;
+	timeout_count: number;
+	timeout_rate: number;
+	oom_count: number;
+	oom_rate: number;
+	avg_latency_ms?: number | null;
+	p95_latency_ms?: number | null;
+	runs_over_time: SandboxTrendPoint[];
+	top_sandboxes: SandboxTopItem[];
+	recent_failures: SandboxRunEvent[];
+}

@@ -37,7 +37,7 @@ flowchart TB
     c --> server
 ```
 
-Install the server once ([Self-Hosting](../self-hosting/README.md)). Then every engineer installs the CLI and runs `observal auth login` pointed at your shared server URL.
+Install the server once ([Self-Hosting](../self-hosting/README.md)). Then every engineer installs the CLI and runs `dev-library auth login` pointed at your shared server URL.
 
 ## Users and roles
 
@@ -53,9 +53,9 @@ Four roles, RBAC-enforced on every endpoint.
 Manage users:
 
 ```bash
-observal admin users --output json
-observal admin reset-password <email> --generate --output json
-observal admin delete-user <email> --force --output json
+dev-library admin users --output json
+dev-library admin reset-password <email> --generate --output json
+dev-library admin delete-user <email> --force --output json
 ```
 
 Change a role via the web UI (`/settings/users`) or the API (`PUT /api/v1/admin/users/{id}/role`).
@@ -67,7 +67,7 @@ Two commands to get them productive:
 ```bash
 # The new engineer runs:
 curl -fsSL https://raw.githubusercontent.com/Observal/Observal/main/install.sh | bash
-observal auth login --server https://observal.your-company.internal
+dev-library auth login --server https://observal.your-company.internal
 ```
 
 For managed deployments, users authenticate through SSO or are provisioned by an admin. See [Authentication and SSO](../self-hosting/authentication.md).
@@ -75,10 +75,10 @@ For managed deployments, users authenticate through SSO or are provisioned by an
 After logging in, they can:
 
 ```bash
-observal agent list                           # see every agent the team has published
-observal agent pull team-reviewer --harness claude-code # install one
-observal scan                                 # discover what they have installed
-observal doctor patch --all-harnesses        # instrument everything
+dev-library agent list                           # see every agent the team has published
+dev-library agent pull team-reviewer --harness claude-code # install one
+dev-library scan                                 # discover what they have installed
+dev-library doctor patch --all-harnesses        # instrument everything
 ```
 
 ## Review workflow
@@ -86,10 +86,10 @@ observal doctor patch --all-harnesses        # instrument everything
 Authors submit. Reviewers approve. Approved items appear in the public listing.
 
 ```bash
-observal admin review list --output json
-observal admin review show <id> --output json
-observal admin review approve <id> --output json
-observal admin review reject <id> --reason "missing env var docs" --output json
+dev-library admin review list --output json
+dev-library admin review show <id> --output json
+dev-library admin review approve <id> --output json
+dev-library admin review reject <id> --reason "missing env var docs" --output json
 ```
 
 What reviewers look for:
@@ -103,11 +103,11 @@ Everything published is visible to the author immediately. Review controls what 
 
 ## Telemetry across the whole team
 
-Because every engineer's session telemetry flows into the same server, `observal ops` becomes a team dashboard:
+Because every engineer's session telemetry flows into the same server, `dev-library ops` becomes a team dashboard:
 
 ```bash
-observal ops top --type agent           # most-used agents across the team
-observal ops top --type mcp             # hottest MCP servers
+dev-library ops top --type agent           # most-used agents across the team
+dev-library ops top --type mcp             # hottest MCP servers
 ```
 
 Filters in the web UI let you slice by user, agent, harness, and time range.

@@ -22,14 +22,16 @@ Deploy Observal onto a Kubernetes cluster using the official Helm chart.
 Use the hosted OCI chart after the first release that includes Helm chart publishing has completed:
 
 1. Install the chart into a dedicated namespace:
+
    ```bash
    kubectl create namespace observal
-   helm install observal oci://ghcr.io/observal/charts/observal \
+   helm install observal oci://ghcr.io/observal/charts/dev-library \
      --version <version> \
      --namespace observal
    ```
 
 2. Verify all workloads are running and completed:
+
    ```bash
    kubectl get pods -n observal
    ```
@@ -39,18 +41,21 @@ Use the hosted OCI chart after the first release that includes Helm chart publis
 To test unreleased chart changes directly from a clone:
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/Observal/Observal.git
    cd Observal
    ```
 
 2. Install the chart into a dedicated namespace:
+
    ```bash
    kubectl create namespace observal
-   helm install observal ./infra/helm/observal --namespace observal
+   helm install observal ./infra/helm/dev-library --namespace observal
    ```
 
 3. Verify all workloads are running and completed:
+
    ```bash
    kubectl get pods -n observal
    ```
@@ -60,7 +65,7 @@ To test unreleased chart changes directly from a clone:
 You can customize the deployment by passing a custom values file (`-f values.yaml`) or setting flags via `--set`.
 
 ```bash
-helm install observal oci://ghcr.io/observal/charts/observal \
+helm install observal oci://ghcr.io/observal/charts/dev-library \
   --version <version> \
   --namespace observal \
   -f custom-values.yaml
@@ -117,7 +122,7 @@ Open `http://localhost:3000` in your browser.
 Enable ingress and configure TLS termination using `cert-manager`:
 
 ```bash
-helm upgrade --install observal oci://ghcr.io/observal/charts/observal \
+helm upgrade --install observal oci://ghcr.io/observal/charts/dev-library \
   --version <version> \
   --namespace observal \
   --set ingress.enabled=true \
@@ -135,7 +140,7 @@ helm upgrade --install observal oci://ghcr.io/observal/charts/observal \
 To apply configuration changes or update to a newer chart version:
 
 ```bash
-helm upgrade observal oci://ghcr.io/observal/charts/observal \
+helm upgrade observal oci://ghcr.io/observal/charts/dev-library \
   --version <version> \
   --namespace observal \
   -f custom-values.yaml

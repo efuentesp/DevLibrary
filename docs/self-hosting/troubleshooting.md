@@ -4,7 +4,7 @@
 
 # Troubleshooting
 
-Common failure modes and their fixes. If none of these match, open a [GitHub Discussion](https://github.com/Observal/Observal/discussions) with the output of `observal auth status` and relevant logs from `docker compose logs`.
+Common failure modes and their fixes. If none of these match, open a [GitHub Discussion](https://github.com/Observal/Observal/discussions) with the output of `dev-library auth status` and relevant logs from `docker compose logs`.
 
 ## Install and CLI
 
@@ -15,19 +15,19 @@ The CLI cannot reach the API. Check:
 ```bash
 docker compose -f docker/docker-compose.yml ps     # API status
 curl http://localhost/health                       # API health
-observal config show                               # is server_url right?
+dev-library config show                               # is server_url right?
 ```
 
 If `server_url` is wrong:
 
 ```bash
-observal config set server_url http://localhost
-observal auth login
+dev-library config set server_url http://localhost
+dev-library auth login
 ```
 
 ### `"System already initialized"` when logging in
 
-The server already has users, so bootstrap is disabled. Use `observal auth login` with an email + password or an API key, not a fresh bootstrap flow.
+The server already has users, so bootstrap is disabled. Use `dev-library auth login` with an email + password or an API key, not a fresh bootstrap flow.
 
 ## Docker and networking
 
@@ -71,7 +71,7 @@ Check logs (`docker compose logs -f <service>`). Three frequent causes:
 ### Admin forgot password
 
 ```bash
-observal auth reset-password --email admin@demo.example
+dev-library auth reset-password --email admin@demo.example
 ```
 
 Then read the reset code from the server log:
@@ -104,16 +104,16 @@ Run through, in order:
 
 ```bash
 # 1. Are sessions arriving at all?
-observal ops telemetry status
+dev-library ops telemetry status
 
 # 2. Are session hooks installed for the harness?
-observal doctor --output json
+dev-library doctor --output json
 
 # 3. Is the API reachable from the harness environment?
 curl http://localhost/health
 ```
 
-If hooks are missing, run `observal doctor patch --harness <harness>`. If sessions still are not arriving, check `~/.observal/telemetry_buffer.db`; growth indicates pending session delivery rather than silent loss.
+If hooks are missing, run `dev-library doctor patch --harness <harness>`. If sessions still are not arriving, check `~/.observal/telemetry_buffer.db`; growth indicates pending session delivery rather than silent loss.
 
 ### ClickHouse not receiving data
 
@@ -164,6 +164,6 @@ Browser cookies aren't being set. Usually one of:
 
 * Logs: `docker compose -f docker/docker-compose.yml logs -f`
 * Health: `curl http://localhost/health`
-* Status: `observal auth status`
+* Status: `dev-library auth status`
 * Community: [GitHub Discussions](https://github.com/Observal/Observal/discussions)
 * Bugs: [GitHub Issues](https://github.com/Observal/Observal/issues). Please use Discussions for questions, Issues only for confirmed bugs

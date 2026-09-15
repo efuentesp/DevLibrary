@@ -9,9 +9,9 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
-from observal_cli.harness import ensure_loaded, get_adapter
-from observal_cli.hooks import session_push
-from observal_cli.sessions.cursor import find_cursor_jsonl, project_key_from_cwd
+from dev_library_cli.harness import ensure_loaded, get_adapter
+from dev_library_cli.hooks import session_push
+from dev_library_cli.sessions.cursor import find_cursor_jsonl, project_key_from_cwd
 
 if TYPE_CHECKING:
     from pathlib import Path

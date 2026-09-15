@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Observal Contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal registry recommend`
+# `dev-library registry recommend`
 
 List Registry components ranked for the signed-in user and record recommendation feedback.
 
@@ -10,8 +10,8 @@ List Registry components ranked for the signed-in user and record recommendation
 The direct and explicit list forms are equivalent:
 
 ```bash
-observal registry recommend --output json
-observal registry recommend list --limit 12 --type mcp --refresh --output json
+dev-library registry recommend --output json
+dev-library registry recommend list --limit 12 --type mcp --refresh --output json
 ```
 
 | Option | Description |
@@ -39,9 +39,9 @@ When `personalized` is false, results are popularity-based and must not be descr
 ## Dismiss
 
 ```bash
-observal registry recommend dismiss skill acme/reviewer --output json
-observal registry recommend dismiss mcp acme/postgres --action not_relevant --output json
-observal registry recommend dismiss hook acme/guard --action installed --output json
+dev-library registry recommend dismiss skill acme/reviewer --output json
+dev-library registry recommend dismiss mcp acme/postgres --action not_relevant --output json
+dev-library registry recommend dismiss hook acme/guard --action installed --output json
 ```
 
 Valid actions are `dismissed`, `not_relevant`, and `installed`.
@@ -64,5 +64,5 @@ Invalid component types and actions use validation exit code 7. Authentication, 
 
 ## Related
 
-* [`observal registry`](registry.md): browse components directly
-* [`observal outdated`](outdated.md): check installed versions
+* [`dev-library registry`](registry.md): browse components directly
+* [`dev-library outdated`](outdated.md): check installed versions

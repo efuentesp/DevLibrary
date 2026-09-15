@@ -3,16 +3,16 @@
 <!-- SPDX-FileCopyrightText: 2026 tsitu0 <tomsitu0102@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# observal scan
+# dev-library scan
 
 Discover MCP servers, hooks, and telemetry configuration across your harness configs. `scan` is **read-only** -- it shows what you have without modifying any files.
 
-To install session telemetry hooks, use [`observal doctor patch`](doctor.md). MCP commands and URLs are never rewritten.
+To install session telemetry hooks, use [`dev-library doctor patch`](doctor.md). MCP commands and URLs are never rewritten.
 
 ## Synopsis
 
 ```bash
-observal scan [--harness <harness>]
+dev-library scan [--harness <harness>]
 ```
 
 ## Options
@@ -21,7 +21,7 @@ observal scan [--harness <harness>]
 | --- | --- |
 | `--harness <harness>` | Scope to one harness: `cursor`, `kiro`, `claude-code`, `codex`, `copilot`, `copilot-cli`, `opencode`, `antigravity`, `goose`, `pi` |
 
-If you run `observal scan` with no flags, it auto-detects every installed harness and scans each in turn.
+If you run `dev-library scan` with no flags, it auto-detects every installed harness and scans each in turn.
 
 ## What it does
 
@@ -41,7 +41,7 @@ No files are written. No servers are contacted. No registration happens.
 ## Example
 
 ```bash
-observal scan
+dev-library scan
 ```
 
 Output:
@@ -60,7 +60,7 @@ Kiro (.kiro/settings/mcp.json)
 ## Scoping to a single harness
 
 ```bash
-observal scan --harness claude-code
+dev-library scan --harness claude-code
 ```
 
 ## What to do next
@@ -69,13 +69,13 @@ Once you see what's installed, instrument it:
 
 ```bash
 # Install session telemetry hooks across all harnesses
-observal doctor patch --all-harnesses
+dev-library doctor patch --all-harnesses
 
 # Or target a specific harness
-observal doctor patch --harness kiro
+dev-library doctor patch --harness kiro
 
 # Preview changes without writing anything
-observal doctor patch --all-harnesses --dry-run
+dev-library doctor patch --all-harnesses --dry-run
 ```
 
 ## Exit codes
@@ -88,7 +88,7 @@ observal doctor patch --all-harnesses --dry-run
 
 ## Related
 
-* [`observal doctor patch`](doctor.md): instrument your harnesses (hooks, shims)
-* [`observal agent pull`](pull.md): install a full agent (also wires up MCP servers)
-* [`observal doctor`](doctor.md): diagnose instrumentation end-to-end
+* [`dev-library doctor patch`](doctor.md): instrument your harnesses (hooks, shims)
+* [`dev-library agent pull`](pull.md): install a full agent (also wires up MCP servers)
+* [`dev-library doctor`](doctor.md): diagnose instrumentation end-to-end
 * [Use Cases -- Observe MCP traffic](../use-cases/observe-mcp-traffic.md): narrative walkthrough

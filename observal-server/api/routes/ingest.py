@@ -4,6 +4,9 @@
 
 """Session JSONL ingest endpoint."""
 
+import uuid
+from typing import Literal
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from loguru import logger as optic
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -20,6 +23,9 @@ router = APIRouter(prefix="/api/v1/ingest", tags=["ingest"])
 
 MAX_SESSION_LINES = 1000
 MAX_SESSION_TOTAL_LINES = 10_000_000
+
+MAX_SANDBOX_EVENTS_PER_BATCH = 100
+MAX_SANDBOX_OUTPUT_CHARS = 4096
 
 
 class SessionIngestRequest(BaseModel):
@@ -87,6 +93,85 @@ class SessionCheckpointResponse(BaseModel):
     harness: str
     acknowledged_line: int
     acknowledged_offset: int
+
+
+class SandboxExecEvent(BaseModel):
+    """One sandbox execution outcome, as reported by dev-library-sandbox-run."""
+
+    sandbox_id: str = Field(..., max_length=MAX_SHORT_STRING_LENGTH)
+    image: str = Field(..., max_length=500)
+    runtime_type: str = Field("docker", max_length=20)
+    command: str = Field("", max_length=MAX_SHORT_STRING_LENGTH)
+    exit_code: int = Field(0, ge=-1, le=255)
+    oom_killed: bool = False
+    timed_out: bool = False
+    status: Literal["success", "error", "timeout"] = "success"
+    latency_ms: int = Field(0, ge=0, le=86_400_000)
+    container_id: str | None = Field(None, max_length=64)
+    agent_id: str | None = Field(None, max_length=MAX_SHORT_STRING_LENGTH)
+    session_id: str | None = Field(None, max_length=MAX_SHORT_STRING_LENGTH)
+    output: str = Field("", max_length=131_072)
+    start_time: str = Field(..., max_length=64)
+    end_time: str | None = Field(None, max_length=64)
+
+
+class SandboxExecIngestRequest(BaseModel):
+    harness: str = Field("", max_length=50)
+    events: list[SandboxExecEvent] = Field(..., min_length=1, max_length=MAX_SANDBOX_EVENTS_PER_BATCH)
+
+
+class SandboxExecIngestResponse(BaseModel):
+    ingested: int
+
+
+def _sandbox_exec_rows(events: list[SandboxExecEvent], *, user_id: str, harness: str) -> list[dict]:
+    """Map validated events to ClickHouse rows (pure; truncates output previews)."""
+    rows = []
+    for ev in events:
+        rows.append(
+            {
+                "event_id": str(uuid.uuid4()),
+                "user_id": user_id,
+                "harness": harness,
+                "sandbox_id": ev.sandbox_id,
+                "agent_id": ev.agent_id,
+                "session_id": ev.session_id,
+                "runtime_type": ev.runtime_type,
+                "image": ev.image,
+                "command": ev.command,
+                "exit_code": ev.exit_code,
+                "oom_killed": ev.oom_killed,
+                "timed_out": ev.timed_out,
+                "status": ev.status,
+                "latency_ms": ev.latency_ms,
+                "container_id": ev.container_id,
+                "output_preview": ev.output[:MAX_SANDBOX_OUTPUT_CHARS],
+                "start_time": ev.start_time,
+                "end_time": ev.end_time or ev.start_time,
+            }
+        )
+    return rows
+
+
+@router.post("/sandbox-exec", response_model=SandboxExecIngestResponse)
+@limiter.limit("60/minute")
+async def ingest_sandbox_exec(
+    req: SandboxExecIngestRequest,
+    request: Request,
+    current_user: User = Depends(require_role(UserRole.user)),
+):
+    """Ingest sandbox execution telemetry from the local sandbox runner.
+
+    One call per dev-library-sandbox-run invocation (batched when draining the
+    local spool). Storage is best-effort: a ClickHouse outage is logged and
+    acknowledged so the runner never retries a successful batch.
+    """
+    from services.clickhouse import insert_sandbox_exec_events
+
+    rows = _sandbox_exec_rows(req.events, user_id=str(current_user.id), harness=req.harness)
+    await insert_sandbox_exec_events(rows)
+    optic.info("sandbox exec telemetry ingested: user_id={}, events={}", current_user.id, len(rows))
+    return SandboxExecIngestResponse(ingested=len(rows))
 
 
 @router.post("/session", response_model=SessionIngestResponse)

@@ -66,7 +66,7 @@ def namespace_for_user(user) -> str:
         raise ValueError(
             f"Your username '{user.username}' cannot be used as a registry namespace. "
             f"{NAMESPACE_RULE_TEXT}. "
-            "Pick a valid username first: `observal auth set-username <name>`, or Account "
+            "Pick a valid username first: `dev-library auth set-username <name>`, or Account "
             "settings in the web UI."
         )
     # Existing deployments may already contain a now-reserved username. It remains

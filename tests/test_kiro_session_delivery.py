@@ -8,10 +8,10 @@ import os
 import time
 from typing import TYPE_CHECKING
 
-from observal_cli.harness import ensure_loaded, get_adapter
-from observal_cli.harness_specs.kiro_hooks_spec import build_kiro_hooks
-from observal_cli.hooks import session_push
-from observal_cli.sessions.kiro import read_kiro_agent_name
+from dev_library_cli.harness import ensure_loaded, get_adapter
+from dev_library_cli.harness_specs.kiro_hooks_spec import build_kiro_hooks
+from dev_library_cli.hooks import session_push
+from dev_library_cli.sessions.kiro import read_kiro_agent_name
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -166,7 +166,7 @@ def test_kiro_recovery_attributes_each_session_from_its_metadata(tmp_path: Path,
         return {"id": "pulled-uuid", "version": "1.2.0"}
 
     def capture(source, _config, **_kwargs):
-        from observal_cli.sessions.base import _resolve_agent
+        from dev_library_cli.sessions.base import _resolve_agent
 
         assert source.session_id not in recovered
         identity = _resolve_agent(source.cwd, [], source.path, harness="kiro")
@@ -174,7 +174,7 @@ def test_kiro_recovery_attributes_each_session_from_its_metadata(tmp_path: Path,
         return True
 
     monkeypatch.setenv("OBSERVAL_AGENT_ID", "triggering-hook-uuid")
-    monkeypatch.setattr("observal_cli.lockfile.get_agent_by_name", lookup)
+    monkeypatch.setattr("dev_library_cli.lockfile.get_agent_by_name", lookup)
     monkeypatch.setattr(session_push, "drain_outbox", lambda *_args, **_kwargs: True)
     monkeypatch.setattr(session_push, "read_cursor_state", lambda *_args, **_kwargs: (0, 0, False))
     monkeypatch.setattr(session_push, "drain_session_source", capture)
@@ -270,5 +270,5 @@ def test_kiro_hook_spec_uses_shared_engine_with_uuid_attribution():
     command = hooks["userPromptSubmit"][0]["command"]
 
     assert "OBSERVAL_AGENT_ID=agent-uuid" in command or 'set "OBSERVAL_AGENT_ID=agent-uuid"' in command
-    assert "observal_cli.hooks.session_push --harness kiro" in command
+    assert "dev_library_cli.hooks.session_push --harness kiro" in command
     assert hooks["stop"][0]["command"] == command

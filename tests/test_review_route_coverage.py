@@ -184,6 +184,8 @@ def _orm_listing(
         is_editing=False,
         editing_by=None,
         editing_since=None,
+        # WorkflowVersion stores the script body (NOT NULL, no default).
+        **({"script_content": "// bundled workflow\n"} if listing_type == "workflow" else {}),
     )
     listing.latest_version = version
     listing.latest_version_id = version.id
@@ -1574,9 +1576,9 @@ async def test_approve_bundle_decides_every_listing_type_in_one_commit(
 
     result = await review.approve_bundle(bundle_id, db, actor)
 
-    assert result == {"bundle_id": str(bundle_id), "name": "all components", "approved_count": 5}
+    assert result == {"bundle_id": str(bundle_id), "name": "all components", "approved_count": 6}
     assert all(listing.status is ListingStatus.approved for listing in listings)
-    assert decision_boundaries.decide.await_count == 5
+    assert decision_boundaries.decide.await_count == 6
     assert [awaited.kwargs["subject_type"] for awaited in decision_boundaries.decide.await_args_list] == list(
         review.LISTING_MODELS
     )
@@ -1615,7 +1617,7 @@ async def test_reject_bundle_decides_every_listing_type_with_shared_reason(
         actor,
     )
 
-    assert result == {"bundle_id": str(bundle_id), "name": "all components", "rejected_count": 5}
+    assert result == {"bundle_id": str(bundle_id), "name": "all components", "rejected_count": 6}
     assert all(listing.status is ListingStatus.rejected for listing in listings)
     assert all(listing.rejection_reason == "bundle policy" for listing in listings)
     assert [awaited.kwargs["subject_type"] for awaited in decision_boundaries.decide.await_args_list] == list(

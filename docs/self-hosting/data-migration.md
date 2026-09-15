@@ -68,17 +68,17 @@ Imports are idempotent where possible. Existing rows are skipped rather than ove
 The CLI uses the same shared migration core as the server jobs. Source commands read `DATABASE_URL` and `CLICKHOUSE_URL`; target commands read `TARGET_DATABASE_URL` and `TARGET_CLICKHOUSE_URL`.
 
 ```bash
-observal server migrate export --file backup.tar.gz --output json
-observal server migrate validate --archive backup.tar.gz --output json
-observal server migrate import --archive backup.tar.gz --output json
+dev-library server migrate export --file backup.tar.gz --output json
+dev-library server migrate validate --archive backup.tar.gz --output json
+dev-library server migrate import --archive backup.tar.gz --output json
 ```
 
 Telemetry commands are separate:
 
 ```bash
-observal server migrate export-telemetry --manifest backup-manifest.json --output-dir telemetry --output json
-observal server migrate validate-telemetry --input-dir telemetry --output json
-observal server migrate import-telemetry --input-dir telemetry --output json
+dev-library server migrate export-telemetry --manifest backup-manifest.json --output-dir telemetry --output json
+dev-library server migrate validate-telemetry --input-dir telemetry --output json
+dev-library server migrate import-telemetry --input-dir telemetry --output json
 ```
 
 ## Cleanup

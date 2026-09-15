@@ -18,17 +18,17 @@ if TYPE_CHECKING:
 
 import pytest
 
-from observal_cli.harness_specs.claude_code_hooks_spec import (
+from dev_library_cli.harness_specs.claude_code_hooks_spec import (
     HOOKS_SPEC_VERSION,
     get_desired_env,
     get_desired_hooks,
 )
-from observal_cli.settings_reconciler import (
+from dev_library_cli.settings_reconciler import (
     reconcile,
     reconcile_env,
     reconcile_hooks,
 )
-from observal_cli.shared.utils import is_observal_hook_entry, is_observal_matcher_group
+from dev_library_cli.shared.utils import is_observal_hook_entry, is_observal_matcher_group
 
 # ── Fixtures ──────────────────────────────────────────────────
 
@@ -37,7 +37,7 @@ from observal_cli.shared.utils import is_observal_hook_entry, is_observal_matche
 def settings_path(tmp_path: Path):
     """Patch CLAUDE_SETTINGS_PATH to a temp file."""
     fake_path = tmp_path / ".claude" / "settings.json"
-    with patch("observal_cli.settings_reconciler.CLAUDE_SETTINGS_PATH", fake_path):
+    with patch("dev_library_cli.settings_reconciler.CLAUDE_SETTINGS_PATH", fake_path):
         yield fake_path
 
 
@@ -57,8 +57,8 @@ def config_path(tmp_path: Path):
         fake_config.write_text(json.dumps(current), encoding="utf-8")
 
     with (
-        patch("observal_cli.settings_reconciler.config.load", side_effect=fake_load),
-        patch("observal_cli.settings_reconciler.config.save", side_effect=fake_save),
+        patch("dev_library_cli.settings_reconciler.config.load", side_effect=fake_load),
+        patch("dev_library_cli.settings_reconciler.config.save", side_effect=fake_save),
     ):
         yield fake_config
 

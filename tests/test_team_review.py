@@ -48,6 +48,7 @@ from models.sandbox import SandboxListing, SandboxVersion
 from models.skill import SkillListing, SkillVersion
 from models.team import Team, TeamMembership, TeamRole
 from models.user import User, UserRole
+from models.workflow import WorkflowListing, WorkflowVersion
 
 # The default queue walks agents plus all five component types, so every one of
 # those tables has to exist even when a case only seeds MCPs.
@@ -59,6 +60,8 @@ _TABLES = [
     McpVersion.__table__,
     McpValidationResult.__table__,
     SkillListing.__table__,
+    WorkflowListing.__table__,
+    WorkflowVersion.__table__,
     SkillVersion.__table__,
     HookListing.__table__,
     HookVersion.__table__,
@@ -689,8 +692,8 @@ class TestTeamDeletionGuard:
         team = self._team()
         db = AsyncMock()
         # One skill left in the teamspace is enough to block the delete.
-        # agents, mcp, skill, hook, prompt, sandbox, component_source
-        db.scalar = AsyncMock(side_effect=[0, 0, 1, 0, 0, 0, 0])
+        # agents, mcp, skill, workflow, hook, prompt, sandbox, component_source
+        db.scalar = AsyncMock(side_effect=[0, 0, 1, 0, 0, 0, 0, 0])
 
         with (
             patch("api.routes.teams._require_owner_or_admin", new=AsyncMock(return_value=team)),
@@ -724,7 +727,7 @@ class TestTeamDeletionGuard:
 
         team = self._team()
         db = AsyncMock()
-        db.scalar = AsyncMock(side_effect=[0, 0, 0, 0, 0, 2, 0])
+        db.scalar = AsyncMock(side_effect=[0, 0, 0, 0, 0, 2, 0, 0])
 
         with (
             patch("api.routes.teams._require_owner_or_admin", new=AsyncMock(return_value=team)),

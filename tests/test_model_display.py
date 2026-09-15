@@ -5,7 +5,7 @@
 """Parity test for model display helpers.
 
 Server-side ``services.model_display.format_display`` is the source of truth.
-CLI-side ``observal_cli.render.format_model`` reads the pre-computed ``display``
+CLI-side ``dev_library_cli.render.format_model`` reads the pre-computed ``display``
 field from the API response. This test verifies both paths produce the same
 output for every case in ``tests/fixtures/model_display_cases.json``.
 """
@@ -47,7 +47,7 @@ def test_server_display_matches_fixture(case):
 @pytest.mark.parametrize("case", _load_cases(), ids=lambda c: c["name"])
 def test_cli_reads_server_display_field(case):
     """CLI format_model reads the pre-computed display field from the API response."""
-    from observal_cli.render import format_model
+    from dev_library_cli.render import format_model
 
     # Simulate what the server sends: pre-computed display from format_display
     from services.model_display import format_display

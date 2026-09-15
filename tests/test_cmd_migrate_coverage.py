@@ -16,9 +16,9 @@ import pytest
 from typer.main import get_command
 from typer.testing import CliRunner
 
-import observal_cli.cmd_migrate as migrate
-from observal_cli.errors import CliError, ErrorCategory
-from observal_cli.main import app
+import dev_library_cli.cmd_migrate as migrate
+from dev_library_cli.errors import CliError, ErrorCategory
+from dev_library_cli.main import app
 from observal_shared.migration import ChecksumMismatchError, ConnectionFailedError, MigrationError, PrerequisiteError
 from observal_shared.migration.archive import pack_pg_archive
 from observal_shared.migration.results import (

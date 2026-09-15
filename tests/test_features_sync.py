@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from observal_cli.features import FEATURE_VERSIONS
+from dev_library_cli.features import FEATURE_VERSIONS
 
 TS_FILE = Path(__file__).resolve().parent.parent / "web" / "src" / "lib" / "features.ts"
 

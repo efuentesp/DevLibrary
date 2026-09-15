@@ -1,0 +1,338 @@
+# SPDX-FileCopyrightText: 2026 Aryan Iyappan <aryaniyappan2006@gmail.com>
+# SPDX-FileCopyrightText: 2026 Subramania Raja <dhanpraja231@gmail.com>
+# SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com>
+# SPDX-FileCopyrightText: 2026 Lokesh Selvam <lokeshselvam7025@gmail.com>
+# SPDX-FileCopyrightText: 2026 Naraen Rammoorthi <naraen13@gmail.com>
+# SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
+# SPDX-FileCopyrightText: 2026 Swathi Saravanan <ss4522@cornell.edu>
+# SPDX-FileCopyrightText: 2026 Vishnu Muthiah <vishnu.muthiah04@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
+
+"""DevLibrary CLI: MCP Server & Agent Registry."""
+
+import atexit
+import logging
+import os
+import sys
+
+if sys.platform == "win32" and not os.environ.get("PYTHONIOENCODING"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
+_shared = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "packages", "observal-shared"))
+if os.path.isdir(_shared) and _shared not in sys.path:
+    sys.path.insert(0, _shared)
+
+import typer
+
+from dev_library_cli.cmd_auth import version_callback
+from dev_library_cli.errors import ErrorHandlingGroup
+
+
+def _check_package_conflict() -> None:
+    """Warn if the legacy 'observal' package is installed alongside 'dev-library-cli'."""
+    from importlib.metadata import PackageNotFoundError, metadata
+
+    try:
+        meta = metadata("observal")
+    except PackageNotFoundError:
+        return
+
+    # If we get here, a package literally named "observal" exists.
+    # Check it's not just our own package under a different dist name.
+    pkg_name = meta.get("Name", "")
+    if pkg_name.lower() == "dev-library-cli":
+        return
+
+    from rich import print as rprint
+
+    rprint(
+        "[bold yellow]⚠ Package conflict detected:[/bold yellow] "
+        "Both [bold]observal[/bold] and [bold]dev-library-cli[/bold] are installed.\n"
+        "  The legacy [dim]observal[/dim] package is no longer maintained and conflicts with the CLI.\n"
+        "  Please uninstall it:\n\n"
+        "    [cyan]uv pip uninstall observal[/cyan]    [dim]# or: pip uninstall observal[/dim]\n"
+    )
+    sys.exit(1)
+
+
+_check_package_conflict()
+
+# ── Version callback for --version flag ───────────────────
+
+
+def _version_option(value: bool):
+    if value:
+        version_callback()
+        raise typer.Exit()
+
+
+app = typer.Typer(
+    name="dev-library",
+    cls=ErrorHandlingGroup,
+    help=(
+        "DevLibrary: MCP Server & Agent Registry CLI\n\n"
+        "Examples:\n"
+        "  dev-library scan\n"
+        "  dev-library agent list\n"
+        "  dev-library registry mcp list"
+    ),
+    no_args_is_help=True,
+    rich_markup_mode="rich",
+    pretty_exceptions_enable=False,
+)
+
+
+@app.callback()
+def main(
+    version: bool | None = typer.Option(
+        None,
+        "--version",
+        "-V",
+        help="Show CLI version and exit.",
+        callback=_version_option,
+        is_eager=True,
+    ),
+    verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
+    debug: bool = typer.Option(False, "--debug", help="Debug logging"),
+):
+    """DevLibrary: MCP Server & Agent Registry CLI"""
+    from dev_library_cli.optic import setup_optic
+
+    setup_optic(debug=debug, verbose=verbose)
+
+    if debug:
+        logging.basicConfig(level=logging.DEBUG, format="%(levelname)s %(name)s: %(message)s")
+    elif verbose:
+        logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+
+    _migrate_legacy_mcp_configs()
+
+    # One-time local state migrations
+    _try_lockfile_migration()
+
+
+def _migrate_legacy_mcp_configs() -> None:
+    """Rewrite legacy wrapped MCP entries before running a command."""
+    from rich import print as rprint
+
+    from dev_library_cli.config import migrate_shimmed_mcp_configs
+
+    try:
+        migrated = migrate_shimmed_mcp_configs()
+    except RuntimeError as exc:
+        rprint(f"[red]MCP config migration failed:[/red] {exc}")
+        raise typer.Exit(1) from exc
+
+    if migrated:
+        rprint(f"[green]Migrated {len(migrated)} legacy MCP config file(s) to direct commands.[/green]")
+        for path in migrated:
+            rprint(f"  [dim]{path}[/dim]")
+
+
+def _sync_bundled_skills() -> None:
+    """Hash-check and synchronize bundled skills before every command."""
+    try:
+        from dev_library_cli.skill_installer import sync_observal_skills
+
+        sync_observal_skills()
+    except OSError as error:
+        from dev_library_cli.errors import ErrorCategory, fail
+
+        fail(
+            ErrorCategory.PERMISSION if isinstance(error, PermissionError) else ErrorCategory.UNEXPECTED,
+            "Bundled DevLibrary skills could not be synchronized.",
+            operation="Synchronize bundled skills",
+            resource="installed DevLibrary skills",
+            remediation="Reinstall the CLI or check harness skill-directory permissions, then retry.",
+            detail=repr(error),
+        )
+
+
+def _try_lockfile_migration() -> None:
+    """Synchronize bundled skills, then migrate legacy agent markers when needed."""
+    _sync_bundled_skills()
+    try:
+        from dev_library_cli.lockfile import CONFIG_DIR, LOCKFILE_PATH, migrate_agent_markers
+
+        # Don't run if the config dir doesn't exist yet (auth login hasn't happened)
+        if not CONFIG_DIR.exists():
+            return
+        if not LOCKFILE_PATH.exists():
+            migrate_agent_markers()
+    except Exception:
+        pass  # Never crash the CLI for migration
+
+
+# ── Register command groups ──────────────────────────────
+
+from dev_library_cli.cmd_agent import agent_app
+from dev_library_cli.cmd_api import register_api
+from dev_library_cli.cmd_archive import add_archive_commands
+from dev_library_cli.cmd_auth import auth_app, register_config
+from dev_library_cli.cmd_bulk import bulk_app
+from dev_library_cli.cmd_co_authors import make_co_authors_typer
+from dev_library_cli.cmd_component import version_app
+from dev_library_cli.cmd_doctor import doctor_app
+from dev_library_cli.cmd_hook import hook_app
+from dev_library_cli.cmd_inbox import inbox_app
+from dev_library_cli.cmd_insights import insights_app
+from dev_library_cli.cmd_logs import logs_app
+from dev_library_cli.cmd_mcp import mcp_app
+from dev_library_cli.cmd_migrate import migrate_app
+from dev_library_cli.cmd_models import models_app
+from dev_library_cli.cmd_ops import (
+    admin_app,
+    ops_app,
+    self_app,
+)
+from dev_library_cli.cmd_outdated import register_outdated
+from dev_library_cli.cmd_prompt import prompt_app
+from dev_library_cli.cmd_pull import register_pull
+from dev_library_cli.cmd_recommend import recommend_app
+from dev_library_cli.cmd_sandbox import sandbox_app
+from dev_library_cli.cmd_scan import register_scan
+from dev_library_cli.cmd_skill import skill_app
+from dev_library_cli.cmd_support import support_app
+from dev_library_cli.cmd_team import team_app
+from dev_library_cli.cmd_transfer import add_transfer_owner_command
+from dev_library_cli.cmd_workflow import workflow_app
+
+# ═══════════════════════════════════════════════════════════
+# registry_app: Component registry parent group
+# ═══════════════════════════════════════════════════════════
+
+registry_app = typer.Typer(
+    name="registry",
+    help=(
+        "Component registry (MCPs, skills, hooks, prompts, sandboxes)\n\n"
+        "Examples:\n"
+        "  dev-library registry mcp list\n"
+        "  dev-library registry skill list\n"
+        "  dev-library registry recommend"
+    ),
+    no_args_is_help=True,
+)
+
+registry_app.add_typer(mcp_app, name="mcp")
+registry_app.add_typer(skill_app, name="skill")
+registry_app.add_typer(hook_app, name="hook")
+registry_app.add_typer(prompt_app, name="prompt")
+registry_app.add_typer(sandbox_app, name="sandbox")
+registry_app.add_typer(workflow_app, name="workflow")
+registry_app.add_typer(models_app, name="models")
+registry_app.add_typer(version_app, name="version")
+registry_app.add_typer(recommend_app, name="recommend")
+registry_app.add_typer(bulk_app, name="bulk")
+
+# ── Co-authors and ownership sub-commands ─────────────────
+mcp_app.add_typer(make_co_authors_typer("mcps"), name="co-authors")
+skill_app.add_typer(make_co_authors_typer("skills"), name="co-authors")
+hook_app.add_typer(make_co_authors_typer("hooks"), name="co-authors")
+prompt_app.add_typer(make_co_authors_typer("prompts"), name="co-authors")
+sandbox_app.add_typer(make_co_authors_typer("sandboxes"), name="co-authors")
+workflow_app.add_typer(make_co_authors_typer("workflows"), name="co-authors")
+agent_app.add_typer(make_co_authors_typer("agents"), name="co-authors")
+add_transfer_owner_command(mcp_app, "mcps")
+add_transfer_owner_command(skill_app, "skills")
+add_transfer_owner_command(hook_app, "hooks")
+add_transfer_owner_command(prompt_app, "prompts")
+add_transfer_owner_command(sandbox_app, "sandboxes")
+add_transfer_owner_command(agent_app, "agents")
+add_archive_commands(mcp_app, "mcps")
+add_archive_commands(skill_app, "skills")
+add_archive_commands(hook_app, "hooks")
+add_archive_commands(prompt_app, "prompts")
+add_archive_commands(sandbox_app, "sandboxes")
+
+# ── Auth subgroup ────────────────────────────────────────
+app.add_typer(auth_app, name="auth")
+
+# ── Primary user workflows (root) ─────────────────────────
+register_config(app)
+register_api(app)
+register_scan(app)
+register_outdated(app)
+
+
+# ── Agent pull (full-featured, lives under `dev-library agent pull`) ──
+register_pull(agent_app)
+
+# ── Subgroups ─────────────────────────────────────────────
+app.add_typer(registry_app, name="registry")
+app.add_typer(inbox_app, name="inbox")
+app.add_typer(agent_app, name="agent")
+app.add_typer(team_app, name="team")
+app.add_typer(ops_app, name="ops")
+app.add_typer(admin_app, name="admin")
+app.add_typer(self_app, name="self")
+app.add_typer(doctor_app, name="doctor")
+
+# ── Nest under parent groups ──────────────────────────────
+# logs → ops logs (dev log viewer, complements traces/telemetry)
+ops_app.add_typer(logs_app, name="logs")
+# insights → ops insights (agent insight reports)
+ops_app.add_typer(insights_app, name="insights")
+# support → doctor support (diagnostic bundles, related to doctor troubleshooting)
+doctor_app.add_typer(support_app, name="support")
+# migrate → server migrate (operator infra tooling)
+
+# Reconcile (push local sessions to server)
+from dev_library_cli.cmd_reconcile_cli import register_reconcile
+
+register_reconcile(app)
+
+# Server management (embedded + Docker)
+from dev_library_cli.cmd_server import server_app
+
+server_app.add_typer(migrate_app, name="migrate")
+app.add_typer(server_app, name="server")
+
+
+def _show_update_banner() -> None:
+    """Post-command hook: notify when a different CLI version is recommended.
+
+    Never mutates the installed binary. Surfaces both upgrades (community
+    GitHub-latest) and downgrades (server recommends an older version) as a
+    notice with the explicit command to run. Version mismatches that block
+    operation are still enforced by the version enforcement gate.
+    """
+    import sys as _sys
+
+    if not (_sys.stdout.isatty() and _sys.stderr.isatty()):
+        return
+    if len(_sys.argv) > 1 and _sys.argv[1] in ("self", "server"):
+        return
+    if os.environ.get("CI") or os.environ.get("DEVLIBRARY_NO_UPDATE_CHECK"):
+        return
+
+    try:
+        from dev_library_cli.version_check import maybe_check
+
+        update = maybe_check()
+        if not update:
+            return
+
+        from rich import print as _rprint
+
+        from dev_library_cli.install_detector import downgrade_command, upgrade_command
+
+        if update.direction == "downgrade":
+            _rprint(
+                f"\n[yellow]CLI v{update.current} is ahead of server v{update.latest}.[/yellow]\n"
+                f"  Downgrade to match: [bold cyan]{downgrade_command(update.latest)}[/bold cyan]"
+            )
+        else:
+            _rprint(
+                f"\n[green]Update available: v{update.current} \u2192 v{update.latest}[/green]\n"
+                f"  Run: [bold cyan]{upgrade_command(update.latest)}[/bold cyan]"
+            )
+    except Exception:
+        pass  # Never crash the CLI for a version check
+
+
+# Register update banner as atexit handler so it runs via any entry point
+atexit.register(_show_update_banner)
+
+if __name__ == "__main__":
+    app()

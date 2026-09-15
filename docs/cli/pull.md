@@ -3,14 +3,14 @@
 <!-- SPDX-FileCopyrightText: 2026 tsitu0 <tomsitu0102@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal agent pull`
+# `dev-library agent pull`
 
 Install a complete Agent into a harness. Pull resolves the requested Agent version, asks the server for harness-native config, merges generated files safely, installs bundled skills and hooks, runs required harness setup, and records exact installed state.
 
 ## Synopsis
 
 ```bash
-observal agent pull <agent-reference> --harness <harness> [OPTIONS]
+dev-library agent pull <agent-reference> --harness <harness> [OPTIONS]
 ```
 
 Agent references may be UUIDs, canonical `namespace/slug`, unambiguous bare names, aliases, or row numbers from the latest Agent list.
@@ -18,9 +18,9 @@ Agent references may be UUIDs, canonical `namespace/slug`, unambiguous bare name
 ## Examples
 
 ```bash
-observal agent pull alice/reviewer --harness kiro --no-prompt --output json
-observal agent pull alice/reviewer --harness claude-code --scope project --dry-run --no-prompt --output json
-observal agent pull alice/reviewer --harness pi --version 1.2.3 --no-prompt --output json
+dev-library agent pull alice/reviewer --harness kiro --no-prompt --output json
+dev-library agent pull alice/reviewer --harness claude-code --scope project --dry-run --no-prompt --output json
+dev-library agent pull alice/reviewer --harness pi --version 1.2.3 --no-prompt --output json
 ```
 
 ## Options
@@ -132,7 +132,7 @@ Human mode lists every created, updated, merged, installed, cloned, or planned p
 
 ## Related
 
-* [`observal agent`](agent.md): create and publish Agents
-* [`observal scan`](scan.md): inspect installed harness content
-* [`observal outdated`](outdated.md): compare installed Agent versions
-* [`observal doctor`](doctor.md): verify hooks and local installation state
+* [`dev-library agent`](agent.md): create and publish Agents
+* [`dev-library scan`](scan.md): inspect installed harness content
+* [`dev-library outdated`](outdated.md): compare installed Agent versions
+* [`dev-library doctor`](doctor.md): verify hooks and local installation state

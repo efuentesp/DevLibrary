@@ -3,9 +3,16 @@
 // SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { ArrowRight, Loader2, RotateCcw, Construction } from "lucide-react";
+import {
+	ArrowRight,
+	Loader2,
+	RotateCcw,
+	Construction,
+	Plus,
+	X,
+} from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +41,13 @@ import {
 import { VersionBumpDialog } from "@/components/registry/version-bump-dialog";
 import type { RegistryType } from "@/lib/api";
 import type { RegistryItem } from "@/lib/types";
+import {
+	MAX_EXTRA_FILES,
+	type SkillExtraFile,
+	fileToSkillExtraEntry,
+	skillExtraFileBytes,
+	validateSkillExtraFiles,
+} from "@/lib/skill-files";
 
 // ── Constants ──────────────────────────────────────────────────────
 
@@ -89,6 +103,7 @@ interface SkillFieldState {
 	skill_md_content: string;
 	script_content: string;
 	script_filename: string;
+	extra_files: SkillExtraFile[];
 }
 
 interface PromptFieldState {
@@ -330,8 +345,8 @@ function McpEditForm({
 						Update Server Config
 					</h3>
 					<p className="mt-1 text-xs text-muted-foreground">
-						Paste your updated server JSON config below. Accepts harness config,
-						bare config, SSE, or server.json formats.
+						Paste your updated server JSON config below. Accepts harness config, bare
+						config, SSE, or server.json formats.
 					</p>
 				</div>
 
@@ -370,21 +385,15 @@ function McpEditForm({
 						</p>
 					)}
 					{mcpUrl && <p className="text-xs font-mono">url: {mcpUrl}</p>}
-					{transport && (
-						<p className="text-xs font-mono">transport: {transport}</p>
-					)}
-					{framework && (
-						<p className="text-xs font-mono">framework: {framework}</p>
-					)}
+					{transport && <p className="text-xs font-mono">transport: {transport}</p>}
+					{framework && <p className="text-xs font-mono">framework: {framework}</p>}
 					{envVars.length > 0 && (
 						<p className="text-xs font-mono">
 							env vars: {envVars.map((e) => e.name).join(", ")}
 						</p>
 					)}
 					{!command && !mcpUrl && (
-						<p className="text-xs text-muted-foreground italic">
-							No config set
-						</p>
+						<p className="text-xs text-muted-foreground italic">No config set</p>
 					)}
 				</div>
 			</section>
@@ -467,31 +476,56 @@ function SandboxEditForm({
 	const safeJson = (value: unknown) => {
 		if (value == null) return "";
 		if (typeof value === "string") return value;
-		try { return JSON.stringify(value, null, 2); } catch { return ""; }
+		try {
+			return JSON.stringify(value, null, 2);
+		} catch {
+			return "";
+		}
 	};
 	const parseJson = (value: string) => {
 		if (!value.trim()) return undefined;
 		return JSON.parse(value);
 	};
-	const [description, setDescription] = useState((item.description as string) ?? "");
+	const [description, setDescription] = useState(
+		(item.description as string) ?? "",
+	);
 	const [changelog, setChangelog] = useState("");
-	const [runtimeType, setRuntimeType] = useState((item.runtime_type as string) ?? "docker");
+	const [runtimeType, setRuntimeType] = useState(
+		(item.runtime_type as string) ?? "docker",
+	);
 	const [image, setImage] = useState((item.image as string) ?? "");
-	const [entrypoint, setEntrypoint] = useState((item.entrypoint as string) ?? "");
-	const [networkPolicy, setNetworkPolicy] = useState((item.network_policy as string) ?? "none");
-	const [resourceLimits, setResourceLimits] = useState(safeJson(item.resource_limits));
-	const [runtimeConfig, setRuntimeConfig] = useState(safeJson(item.runtime_config));
+	const [entrypoint, setEntrypoint] = useState(
+		(item.entrypoint as string) ?? "",
+	);
+	const [networkPolicy, setNetworkPolicy] = useState(
+		(item.network_policy as string) ?? "none",
+	);
+	const [resourceLimits, setResourceLimits] = useState(
+		safeJson(item.resource_limits),
+	);
+	const [runtimeConfig, setRuntimeConfig] = useState(
+		safeJson(item.runtime_config),
+	);
 	const [sourceUrl, setSourceUrl] = useState((item.source_url as string) ?? "");
 	const [sourceRef, setSourceRef] = useState((item.source_ref as string) ?? "");
-	const [sandboxPath, setSandboxPath] = useState((item.sandbox_path as string) ?? "");
+	const [sandboxPath, setSandboxPath] = useState(
+		(item.sandbox_path as string) ?? "",
+	);
 	const [showVersionDialog, setShowVersionDialog] = useState(false);
 	const [publishing, setPublishing] = useState(false);
 	const publishVersion = usePublishComponentVersion();
-	const { data: versionSuggestions } = useComponentVersionSuggestions(type, listingId);
+	const { data: versionSuggestions } = useComponentVersionSuggestions(
+		type,
+		listingId,
+	);
 	const isDirty = true;
 
 	function buildBody(version: string): Record<string, unknown> {
-		const extra: Record<string, unknown> = { runtime_type: runtimeType, image, network_policy: networkPolicy };
+		const extra: Record<string, unknown> = {
+			runtime_type: runtimeType,
+			image,
+			network_policy: networkPolicy,
+		};
 		if (entrypoint) extra.entrypoint = entrypoint;
 		const limits = parseJson(resourceLimits);
 		if (limits !== undefined) extra.resource_limits = limits;
@@ -500,13 +534,22 @@ function SandboxEditForm({
 		if (sourceUrl) extra.source_url = sourceUrl;
 		if (sourceRef) extra.source_ref = sourceRef;
 		if (sandboxPath) extra.sandbox_path = sandboxPath;
-		return { version, description: description.trim() || undefined, changelog: changelog.trim() || undefined, extra };
+		return {
+			version,
+			description: description.trim() || undefined,
+			changelog: changelog.trim() || undefined,
+			extra,
+		};
 	}
 
 	async function handleRelease(selectedVersion: string) {
 		setPublishing(true);
 		try {
-			await publishVersion.mutateAsync({ type, listingId, body: buildBody(selectedVersion) });
+			await publishVersion.mutateAsync({
+				type,
+				listingId,
+				body: buildBody(selectedVersion),
+			});
 			setShowVersionDialog(false);
 			onSuccess?.();
 		} finally {
@@ -519,15 +562,30 @@ function SandboxEditForm({
 			<section className="space-y-4">
 				<div className="space-y-2">
 					<Label>Name</Label>
-					<Input value={String(item.name ?? "")} disabled className="max-w-md bg-muted/40 text-muted-foreground" />
+					<Input
+						value={String(item.name ?? "")}
+						disabled
+						className="max-w-md bg-muted/40 text-muted-foreground"
+					/>
 				</div>
 				<div className="space-y-2">
 					<Label>Description</Label>
-					<Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="max-w-lg" />
+					<Textarea
+						value={description}
+						onChange={(e) => setDescription(e.target.value)}
+						rows={3}
+						className="max-w-lg"
+					/>
 				</div>
 				<div className="space-y-2">
 					<Label>Changelog</Label>
-					<Textarea value={changelog} onChange={(e) => setChangelog(e.target.value)} rows={2} placeholder="What changed in this version?" className="max-w-lg" />
+					<Textarea
+						value={changelog}
+						onChange={(e) => setChangelog(e.target.value)}
+						rows={2}
+						placeholder="What changed in this version?"
+						className="max-w-lg"
+					/>
 				</div>
 			</section>
 			<Separator />
@@ -535,21 +593,37 @@ function SandboxEditForm({
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<div className="space-y-2">
 						<Label>Runtime</Label>
-						<Input value={runtimeType} onChange={(e) => setRuntimeType(e.target.value)} placeholder="docker" />
+						<Input
+							value={runtimeType}
+							onChange={(e) => setRuntimeType(e.target.value)}
+							placeholder="docker"
+						/>
 					</div>
 					<div className="space-y-2">
 						<Label>Network Policy</Label>
-						<Input value={networkPolicy} onChange={(e) => setNetworkPolicy(e.target.value)} placeholder="none" />
+						<Input
+							value={networkPolicy}
+							onChange={(e) => setNetworkPolicy(e.target.value)}
+							placeholder="none"
+						/>
 					</div>
 				</div>
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<div className="space-y-2">
 						<Label>Image / Artifact Ref</Label>
-						<Input value={image} onChange={(e) => setImage(e.target.value)} placeholder="python:3.12-slim" />
+						<Input
+							value={image}
+							onChange={(e) => setImage(e.target.value)}
+							placeholder="python:3.12-slim"
+						/>
 					</div>
 					<div className="space-y-2">
 						<Label>Entrypoint</Label>
-						<Input value={entrypoint} onChange={(e) => setEntrypoint(e.target.value)} placeholder="bash" />
+						<Input
+							value={entrypoint}
+							onChange={(e) => setEntrypoint(e.target.value)}
+							placeholder="bash"
+						/>
 					</div>
 				</div>
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -575,18 +649,45 @@ function SandboxEditForm({
 					</div>
 				</div>
 				<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-					<Input value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} placeholder="Source URL" />
-					<Input value={sourceRef} onChange={(e) => setSourceRef(e.target.value)} placeholder="Source ref" />
-					<Input value={sandboxPath} onChange={(e) => setSandboxPath(e.target.value)} placeholder="Sandbox path" />
+					<Input
+						value={sourceUrl}
+						onChange={(e) => setSourceUrl(e.target.value)}
+						placeholder="Source URL"
+					/>
+					<Input
+						value={sourceRef}
+						onChange={(e) => setSourceRef(e.target.value)}
+						placeholder="Source ref"
+					/>
+					<Input
+						value={sandboxPath}
+						onChange={(e) => setSandboxPath(e.target.value)}
+						placeholder="Sandbox path"
+					/>
 				</div>
 			</section>
 			<div className="flex items-center gap-3">
-				<Button onClick={() => setShowVersionDialog(true)} disabled={publishing || !isDirty} className="min-w-[160px]">
-					{publishing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
+				<Button
+					onClick={() => setShowVersionDialog(true)}
+					disabled={publishing || !isDirty}
+					className="min-w-[160px]"
+				>
+					{publishing ? (
+						<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+					) : (
+						<ArrowRight className="mr-2 h-4 w-4" />
+					)}
 					Save &amp; Release
 				</Button>
 			</div>
-			<VersionBumpDialog open={showVersionDialog} onOpenChange={setShowVersionDialog} currentVersion={currentVersion} suggestions={versionSuggestions} onConfirm={handleRelease} publishing={publishing} />
+			<VersionBumpDialog
+				open={showVersionDialog}
+				onOpenChange={setShowVersionDialog}
+				currentVersion={currentVersion}
+				suggestions={versionSuggestions}
+				onConfirm={handleRelease}
+				publishing={publishing}
+			/>
 		</div>
 	);
 }
@@ -690,9 +791,7 @@ function HookFields({
 						value={state.priority}
 						onChange={(e) => onChange({ priority: e.target.value })}
 					/>
-					<p className="text-xs text-muted-foreground">
-						Lower numbers run first.
-					</p>
+					<p className="text-xs text-muted-foreground">Lower numbers run first.</p>
 				</div>
 
 				<div className="space-y-2">
@@ -875,9 +974,12 @@ function SkillFields({
 							placeholder="Paste or type the skill script here."
 						/>
 						<p className="text-xs text-muted-foreground">
-							Detected from filename. Use .sh for Bash, .py for Python, or .mjs/.js for JavaScript.
+							Detected from filename. Use .sh for Bash, .py for Python, or .mjs/.js for
+							JavaScript.
 						</p>
 					</div>
+
+					<SkillExtraFilesField state={state} onChange={onChange} />
 				</TabsContent>
 			</Tabs>
 		</div>
@@ -885,6 +987,116 @@ function SkillFields({
 }
 
 // ── Sub-form: Prompt fields ────────────────────────────────────────
+
+function SkillExtraFilesField({
+	state,
+	onChange,
+}: {
+	state: SkillFieldState;
+	onChange: (patch: Partial<SkillFieldState>) => void;
+}) {
+	const inputRef = useRef<HTMLInputElement | null>(null);
+
+	const apply = (next: SkillExtraFile[]) => {
+		try {
+			validateSkillExtraFiles(next, state.script_filename || undefined);
+		} catch (err) {
+			toast.error(err instanceof Error ? err.message : "Extra files rejected");
+			return;
+		}
+		onChange({ extra_files: next });
+	};
+
+	const handlePicked = async (files: FileList | null) => {
+		if (!files || files.length === 0) return;
+		const merged = [...state.extra_files];
+		for (const file of Array.from(files)) {
+			try {
+				const entry = await fileToSkillExtraEntry(file);
+				const idx = merged.findIndex(
+					(e) => e.path.toLowerCase() === entry.path.toLowerCase(),
+				);
+				if (idx >= 0) merged[idx] = entry;
+				else merged.push(entry);
+			} catch {
+				toast.error(`Could not read ${file.name}`);
+			}
+		}
+		apply(merged);
+		if (inputRef.current) inputRef.current.value = "";
+	};
+
+	return (
+		<div className="space-y-2">
+			<div className="flex items-center justify-between">
+				<Label htmlFor="skill-extra-files-edit">
+					Extra Files (optional, {state.extra_files.length}/{MAX_EXTRA_FILES})
+				</Label>
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					onClick={() => inputRef.current?.click()}
+				>
+					<Plus className="h-3.5 w-3.5" /> Add files
+				</Button>
+			</div>
+			<input
+				ref={inputRef}
+				id="skill-extra-files-edit"
+				type="file"
+				multiple
+				className="hidden"
+				onChange={(e) => void handlePicked(e.target.files)}
+			/>
+			{state.extra_files.length === 0 ? (
+				<p className="text-xs text-muted-foreground">
+					Scripts, templates, and resources shipped with the skill. Paths are
+					relative to the skill directory; binary files are stored base64.
+				</p>
+			) : (
+				<div className="space-y-1.5">
+					{state.extra_files.map((entry, i) => {
+						const bytes = skillExtraFileBytes(entry);
+						return (
+							<div key={`${entry.path}-${i}`} className="flex items-center gap-2">
+								<Input
+									value={entry.path}
+									onChange={(e) =>
+										apply(
+											state.extra_files.map((f, j) =>
+												j === i ? { ...f, path: e.target.value } : f,
+											),
+										)
+									}
+									placeholder="templates/x.md"
+									className="font-mono text-xs"
+								/>
+								<span className="shrink-0 text-[10px] text-muted-foreground">
+									{entry.encoding} ·{" "}
+									{bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`}
+								</span>
+								<Button
+									type="button"
+									variant="ghost"
+									size="icon"
+									onClick={() =>
+										onChange({
+											extra_files: state.extra_files.filter((_, j) => j !== i),
+										})
+									}
+									aria-label={`Remove ${entry.path}`}
+								>
+									<X className="h-3.5 w-3.5" />
+								</Button>
+							</div>
+						);
+					})}
+				</div>
+			)}
+		</div>
+	);
+}
 
 function PromptFields({
 	state,
@@ -1038,6 +1250,7 @@ function EditFormInner({
 		skill_md_content: (item.skill_md_content as string) ?? "",
 		script_content: (item.script_content as string) ?? "",
 		script_filename: (item.script_filename as string) ?? "",
+		extra_files: (item.extra_files as SkillExtraFile[] | undefined) ?? [],
 	};
 	const initialPrompt: PromptFieldState = {
 		category: (item.category as string) ?? "",
@@ -1104,8 +1317,7 @@ function EditFormInner({
 			if (hookState.handler_type) extra.handler_type = hookState.handler_type;
 			if (hookState.execution_mode)
 				extra.execution_mode = hookState.execution_mode;
-			if (hookState.priority !== "")
-				extra.priority = Number(hookState.priority);
+			if (hookState.priority !== "") extra.priority = Number(hookState.priority);
 			if (hookState.scope) extra.scope = hookState.scope;
 			if (hookState.handler_config)
 				extra.handler_config = tryParseJson(hookState.handler_config);
@@ -1113,21 +1325,23 @@ function EditFormInner({
 				extra.tool_filter = tryParseJson(hookState.tool_filter);
 			if (hookState.source_url) extra.source_url = hookState.source_url;
 			if (hookState.source_ref) extra.source_ref = hookState.source_ref;
-			if (hookState.script_content) extra.script_content = hookState.script_content;
-			if (hookState.script_filename) extra.script_filename = hookState.script_filename;
+			if (hookState.script_content)
+				extra.script_content = hookState.script_content;
+			if (hookState.script_filename)
+				extra.script_filename = hookState.script_filename;
 		} else if (singularType === "skill") {
 			if (skillState.task_type) extra.task_type = skillState.task_type;
 			if (skillState.skill_path) extra.skill_path = skillState.skill_path;
 			if (skillState.git_url) extra.git_url = skillState.git_url;
 			if (skillState.git_ref) extra.git_ref = skillState.git_ref;
-			if (skillState.slash_command)
-				extra.slash_command = skillState.slash_command;
+			if (skillState.slash_command) extra.slash_command = skillState.slash_command;
 			if (skillState.skill_md_content)
 				extra.skill_md_content = skillState.skill_md_content;
 			if (skillState.script_content)
 				extra.script_content = skillState.script_content;
 			if (skillState.script_filename)
 				extra.script_filename = skillState.script_filename;
+			extra.extra_files = skillState.extra_files;
 		} else if (singularType === "prompt") {
 			if (promptState.category) extra.category = promptState.category;
 			if (promptState.template) extra.template = promptState.template;
@@ -1264,27 +1478,21 @@ function EditFormInner({
 				{singularType === "hook" && (
 					<HookFields
 						state={hookState}
-						onChange={(patch) =>
-							setHookState((prev) => ({ ...prev, ...patch }))
-						}
+						onChange={(patch) => setHookState((prev) => ({ ...prev, ...patch }))}
 					/>
 				)}
 
 				{singularType === "skill" && (
 					<SkillFields
 						state={skillState}
-						onChange={(patch) =>
-							setSkillState((prev) => ({ ...prev, ...patch }))
-						}
+						onChange={(patch) => setSkillState((prev) => ({ ...prev, ...patch }))}
 					/>
 				)}
 
 				{singularType === "prompt" && (
 					<PromptFields
 						state={promptState}
-						onChange={(patch) =>
-							setPromptState((prev) => ({ ...prev, ...patch }))
-						}
+						onChange={(patch) => setPromptState((prev) => ({ ...prev, ...patch }))}
 					/>
 				)}
 			</section>
@@ -1337,10 +1545,7 @@ function EditFormInner({
 						</DialogDescription>
 					</DialogHeader>
 					<DialogFooter>
-						<Button
-							variant="outline"
-							onClick={() => setShowDiscardConfirm(false)}
-						>
+						<Button variant="outline" onClick={() => setShowDiscardConfirm(false)}>
 							Cancel
 						</Button>
 						<Button variant="destructive" onClick={confirmDiscard}>
@@ -1362,8 +1567,7 @@ export function ComponentEditForm({
 	item,
 	onSuccess,
 }: ComponentEditFormProps) {
-	const singularType =
-		type === "sandboxes" ? "sandbox" : type.replace(/s$/, "");
+	const singularType = type === "sandboxes" ? "sandbox" : type.replace(/s$/, "");
 
 	if (item.status === "pending") {
 		return (
@@ -1373,8 +1577,8 @@ export function ComponentEditForm({
 					Pending Review
 				</h3>
 				<p className="text-xs text-muted-foreground max-w-md mx-auto">
-					This component is currently pending review and cannot be edited. You
-					can edit it once it has been approved or rejected.
+					This component is currently pending review and cannot be edited. You can
+					edit it once it has been approved or rejected.
 				</p>
 				<Badge variant="secondary" className="text-[10px]">
 					Pending

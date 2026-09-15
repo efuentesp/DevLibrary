@@ -26,7 +26,7 @@ from unittest.mock import patch
 import pytest
 from typer.testing import CliRunner
 
-from observal_cli.main import app
+from dev_library_cli.main import app
 
 runner = CliRunner()
 
@@ -182,7 +182,7 @@ class TestSupportBundleIntegration:
         server_resp = _full_server_response()
 
         with (
-            patch("observal_cli.cmd_support.client.post", return_value=server_resp),
+            patch("dev_library_cli.cmd_support.client.post", return_value=server_resp),
         ):
             result = runner.invoke(app, ["doctor", "support", "bundle", "--file", str(output)])
 
@@ -527,7 +527,7 @@ class TestBundleWithoutSystem:
         server_resp = _full_server_response()
 
         with (
-            patch("observal_cli.cmd_support.client.post", return_value=server_resp),
+            patch("dev_library_cli.cmd_support.client.post", return_value=server_resp),
         ):
             result = runner.invoke(
                 app,

@@ -3,7 +3,12 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
+import {
+	Link,
+	useNavigate,
+	useParams,
+	useSearch,
+} from "@tanstack/react-router";
 import { useState } from "react";
 import {
 	ArrowLeft,
@@ -36,7 +41,11 @@ import { StatusBadge } from "@/components/registry/status-badge";
 import { ReviewDetailSheet } from "@/components/review/review-detail-sheet";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorState } from "@/components/shared/error-state";
-import { CardSkeleton, DetailSkeleton, TableSkeleton } from "@/components/shared/skeleton-layouts";
+import {
+	CardSkeleton,
+	DetailSkeleton,
+	TableSkeleton,
+} from "@/components/shared/skeleton-layouts";
 import { UserSearchInput } from "@/components/shared/user-search-input";
 import {
 	AlertDialog,
@@ -50,7 +59,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PickerSelect } from "@/components/ui/picker-select";
@@ -102,10 +117,11 @@ const ROLE_OPTIONS = [
 ];
 
 const COMPONENT_TYPES: { value: RegistryType; label: string }[] = [
-	{ value: "mcps", label: "MCPs" },
 	{ value: "skills", label: "Skills" },
-	{ value: "hooks", label: "Hooks" },
 	{ value: "prompts", label: "Prompts" },
+	{ value: "mcps", label: "MCPs" },
+	{ value: "workflows", label: "Workflows" },
+	{ value: "hooks", label: "Hooks" },
 	{ value: "sandboxes", label: "Sandboxes" },
 ];
 
@@ -143,10 +159,17 @@ function PrivateChip() {
 }
 
 function AgentsTab({ team }: { team: Team }) {
-	const { data: agents = [], isLoading, isError, error, refetch } = useRegistryList("agents", { team_id: team.id });
+	const {
+		data: agents = [],
+		isLoading,
+		isError,
+		error,
+		refetch,
+	} = useRegistryList("agents", { team_id: team.id });
 
 	if (isLoading) return <CardSkeleton count={6} columns={3} />;
-	if (isError) return <ErrorState message={error?.message} onRetry={() => refetch()} />;
+	if (isError)
+		return <ErrorState message={error?.message} onRetry={() => refetch()} />;
 	if (agents.length === 0) {
 		return (
 			<EmptyState
@@ -176,7 +199,9 @@ function AgentsTab({ team }: { team: Team }) {
 						status={agent.status}
 						component_count={agent.component_count as number | undefined}
 						supported_harnesses={agent.supported_harnesses as string[] | undefined}
-						inferred_supported_harnesses={agent.inferred_supported_harnesses as string[] | undefined}
+						inferred_supported_harnesses={
+							agent.inferred_supported_harnesses as string[] | undefined
+						}
 						className="h-full"
 					/>
 				</div>
@@ -194,7 +219,13 @@ function ComponentsTab({
 	activeType: RegistryType;
 	onTypeChange: (type: RegistryType) => void;
 }) {
-	const { data: items = [], isLoading, isError, error, refetch } = useRegistryList(activeType, { team_id: team.id });
+	const {
+		data: items = [],
+		isLoading,
+		isError,
+		error,
+		refetch,
+	} = useRegistryList(activeType, { team_id: team.id });
 	const label = COMPONENT_TYPE_LABELS[activeType] ?? activeType;
 
 	return (
@@ -211,7 +242,9 @@ function ComponentsTab({
 						)}
 					>
 						{type.label}
-						{activeType === type.value && <span className="absolute inset-x-0 -bottom-px h-0.5 bg-primary-accent" />}
+						{activeType === type.value && (
+							<span className="absolute inset-x-0 -bottom-px h-0.5 bg-primary-accent" />
+						)}
 					</button>
 				))}
 			</div>
@@ -255,9 +288,16 @@ function ComponentsTab({
 function MembersTab({ team }: { team: Team }) {
 	const isOwner = team.role === "owner";
 	const isMember = Boolean(team.role);
-	const canManageMembers = !team.is_personal && (isOwner || hasMinRole(getUserRole(), "admin"));
+	const canManageMembers =
+		!team.is_personal && (isOwner || hasMinRole(getUserRole(), "admin"));
 	const canViewMembers = isMember || hasMinRole(getUserRole(), "admin");
-	const { data: members = [], isLoading, isError, error, refetch } = useTeamMembers(team.id, canViewMembers);
+	const {
+		data: members = [],
+		isLoading,
+		isError,
+		error,
+		refetch,
+	} = useTeamMembers(team.id, canViewMembers);
 	const upsert = useUpsertTeamMember(team.id);
 	const removeMember = useRemoveTeamMember(team.id);
 	const [role, setRole] = useState<TeamRole>("member");
@@ -295,7 +335,9 @@ function MembersTab({ team }: { team: Team }) {
 						<UserPlus className="h-4 w-4 text-primary-accent" />
 						<div>
 							<h3 className="text-sm font-medium">Add a member</h3>
-							<p className="text-xs text-muted-foreground">Search for a person, then choose their role.</p>
+							<p className="text-xs text-muted-foreground">
+								Search for a person, then choose their role.
+							</p>
 						</div>
 					</div>
 					<div className="flex flex-col gap-2 lg:flex-row lg:items-center">
@@ -324,13 +366,17 @@ function MembersTab({ team }: { team: Team }) {
 							onClick={addUser}
 							disabled={upsert.isPending || !selectedUserId}
 						>
-							{upsert.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+							{upsert.isPending ? (
+								<Loader2 className="h-3.5 w-3.5 animate-spin" />
+							) : (
+								<Plus className="h-3.5 w-3.5" />
+							)}
 							Add member
 						</Button>
 					</div>
 					<p className="mt-3 text-xs leading-5 text-muted-foreground">
-						Owners and reviewers clear the team-private review queue. Members publish, but their team-private
-						submissions wait for an owner or a reviewer.
+						Owners and reviewers clear the team-private review queue. Members publish,
+						but their team-private submissions wait for an owner or a reviewer.
 					</p>
 				</div>
 			)}
@@ -351,10 +397,17 @@ function MembersTab({ team }: { team: Team }) {
 			) : (
 				<div className="divide-y divide-border/70 rounded-lg border border-border/80">
 					{members.map((member: TeamMember) => (
-						<div key={member.id} className="flex items-center justify-between gap-4 px-4 py-3">
+						<div
+							key={member.id}
+							className="flex items-center justify-between gap-4 px-4 py-3"
+						>
 							<div className="min-w-0">
-								<p className="truncate text-sm font-medium">{member.username ? `@${member.username}` : member.email}</p>
-								{member.name && <p className="truncate text-xs text-muted-foreground">{member.name}</p>}
+								<p className="truncate text-sm font-medium">
+									{member.username ? `@${member.username}` : member.email}
+								</p>
+								{member.name && (
+									<p className="truncate text-xs text-muted-foreground">{member.name}</p>
+								)}
 							</div>
 							<div className="flex shrink-0 items-center gap-2">
 								{canManageMembers ? (
@@ -362,7 +415,8 @@ function MembersTab({ team }: { team: Team }) {
 										value={member.role}
 										onValueChange={(value) => {
 											const nextRole = value as TeamRole;
-											if (nextRole !== member.role) upsert.mutate({ user_id: member.id, role: nextRole });
+											if (nextRole !== member.role)
+												upsert.mutate({ user_id: member.id, role: nextRole });
 										}}
 										options={ROLE_OPTIONS}
 										ariaLabel={`Change role for ${member.username ? `@${member.username}` : member.email}`}
@@ -371,7 +425,10 @@ function MembersTab({ team }: { team: Team }) {
 										disabled={upsert.isPending}
 									/>
 								) : (
-									<Badge variant="outline" className="capitalize px-2 py-0.5 text-[11px]">
+									<Badge
+										variant="outline"
+										className="capitalize px-2 py-0.5 text-[11px]"
+									>
 										{member.role}
 									</Badge>
 								)}
@@ -416,7 +473,12 @@ function ReviewTab({
 	const [reason, setReason] = useState("");
 	const [inspecting, setInspecting] = useState<ReviewItem | null>(null);
 
-	function runAction(vars: { id: string; type?: string; action: "approve" | "reject"; reason?: string }) {
+	function runAction(vars: {
+		id: string;
+		type?: string;
+		action: "approve" | "reject";
+		reason?: string;
+	}) {
 		reviewAction.mutate(vars, {
 			// An approval publishes the item, so the Agents and Components tabs
 			// on this same page are now stale.
@@ -440,25 +502,41 @@ function ReviewTab({
 		<>
 			<div className="divide-y divide-border/70 overflow-hidden rounded-lg border border-border/80">
 				{items.map((item) => (
-					<div key={`${item.type}-${item.id}`} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start">
+					<div
+						key={`${item.type}-${item.id}`}
+						className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start"
+					>
 						<div className="min-w-0 flex-1">
 							<div className="flex flex-wrap items-center gap-2">
 								<p className="truncate text-sm font-medium">{item.name ?? "Unnamed"}</p>
 								{item.type && (
-									<Badge variant="outline" className="px-1.5 py-0 text-[10px] capitalize">
+									<Badge
+										variant="outline"
+										className="px-1.5 py-0 text-[10px] capitalize"
+									>
 										{item.type}
 									</Badge>
 								)}
-								{item.version && <span className="font-mono text-xs text-muted-foreground">v{item.version}</span>}
+								{item.version && (
+									<span className="font-mono text-xs text-muted-foreground">
+										v{item.version}
+									</span>
+								)}
 								{item.status && <StatusBadge status={item.status} />}
 							</div>
 							{item.description && (
-								<p className="mt-1 line-clamp-2 max-w-2xl text-xs leading-5 text-muted-foreground">{item.description}</p>
+								<p className="mt-1 line-clamp-2 max-w-2xl text-xs leading-5 text-muted-foreground">
+									{item.description}
+								</p>
 							)}
 							<div className="mt-1.5 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
 								{item.submitted_by && <span>by {item.submitted_by}</span>}
 								{(item.submitted_at || item.created_at) && (
-									<span>{new Date((item.submitted_at ?? item.created_at)!).toLocaleDateString()}</span>
+									<span>
+										{new Date(
+											(item.submitted_at ?? item.created_at)!,
+										).toLocaleDateString()}
+									</span>
 								)}
 								{item.components_ready === false && (
 									<span className="text-warning">Blocked: components still pending</span>
@@ -518,7 +596,8 @@ function ReviewTab({
 							placeholder="Tell the submitter what to change before resubmitting"
 						/>
 						<p className="text-xs text-muted-foreground">
-							The reason is shown to the submitter, so a rejection without one is not accepted.
+							The reason is shown to the submitter, so a rejection without one is not
+							accepted.
 						</p>
 					</div>
 					<DialogFooter>
@@ -550,7 +629,9 @@ function ReviewTab({
 
 /** Normal teamspace visibility control. Personal teamspaces stay private. */
 function VisibilityControl({ team }: { team: Team }) {
-	const canChange = !team.is_personal && (team.role === "owner" || hasMinRole(getUserRole(), "admin"));
+	const canChange =
+		!team.is_personal &&
+		(team.role === "owner" || hasMinRole(getUserRole(), "admin"));
 	const updateVisibility = useUpdateTeamVisibility(team.id);
 	if (!canChange) return null;
 	const isPrivate = team.visibility === "private";
@@ -559,7 +640,11 @@ function VisibilityControl({ team }: { team: Team }) {
 		<Button
 			variant="outline"
 			size="sm"
-			onClick={() => updateVisibility.mutate(pending ? "private" : isPrivate ? "public" : "private")}
+			onClick={() =>
+				updateVisibility.mutate(
+					pending ? "private" : isPrivate ? "public" : "private",
+				)
+			}
 			disabled={updateVisibility.isPending}
 			title={
 				isPrivate
@@ -572,13 +657,19 @@ function VisibilityControl({ team }: { team: Team }) {
 			) : (
 				<Lock className="mr-1.5 h-3.5 w-3.5" />
 			)}
-			{pending ? "Cancel public request" : isPrivate ? "Request public" : "Make private"}
+			{pending
+				? "Cancel public request"
+				: isPrivate
+					? "Request public"
+					: "Make private"}
 		</Button>
 	);
 }
 
 function requesterLabel(request: TeamJoinRequest): string {
-	return request.username ? `@${request.username}` : (request.email ?? "Unknown user");
+	return request.username
+		? `@${request.username}`
+		: (request.email ?? "Unknown user");
 }
 
 /**
@@ -642,8 +733,8 @@ function JoinRequestControl({ team }: { team: Team }) {
 							placeholder="Tell the owners why you want to join"
 						/>
 						<p className="text-xs text-muted-foreground">
-							You are asking for member access. A team owner approves or rejects the request; the decision
-							arrives in your inbox.
+							You are asking for member access. A team owner approves or rejects the
+							request; the decision arrives in your inbox.
 						</p>
 					</div>
 					<DialogFooter>
@@ -653,18 +744,17 @@ function JoinRequestControl({ team }: { team: Team }) {
 						<Button
 							disabled={requestJoin.isPending}
 							onClick={() =>
-								requestJoin.mutate(
-									message.trim() ? { message: message.trim() } : {},
-									{
-										onSuccess: () => {
-											setOpen(false);
-											setMessage("");
-										},
+								requestJoin.mutate(message.trim() ? { message: message.trim() } : {}, {
+									onSuccess: () => {
+										setOpen(false);
+										setMessage("");
 									},
-								)
+								})
 							}
 						>
-							{requestJoin.isPending ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
+							{requestJoin.isPending ? (
+								<Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+							) : null}
 							Send request
 						</Button>
 					</DialogFooter>
@@ -702,49 +792,104 @@ function CreateTeamInviteDialogs({
 		<>
 			<Dialog open={open} onOpenChange={onOpenChange}>
 				<DialogContent>
-					<DialogHeader><DialogTitle>New private-team invite</DialogTitle></DialogHeader>
+					<DialogHeader>
+						<DialogTitle>New private-team invite</DialogTitle>
+					</DialogHeader>
 					<p className="text-sm text-muted-foreground">
-						Choose how long the link works and how many access requests it accepts. Each creation makes a new link.
+						Choose how long the link works and how many access requests it accepts.
+						Each creation makes a new link.
 					</p>
 					<div className="space-y-3">
 						<div className="space-y-1.5">
 							<Label htmlFor="team-invite-name">Name</Label>
-							<Input id="team-invite-name" value={name} maxLength={100} onChange={(event) => setName(event.target.value)} placeholder="Recruiting email" />
+							<Input
+								id="team-invite-name"
+								value={name}
+								maxLength={100}
+								onChange={(event) => setName(event.target.value)}
+								placeholder="Recruiting email"
+							/>
 						</div>
 						<div className="space-y-1.5">
 							<Label htmlFor="team-invite-expiry">Valid for this many days</Label>
-							<Input id="team-invite-expiry" type="number" min={1} max={365} value={expiresDays} onChange={(event) => setExpiresDays(event.target.value)} />
+							<Input
+								id="team-invite-expiry"
+								type="number"
+								min={1}
+								max={365}
+								value={expiresDays}
+								onChange={(event) => setExpiresDays(event.target.value)}
+							/>
 						</div>
 						<div className="space-y-1.5">
 							<Label htmlFor="team-invite-uses">Maximum access requests</Label>
-							<Input id="team-invite-uses" type="number" min={1} max={10000} value={maxUses} onChange={(event) => setMaxUses(event.target.value)} />
+							<Input
+								id="team-invite-uses"
+								type="number"
+								min={1}
+								max={10000}
+								value={maxUses}
+								onChange={(event) => setMaxUses(event.target.value)}
+							/>
 						</div>
 					</div>
 					<DialogFooter>
-						<Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-						<Button disabled={createInvite.isPending} onClick={() => createInvite.mutate({
-							name: name.trim() || undefined,
-							expires_in_days: Math.max(1, Math.min(365, Number(expiresDays) || 7)),
-							max_uses: Math.max(1, Math.min(10000, Number(maxUses) || 5)),
-						}, { onSuccess: (invite) => { onOpenChange(false); setMinted(invite); setName(""); } })}>
-							{createInvite.isPending && <Loader2 className="animate-spin" />} Create invite
+						<Button variant="outline" onClick={() => onOpenChange(false)}>
+							Cancel
+						</Button>
+						<Button
+							disabled={createInvite.isPending}
+							onClick={() =>
+								createInvite.mutate(
+									{
+										name: name.trim() || undefined,
+										expires_in_days: Math.max(1, Math.min(365, Number(expiresDays) || 7)),
+										max_uses: Math.max(1, Math.min(10000, Number(maxUses) || 5)),
+									},
+									{
+										onSuccess: (invite) => {
+											onOpenChange(false);
+											setMinted(invite);
+											setName("");
+										},
+									},
+								)
+							}
+						>
+							{createInvite.isPending && <Loader2 className="animate-spin" />} Create
+							invite
 						</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
 
-			<Dialog open={!!minted} onOpenChange={(nextOpen) => { if (!nextOpen) setMinted(null); }}>
+			<Dialog
+				open={!!minted}
+				onOpenChange={(nextOpen) => {
+					if (!nextOpen) setMinted(null);
+				}}
+			>
 				<DialogContent>
-					<DialogHeader><DialogTitle>Invite link created</DialogTitle></DialogHeader>
-					<code className="block break-all rounded-md border bg-background px-3 py-2 text-xs">{minted?.url}</code>
+					<DialogHeader>
+						<DialogTitle>Invite link created</DialogTitle>
+					</DialogHeader>
+					<code className="block break-all rounded-md border bg-background px-3 py-2 text-xs">
+						{minted?.url}
+					</code>
 					{minted && (
 						<p className="text-xs text-muted-foreground">
-							Valid until {new Date(minted.expires_at).toLocaleString()} for up to {minted.max_uses ?? "unlimited"} access requests. Copy it now because the plaintext link is not stored.
+							Valid until {new Date(minted.expires_at).toLocaleString()} for up to{" "}
+							{minted.max_uses ?? "unlimited"} access requests. Copy it now because the
+							plaintext link is not stored.
 						</p>
 					)}
 					<DialogFooter>
-						<Button variant="outline" onClick={() => setMinted(null)}>Done</Button>
-						<Button onClick={() => minted && copyInvite(minted.url)}><Copy /> Copy link</Button>
+						<Button variant="outline" onClick={() => setMinted(null)}>
+							Done
+						</Button>
+						<Button onClick={() => minted && copyInvite(minted.url)}>
+							<Copy /> Copy link
+						</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
@@ -763,29 +908,52 @@ function InviteAuditDialog({
 }) {
 	const requests = useTeamInviteRequests(team.id, invite?.id);
 	return (
-		<Dialog open={!!invite} onOpenChange={(open) => { if (!open) onClose(); }}>
+		<Dialog
+			open={!!invite}
+			onOpenChange={(open) => {
+				if (!open) onClose();
+			}}
+		>
 			<DialogContent className="max-w-2xl">
-				<DialogHeader><DialogTitle>{invite?.name ?? "Invite usage"}</DialogTitle></DialogHeader>
+				<DialogHeader>
+					<DialogTitle>{invite?.name ?? "Invite usage"}</DialogTitle>
+				</DialogHeader>
 				<p className="text-xs text-muted-foreground">
-					Each access request consumes one use. Approval is still required before membership is granted.
+					Each access request consumes one use. Approval is still required before
+					membership is granted.
 				</p>
 				<div className="max-h-80 space-y-2 overflow-y-auto pr-1">
 					{requests.isLoading ? (
 						<TableSkeleton rows={3} cols={3} />
 					) : requests.isError ? (
-						<ErrorState message={requests.error?.message} onRetry={() => requests.refetch()} />
+						<ErrorState
+							message={requests.error?.message}
+							onRetry={() => requests.refetch()}
+						/>
 					) : (requests.data ?? []).length === 0 ? (
-						<EmptyState icon={Users} title="No access requests" description="Nobody has used this invite yet." />
+						<EmptyState
+							icon={Users}
+							title="No access requests"
+							description="Nobody has used this invite yet."
+						/>
 					) : (
 						(requests.data ?? []).map((request) => (
-							<div key={request.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-xs">
+							<div
+								key={request.id}
+								className="flex items-center justify-between gap-3 rounded-md border px-3 py-2 text-xs"
+							>
 								<div className="min-w-0">
 									<p className="truncate font-medium">{requesterLabel(request)}</p>
 									<p className="text-muted-foreground">
-										Requested {request.created_at ? new Date(request.created_at).toLocaleString() : "access"}
+										Requested{" "}
+										{request.created_at
+											? new Date(request.created_at).toLocaleString()
+											: "access"}
 									</p>
 								</div>
-								<Badge variant="outline" className="shrink-0 capitalize">{request.status}</Badge>
+								<Badge variant="outline" className="shrink-0 capitalize">
+									{request.status}
+								</Badge>
 							</div>
 						))
 					)}
@@ -818,7 +986,8 @@ function InviteLinksTab({ team }: { team: Team }) {
 				<div>
 					<h3 className="text-sm font-medium">Private-team invite links</h3>
 					<p className="text-xs text-muted-foreground">
-						Recipients sign in first, then explicitly request access for an owner to approve.
+						Recipients sign in first, then explicitly request access for an owner to
+						approve.
 					</p>
 				</div>
 				<Button size="sm" onClick={() => setCreateOpen(true)}>
@@ -829,38 +998,82 @@ function InviteLinksTab({ team }: { team: Team }) {
 			{invites.isLoading ? (
 				<TableSkeleton rows={3} cols={3} />
 			) : invites.isError ? (
-				<ErrorState message={invites.error?.message} onRetry={() => invites.refetch()} />
+				<ErrorState
+					message={invites.error?.message}
+					onRetry={() => invites.refetch()}
+				/>
 			) : (invites.data ?? []).length === 0 ? (
-				<EmptyState icon={Ticket} title="No invite links" description="Create a link when someone needs to request access to this private teamspace." />
+				<EmptyState
+					icon={Ticket}
+					title="No invite links"
+					description="Create a link when someone needs to request access to this private teamspace."
+				/>
 			) : (
 				<div className="max-h-[28rem] divide-y divide-border/70 overflow-y-auto rounded-lg border border-border/80">
 					{(invites.data ?? []).map((invite) => (
-						<div key={invite.id} className="flex items-center gap-2 px-3 py-3 text-xs">
-							<button type="button" title="View access request audit" className="min-w-0 flex-1 text-left" onClick={() => setAuditInvite(invite)}>
+						<div
+							key={invite.id}
+							className="flex items-center gap-2 px-3 py-3 text-xs"
+						>
+							<button
+								type="button"
+								title="View access request audit"
+								className="min-w-0 flex-1 text-left"
+								onClick={() => setAuditInvite(invite)}
+							>
 								<div className="flex flex-wrap items-center gap-2">
 									<span className="font-medium text-foreground">{invite.name}</span>
-									<Badge variant="outline" className="capitalize">{invite.state}</Badge>
+									<Badge variant="outline" className="capitalize">
+										{invite.state}
+									</Badge>
 									<span className="text-muted-foreground">
-										{invite.use_count}{invite.max_uses != null ? ` / ${invite.max_uses}` : ""} used
+										{invite.use_count}
+										{invite.max_uses != null ? ` / ${invite.max_uses}` : ""} used
 									</span>
-									<span className="text-muted-foreground">expires {new Date(invite.expires_at).toLocaleDateString()}</span>
-									{invite.invited_by_username && <span className="text-muted-foreground">by @{invite.invited_by_username}</span>}
+									<span className="text-muted-foreground">
+										expires {new Date(invite.expires_at).toLocaleDateString()}
+									</span>
+									{invite.invited_by_username && (
+										<span className="text-muted-foreground">
+											by @{invite.invited_by_username}
+										</span>
+									)}
 								</div>
 								<code className="mt-1 block truncate text-[11px] text-muted-foreground">
 									{invite.url ?? "Link unavailable for this older invite"}
 								</code>
 							</button>
 							<div className="flex shrink-0 items-center gap-1">
-								<Button variant="ghost" size="icon" title={invite.state === "active" ? "Copy invite link" : "Only active links can be copied"} disabled={!invite.url || invite.state !== "active"} onClick={() => invite.url && copyInvite(invite.url)}>
+								<Button
+									variant="ghost"
+									size="icon"
+									title={
+										invite.state === "active"
+											? "Copy invite link"
+											: "Only active links can be copied"
+									}
+									disabled={!invite.url || invite.state !== "active"}
+									onClick={() => invite.url && copyInvite(invite.url)}
+								>
 									<Copy />
 								</Button>
 								{invite.state === "active" && (
-									<Button variant="ghost" size="sm" onClick={() => revokeInvite.mutate(invite.id)} disabled={revokeInvite.isPending}>
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() => revokeInvite.mutate(invite.id)}
+										disabled={revokeInvite.isPending}
+									>
 										<Ban /> Revoke
 									</Button>
 								)}
 								{invite.use_count === 0 && (
-									<Button variant="ghost" size="icon" title="Delete unused invite" onClick={() => setDeleteTarget(invite)}>
+									<Button
+										variant="ghost"
+										size="icon"
+										title="Delete unused invite"
+										onClick={() => setDeleteTarget(invite)}
+									>
 										<Trash2 />
 									</Button>
 								)}
@@ -870,17 +1083,39 @@ function InviteLinksTab({ team }: { team: Team }) {
 				</div>
 			)}
 
-			<CreateTeamInviteDialogs team={team} open={createOpen} onOpenChange={setCreateOpen} />
-			<InviteAuditDialog team={team} invite={auditInvite} onClose={() => setAuditInvite(null)} />
-			<AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+			<CreateTeamInviteDialogs
+				team={team}
+				open={createOpen}
+				onOpenChange={setCreateOpen}
+			/>
+			<InviteAuditDialog
+				team={team}
+				invite={auditInvite}
+				onClose={() => setAuditInvite(null)}
+			/>
+			<AlertDialog
+				open={!!deleteTarget}
+				onOpenChange={(open) => {
+					if (!open) setDeleteTarget(null);
+				}}
+			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>Delete {deleteTarget?.name}?</AlertDialogTitle>
-						<AlertDialogDescription>This unused link will stop working immediately.</AlertDialogDescription>
+						<AlertDialogDescription>
+							This unused link will stop working immediately.
+						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction onClick={() => deleteTarget && deleteInvite.mutate(deleteTarget.id, { onSuccess: () => setDeleteTarget(null) })}>
+						<AlertDialogAction
+							onClick={() =>
+								deleteTarget &&
+								deleteInvite.mutate(deleteTarget.id, {
+									onSuccess: () => setDeleteTarget(null),
+								})
+							}
+						>
 							Delete invite
 						</AlertDialogAction>
 					</AlertDialogFooter>
@@ -889,7 +1124,6 @@ function InviteLinksTab({ team }: { team: Team }) {
 		</div>
 	);
 }
-
 
 /**
  * Join requests with approve/reject actions and decision history rendered
@@ -933,11 +1167,18 @@ function JoinRequestsTab({
 			) : (
 				<div className="divide-y divide-border/70 overflow-hidden rounded-lg border border-border/80">
 					{pending.map((request) => (
-						<div key={request.id} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start">
+						<div
+							key={request.id}
+							className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start"
+						>
 							<div className="min-w-0 flex-1">
 								<div className="flex flex-wrap items-center gap-2">
-									<p className="truncate text-sm font-medium">{requesterLabel(request)}</p>
-									{request.name && <span className="text-xs text-muted-foreground">{request.name}</span>}
+									<p className="truncate text-sm font-medium">
+										{requesterLabel(request)}
+									</p>
+									{request.name && (
+										<span className="text-xs text-muted-foreground">{request.name}</span>
+									)}
 									{request.created_at && (
 										<span className="text-[11px] text-muted-foreground">
 											{new Date(request.created_at).toLocaleDateString()}
@@ -945,11 +1186,13 @@ function JoinRequestsTab({
 									)}
 								</div>
 								{request.message && (
-									<p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">“{request.message}”</p>
+									<p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">
+										“{request.message}”
+									</p>
 								)}
 								<p className="mt-1.5 text-[11px] text-muted-foreground">
-									Approval grants <span className="font-medium">member</span> access. Roles are changed from the
-									Members tab.
+									Approval grants <span className="font-medium">member</span> access.
+									Roles are changed from the Members tab.
 								</p>
 							</div>
 							<div className="flex shrink-0 items-center gap-2">
@@ -986,26 +1229,38 @@ function JoinRequestsTab({
 					</h3>
 					<div className="divide-y divide-border/70 overflow-hidden rounded-lg border border-border/80">
 						{decided.map((request) => (
-							<div key={request.id} className="flex flex-col gap-1 px-4 py-3 text-xs sm:flex-row sm:items-center sm:justify-between">
+							<div
+								key={request.id}
+								className="flex flex-col gap-1 px-4 py-3 text-xs sm:flex-row sm:items-center sm:justify-between"
+							>
 								<div className="flex min-w-0 flex-wrap items-center gap-2">
-									<span className="truncate font-medium text-foreground">{requesterLabel(request)}</span>
+									<span className="truncate font-medium text-foreground">
+										{requesterLabel(request)}
+									</span>
 									<Badge
 										variant="outline"
 										className={cn(
 											"px-1.5 py-0 text-[10px] capitalize",
 											request.status === "approved" && "border-success/40 text-success",
-											request.status === "rejected" && "border-destructive/40 text-destructive",
+											request.status === "rejected" &&
+												"border-destructive/40 text-destructive",
 										)}
 									>
 										{request.status}
 									</Badge>
 									{request.decision_reason && (
-										<span className="truncate text-muted-foreground">— {request.decision_reason}</span>
+										<span className="truncate text-muted-foreground">
+											— {request.decision_reason}
+										</span>
 									)}
 								</div>
 								<div className="shrink-0 text-muted-foreground">
-									{request.decided_by_username && <span>by @{request.decided_by_username} </span>}
-									{request.decided_at && <span>{new Date(request.decided_at).toLocaleDateString()}</span>}
+									{request.decided_by_username && (
+										<span>by @{request.decided_by_username} </span>
+									)}
+									{request.decided_at && (
+										<span>{new Date(request.decided_at).toLocaleDateString()}</span>
+									)}
 								</div>
 							</div>
 						))}
@@ -1021,7 +1276,9 @@ function JoinRequestsTab({
 			>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Reject {rejectTarget ? requesterLabel(rejectTarget) : "request"}?</DialogTitle>
+						<DialogTitle>
+							Reject {rejectTarget ? requesterLabel(rejectTarget) : "request"}?
+						</DialogTitle>
 					</DialogHeader>
 					<div className="space-y-2">
 						<Label htmlFor="join-reject-reason">Reason (optional)</Label>
@@ -1067,7 +1324,8 @@ export default function TeamspaceDetailPage() {
 	const { handle } = useParams({ from: "/_authed/teamspaces/$handle" });
 	const { tab, type } = useSearch({ from: "/_authed/teamspaces/$handle" });
 	const navigate = useNavigate();
-	const { team, isLoading, isError, error, refetch, notFound } = useTeamByHandle(handle);
+	const { team, isLoading, isError, error, refetch, notFound } =
+		useTeamByHandle(handle);
 	const leaveTeam = useLeaveTeam();
 	const deleteTeam = useDeleteTeam();
 	const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
@@ -1076,28 +1334,39 @@ export default function TeamspaceDetailPage() {
 	const isAdmin = hasMinRole(getUserRole(), "admin");
 
 	const visibilityPending = team?.visibility_request_status === "pending";
-	const canReview = !visibilityPending && (isAdmin || (team?.role ? REVIEWING_TEAM_ROLES.includes(team.role) : false));
+	const canReview =
+		!visibilityPending &&
+		(isAdmin || (team?.role ? REVIEWING_TEAM_ROLES.includes(team.role) : false));
 	const reviewQueue = useTeamReviewQueue(team?.id, canReview);
 	const reviewItems = reviewQueue.data ?? [];
 
 	// Membership requests are owners-and-admins only — a narrower audience than
 	// the listing Review tab, which team reviewers also see.
-	const canManageRequests = !visibilityPending && !team?.is_personal && (team?.role === "owner" || isAdmin);
+	const canManageRequests =
+		!visibilityPending &&
+		!team?.is_personal &&
+		(team?.role === "owner" || isAdmin);
 	const canManageInvites = team?.visibility === "private" && canManageRequests;
 	const joinRequestsQuery = useJoinRequests(team?.id, canManageRequests);
 	const joinRequests = joinRequestsQuery.data ?? [];
-	const pendingJoinCount = joinRequests.filter((request) => request.status === "pending").length;
+	const pendingJoinCount = joinRequests.filter(
+		(request) => request.status === "pending",
+	).length;
 
 	const tabs = [
 		{ value: "agents", label: "Agents" },
 		{ value: "components", label: "Components" },
 		{ value: "members", label: "Members" },
 		...(canReview ? [{ value: "review", label: "Review" }] : []),
-		...(canManageRequests ? [{ value: "join-requests", label: "Join requests" }] : []),
-		...(canManageInvites ? [{ value: "invite-links", label: "Invite links" }] : []),
+		...(canManageRequests
+			? [{ value: "join-requests", label: "Join requests" }]
+			: []),
+		...(canManageInvites
+			? [{ value: "invite-links", label: "Invite links" }]
+			: []),
 	];
 	const activeTab = tabs.some((entry) => entry.value === tab) ? tab! : "agents";
-	const activeType: RegistryType = type ?? "mcps";
+	const activeType: RegistryType = type ?? "skills";
 	const submitComponent = useComponentSubmit(activeType);
 	const saveComponentDraft = useComponentSaveDraft(activeType);
 
@@ -1162,7 +1431,8 @@ export default function TeamspaceDetailPage() {
 
 	const isMember = Boolean(team.role);
 	const isOwner = team.role === "owner";
-	const canPublish = !visibilityPending && (isMember || (isAdmin && !team.is_personal));
+	const canPublish =
+		!visibilityPending && (isMember || (isAdmin && !team.is_personal));
 	const canDelete = isOwner || isAdmin;
 
 	return (
@@ -1184,11 +1454,16 @@ export default function TeamspaceDetailPage() {
 								<Building2 className="h-5 w-5" />
 							</div>
 							<div className="min-w-0">
-								<h2 className="truncate text-xl font-semibold tracking-tight">{team.name}</h2>
+								<h2 className="truncate text-xl font-semibold tracking-tight">
+									{team.name}
+								</h2>
 								<div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
 									<span className="font-mono">{team.handle}</span>
 									<span aria-hidden="true">·</span>
-									<Badge variant="outline" className="px-1.5 py-0 text-[11px] font-medium capitalize">
+									<Badge
+										variant="outline"
+										className="px-1.5 py-0 text-[11px] font-medium capitalize"
+									>
 										{team.role ?? (isAdmin ? "admin access" : "discoverable")}
 									</Badge>
 									{team.visibility === "private" && (
@@ -1199,15 +1474,21 @@ export default function TeamspaceDetailPage() {
 											<Lock className="h-3 w-3" /> Private
 										</Badge>
 									)}
-									{team.visibility === "public" && team.visibility_request_status === "approved" && (
-										<Badge variant="outline" className="gap-1 px-1.5 py-0 text-[11px] font-medium text-success">
-											<ShieldCheck className="h-3 w-3" /> Public approved
-										</Badge>
-									)}
+									{team.visibility === "public" &&
+										team.visibility_request_status === "approved" && (
+											<Badge
+												variant="outline"
+												className="gap-1 px-1.5 py-0 text-[11px] font-medium text-success"
+											>
+												<ShieldCheck className="h-3 w-3" /> Public approved
+											</Badge>
+										)}
 									{team.member_count != null && <span>{team.member_count} members</span>}
 								</div>
 								{team.description && (
-									<p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">{team.description}</p>
+									<p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+										{team.description}
+									</p>
 								)}
 							</div>
 						</div>
@@ -1215,7 +1496,11 @@ export default function TeamspaceDetailPage() {
 							{team.visibility === "public" ? (
 								<ShareLinkButton path={`/teamspaces/${team.handle}`} />
 							) : canManageInvites ? (
-								<Button variant="outline" size="sm" onClick={() => setInviteDialogOpen(true)}>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => setInviteDialogOpen(true)}
+								>
 									<Ticket /> Invite link
 								</Button>
 							) : null}
@@ -1225,14 +1510,23 @@ export default function TeamspaceDetailPage() {
 								<Button
 									variant="outline"
 									size="sm"
-									onClick={() => leaveTeam.mutate(team.id, { onSuccess: () => navigate({ to: "/teamspaces" }) })}
+									onClick={() =>
+										leaveTeam.mutate(team.id, {
+											onSuccess: () => navigate({ to: "/teamspaces" }),
+										})
+									}
 									disabled={leaveTeam.isPending}
 								>
 									<LogOut className="mr-1.5 h-3.5 w-3.5" /> Leave
 								</Button>
 							)}
 							{canDelete && (
-								<Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)} disabled={deleteTeam.isPending}>
+								<Button
+									variant="destructive"
+									size="sm"
+									onClick={() => setDeleteOpen(true)}
+									disabled={deleteTeam.isPending}
+								>
 									<Trash2 className="mr-1.5 h-3.5 w-3.5" /> Delete
 								</Button>
 							)}
@@ -1241,109 +1535,127 @@ export default function TeamspaceDetailPage() {
 
 					{team.visibility_request_status === "pending" && (
 						<div className="mt-6 rounded-lg border border-warning/40 bg-warning/5 p-5">
-							<p className="text-sm font-semibold text-warning">Public visibility review pending</p>
+							<p className="text-sm font-semibold text-warning">
+								Public visibility review pending
+							</p>
 							<p className="mt-1 text-sm text-muted-foreground">
-								This teamspace is locked until a global reviewer approves or rejects the request.
+								This teamspace is locked until a global reviewer approves or rejects the
+								request.
 							</p>
 						</div>
 					)}
 					{team.visibility_request_status === "rejected" && (
 						<div className="mt-6 rounded-lg border border-destructive/40 bg-destructive/5 p-5">
-							<p className="text-sm font-semibold text-destructive">Public visibility request rejected</p>
+							<p className="text-sm font-semibold text-destructive">
+								Public visibility request rejected
+							</p>
 							{team.visibility_rejection_reason && (
-								<p className="mt-1 text-sm text-muted-foreground">{team.visibility_rejection_reason}</p>
+								<p className="mt-1 text-sm text-muted-foreground">
+									{team.visibility_rejection_reason}
+								</p>
 							)}
 						</div>
 					)}
 
 					{team.visibility_request_status !== "pending" && (
 						<>
-							<Tabs value={activeTab} onValueChange={(value) => goto({ tab: value })} className="mt-6">
-						<div className="flex items-center justify-between gap-3">
-							<TabsList>
-								{tabs.map((entry) => (
-									<TabsTrigger key={entry.value} value={entry.value}>
-										{entry.label}
-										{entry.value === "review" && reviewItems.length > 0 && (
-											<span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary-accent px-1 text-[10px] font-semibold text-primary-foreground">
-												{reviewItems.length}
-											</span>
-										)}
-										{entry.value === "join-requests" && pendingJoinCount > 0 && (
-											<span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary-accent px-1 text-[10px] font-semibold text-primary-foreground">
-												{pendingJoinCount}
-											</span>
-										)}
-									</TabsTrigger>
-								))}
-							</TabsList>
+							<Tabs
+								value={activeTab}
+								onValueChange={(value) => goto({ tab: value })}
+								className="mt-6"
+							>
+								<div className="flex items-center justify-between gap-3">
+									<TabsList>
+										{tabs.map((entry) => (
+											<TabsTrigger key={entry.value} value={entry.value}>
+												{entry.label}
+												{entry.value === "review" && reviewItems.length > 0 && (
+													<span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary-accent px-1 text-[10px] font-semibold text-primary-foreground">
+														{reviewItems.length}
+													</span>
+												)}
+												{entry.value === "join-requests" && pendingJoinCount > 0 && (
+													<span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary-accent px-1 text-[10px] font-semibold text-primary-foreground">
+														{pendingJoinCount}
+													</span>
+												)}
+											</TabsTrigger>
+										))}
+									</TabsList>
 
-							{canPublish && activeTab === "agents" && (
-								<Button asChild size="sm">
-									<Link to="/agents/builder" search={{ team: team.id }}>
-										<Bot /> Build agent
-									</Link>
-								</Button>
-							)}
-							{canPublish && activeTab === "components" && (
-								<Button size="sm" onClick={() => setComponentDialogOpen(true)}>
-									<Plus /> Create component
-								</Button>
-							)}
-						</div>
+									{canPublish && activeTab === "agents" && (
+										<Button asChild size="sm">
+											<Link to="/agents/builder" search={{ team: team.id }}>
+												<Bot /> Build agent
+											</Link>
+										</Button>
+									)}
+									{canPublish && activeTab === "components" && (
+										<Button size="sm" onClick={() => setComponentDialogOpen(true)}>
+											<Plus /> Create component
+										</Button>
+									)}
+								</div>
 
-						<TabsContent value="agents" className="mt-5">
-							<AgentsTab team={team} />
-						</TabsContent>
-						<TabsContent value="components" className="mt-5">
-							<ComponentsTab team={team} activeType={activeType} onTypeChange={(next) => goto({ type: next })} />
-						</TabsContent>
-						<TabsContent value="members" className="mt-5">
-							<MembersTab team={team} />
-						</TabsContent>
-						{canReview && (
-							<TabsContent value="review" className="mt-5">
-								<ReviewTab
-									items={reviewItems}
-									isLoading={reviewQueue.isLoading}
-									isError={reviewQueue.isError}
-									errorMessage={reviewQueue.error?.message}
-									onRetry={() => reviewQueue.refetch()}
-								/>
-							</TabsContent>
-						)}
-						{canManageRequests && (
-							<TabsContent value="join-requests" className="mt-5">
-								<JoinRequestsTab
-									team={team}
-									requests={joinRequests}
-									isLoading={joinRequestsQuery.isLoading}
-									isError={joinRequestsQuery.isError}
-									errorMessage={joinRequestsQuery.error?.message}
-									onRetry={() => joinRequestsQuery.refetch()}
-								/>
-							</TabsContent>
-						)}
-						{canManageInvites && (
-							<TabsContent value="invite-links" className="mt-5">
-								<InviteLinksTab team={team} />
-							</TabsContent>
-						)}
+								<TabsContent value="agents" className="mt-5">
+									<AgentsTab team={team} />
+								</TabsContent>
+								<TabsContent value="components" className="mt-5">
+									<ComponentsTab
+										team={team}
+										activeType={activeType}
+										onTypeChange={(next) => goto({ type: next })}
+									/>
+								</TabsContent>
+								<TabsContent value="members" className="mt-5">
+									<MembersTab team={team} />
+								</TabsContent>
+								{canReview && (
+									<TabsContent value="review" className="mt-5">
+										<ReviewTab
+											items={reviewItems}
+											isLoading={reviewQueue.isLoading}
+											isError={reviewQueue.isError}
+											errorMessage={reviewQueue.error?.message}
+											onRetry={() => reviewQueue.refetch()}
+										/>
+									</TabsContent>
+								)}
+								{canManageRequests && (
+									<TabsContent value="join-requests" className="mt-5">
+										<JoinRequestsTab
+											team={team}
+											requests={joinRequests}
+											isLoading={joinRequestsQuery.isLoading}
+											isError={joinRequestsQuery.isError}
+											errorMessage={joinRequestsQuery.error?.message}
+											onRetry={() => joinRequestsQuery.refetch()}
+										/>
+									</TabsContent>
+								)}
+								{canManageInvites && (
+									<TabsContent value="invite-links" className="mt-5">
+										<InviteLinksTab team={team} />
+									</TabsContent>
+								)}
 							</Tabs>
 
 							<footer className="mt-6 flex flex-col gap-3 rounded-lg border border-border/80 bg-card/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-						<div className="flex items-start gap-2.5">
-							<Terminal className="mt-0.5 h-4 w-4 shrink-0 text-primary-accent" />
-							<div>
-								<p className="text-xs font-medium text-foreground">Publishing namespace</p>
-								<p className="mt-1 text-xs text-muted-foreground">
-									Use this identity when installing an agent or component from the team.
-								</p>
-							</div>
-						</div>
-						<code className="rounded-md border border-border/80 bg-background px-3 py-2 font-mono text-xs text-foreground">
-							observal pull {team.handle}/agent-name
-						</code>
+								<div className="flex items-start gap-2.5">
+									<Terminal className="mt-0.5 h-4 w-4 shrink-0 text-primary-accent" />
+									<div>
+										<p className="text-xs font-medium text-foreground">
+											Publishing namespace
+										</p>
+										<p className="mt-1 text-xs text-muted-foreground">
+											Use this identity when installing an agent or component from the
+											team.
+										</p>
+									</div>
+								</div>
+								<code className="rounded-md border border-border/80 bg-background px-3 py-2 font-mono text-xs text-foreground">
+									dev-library pull {team.handle}/agent-name
+								</code>
 							</footer>
 						</>
 					)}
@@ -1351,7 +1663,11 @@ export default function TeamspaceDetailPage() {
 			</main>
 
 			{canManageInvites && (
-				<CreateTeamInviteDialogs team={team} open={inviteDialogOpen} onOpenChange={setInviteDialogOpen} />
+				<CreateTeamInviteDialogs
+					team={team}
+					open={inviteDialogOpen}
+					onOpenChange={setInviteDialogOpen}
+				/>
 			)}
 
 			<SubmitComponentDialog
@@ -1362,10 +1678,14 @@ export default function TeamspaceDetailPage() {
 				fixedTeamId={team.id}
 				fixedVisibility={team.visibility === "private" ? "team" : undefined}
 				onSubmit={(body) =>
-					submitComponent.mutate(body, { onSuccess: () => setComponentDialogOpen(false) })
+					submitComponent.mutate(body, {
+						onSuccess: () => setComponentDialogOpen(false),
+					})
 				}
 				onSaveDraft={(body) =>
-					saveComponentDraft.mutate(body, { onSuccess: () => setComponentDialogOpen(false) })
+					saveComponentDraft.mutate(body, {
+						onSuccess: () => setComponentDialogOpen(false),
+					})
 				}
 				isSubmitting={submitComponent.isPending}
 				isSavingDraft={saveComponentDraft.isPending}
@@ -1376,14 +1696,19 @@ export default function TeamspaceDetailPage() {
 					<AlertDialogHeader>
 						<AlertDialogTitle>Delete {team.name}?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This permanently removes the empty teamspace and its membership records. Teamspaces that own registry items cannot be deleted.
+							This permanently removes the empty teamspace and its membership records.
+							Teamspaces that own registry items cannot be deleted.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
 						<AlertDialogAction
 							className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-							onClick={() => deleteTeam.mutate(team.id, { onSuccess: () => navigate({ to: "/teamspaces" }) })}
+							onClick={() =>
+								deleteTeam.mutate(team.id, {
+									onSuccess: () => navigate({ to: "/teamspaces" }),
+								})
+							}
 						>
 							Delete teamspace
 						</AlertDialogAction>

@@ -8,7 +8,7 @@ Use hook components when a harness should run deterministic checks or side effec
 ## What to fill in
 
 | Field | What it means | Example |
-|-------|---------------|---------|
+| ------- | --------------- | --------- |
 | Name | Registry slug for the hook | `block-rm` |
 | Event | Lifecycle event that triggers it | `PreToolUse` |
 | Handler type | `command` for local scripts, `http` for webhooks | `command` |
@@ -63,7 +63,7 @@ Use blocking only when the hook must stop unsafe behavior. Use async for logging
 Submit a hook from a JSON file like the examples above:
 
 ```bash
-observal registry hook submit --from-file hook.json
+dev-library registry hook submit --from-file hook.json
 ```
 
 ## Sources
