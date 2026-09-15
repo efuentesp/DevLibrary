@@ -80,6 +80,8 @@ SANDBOX_FIELDS = {
     "network_policy",
     "entrypoint",
     "runtime_config",
+    "env_vars",
+    "allowed_mounts",
     "source_url",
     "source_ref",
     "resolved_sha",
@@ -148,6 +150,8 @@ FIELD_TYPES: dict[str, type | tuple[type, ...]] = {
     "runtime_config": dict,
     # list fields
     "tool_filter": list,
+    "env_vars": list,
+    "allowed_mounts": list,
     "file_pattern": list,
     "extra_files": list,
     "target_agents": list,

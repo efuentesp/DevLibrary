@@ -71,6 +71,29 @@ def _json_object(value: str, label: str, operation: str) -> dict:
     return parsed
 
 
+def _json_list(value: str, label: str, operation: str) -> list:
+    try:
+        parsed = _json.loads(value)
+    except _json.JSONDecodeError as error:
+        fail(
+            ErrorCategory.VALIDATION,
+            f"The {label} value is not valid JSON.",
+            operation=operation,
+            resource=label,
+            remediation="Provide a JSON array and retry.",
+            detail=repr(error),
+        )
+    if not isinstance(parsed, list) or any(not isinstance(item, str) for item in parsed):
+        fail(
+            ErrorCategory.VALIDATION,
+            f"The {label} value must be a JSON array of strings.",
+            operation=operation,
+            resource=label,
+            remediation='Provide a JSON array like ["KEY=value"] and retry.',
+        )
+    return parsed
+
+
 @sandbox_app.command(name="submit")
 def sandbox_submit(
     from_file: str | None = typer.Option(None, "--from-file", "-f", help="Create from JSON file"),
@@ -81,6 +104,12 @@ def sandbox_submit(
     image: str | None = typer.Option(None, "--image", "-i", help="Container image"),
     resource_limits: str | None = typer.Option(None, "--resource-limits", help="Resource limits JSON"),
     runtime_config: str | None = typer.Option(None, "--runtime-config", help="Runtime-specific config JSON"),
+    env_vars: str | None = typer.Option(
+        None, "--env-vars", help='Static env vars as JSON array, e.g. \'["FOO=1","BAR"]\''
+    ),
+    allowed_mounts: str | None = typer.Option(
+        None, "--allowed-mounts", help="Host mounts as JSON array, e.g. '[\"./data:/data:ro\"]'"
+    ),
     network_policy: str | None = typer.Option(None, "--network-policy", help="Network policy"),
     entrypoint: str | None = typer.Option(None, "--entrypoint", help="Default entrypoint"),
     supported_harnesses: list[str] | None = typer.Option(None, "--harness", help="Supported harness (repeatable)"),
@@ -144,6 +173,8 @@ def sandbox_submit(
             source_url,
             source_ref,
             sandbox_path,
+            env_vars,
+            allowed_mounts,
         )
     )
     if from_file:
@@ -195,6 +226,10 @@ def sandbox_submit(
         }
         if entrypoint:
             payload["entrypoint"] = entrypoint
+        if env_vars:
+            payload["env_vars"] = _json_list(env_vars, "env vars", "Submit sandbox")
+        if allowed_mounts:
+            payload["allowed_mounts"] = _json_list(allowed_mounts, "allowed mounts", "Submit sandbox")
         if source_url:
             payload["source_url"] = source_url
         if source_ref:
@@ -337,7 +372,7 @@ def sandbox_list(
         else:
             rprint("[dim]No sandboxes found.[/dim]")
         return
-    config.save_last_results(data, "sandbox")
+    config.save_last_results(data if isinstance(data, list) else [], "sandbox")
     if output == "json":
         output_json(data)
         return

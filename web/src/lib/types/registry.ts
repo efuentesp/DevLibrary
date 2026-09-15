@@ -194,6 +194,8 @@ export interface ComponentVersionSummary {
 	network_policy?: string;
 	entrypoint?: string;
 	runtime_config?: Record<string, unknown>;
+	env_vars?: string[];
+	allowed_mounts?: string[];
 	sandbox_path?: string;
 }
 
@@ -351,6 +353,8 @@ export interface ReviewItem {
 	resource_limits?: Record<string, unknown>;
 	network_policy?: string;
 	entrypoint?: string;
+	env_vars?: string[];
+	allowed_mounts?: string[];
 	sandbox_path?: string;
 	validated_at?: string;
 

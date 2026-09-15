@@ -319,6 +319,8 @@ def _build_sandbox_mcp_entry(sandbox_listings: dict, harness: str) -> dict:
                 "entrypoint": _sandbox_str(getattr(listing, "entrypoint", None), "bash") or "bash",
                 "network_policy": _sandbox_str(getattr(listing, "network_policy", "none"), "none"),
                 "runtime_config": runtime_config,
+                "env_vars": list(getattr(listing, "env_vars", []) or []),
+                "allowed_mounts": list(getattr(listing, "allowed_mounts", []) or []),
             }
         )
 
@@ -471,7 +473,7 @@ def _build_workflow_configs(
     return workflows
 
 
-def _generate_skill(skill: dict, harness: str, scope: str = "project") -> dict:
+def _generate_skill(skill: dict, harness: str, scope: str = "project") -> dict | None:
     """Generate an harness-specific skill file entry.
 
     Returns a dict with 'path' and 'content' keys, or None for
@@ -595,7 +597,7 @@ def _collect_opencode_hook_plugins(hook_configs: list[dict]) -> list[dict]:
         command = handler_config.get("command", "")
         name = hc.get("name", "") or f"hook-{event.lower()}"
         safe_name = _sanitize_name(name)
-        ide_event = events_map.get(event, event)
+        ide_event: str = events_map.get(event) or event
 
         # Script-based hooks: write the script to .opencode/hooks/ and reference it
         script_filename = hc.get("script_filename")

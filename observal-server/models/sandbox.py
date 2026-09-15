@@ -254,6 +254,26 @@ class SandboxListing(Base):
             raise RuntimeError(f"{type(self).__name__} has no latest_version; cannot set runtime_config")
         self.latest_version.runtime_config = value
 
+    @property
+    def env_vars(self) -> list:
+        return self.latest_version.env_vars if self.latest_version else []
+
+    @env_vars.setter
+    def env_vars(self, value: list) -> None:
+        if not self.latest_version:
+            raise RuntimeError(f"{type(self).__name__} has no latest_version; cannot set env_vars")
+        self.latest_version.env_vars = value
+
+    @property
+    def allowed_mounts(self) -> list:
+        return self.latest_version.allowed_mounts if self.latest_version else []
+
+    @allowed_mounts.setter
+    def allowed_mounts(self, value: list) -> None:
+        if not self.latest_version:
+            raise RuntimeError(f"{type(self).__name__} has no latest_version; cannot set allowed_mounts")
+        self.latest_version.allowed_mounts = value
+
 
 class SandboxDownload(Base):
     __tablename__ = "sandbox_downloads"
@@ -298,6 +318,10 @@ class SandboxVersion(Base):
     network_policy: Mapped[str] = mapped_column(String(20), default="none")
     entrypoint: Mapped[str | None] = mapped_column(String(500), nullable=True)
     runtime_config: Mapped[dict] = mapped_column(JSON, default=dict)
+    # Author-declared static env vars ("KEY" or "KEY=value") and host mounts
+    # ("host_path:container_path[:ro]") applied to every execution.
+    env_vars: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    allowed_mounts: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
     # New: monorepo path + validation
     sandbox_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     validated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

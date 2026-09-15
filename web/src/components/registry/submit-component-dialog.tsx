@@ -430,6 +430,14 @@ export function SubmitComponentDialog({
 	const [sandboxPath, setSandboxPath] = useState(
 		(d?.sandbox_path as string) ?? "",
 	);
+	const [sandboxEnvVars, setSandboxEnvVars] = useState(
+		Array.isArray(d?.env_vars) ? (d?.env_vars as string[]).join(", ") : "",
+	);
+	const [sandboxAllowedMounts, setSandboxAllowedMounts] = useState(
+		Array.isArray(d?.allowed_mounts)
+			? (d?.allowed_mounts as string[]).join(", ")
+			: "",
+	);
 
 	function bumpPatchVersion(ver: string): string {
 		const parts = ver.split(".");
@@ -539,6 +547,8 @@ export function SubmitComponentDialog({
 		setSandboxSourceUrl("");
 		setSandboxSourceRef("");
 		setSandboxPath("");
+		setSandboxEnvVars("");
+		setSandboxAllowedMounts("");
 	}
 
 	const isEditMode = !!editItem;
@@ -635,6 +645,16 @@ export function SubmitComponentDialog({
 				if (sandboxSourceUrl) body.source_url = sandboxSourceUrl;
 				if (sandboxSourceRef) body.source_ref = sandboxSourceRef;
 				if (sandboxPath) body.sandbox_path = sandboxPath;
+				const envVarEntries = sandboxEnvVars
+					.split(",")
+					.map((entry) => entry.trim())
+					.filter(Boolean);
+				const mountEntries = sandboxAllowedMounts
+					.split(",")
+					.map((entry) => entry.trim())
+					.filter(Boolean);
+				if (envVarEntries.length) body.env_vars = envVarEntries;
+				if (mountEntries.length) body.allowed_mounts = mountEntries;
 				return body;
 			}
 			default:
@@ -1500,6 +1520,18 @@ export function SubmitComponentDialog({
 										language="json"
 										minHeightClassName="min-h-28 [&_.cm-editor]:min-h-28 [&_.cm-scroller]:min-h-28"
 										placeholder='{"module": "runner.wasm"}'
+									/>
+								</div>
+								<div className="grid grid-cols-2 gap-3">
+									<Input
+										value={sandboxEnvVars}
+										onChange={(e) => setSandboxEnvVars(e.target.value)}
+										placeholder="Env vars: FOO=1, BAR"
+									/>
+									<Input
+										value={sandboxAllowedMounts}
+										onChange={(e) => setSandboxAllowedMounts(e.target.value)}
+										placeholder="Mounts: ./data:/data:ro"
 									/>
 								</div>
 							</div>

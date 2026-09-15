@@ -9,7 +9,7 @@ the agent's MCP config - giving the agent a `run_sandbox` tool it can
 call naturally without prompt engineering.
 
 Usage:
-    dev-library-sandbox-mcp --sandboxes '<json>'
+    observal-sandbox-mcp --sandboxes '<json>'
 
 The --sandboxes arg is a JSON array of sandbox specs:
     [{"id": "uuid", "name": "python-pytest", "image": "python:3.12-slim",
@@ -26,20 +26,27 @@ import sys
 
 
 def _read_message() -> dict | None:
-    """Read a JSON-RPC message from stdin (Content-Length framing)."""
-    headers = {}
-    while True:
-        line = sys.stdin.buffer.readline()
-        if not line or line == b"\r\n" or line == b"\n":
-            break
-        if b":" in line:
-            key, value = line.decode().split(":", 1)
-            headers[key.strip().lower()] = value.strip()
-    content_length = int(headers.get("content-length", 0))
-    if content_length == 0:
+    """Read a JSON-RPC message from stdin (Content-Length framing).
+
+    Returns None on EOF or on any malformed frame: a long-lived MCP server
+    must survive a corrupt message instead of dying mid-conversation.
+    """
+    try:
+        headers = {}
+        while True:
+            line = sys.stdin.buffer.readline()
+            if not line or line == b"\r\n" or line == b"\n":
+                break
+            if b":" in line:
+                key, value = line.decode().split(":", 1)
+                headers[key.strip().lower()] = value.strip()
+        content_length = int(headers.get("content-length", 0))
+        if content_length == 0:
+            return None
+        body = sys.stdin.buffer.read(content_length)
+        return json.loads(body)
+    except (ValueError, UnicodeDecodeError):
         return None
-    body = sys.stdin.buffer.read(content_length)
-    return json.loads(body)
 
 
 def _send_message(msg: dict) -> None:
@@ -65,7 +72,11 @@ def main():
     parser.add_argument("--sandboxes", required=True, help="JSON array of sandbox specs")
     args = parser.parse_args()
 
-    sandboxes = json.loads(args.sandboxes)
+    try:
+        sandboxes = json.loads(args.sandboxes)
+    except json.JSONDecodeError:
+        print(f"Invalid --sandboxes JSON argument: {args.sandboxes[:200]!r}", file=sys.stderr)
+        sys.exit(2)
 
     # Build tool definitions + direct tool_name -> sandbox map
     tool_to_sandbox: dict[str, dict] = {}
@@ -145,29 +156,45 @@ def main():
             resource_limits = sb.get("resource_limits", {}) or {}
             network_policy = sb.get("network_policy", "none")
             runtime_config = sb.get("runtime_config", {}) or {}
+            env_vars = sb.get("env_vars", []) or []
+            allowed_mounts = sb.get("allowed_mounts", []) or []
+
+            # Author-declared env entries: "KEY=value" is literal, a bare "KEY"
+            # passes the harness environment value through (skipped when unset).
+            import os
+
+            env_args: list[str] = []
+            for entry in env_vars:
+                if "=" in entry:
+                    env_args.extend(["--env", entry])
+                elif os.environ.get(entry):
+                    env_args.extend(["--env", f"{entry}={os.environ[entry]}"])
 
             # Run the sandbox
             try:
+                argv = [
+                    "observal-sandbox-run",
+                    "--sandbox-id",
+                    sandbox_id,
+                    "--image",
+                    image,
+                    "--runtime-type",
+                    runtime_type,
+                    "--timeout",
+                    str(timeout),
+                    "--network-policy",
+                    network_policy,
+                    "--resource-limits",
+                    json.dumps(resource_limits),
+                    "--runtime-config",
+                    json.dumps(runtime_config),
+                ]
+                argv.extend(env_args)
+                for mount in allowed_mounts:
+                    argv.extend(["--mount", mount])
+                argv.extend(["--command", command])
                 result = subprocess.run(
-                    [
-                        "dev-library-sandbox-run",
-                        "--sandbox-id",
-                        sandbox_id,
-                        "--image",
-                        image,
-                        "--runtime-type",
-                        runtime_type,
-                        "--timeout",
-                        str(timeout),
-                        "--network-policy",
-                        network_policy,
-                        "--resource-limits",
-                        json.dumps(resource_limits),
-                        "--runtime-config",
-                        json.dumps(runtime_config),
-                        "--command",
-                        command,
-                    ],
+                    argv,
                     capture_output=True,
                     text=True,
                     timeout=timeout + 10,
@@ -204,7 +231,7 @@ def main():
                             "content": [
                                 {
                                     "type": "text",
-                                    "text": "dev-library-sandbox-run not found. Install: pip install 'dev-library-cli[sandbox]'",
+                                    "text": "observal-sandbox-run not found. Reinstall the CLI: pip install 'dev-library-cli'",
                                 }
                             ],
                             "isError": True,

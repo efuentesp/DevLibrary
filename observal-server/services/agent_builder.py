@@ -75,6 +75,10 @@ def _resolved_to_manifest_component(comp: ResolvedComponent) -> ManifestComponen
             kwargs["entrypoint"] = comp.extra["entrypoint"]
         if comp.extra.get("runtime_config"):
             kwargs["runtime_config"] = comp.extra["runtime_config"]
+        if comp.extra.get("env_vars"):
+            kwargs["env_vars"] = comp.extra["env_vars"]
+        if comp.extra.get("allowed_mounts"):
+            kwargs["allowed_mounts"] = comp.extra["allowed_mounts"]
 
     return ManifestComponent(**kwargs)
 
