@@ -51,7 +51,7 @@ flowchart TD
 The normal pipeline has seven stages:
 
 1. The harness writes a JSONL transcript or exposes messages through a native API.
-2. A hook, extension event, or `observal reconcile` wakes the exporter.
+2. A hook, extension event, or `dev-library reconcile` wakes the exporter.
 3. The harness adapter discovers the source and reads only complete records after the current checkpoint.
 4. The exporter writes the batch to a durable local outbox before attempting the network request.
 5. The exporter posts the batch to `POST /api/v1/ingest/session`.
@@ -80,7 +80,7 @@ Each harness adapter knows where that harness stores sessions and how to identif
 
 Hooks and extensions wake delivery at supported lifecycle boundaries, including prompt submission, idle, stop, and agent completion. A wake-up is only a request to resume work. Delivery state lives in the durable outbox and checkpoints, so correctness does not depend on one hook process staying alive.
 
-`observal agent pull` installs the appropriate session hooks or extension for the selected harness. `observal doctor` diagnoses missing instrumentation and can repair it with confirmation.
+`dev-library agent pull` installs the appropriate session hooks or extension for the selected harness. `dev-library doctor` diagnoses missing instrumentation and can repair it with confirmation.
 
 ## Durable local delivery
 
@@ -136,19 +136,19 @@ Run reconciliation when hooks were installed late, a machine was offline, delive
 Preview the default seven-day scan without sending data:
 
 ```bash
-observal reconcile --dry-run
+dev-library reconcile --dry-run
 ```
 
 Push recent sessions from every installed harness:
 
 ```bash
-observal reconcile
+dev-library reconcile
 ```
 
 Limit discovery to one harness or time window:
 
 ```bash
-observal reconcile --harness kiro --since 24
+dev-library reconcile --harness kiro --since 24
 ```
 
 `--since` accepts 1 through 8,760 hours and defaults to 168. Without `--harness`, the command scans every installed adapter. A non-dry run validates its targets before touching the outbox, retries pending batches, recovers each server checkpoint, sends only records after that checkpoint, and finalizes fully uploaded but unfinished sessions.
@@ -160,22 +160,22 @@ A dry run reports sessions whose local source is larger than the local cursor an
 Check authentication and local delivery health:
 
 ```bash
-observal auth status
-observal ops telemetry status
+dev-library auth status
+dev-library ops telemetry status
 ```
 
 Preview recoverable sessions, push them, and inspect recent traces:
 
 ```bash
-observal reconcile --dry-run
-observal reconcile
-observal ops traces --limit 5
+dev-library reconcile --dry-run
+dev-library reconcile
+dev-library ops traces --limit 5
 ```
 
 If instrumentation is missing, run Doctor and confirm the proposed repair:
 
 ```bash
-observal doctor
+dev-library doctor
 ```
 
 ## Troubleshooting
@@ -186,7 +186,7 @@ Confirm that the harness is installed, its local session source exists, and the 
 
 ### Records remain pending
 
-Run `observal ops telemetry status`, verify the configured server is reachable, and confirm the current login matches the user and destination associated with the pending records. The next exporter wake-up or `observal reconcile` retries them.
+Run `dev-library ops telemetry status`, verify the configured server is reachable, and confirm the current login matches the user and destination associated with the pending records. The next exporter wake-up or `dev-library reconcile` retries them.
 
 ### A checkpoint does not match the local source
 
@@ -198,4 +198,4 @@ The shared exporter quarantines permanently rejected payloads in `~/.observal/te
 
 ### Hooks are missing
 
-Run `observal doctor`. Doctor reports the exact metadata or harness-file changes and asks for confirmation before applying repairs.
+Run `dev-library doctor`. Doctor reports the exact metadata or harness-file changes and asks for confirmation before applying repairs.

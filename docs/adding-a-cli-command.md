@@ -24,7 +24,7 @@ Do not add a separate example flag, a new output mode, a command-specific error 
 
 Use the existing Typer application for the relevant domain. Register new top-level groups in `dev_library_cli/main.py` only when no existing group fits.
 
-Canonical paths matter. Verify the final path with the CLI help tree before documenting it. For example, use `observal agent pull` and `observal doctor support`, not historical top-level aliases.
+Canonical paths matter. Verify the final path with the CLI help tree before documenting it. For example, use `dev-library agent pull` and `dev-library doctor support`, not historical top-level aliases.
 
 When adding a command changes the command inventory, update the executable-path assertion in `tests/test_cli_errors.py`.
 
@@ -51,8 +51,8 @@ def list_widgets(
     """List widgets visible to the current user.
 
     Examples:
-      observal registry widget list
-      observal registry widget list --output json
+      dev-library registry widget list
+      dev-library registry widget list --output json
     """
 ```
 
@@ -78,7 +78,7 @@ Rules:
 - Return natural JSON objects. Detail and mutation commands return the direct result object.
 - Every dedicated list command returns `{ "items": [...], "total": N, "page": N, "page_size": N }`.
 - Unpaginated lists use `page: 1` and `page_size: len(items)`, including `page_size: 0` when empty.
-- The `observal api` escape hatch preserves raw endpoint JSON and is the only top-level-array exception.
+- The `dev-library api` escape hatch preserves raw endpoint JSON and is the only top-level-array exception.
 - Empty JSON results are still valid JSON. Do not return early with a human-only empty message before the JSON branch.
 - JSON mode must not emit prompts, spinners, banners, tables, or Rich markup.
 - Streams use JSON Lines, one object per line.

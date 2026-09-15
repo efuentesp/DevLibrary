@@ -16,7 +16,7 @@ Observal is an agent-centric registry and observability platform for AI coding a
 2. **Web UI** (`web/`): browse the registry, view traces, manage users, admin dashboard
 3. **Observal skill** (bundled, auto-installed on login): lets the LLM inside any harness drive Observal commands directly (e.g. "create an agent that uses the github MCP")
 
-Agents are the primary entity. Each agent bundles 5 component types: MCP servers, skills, hooks, prompts, and sandboxes. When a user runs `observal agent pull <agent>`, the platform resolves all components and writes harness-specific config files.
+Agents are the primary entity. Each agent bundles 5 component types: MCP servers, skills, hooks, prompts, and sandboxes. When a user runs `dev-library agent pull <agent>`, the platform resolves all components and writes harness-specific config files.
 
 ## harness capability support
 
@@ -35,7 +35,7 @@ Ten harnesses are registered in `packages/observal-shared/observal_shared/harnes
 | Antigravity | yes | `antigravity` | hooks, mcp_servers, skills | no |
 | Goose | yes | `goose` | hooks, mcp_servers, skills | no |
 
-Every harness now resolves a session parser, so `observal reconcile` works across all ten. Hook specs in `dev_library_cli/harness_specs/` exist for eight; Cursor and Pi have none. Only Kiro has harness-specific Playwright coverage.
+Every harness now resolves a session parser, so `dev-library reconcile` works across all ten. Hook specs in `dev_library_cli/harness_specs/` exist for eight; Cursor and Pi have none. Only Kiro has harness-specific Playwright coverage.
 
 See `docs/adding-a-harness.md` for the complete guide to adding or promoting a harness.
 
@@ -88,7 +88,7 @@ The codebase follows a strict adapter pattern for harness-specific logic. This i
 A fully supported harness has all of:
 
 - A hook spec in `harness_specs/` (defines what `doctor patch` installs)
-- A session parser resolved from the registry's `session_parser` key (enables `observal reconcile`)
+- A session parser resolved from the registry's `session_parser` key (enables `dev-library reconcile`)
 - Full scanning implementation in its CLI adapter (discovers MCPs, skills, hooks, agents)
 - E2E test coverage in `tests/e2e/`
 
@@ -133,7 +133,7 @@ Vite 6 SPA with TanStack Router, not Next.js. `web/AGENTS.md` is the authoritati
 ## CLI structure
 
 ```
-observal
+dev-library
 ├── api                      # authenticated JSON escape hatch for /api/v1 endpoints
 ├── scan                     # read-only discovery of what's installed
 ├── outdated                 # installed components with newer versions available
@@ -168,7 +168,7 @@ observal
     └── migrate              #   PostgreSQL and ClickHouse migration tools
 ```
 
-`pull` is a subcommand (`observal agent pull`), not a top-level command. Run `observal --help` to confirm before documenting a command path.
+`pull` is a subcommand (`dev-library agent pull`), not a top-level command. Run `dev-library --help` to confirm before documenting a command path.
 
 ## Server routes
 
@@ -188,7 +188,7 @@ Sub-packages: `agent/` (crud, install, draft), `admin/` (enterprise_settings, us
 
 ```
 harness ──→ session push hooks ──→ POST /api/v1/ingest/session ──→ ClickHouse
-CLI ──→ observal reconcile ──→ POST /api/v1/ingest/session ──→ ClickHouse
+CLI ──→ dev-library reconcile ──→ POST /api/v1/ingest/session ──→ ClickHouse
 ```
 
 Session delivery uses a local outbox and resumes after transient network failures.
@@ -199,7 +199,7 @@ Session delivery uses a local outbox and resumes after transient network failure
 - JWT signing uses ES256 (not HS256). JWKS endpoint for public key distribution.
 - Device authorization flow for CLI login via browser confirmation.
 - Redis fail-closed: if Redis is down, auth fails (prevents stale token usage).
-- Fresh servers auto-bootstrap admin on first `observal auth login` (localhost-only).
+- Fresh servers auto-bootstrap admin on first `dev-library auth login` (localhost-only).
 
 ## Commands
 
@@ -212,8 +212,8 @@ make logs                # tail logs
 
 # CLI (installed via uv)
 uv tool install --editable .
-observal auth login      # auto-creates admin on fresh server, or login
-observal auth whoami     # check auth
+dev-library auth login      # auto-creates admin on fresh server, or login
+dev-library auth whoami     # check auth
 
 # Linting
 make lint                # ruff check
@@ -233,7 +233,7 @@ cd tests/e2e && pnpm test   # 20 Playwright specs
 
 ## Optic (dev logging)
 
-Loguru-based. `observal ops logs` streams `~/.observal/logs/dev.log`.
+Loguru-based. `dev-library ops logs` streams `~/.observal/logs/dev.log`.
 
 - Import: `from loguru import logger as optic`
 - Format: `optic.debug("msg: x={}", x)` (positional only, never f-strings)

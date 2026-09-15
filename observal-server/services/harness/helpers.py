@@ -293,7 +293,7 @@ def _sandbox_str(value, default: str = "") -> str:
 def _build_sandbox_mcp_entry(sandbox_listings: dict, harness: str) -> dict:
     """Build an MCP server entry for sandbox components.
 
-    Returns a dict like {"observal-sandbox": {"command": ..., "args": [...]}}
+    Returns a dict like {"dev-library-sandbox": {"command": ..., "args": [...]}}
     that exposes sandboxes as callable tools via the sandbox MCP server.
     """
     if not sandbox_listings:
@@ -330,7 +330,7 @@ def _build_sandbox_mcp_entry(sandbox_listings: dict, harness: str) -> dict:
     import json as _json
 
     return {
-        "observal-sandbox": {
+        "dev-library-sandbox": {
             "command": "python3",
             "args": ["-m", "dev_library_cli.sandbox_mcp", "--sandboxes", _json.dumps(sandboxes_json)],
         }
@@ -799,7 +799,7 @@ def _build_rules_content(
                 if entrypoint:
                     lines.append(f"- **Default command:** `{entrypoint}`")
                 lines.append(
-                    f'- **Run:** `observal-sandbox-run --sandbox-id {sandbox_id} --image {image} --timeout {timeout} --command "<your command>"`'
+                    f'- **Run:** `dev-library-sandbox-run --sandbox-id {sandbox_id} --image {image} --timeout {timeout} --command "<your command>"`'
                 )
             sections.append("\n".join(lines))
         else:

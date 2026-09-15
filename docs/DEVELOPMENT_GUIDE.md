@@ -236,7 +236,7 @@ uv tool install --editable .
 ### Log in
 
 ```bash
-observal auth login
+dev-library auth login
 ```
 
 On a fresh server, this bootstraps the admin account automatically. Use `super@demo.example` / `super-changeme` for the super\_admin account.
@@ -579,9 +579,9 @@ uv tool install --editable . --reinstall
 Run a harness session with hooks installed, then reconcile and inspect exporter status:
 
 ```bash
-observal reconcile --dry-run
-observal auth status
-observal ops telemetry status
+dev-library reconcile --dry-run
+dev-library auth status
+dev-library ops telemetry status
 ```
 
 Session records remain in the local outbox until the server acknowledges them.

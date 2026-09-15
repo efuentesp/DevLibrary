@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Apoorv Garg <apoorvgarg.21@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal admin`
+# `dev-library admin`
 
 Manage server settings, users, security policy, SSO, audit data, and the submission review queue.
 
@@ -41,8 +41,8 @@ Core administration requires the `admin` role. Review commands are also availabl
 ## Settings
 
 ```bash
-observal admin settings --output json
-observal admin set review.require_approval true --output json
+dev-library admin settings --output json
+dev-library admin set review.require_approval true --output json
 ```
 
 `settings` returns the direct settings array. Sensitive values are redacted by the server. `set` returns the server setting object and never echoes the supplied value in human output.
@@ -54,13 +54,13 @@ A positional setting value may be retained by shell history. Prefer deployment s
 List users:
 
 ```bash
-observal admin users --output json
+dev-library admin users --output json
 ```
 
 Create a user and let the server generate a password:
 
 ```bash
-observal admin create-user alice@example.com 'Alice Smith' --role user --output json
+dev-library admin create-user alice@example.com 'Alice Smith' --role user --output json
 ```
 
 Supported roles are `super_admin`, `admin`, `reviewer`, and `user`.
@@ -68,19 +68,19 @@ Supported roles are `super_admin`, `admin`, `reviewer`, and `user`.
 Create with a chosen password only when shell-history exposure is acceptable:
 
 ```bash
-observal admin create-user alice@example.com 'Alice Smith' --password 'chosen-password' --output json
+dev-library admin create-user alice@example.com 'Alice Smith' --password 'chosen-password' --output json
 ```
 
 Reset interactively in human mode:
 
 ```bash
-observal admin reset-password alice@example.com
+dev-library admin reset-password alice@example.com
 ```
 
 Generate a password without prompting:
 
 ```bash
-observal admin reset-password alice@example.com --generate --output json
+dev-library admin reset-password alice@example.com --generate --output json
 ```
 
 JSON reset requires `--generate`. Created and generated passwords are returned once. Treat the entire result as a secret and do not paste it into logs, issues, or chat.
@@ -88,13 +88,13 @@ JSON reset requires `--generate`. Created and generated passwords are returned o
 Change a role:
 
 ```bash
-observal admin set-role alice@example.com reviewer --output json
+dev-library admin set-role alice@example.com reviewer --output json
 ```
 
 Delete a user:
 
 ```bash
-observal admin delete-user alice@example.com --force --output json
+dev-library admin delete-user alice@example.com --force --output json
 ```
 
 Human deletion prompts unless `--force` or `--yes` is present. JSON deletion requires confirmation through one of those flags.
@@ -102,10 +102,10 @@ Human deletion prompts unless `--force` or `--yes` is present. JSON deletion req
 ## Diagnostics and policy
 
 ```bash
-observal admin diagnostics --output json
-observal admin trace-privacy --output json
-observal admin trace-privacy-set true --output json
-observal admin cache-clear --output json
+dev-library admin diagnostics --output json
+dev-library admin trace-privacy --output json
+dev-library admin trace-privacy-set true --output json
+dev-library admin cache-clear --output json
 ```
 
 `diagnostics` returns the direct health object. Trace privacy responses return `trace_privacy`. Cache clear returns the number of cleared entries.
@@ -115,13 +115,13 @@ observal admin cache-clear --output json
 Show redacted configuration:
 
 ```bash
-observal admin saml-config --output json
+dev-library admin saml-config --output json
 ```
 
 Create or replace configuration:
 
 ```bash
-observal admin saml-config-set \
+dev-library admin saml-config-set \
   --idp-entity-id 'https://idp.example.com/entity' \
   --idp-sso-url 'https://idp.example.com/sso' \
   --idp-x509-cert "$(cat idp-cert.pem)" \
@@ -134,7 +134,7 @@ Every update requires the IdP entity ID, SSO URL, and X.509 certificate. Optiona
 Delete configuration:
 
 ```bash
-observal admin saml-config-delete --force --output json
+dev-library admin saml-config-delete --force --output json
 ```
 
 JSON deletion requires `--force` or `--yes`.
@@ -142,9 +142,9 @@ JSON deletion requires `--force` or `--yes`.
 ## SCIM tokens
 
 ```bash
-observal admin scim-tokens --output json
-observal admin scim-token-create --description 'Okta' --output json
-observal admin scim-token-revoke 11111111-1111-1111-1111-111111111111 --force --output json
+dev-library admin scim-tokens --output json
+dev-library admin scim-token-create --description 'Okta' --output json
+dev-library admin scim-token-revoke 11111111-1111-1111-1111-111111111111 --force --output json
 ```
 
 List results contain metadata and token prefixes only. Creation returns the plaintext bearer token once. Treat that result as a secret. Revocation requires a complete UUID and prompts in human mode unless forced.
@@ -152,9 +152,9 @@ List results contain metadata and token prefixes only. Creation returns the plai
 ## Security events
 
 ```bash
-observal admin security-events --limit 50 --offset 0 --output json
-observal admin security-events --type auth.login.failure --severity critical --output json
-observal admin security-events --actor alice@example.com --output json
+dev-library admin security-events --limit 50 --offset 0 --output json
+dev-library admin security-events --type auth.login.failure --severity critical --output json
+dev-library admin security-events --actor alice@example.com --output json
 ```
 
 Severity accepts `info`, `warning`, or `critical`. Limit accepts 1 through 1,000 and offset accepts zero or greater. JSON returns the server envelope with `events` and `total`.
@@ -164,10 +164,10 @@ Severity accepts `info`, `warning`, or `critical`. Limit accepts 1 through 1,000
 Query events:
 
 ```bash
-observal admin audit-log --limit 100 --offset 0 --output json
-observal admin audit-log --actor alice@example.com --resource-type agent --output json
-observal admin audit-log --source cli --outcome success --output json
-observal admin audit-log --start-date 2026-08-01 --end-date 2026-08-31 --output json
+dev-library admin audit-log --limit 100 --offset 0 --output json
+dev-library admin audit-log --actor alice@example.com --resource-type agent --output json
+dev-library admin audit-log --source cli --outcome success --output json
+dev-library admin audit-log --start-date 2026-08-01 --end-date 2026-08-31 --output json
 ```
 
 Available filters are action, actor, resource type, sensitivity, outcome, source, start date, and end date. Source accepts `server` or `cli`. Limit accepts 1 through 500.
@@ -175,25 +175,25 @@ Available filters are action, actor, resource type, sensitivity, outcome, source
 Print CSV to stdout:
 
 ```bash
-observal admin audit-log-export
+dev-library admin audit-log-export
 ```
 
 Write CSV atomically:
 
 ```bash
-observal admin audit-log-export --file audit.csv
+dev-library admin audit-log-export --file audit.csv
 ```
 
 Print JSON:
 
 ```bash
-observal admin audit-log-export --output json
+dev-library admin audit-log-export --output json
 ```
 
 Write JSON atomically:
 
 ```bash
-observal admin audit-log-export --output json --file audit.json
+dev-library admin audit-log-export --output json --file audit.json
 ```
 
 Existing files prompt in human mode. JSON mode fails with a conflict unless `--force` or `--yes` is provided. Audit exports can contain sensitive administrative data.
@@ -203,10 +203,10 @@ Existing files prompt in human mode. JSON mode fails with a conflict unless `--f
 List pending submissions:
 
 ```bash
-observal admin review list --output json
-observal admin review list --type mcp --output json
-observal admin review list --tab agents --output json
-observal admin review list --team-id 11111111-1111-1111-1111-111111111111 --output json
+dev-library admin review list --output json
+dev-library admin review list --type mcp --output json
+dev-library admin review list --tab agents --output json
+dev-library admin review list --team-id 11111111-1111-1111-1111-111111111111 --output json
 ```
 
 Component types are `mcp`, `skill`, `hook`, `prompt`, and `sandbox`. Tabs are `agents` and `components`. A component type cannot be combined with the Agents tab.
@@ -216,7 +216,7 @@ The list refreshes the `review` row cache, including when empty. Row numbers can
 Show a submission:
 
 ```bash
-observal admin review show 1 --output json
+dev-library admin review show 1 --output json
 ```
 
 The JSON detail may include submitted configuration, headers, or environment-variable declarations. Handle review data as potentially sensitive.
@@ -224,17 +224,17 @@ The JSON detail may include submitted configuration, headers, or environment-var
 Approve:
 
 ```bash
-observal admin review approve 1 --output json
-observal admin review approve AGENT_UUID --agent --output json
-observal admin review approve BUNDLE_UUID --bundle --output json
+dev-library admin review approve 1 --output json
+dev-library admin review approve AGENT_UUID --agent --output json
+dev-library admin review approve BUNDLE_UUID --bundle --output json
 ```
 
 Reject with a reason containing 1 through 5,000 characters:
 
 ```bash
-observal admin review reject 1 --reason 'Missing environment variable documentation' --output json
-observal admin review reject AGENT_UUID --agent --reason 'Unsafe prompt' --output json
-observal admin review reject BUNDLE_UUID --bundle --reason 'License conflict' --output json
+dev-library admin review reject 1 --reason 'Missing environment variable documentation' --output json
+dev-library admin review reject AGENT_UUID --agent --reason 'Unsafe prompt' --output json
+dev-library admin review reject BUNDLE_UUID --bundle --reason 'License conflict' --output json
 ```
 
 `--agent` and `--bundle` are mutually exclusive. Approval and rejection return the direct server decision object.
@@ -254,6 +254,6 @@ observal admin review reject BUNDLE_UUID --bundle --reason 'License conflict' --
 
 ## Related
 
-* [`observal auth`](auth.md): inspect the active account and role
-* [`observal inbox`](inbox.md): review and security notifications
-* [`observal ops`](ops.md): sessions, telemetry, logs, and insights
+* [`dev-library auth`](auth.md): inspect the active account and role
+* [`dev-library inbox`](inbox.md): review and security notifications
+* [`dev-library ops`](ops.md): sessions, telemetry, logs, and insights

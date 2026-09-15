@@ -56,9 +56,9 @@ Issues = "https://github.com/Observal/Observal/issues"
 
 [project.scripts]
 dev-library = "dev_library_cli.main:app"
-observal-sandbox-run = "dev_library_cli.sandbox_runner:main"
-observal-sandbox-mcp = "dev_library_cli.sandbox_mcp:main"
-#observal-graphrag-proxy = "dev_library_cli.graphrag_proxy:main"
+dev-library-sandbox-run = "dev_library_cli.sandbox_runner:main"
+dev-library-sandbox-mcp = "dev_library_cli.sandbox_mcp:main"
+#dev-library-graphrag-proxy = "dev_library_cli.graphrag_proxy:main"
 
 [build-system]
 requires = ["hatchling"]

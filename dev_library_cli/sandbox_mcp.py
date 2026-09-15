@@ -9,7 +9,7 @@ the agent's MCP config - giving the agent a `run_sandbox` tool it can
 call naturally without prompt engineering.
 
 Usage:
-    observal-sandbox-mcp --sandboxes '<json>'
+    dev-library-sandbox-mcp --sandboxes '<json>'
 
 The --sandboxes arg is a JSON array of sandbox specs:
     [{"id": "uuid", "name": "python-pytest", "image": "python:3.12-slim",
@@ -66,7 +66,7 @@ def _make_error(req_id, code: int, message: str) -> dict:
 
 
 def _invoke_runner(req_id, argv: list[str], timeout_s: int) -> None:
-    """Run observal-sandbox-run and answer the MCP request with its output."""
+    """Run dev-library-sandbox-run and answer the MCP request with its output."""
     try:
         result = subprocess.run(argv, capture_output=True, text=True, timeout=timeout_s)
         output = result.stdout
@@ -95,7 +95,7 @@ def _invoke_runner(req_id, argv: list[str], timeout_s: int) -> None:
                     "content": [
                         {
                             "type": "text",
-                            "text": "observal-sandbox-run not found. Reinstall the CLI: pip install 'dev-library-cli'",
+                            "text": "dev-library-sandbox-run not found. Reinstall the CLI: pip install 'dev-library-cli'",
                         }
                     ],
                     "isError": True,
@@ -234,7 +234,7 @@ def main():
                     {
                         "protocolVersion": "2024-11-05",
                         "capabilities": {"tools": {}},
-                        "serverInfo": {"name": "observal-sandbox", "version": "1.0.0"},
+                        "serverInfo": {"name": "dev-library-sandbox", "version": "1.0.0"},
                     },
                 )
             )
@@ -260,13 +260,13 @@ def main():
                         )
                     )
                     continue
-                argv = ["observal-sandbox-run", "--action", "stop", "--session-id", session_id]
+                argv = ["dev-library-sandbox-run", "--action", "stop", "--session-id", session_id]
                 if arguments.get("keep_workspace"):
                     argv.append("--keep-workspace")
                 _invoke_runner(req_id, argv, 60)
                 continue
             if tool_name == "sandbox_session_list":
-                _invoke_runner(req_id, ["observal-sandbox-run", "--action", "list"], 60)
+                _invoke_runner(req_id, ["dev-library-sandbox-run", "--action", "list"], 60)
                 continue
             if tool_name == "sandbox_file_read":
                 session_id = str(arguments.get("session_id") or "")
@@ -284,7 +284,7 @@ def main():
                     continue
                 _invoke_runner(
                     req_id,
-                    ["observal-sandbox-run", "--action", "files-get", "--session-id", session_id, "--path", path],
+                    ["dev-library-sandbox-run", "--action", "files-get", "--session-id", session_id, "--path", path],
                     120,
                 )
                 continue
@@ -306,7 +306,7 @@ def main():
                 _invoke_runner(
                     req_id,
                     [
-                        "observal-sandbox-run",
+                        "dev-library-sandbox-run",
                         "--action",
                         "files-put",
                         "--session-id",
@@ -330,7 +330,7 @@ def main():
                     elif os.environ.get(entry):
                         env_args.extend(["--env", f"{entry}={os.environ[entry]}"])
                 argv = [
-                    "observal-sandbox-run",
+                    "dev-library-sandbox-run",
                     "--action",
                     "start",
                     "--sandbox-id",
@@ -374,7 +374,7 @@ def main():
                 _invoke_runner(
                     req_id,
                     [
-                        "observal-sandbox-run",
+                        "dev-library-sandbox-run",
                         "--action",
                         "exec",
                         "--session-id",
@@ -408,7 +408,7 @@ def main():
                     env_args.extend(["--env", f"{entry}={os.environ[entry]}"])
 
             argv = [
-                "observal-sandbox-run",
+                "dev-library-sandbox-run",
                 "--sandbox-id",
                 sandbox_id,
                 "--image",

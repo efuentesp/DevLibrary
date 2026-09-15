@@ -1,16 +1,16 @@
 <!-- SPDX-FileCopyrightText: 2026 Observal Contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal outdated`
+# `dev-library outdated`
 
 Compare versions recorded in `~/.observal/lockfile.json` with the latest versions available from the active Observal registry. The command never installs an update.
 
 ## Synopsis
 
 ```bash
-observal outdated
-observal outdated --harness claude-code
-observal outdated --output json --no-report
+dev-library outdated
+dev-library outdated --harness claude-code
+dev-library outdated --output json --no-report
 ```
 
 ## Checked items
@@ -48,7 +48,7 @@ Table output includes every installed item that was checked. Each row has one of
 | `current` | The pinned version is current or newer |
 | `missing` | The pinned item no longer exists in the active registry |
 
-Outdated rows are followed by a type-specific command using the canonical `namespace/slug` identity. Agents use `observal agent pull`; standalone components use their matching registry install command.
+Outdated rows are followed by a type-specific command using the canonical `namespace/slug` identity. Agents use `dev-library agent pull`; standalone components use their matching registry install command.
 
 A missing item is an item-level result, not a command failure, so a completed comparison containing missing rows exits successfully.
 
@@ -72,7 +72,7 @@ JSON output has a stable top-level object:
       "status": "outdated",
       "outdated": true,
       "error": null,
-      "upgrade_command": "observal agent pull acme/reviewer --harness claude-code --no-prompt"
+      "upgrade_command": "dev-library agent pull acme/reviewer --harness claude-code --no-prompt"
     }
   ],
   "summary": {
@@ -118,6 +118,6 @@ Use `--no-report` when no Inbox mutation is wanted. This does not make the comma
 
 ## Related
 
-* [`observal agent pull`](pull.md): update a pulled agent
-* [`observal registry`](registry.md): install a standalone component
-* [`observal config`](config.md): inspect the active server configuration
+* [`dev-library agent pull`](pull.md): update a pulled agent
+* [`dev-library registry`](registry.md): install a standalone component
+* [`dev-library config`](config.md): inspect the active server configuration

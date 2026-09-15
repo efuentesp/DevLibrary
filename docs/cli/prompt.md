@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Gokulkrishnan <gokulkri247@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal registry prompt`
+# `dev-library registry prompt`
 
 Manage reusable prompt templates in the Registry. Prompts can be submitted, listed, rendered, edited, archived, restored, transferred, and shared with co-authors. Standalone prompt installation has been removed; attach prompts to agents instead.
 
@@ -25,15 +25,15 @@ All structured commands support table and JSON output.
 ## Submit
 
 ```bash
-observal registry prompt submit \
+dev-library registry prompt submit \
   --name review \
   --description "Review code" \
   --category code-review \
   --template "Review {{code}}" \
   --output json
 
-observal registry prompt submit --from-file prompt.json --output json
-observal registry prompt submit --submit acme/review --output json
+dev-library registry prompt submit --from-file prompt.json --output json
+dev-library registry prompt submit --submit acme/review --output json
 ```
 
 JSON mode never prompts. A plain template file requires explicit name, description, and category options. A JSON file may contain the complete payload.
@@ -43,9 +43,9 @@ Valid categories are `system-prompt`, `code-review`, `code-generation`, `testing
 ## List and show
 
 ```bash
-observal registry prompt list --category code-review --output json
-observal registry prompt my --output json
-observal registry prompt show acme/review --output json
+dev-library registry prompt list --category code-review --output json
+dev-library registry prompt my --output json
+dev-library registry prompt show acme/review --output json
 ```
 
 Row numbers are scoped to the latest Prompt list. Empty Prompt lists clear previous Prompt row references. Human output escapes template text so bracketed content is rendered literally.
@@ -53,7 +53,7 @@ Row numbers are scoped to the latest Prompt list. Empty Prompt lists clear previ
 ## Render
 
 ```bash
-observal registry prompt render acme/review --var code=main.py --output json
+dev-library registry prompt render acme/review --var code=main.py --output json
 ```
 
 Every variable must use `key=value` syntax with a non-empty key. JSON returns the direct server result. Human output prints the rendered prompt as literal text.
@@ -61,8 +61,8 @@ Every variable must use `key=value` syntax with a non-empty key. JSON returns th
 ## Edit
 
 ```bash
-observal registry prompt edit acme/review --description "Updated" --output json
-observal registry prompt edit acme/review --from-file updates.json --output json
+dev-library registry prompt edit acme/review --description "Updated" --output json
+dev-library registry prompt edit acme/review --from-file updates.json --output json
 ```
 
 Invalid categories, versions, files, and edit-lock conflicts preserve their shared error category and stable exit code.
@@ -72,11 +72,11 @@ Invalid categories, versions, files, and edit-lock conflicts preserve their shar
 Prompts are agent components rather than standalone harness installations:
 
 ```bash
-observal agent add prompt <prompt-uuid>
-observal agent build
+dev-library agent add prompt <prompt-uuid>
+dev-library agent build
 ```
 
 ## Related
 
-* [`observal registry`](registry.md): complete Registry reference
-* [`observal agent`](agent.md): compose and publish agents
+* [`dev-library registry`](registry.md): complete Registry reference
+* [`dev-library agent`](agent.md): compose and publish agents

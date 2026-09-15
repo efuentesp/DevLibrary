@@ -5,7 +5,7 @@
 
 # Hooks specification
 
-The schema Observal uses for hook definitions -- both the registry hook type (`observal registry hook`) and hooks wired into harness configs by `observal agent pull` / `observal doctor patch`.
+The schema Observal uses for hook definitions -- both the registry hook type (`dev-library registry hook`) and hooks wired into harness configs by `dev-library agent pull` / `dev-library doctor patch`.
 
 Current version: `HOOKS_SPEC_VERSION = "5"` (see `dev_library_cli/hooks_spec.py`).
 
@@ -13,8 +13,8 @@ Current version: `HOOKS_SPEC_VERSION = "5"` (see `dev_library_cli/hooks_spec.py`
 
 Two distinct things share the name "hook":
 
-1. **Registry hooks**: packaged, versioned hook definitions in the Observal registry. Install them via `observal registry hook install`.
-2. **harness hooks**: entries in `~/.claude/settings.json`, `.kiro/agents/<name>.json`, etc. These are written by `observal agent pull` and `observal doctor patch`.
+1. **Registry hooks**: packaged, versioned hook definitions in the Observal registry. Install them via `dev-library registry hook install`.
+2. **harness hooks**: entries in `~/.claude/settings.json`, `.kiro/agents/<name>.json`, etc. These are written by `dev-library agent pull` and `dev-library doctor patch`.
 
 Both use the same event vocabulary.
 
@@ -129,7 +129,7 @@ Kiro uses camelCase / lowercase event names; Claude Code uses PascalCase. Observ
 
 ## Registry hook payload shape
 
-When submitting a hook to the registry (`observal registry hook submit`):
+When submitting a hook to the registry (`dev-library registry hook submit`):
 
 ```json
 {
@@ -156,5 +156,5 @@ A sync test (`tests/test_constants_sync.py`) ensures CLI and server stay in lock
 
 ## Related
 
-* [`observal registry hook`](../cli/registry.md)
+* [`dev-library registry hook`](../cli/registry.md)
 * [Session tracking and reconciliation](../core-concepts/session-tracking.md)

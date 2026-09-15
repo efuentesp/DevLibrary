@@ -43,7 +43,7 @@ uv tool install observal-cli
 ### 2. Authenticate
 
 ```bash
-observal auth login
+dev-library auth login
 ```
 
 This writes credentials to `~/.observal/config.json`.
@@ -51,7 +51,7 @@ This writes credentials to `~/.observal/config.json`.
 ### 3. Pull an agent into Cursor
 
 ```bash
-observal agent pull <agent-name> --harness cursor
+dev-library agent pull <agent-name> --harness cursor
 ```
 
 Cursor's default scope is project scope. By default, the agent is written to
@@ -60,7 +60,7 @@ Cursor's default scope is project scope. By default, the agent is written to
 To install into your user configuration:
 
 ```bash
-observal agent pull <agent-name> --harness cursor --scope user
+dev-library agent pull <agent-name> --harness cursor --scope user
 ```
 
 User agents are written to `~/.cursor/agents/{name}.md`.
@@ -105,7 +105,7 @@ Cursor hook timeouts require a split delivery path: the hook synchronously write
 
 ## Caveats
 
-**Default scope is project.** `observal agent pull <agent-name> --harness cursor`
+**Default scope is project.** `dev-library agent pull <agent-name> --harness cursor`
 writes to `.cursor/agents/` unless `--scope user` is specified.
 
 **Configuration lives under `.cursor`.** Agent profiles, MCP configuration,

@@ -45,7 +45,7 @@ uv tool install observal-cli
 ### 2. Authenticate
 
 ```bash
-observal auth login
+dev-library auth login
 ```
 
 This writes credentials to `~/.observal/config.json`.
@@ -53,7 +53,7 @@ This writes credentials to `~/.observal/config.json`.
 ### 3. Pull an agent into Copilot
 
 ```bash
-observal agent pull <agent-name> --harness copilot
+dev-library agent pull <agent-name> --harness copilot
 ```
 
 By default, the agent is written to:

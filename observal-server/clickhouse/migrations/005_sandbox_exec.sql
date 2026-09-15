@@ -1,7 +1,7 @@
 -- SPDX-FileCopyrightText: 2026 Edgar Fuentes Perea <efuentesp@gmail.com>
 -- SPDX-License-Identifier: Apache-2.0
 
--- Sandbox execution telemetry: one row per observal-sandbox-run invocation.
+-- Sandbox execution telemetry: one row per dev-library-sandbox-run invocation.
 -- Written by POST /api/v1/ingest/sandbox-exec; the CLI spools locally and
 -- retries on the next execution when the server is unreachable.
 

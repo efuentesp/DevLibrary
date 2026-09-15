@@ -3,7 +3,7 @@
 
 # Sandboxes
 
-Sandboxes are versioned execution environments registered in Observal. When an agent has a sandbox component, Observal installs an `observal-sandbox` MCP server that exposes one callable tool per sandbox.
+Sandboxes are versioned execution environments registered in Observal. When an agent has a sandbox component, Observal installs an `dev-library-sandbox` MCP server that exposes one callable tool per sandbox.
 
 ## Runtime support
 
@@ -55,19 +55,19 @@ Then submit:
 ## How it works
 
 ```text
-observal agent pull my-agent --harness claude-code
+dev-library agent pull my-agent --harness claude-code
     │
-    ├── Registers "observal-sandbox" MCP server
+    ├── Registers "dev-library-sandbox" MCP server
     │   └── Exposes run_sandbox_<name> as a callable tool
     │
     └── Agent calls run_sandbox_python_pytest(command="pytest tests/")
-        └── MCP server → observal-sandbox-run → local runtime → output
+        └── MCP server → dev-library-sandbox-run → local runtime → output
 ```
 
 ## Submit a sandbox
 
 ```bash
-observal registry sandbox submit \
+dev-library registry sandbox submit \
   --name python-pytest \
   --version 1.0.0 \
   --description "Run Python tests" \
@@ -78,7 +78,7 @@ observal registry sandbox submit \
   --output json
 ```
 
-Sandbox submission returns the direct server result in JSON mode. Standalone Sandbox installation is not supported. Add the returned sandbox UUID to an agent with `observal agent add sandbox <sandbox-uuid>`.
+Sandbox submission returns the direct server result in JSON mode. Standalone Sandbox installation is not supported. Add the returned sandbox UUID to an agent with `dev-library agent add sandbox <sandbox-uuid>`.
 
 From JSON:
 
@@ -99,7 +99,7 @@ From JSON:
 ## Publish a new sandbox version
 
 ```bash
-observal registry version publish sandbox python-pytest \
+dev-library registry version publish sandbox python-pytest \
   --version 1.1.0 \
   --description "Move to Python 3.12 slim" \
   --extra '{"runtime_type":"docker","image":"python:3.12-slim","resource_limits":{"timeout":60}}'
@@ -112,7 +112,7 @@ Like skills and MCPs, a new sandbox version is submitted for review. Approval mo
 Docker:
 
 ```bash
-observal-sandbox-run \
+dev-library-sandbox-run \
   --sandbox-id s-123 \
   --runtime-type docker \
   --image python:3.12-slim \
@@ -124,7 +124,7 @@ observal-sandbox-run \
 WASM:
 
 ```bash
-observal-sandbox-run \
+dev-library-sandbox-run \
   --sandbox-id s-123 \
   --runtime-type wasm \
   --image ./runner.wasm \
@@ -151,7 +151,7 @@ sandbox_session_stop(session_id)          → removes container and workspace
 - `sandbox_session_stop(session_id, keep_workspace=true)` keeps the volume
   for a future session.
 - Docker runtime only; session exec emits the same telemetry as ephemeral runs.
-- Manual runner access: `observal-sandbox-run --action start|exec|stop|list|files-get|files-put|gc`.
+- Manual runner access: `dev-library-sandbox-run --action start|exec|stop|list|files-get|files-put|gc`.
 
 ## Security notes
 
@@ -170,7 +170,7 @@ sandbox_session_stop(session_id)          → removes container and workspace
 
 ## Telemetry
 
-Every `observal-sandbox-run` invocation reports one event to
+Every `dev-library-sandbox-run` invocation reports one event to
 `POST /api/v1/ingest/sandbox-exec` (exit code, OOM kill, timeout, latency,
  container id, 4KB output preview). Delivery is best-effort with a local
 spool (`~/.observal/sandbox_spans.jsonl`) that retries on the next

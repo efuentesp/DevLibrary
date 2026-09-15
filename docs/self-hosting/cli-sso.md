@@ -54,14 +54,14 @@ within that window, the CLI exits with an error.
 ### Interactive SSO Login
 
 ```bash
-observal auth login --sso
+dev-library auth login --sso
 ```
 
 Or omit `--sso` and select "SSO (opens browser)" from the interactive menu
 when SSO is detected:
 
 ```bash
-observal auth login
+dev-library auth login
 # Connected.
 #
 #   [1] Email + password
@@ -75,7 +75,7 @@ When `deployment.sso_only=true` is set on the server, the CLI automatically uses
 device flow. No `--sso` flag or interactive choice is needed:
 
 ```bash
-observal auth login --server https://observal.company.com
+dev-library auth login --server https://observal.company.com
 # Connected.
 # To sign in, open this URL in your browser:
 #   https://observal.company.com/device
@@ -92,7 +92,7 @@ For CI/CD pipelines and scripts where no browser is available, use the
 
 ```bash
 export OBSERVAL_TOKEN="your-api-token-here"
-observal agents list
+dev-library agents list
 ```
 
 The CLI checks `OBSERVAL_TOKEN` before reading `~/.observal/config.json`.
@@ -105,7 +105,7 @@ Generate API tokens from the Observal web UI under your user settings.
 The device flow endpoints are always available so any deployment with SSO can use them.
 
 | Endpoint | Method | Description |
-|----------|--------|-------------|
+| ---------- | -------- | ------------- |
 | `/api/v1/auth/device/authorize` | POST | Request a device code + user code |
 | `/api/v1/auth/device/token` | POST | Poll for token (CLI uses this) |
 | `/api/v1/auth/device/confirm` | POST | Approve a device code (browser calls this) |
@@ -141,7 +141,7 @@ You have hit the rate limit. Wait 60 seconds and try again.
 ### "Device code expired"
 
 The 10-minute window elapsed before the code was approved in the browser.
-Run `observal auth login --sso` again to get a fresh code.
+Run `dev-library auth login --sso` again to get a fresh code.
 
 ### Browser does not open
 
@@ -161,6 +161,6 @@ option does not appear:
 ### Already authenticated but want to re-login via SSO
 
 ```bash
-observal auth logout
-observal auth login --sso
+dev-library auth logout
+dev-library auth login --sso
 ```

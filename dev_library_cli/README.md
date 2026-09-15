@@ -19,17 +19,17 @@ This installs three entry points:
 | Command                | Purpose                                  |
 | ---------------------- | ---------------------------------------- |
 | `observal`             | Main CLI                                 |
-| `observal-sandbox-run` | Sandbox execution runner                 |
-| `observal-sandbox-mcp` | MCP interface for configured sandboxes   |
+| `dev-library-sandbox-run` | Sandbox execution runner                 |
+| `dev-library-sandbox-mcp` | MCP interface for configured sandboxes   |
 
 ## Quick Start
 
 ```bash
-observal auth login                  # connect to your Observal server
-observal scan                        # discover what's installed across your harnesses (read-only)
-observal doctor patch --all-harnesses        # install session telemetry hooks
-observal agent pull my-agent --harness cursor  # fetch agent config for Cursor
-observal doctor                      # check harness compatibility
+dev-library auth login                  # connect to your Observal server
+dev-library scan                        # discover what's installed across your harnesses (read-only)
+dev-library doctor patch --all-harnesses        # install session telemetry hooks
+dev-library agent pull my-agent --harness cursor  # fetch agent config for Cursor
+dev-library doctor                      # check harness compatibility
 ```
 
 ## Commands
@@ -37,23 +37,23 @@ observal doctor                      # check harness compatibility
 ### Authentication
 
 ```
-observal auth login       # connect to server (initializes admin on first run)
-observal auth register    # create a new account
-observal auth logout      # clear saved credentials
-observal auth whoami      # show current user
-observal auth status      # check connectivity and buffer status
+dev-library auth login       # connect to server (initializes admin on first run)
+dev-library auth register    # create a new account
+dev-library auth logout      # clear saved credentials
+dev-library auth whoami      # show current user
+dev-library auth status      # check connectivity and buffer status
 ```
 
 ### Agent Workflow
 
 ```
-observal agent init              # scaffold dev-library-agent.yaml
-observal agent add mcp <id>      # add a component to the agent definition
-observal agent build             # validate the definition
-observal agent publish           # push to the server
-observal agent list              # list active agents
-observal agent show <id>         # show agent details
-observal agent install <id> --harness <harness>  # get harness config snippet
+dev-library agent init              # scaffold dev-library-agent.yaml
+dev-library agent add mcp <id>      # add a component to the agent definition
+dev-library agent build             # validate the definition
+dev-library agent publish           # push to the server
+dev-library agent list              # list active agents
+dev-library agent show <id>         # show agent details
+dev-library agent install <id> --harness <harness>  # get harness config snippet
 ```
 
 ### Component Registry
@@ -61,10 +61,10 @@ observal agent install <id> --harness <harness>  # get harness config snippet
 Each component type (mcp, skill, hook, prompt, sandbox) shares the same subcommand pattern:
 
 ```
-observal registry <type> submit      # submit for review
-observal registry <type> list        # list approved items
-observal registry <type> show <id>   # show details
-observal registry <type> install <id> --harness <harness>  # get harness config
+dev-library registry <type> submit      # submit for review
+dev-library registry <type> list        # list approved items
+dev-library registry <type> show <id>   # show details
+dev-library registry <type> install <id> --harness <harness>  # get harness config
 ```
 
 Hooks have an extra `sync` subcommand. Prompts have an extra `render` subcommand for variable substitution.
@@ -72,35 +72,35 @@ Hooks have an extra `sync` subcommand. Prompts have an extra `render` subcommand
 ### Operations
 
 ```
-observal ops telemetry status --output json       # check telemetry flow
-observal ops top --type agent --output json        # most-downloaded agents
-observal ops traces --output json                   # current session summaries
-observal ops traces --span --output json            # current session details
-observal ops insights list <agent> --output json    # agent insight reports
+dev-library ops telemetry status --output json       # check telemetry flow
+dev-library ops top --type agent --output json        # most-downloaded agents
+dev-library ops traces --output json                   # current session summaries
+dev-library ops traces --span --output json            # current session details
+dev-library ops insights list <agent> --output json    # agent insight reports
 ```
 
 ### Administration
 
 ```
-observal admin diagnostics --output json             # server health
-observal admin users --output json                   # user management
-observal admin security-events --output json         # security events
-observal admin audit-log --output json               # compliance audit events
-observal admin review list --output json             # pending submissions
+dev-library admin diagnostics --output json             # server health
+dev-library admin users --output json                   # user management
+dev-library admin security-events --output json         # security events
+dev-library admin audit-log --output json               # compliance audit events
+dev-library admin review list --output json             # pending submissions
 ```
 
 ### Utilities
 
 ```
-observal agent pull <agent> --harness <harness>             # write agent config to harness files
-observal scan [--harness <harness>]                          # discover what's installed (read-only)
-observal reconcile --dry-run --output json                    # preview recoverable sessions
-observal doctor patch --all-harnesses --output json         # install hooks for every harness
-observal doctor patch --harness <harness> --output json      # install hooks for a specific harness
+dev-library agent pull <agent> --harness <harness>             # write agent config to harness files
+dev-library scan [--harness <harness>]                          # discover what's installed (read-only)
+dev-library reconcile --dry-run --output json                    # preview recoverable sessions
+dev-library doctor patch --all-harnesses --output json         # install hooks for every harness
+dev-library doctor patch --harness <harness> --output json      # install hooks for a specific harness
 observal use <profile>                               # swap harness config from a profile
-observal doctor --output json                        # diagnose harness/Observal issues
-observal doctor support bundle --output json         # create a redacted support archive
-observal config show                                 # show current config
+dev-library doctor --output json                        # diagnose harness/Observal issues
+dev-library doctor support bundle --output json         # create a redacted support archive
+dev-library config show                                 # show current config
 ```
 
 ## Supported harnesses
@@ -125,7 +125,7 @@ All CLI state lives in `~/.observal/`:
 
 ## Telemetry
 
-Hook scripts in `dev_library_cli/hooks/` locate local harness session transcripts and deliver new JSONL records to the session ingest endpoint. `observal reconcile` recovers records that were not delivered during the original hook run. MCP commands and remote URLs are left unchanged.
+Hook scripts in `dev_library_cli/hooks/` locate local harness session transcripts and deliver new JSONL records to the session ingest endpoint. `dev-library reconcile` recovers records that were not delivered during the original hook run. MCP commands and remote URLs are left unchanged.
 
 ## Directory Layout
 
@@ -150,6 +150,6 @@ dev_library_cli/
 ├── cmd_doctor.py            # Doctor command
 ├── cmd_ops.py               # Operations commands
 ├── cmd_profile.py           # Profile swapping
-├── sandbox_runner.py        # observal-sandbox-run entrypoint
+├── sandbox_runner.py        # dev-library-sandbox-run entrypoint
 └── hooks/                   # Telemetry hook scripts
 ```

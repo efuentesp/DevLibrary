@@ -64,7 +64,7 @@ Hitting a port conflict? See [Self-Hosting → Ports and volumes](../self-hostin
 ## 3. Log in
 
 ```bash
-observal auth login
+dev-library auth login
 ```
 
 Prompts:
@@ -85,7 +85,7 @@ Log in as super admin for the fewest restrictions while exploring. Credentials l
 Check it worked:
 
 ```bash
-observal auth whoami
+dev-library auth whoami
 # → super@demo.example (super_admin)
 ```
 
@@ -94,7 +94,7 @@ observal auth whoami
 If you already have MCP servers configured in Claude Code, Kiro, Cursor, VS Code, or Copilot, first see what's there:
 
 ```bash
-observal scan
+dev-library scan
 ```
 
 Expected output lists detected harnesses, MCP servers, skills, hooks, and agents. MCP commands and remote URLs are shown exactly as configured.
@@ -102,7 +102,7 @@ Expected output lists detected harnesses, MCP servers, skills, hooks, and agents
 `scan` is read-only: it shows what you have without modifying anything. Install session telemetry hooks:
 
 ```bash
-observal doctor patch --all-harnesses
+dev-library doctor patch --all-harnesses
 ```
 
 `doctor patch` installs supported session hooks and extensions. It does not rewrite MCP configuration. Restart your harness so the hook changes take effect, then begin a coding session.
@@ -114,7 +114,7 @@ Open `http://localhost/traces` in your browser. Start a prompt in your harness a
 Or use the CLI:
 
 ```bash
-observal ops traces --limit 5
+dev-library ops traces --limit 5
 ```
 
 ## 6. (Optional) Pull an agent
@@ -122,14 +122,14 @@ observal ops traces --limit 5
 Browse what the community has published:
 
 ```bash
-observal agent list
-observal agent show <agent-name>
+dev-library agent list
+dev-library agent show <agent-name>
 ```
 
 Install one into your harness:
 
 ```bash
-observal agent pull <agent-name> --harness <harness-name>
+dev-library agent pull <agent-name> --harness <harness-name>
 ```
 
 This writes agent files, skills, hooks, and direct MCP configs into the right places for your harness.

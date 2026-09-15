@@ -16,14 +16,14 @@ profile file the way Kiro or OpenCode have one. Instead, Observal writes the
 agent's rules into `AGENTS.md`, which becomes Pi's system prompt, and writes
 MCP servers and skills next to it.
 
-To let several registry agents coexist, a user-scope `observal agent pull`
+To let several registry agents coexist, a user-scope `dev-library agent pull`
 writes each agent into its own profile directory under
 `~/.pi/agent/agents/{agent}/`. The Observal extension's `/agent` command swaps a
 profile into the live `~/.pi/agent/` location. A project-scope pull writes the
 rules straight to the project's `AGENTS.md`, which Pi reads directly.
 
 Pi session telemetry uses an in-process TypeScript extension,
-`~/.pi/agent/extensions/observal.ts`. It is installed by `observal doctor patch`
+`~/.pi/agent/extensions/observal.ts`. It is installed by `dev-library doctor patch`
 and is shared by every agent; agent pulls do not embed telemetry hooks.
 
 ---
@@ -31,7 +31,7 @@ and is shared by every agent; agent pulls do not embed telemetry hooks.
 ## Supported capabilities
 
 | Capability | Support |
-|---|---|
+| --- | --- |
 | Agent profiles | Project and user scope, as `AGENTS.md` |
 | Hook bridge | Pi extension (no shell hooks) |
 | Extension events | `session_start`, `agent_end`, `session_shutdown` |
@@ -40,8 +40,8 @@ and is shared by every agent; agent pulls do not embed telemetry hooks.
 | Guidance files | Scanned from `AGENTS.md`, `~/.pi/agent/AGENTS.md`, `.pi/SYSTEM.md`, `.pi/APPEND_SYSTEM.md` |
 | Skills | `.pi/skills/{name}/SKILL.md` and `~/.pi/agent/skills/{name}/SKILL.md` |
 | Session parsing | Pi JSONL parser |
-| Telemetry | Pi session transcripts delivered through the extension; `observal reconcile --harness pi` is accepted but finds no sessions |
-| Model selection | Registry-backed Pi model catalog (`observal registry models list --harness pi`) |
+| Telemetry | Pi session transcripts delivered through the extension; `dev-library reconcile --harness pi` is accepted but finds no sessions |
+| Model selection | Registry-backed Pi model catalog (`dev-library registry models list --harness pi`) |
 
 ---
 
@@ -59,19 +59,19 @@ Pi 0.74.0 or newer is required by the telemetry extension.
 ### 2. Authenticate
 
 ```bash
-observal auth login
+dev-library auth login
 ```
 
 This writes credentials to `~/.observal/config.json`. Unless you pass
 `--no-setup` or `--output json`, login then installs the bundled Observal skills
 into every detected harness (Pi counts once `~/.pi/` exists) and runs
-`observal doctor`, which warns if the Pi telemetry extension is missing or
+`dev-library doctor`, which warns if the Pi telemetry extension is missing or
 stale. A healthy install prints no Pi warning.
 
 ### 3. Pull an agent into Pi
 
 ```bash
-observal agent pull <agent-name> --harness pi
+dev-library agent pull <agent-name> --harness pi
 ```
 
 Pi's default scope is user scope. The agent is written to
@@ -80,7 +80,7 @@ Pi's default scope is user scope. The agent is written to
 To install into the current project:
 
 ```bash
-observal agent pull <agent-name> --harness pi --scope project
+dev-library agent pull <agent-name> --harness pi --scope project
 ```
 
 Project pulls write the rules to `AGENTS.md` in the project root, which Pi
@@ -99,7 +99,7 @@ Merge instead of copying if `.pi/mcp.json` already lists other servers.
 ### 4. Install or refresh the telemetry extension
 
 ```bash
-observal doctor patch --harness pi
+dev-library doctor patch --harness pi
 ```
 
 This writes the bundled extension to `~/.pi/agent/extensions/observal.ts` when
@@ -107,7 +107,7 @@ it is missing or differs from the bundled source, and removes any legacy
 `npm:observal-pi` entry from `~/.pi/agent/settings.json` so the extension is
 not loaded twice. Restart Pi or run `/reload` afterwards.
 
-`doctor patch` refuses to run until `observal auth login` has written a server
+`doctor patch` refuses to run until `dev-library auth login` has written a server
 URL, although it does not contact the server.
 
 ### 5. Activate the agent inside Pi
@@ -118,8 +118,8 @@ Inside a Pi session, run `/agent` and pick the pulled agent. See
 ### 6. Check what is installed
 
 ```bash
-observal scan --harness pi
-observal doctor
+dev-library scan --harness pi
+dev-library doctor
 ```
 
 ---
@@ -127,7 +127,7 @@ observal doctor
 ## Config paths
 
 | Purpose | Project scope | User scope |
-|---|---|---|
+| --- | --- | --- |
 | Agent rules | `AGENTS.md` (project root) | `~/.pi/agent/agents/{agent}/AGENTS.md` |
 | MCP config | `.pi/agents/{agent}/mcp.json` | `~/.pi/agent/agents/{agent}/mcp.json` |
 | Skill definition | `.pi/agents/{agent}/skills/{name}/SKILL.md` | `~/.pi/agent/agents/{agent}/skills/{name}/SKILL.md` |
@@ -150,7 +150,7 @@ Pi MCP configs use the `mcpServers` key.
 
 Because Pi reads a single `AGENTS.md`, `mcp.json`, and `skills/` directory,
 only one Observal agent can be active at a time. In user scope,
-`observal agent pull` does not touch the active files. It writes into the
+`dev-library agent pull` does not touch the active files. It writes into the
 per-agent profile directory, and the extension's `/agent` command makes a
 profile active:
 
@@ -179,7 +179,7 @@ failures never interrupt Pi. Ingest and checkpoint calls time out after five
 seconds, and the layer-snapshot upload after ten.
 
 | Pi event | Observal use |
-|---|---|
+| --- | --- |
 | `session_start` | Load config and cursors, upload the layer snapshot, recover stale sessions on startup, show `● observal` in the footer |
 | `agent_end` | Push new session lines after each turn |
 | `session_shutdown` | Push remaining lines and finalize the session |
@@ -187,7 +187,7 @@ seconds, and the layer-snapshot upload after ten.
 The extension also registers two commands, `/agent` and `/obs-sync`:
 
 | Command | Description |
-|---|---|
+| --- | --- |
 | `/agent [name]` | Swap the active Observal agent profile |
 | `/obs-sync` | Show lines pushed and the server URL |
 | `/obs-sync flush` | Push pending lines now |
@@ -203,7 +203,7 @@ stale copies.
 Pi does not expose an Observal agent id in its session file. The extension
 resolves attribution from Observal's own state:
 
-1. `observal agent pull` records the agent name, id, version, scope, pull
+1. `dev-library agent pull` records the agent name, id, version, scope, pull
    time, and directory under the `pi` harness in `~/.observal/lockfile.json`.
 2. The pull also records that agent as `active_agent` in
    `~/.observal/config.json`, and `/agent` updates the entry whenever you
@@ -242,7 +242,7 @@ Python harnesses:
    checkpoint on the next push.
 
 Pi's pending batches are the files under `~/.observal/pi_session_outbox/`.
-`observal ops telemetry status` reports server ingest health and the Python
+`dev-library ops telemetry status` reports server ingest health and the Python
 exporters' outbox; it does not count this directory.
 
 ---
@@ -258,7 +258,7 @@ that file as the system prompt, so the whole file is the agent:
 You are a code reviewer with the following specialization...
 ```
 
-There is no frontmatter and no model field. `observal agent pull` does not
+There is no frontmatter and no model field. `dev-library agent pull` does not
 write a model into Pi's configuration; the model is chosen inside Pi.
 
 ---
@@ -268,7 +268,7 @@ write a model into Pi's configuration; the model is chosen inside Pi.
 Pi skills live at:
 
 | Scope | Path |
-|---|---|
+| --- | --- |
 | Project | `.pi/skills/{name}/SKILL.md` |
 | User | `~/.pi/agent/skills/{name}/SKILL.md` |
 
@@ -309,7 +309,7 @@ not by each agent pull, and lives only in user scope.
 
 **Guidance files are scanned, with two exceptions.** Observal layers
 `AGENTS.md`, `.pi/SYSTEM.md`, and `.pi/APPEND_SYSTEM.md` as context. Scanning
-and `observal agent pull` never rewrite the project's `.pi/SYSTEM.md` or
+and `dev-library agent pull` never rewrite the project's `.pi/SYSTEM.md` or
 `.pi/APPEND_SYSTEM.md`. A project-scope pull does write the project's
 `AGENTS.md`, because that file is the agent's rules in Pi, and `/agent` swaps
 do replace the user-scope `~/.pi/agent/SYSTEM.md` as described above.

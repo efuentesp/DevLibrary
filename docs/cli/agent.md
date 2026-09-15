@@ -3,7 +3,7 @@
 <!-- SPDX-FileCopyrightText: 2026 tsitu0 <tomsitu0102@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal agent`
+# `dev-library agent`
 
 Create, compose, publish, install, and govern agents. An agent bundles MCP servers, skills, hooks, prompts, and sandboxes into one versioned Registry object.
 
@@ -39,7 +39,7 @@ Every leaf command supports `--output table|json`. JSON success output contains 
 Use complete flags for automation:
 
 ```bash
-observal agent create \
+dev-library agent create \
   --name reviewer \
   --description 'Reviews changes' \
   --prompt 'Review carefully.' \
@@ -51,8 +51,8 @@ observal agent create \
 Other modes:
 
 ```bash
-observal agent create --from-file agent.json --output json
-observal agent create
+dev-library agent create --from-file agent.json --output json
+dev-library agent create
 ```
 
 The no-flag form is interactive and cannot run in JSON mode. Flag mode requires `--name` and either `--prompt` or `--prompt-file`. Versions must be semantic versions and every repeated `--harness` must be registered.
@@ -81,8 +81,8 @@ Input may be an array or an object containing an `agents` array:
 ```
 
 ```bash
-observal agent bulk-create --from-file agents.json --dry-run --output json
-observal agent bulk-create --from-file agents.json --yes --output json
+dev-library agent bulk-create --from-file agents.json --dry-run --output json
+dev-library agent bulk-create --from-file agents.json --yes --output json
 ```
 
 JSON mode requires either `--dry-run` or `--yes`. It returns the direct bulk result, including per-agent statuses and summary counts.
@@ -90,11 +90,11 @@ JSON mode requires either `--dry-run` or `--yes`. It returns the direct bulk res
 ## List, my, and show
 
 ```bash
-observal agent list --search 'incident response' --output json
-observal agent list --namespace alice --page 2 --limit 20 --output json
-observal agent list --team platform --output json
-observal agent my --output json
-observal agent show alice/reviewer --output json
+dev-library agent list --search 'incident response' --output json
+dev-library agent list --namespace alice --page 2 --limit 20 --output json
+dev-library agent list --team platform --output json
+dev-library agent my --output json
+dev-library agent show alice/reviewer --output json
 ```
 
 `list` JSON is paginated:
@@ -119,19 +119,19 @@ The most recent `list` or `my` result is cached for row-number references. Empty
 `install` asks the server to generate config but does not write it:
 
 ```bash
-observal agent install alice/reviewer --harness kiro --output json
+dev-library agent install alice/reviewer --harness kiro --output json
 ```
 
 JSON returns the complete server installation result. Legacy `--raw` prints only `config_snippet`; new automation should use the shared output option.
 
-Use [`observal agent pull`](pull.md) to write and track the generated installation.
+Use [`dev-library agent pull`](pull.md) to write and track the generated installation.
 
 ## Archive, delete, and restore
 
 ```bash
-observal agent archive alice/reviewer --yes --output json
-observal agent delete alice/reviewer --yes --output json
-observal agent unarchive alice/reviewer --yes --output json
+dev-library agent archive alice/reviewer --yes --output json
+dev-library agent delete alice/reviewer --yes --output json
+dev-library agent unarchive alice/reviewer --yes --output json
 ```
 
 `delete` is an alias for the same reversible archive operation. JSON mode never prompts and requires `--yes`. JSON returns the direct updated Agent object.
@@ -141,7 +141,7 @@ observal agent unarchive alice/reviewer --yes --output json
 ### Initialize
 
 ```bash
-observal agent init \
+dev-library agent init \
   --dir ./reviewer \
   --name reviewer \
   --description 'Reviews changes' \
@@ -170,8 +170,8 @@ JSON returns:
 Find a component in Registry JSON, then copy its UUID:
 
 ```bash
-observal registry skill list --search review --output json
-observal agent add skill 22222222-2222-2222-2222-222222222222 --dir ./reviewer --output json
+dev-library registry skill list --search review --output json
+dev-library agent add skill 22222222-2222-2222-2222-222222222222 --dir ./reviewer --output json
 ```
 
 Valid types are `mcp`, `skill`, `hook`, `prompt`, and `sandbox`. Duplicate type and UUID pairs return conflict exit code 6. Invalid types or IDs return validation exit code 7.
@@ -181,8 +181,8 @@ JSON returns the YAML path and added component.
 ### Build
 
 ```bash
-observal agent build --dir ./reviewer --output json
-observal agent build --dir ./reviewer --team platform --visibility team --output json
+dev-library agent build --dir ./reviewer --output json
+dev-library agent build --dir ./reviewer --team platform --visibility team --output json
 ```
 
 Build verifies every component and validates whether private components are visible to the target owner. A successful JSON result contains `valid`, `agent`, `components`, and `issues`. Invalid composition exits with code 7 and leaves JSON stdout empty.
@@ -190,10 +190,10 @@ Build verifies every component and validates whether private components are visi
 ### Publish
 
 ```bash
-observal agent publish --dir ./reviewer --output json
-observal agent publish --dir ./reviewer --draft --output json
-observal agent publish --submit alice/reviewer --output json
-observal agent publish --dir ./reviewer --update --bump minor --output json
+dev-library agent publish --dir ./reviewer --output json
+dev-library agent publish --dir ./reviewer --draft --output json
+dev-library agent publish --submit alice/reviewer --output json
+dev-library agent publish --dir ./reviewer --update --bump minor --output json
 ```
 
 `--draft` and `--submit` are mutually exclusive. Scope changes cannot be combined with `--update`; use ownership transfer or a separate visibility operation. Non-interactive updates may use `--bump patch|minor|major`.
@@ -203,8 +203,8 @@ JSON returns the direct created, saved, submitted, or updated Agent object.
 ## Release and versions
 
 ```bash
-observal agent release alice/reviewer --bump patch --dir ./reviewer --output json
-observal agent versions alice/reviewer --page 1 --page-size 50 --output json
+dev-library agent release alice/reviewer --bump patch --dir ./reviewer --output json
+dev-library agent versions alice/reviewer --page 1 --page-size 50 --output json
 ```
 
 Release obtains the server's semantic-version suggestion, submits the complete YAML snapshot, then updates local YAML atomically only after the server accepts the release. A failed server request leaves the local version unchanged.
@@ -214,7 +214,7 @@ Versions JSON returns the direct paginated server object. Page size is 1 through
 ## Transfer ownership
 
 ```bash
-observal agent transfer-owner alice/reviewer bob --yes --output json
+dev-library agent transfer-owner alice/reviewer bob --yes --output json
 ```
 
 The username may optionally begin with `@`. JSON mode requires `--yes` and returns the direct server result.
@@ -224,10 +224,10 @@ The username may optionally begin with `@`. JSON mode requires `--yes` and retur
 Co-authors can edit and publish the same Agent:
 
 ```bash
-observal agent co-authors list alice/reviewer --output json
-observal agent co-authors add alice/reviewer dev@example.com --output json
-observal agent co-authors add alice/reviewer @dev --output json
-observal agent co-authors remove alice/reviewer 550e8400-e29b-41d4-a716-446655440000 --output json
+dev-library agent co-authors list alice/reviewer --output json
+dev-library agent co-authors add alice/reviewer dev@example.com --output json
+dev-library agent co-authors add alice/reviewer @dev --output json
+dev-library agent co-authors remove alice/reviewer 550e8400-e29b-41d4-a716-446655440000 --output json
 ```
 
 List returns the standard list envelope. Add returns the added user. Remove requires the user UUID returned by list and returns the direct deletion result.
@@ -235,7 +235,7 @@ List returns the standard list envelope. Add returns the added user. Remove requ
 ## Pull
 
 ```bash
-observal agent pull alice/reviewer --harness kiro --no-prompt --output json
+dev-library agent pull alice/reviewer --harness kiro --no-prompt --output json
 ```
 
 Pull writes harness files, records the exact Agent and component versions, and reports every file and setup action. See the [Pull reference](pull.md) for path, secret, merge, dry-run, and JSON behavior.
@@ -257,6 +257,6 @@ Common Agent failures use:
 
 ## Related
 
-* [`observal agent pull`](pull.md): install into a harness
-* [`observal registry`](registry.md): manage Agent components
-* [`observal registry models`](models.md): inspect exact harness model IDs
+* [`dev-library agent pull`](pull.md): install into a harness
+* [`dev-library registry`](registry.md): manage Agent components
+* [`dev-library registry models`](models.md): inspect exact harness model IDs

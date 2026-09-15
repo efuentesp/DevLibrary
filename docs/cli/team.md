@@ -1,7 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Observal Contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal team`
+# `dev-library team`
 
 Create and govern teamspaces, members, visibility reviews, join requests, and private-team invitations.
 
@@ -43,10 +43,10 @@ Team references may be UUIDs, handles, or `@handle`. Unknown teamspaces use not-
 ## List, show, and claim
 
 ```bash
-observal team list --output json
-observal team list --all --output json
-observal team show platform-tools --output json
-observal team claim-personal --output json
+dev-library team list --output json
+dev-library team list --all --output json
+dev-library team show platform-tools --output json
+dev-library team claim-personal --output json
 ```
 
 `list` returns the standard `items`, `total`, `page`, and `page_size` envelope. The default includes teamspaces where the user is a member. `--all` requests all teamspaces visible to the caller. Empty results use `items: []` and `page_size: 0`.
@@ -70,13 +70,13 @@ observal team claim-personal --output json
 ## Create and visibility
 
 ```bash
-observal team create 'Platform Tools' \
+dev-library team create 'Platform Tools' \
   --handle platform-tools \
   --description 'Internal tooling' \
   --visibility private \
   --output json
 
-observal team visibility set platform-tools public --output json
+dev-library team visibility set platform-tools public --output json
 ```
 
 Visibility is `public` or `private`. Creating a public teamspace or setting a private teamspace to public submits a review request. Until approval, the response reports `visibility: "private"` and `visibility_request_status: "pending"`.
@@ -86,9 +86,9 @@ Create and visibility JSON return the direct Team object.
 Reviewers and deployment admins manage pending public visibility requests:
 
 ```bash
-observal team visibility list-requests --output json
-observal team visibility approve platform-tools --output json
-observal team visibility reject platform-tools \
+dev-library team visibility list-requests --output json
+dev-library team visibility approve platform-tools --output json
+dev-library team visibility reject platform-tools \
   --reason 'Add a public description' \
   --output json
 ```
@@ -98,8 +98,8 @@ The list returns the standard list envelope. Approve and reject return the direc
 ## Delete and leave
 
 ```bash
-observal team delete platform-tools --yes --output json
-observal team leave platform-tools --yes --output json
+dev-library team delete platform-tools --yes --output json
+dev-library team leave platform-tools --yes --output json
 ```
 
 Delete is permanent. Leave removes only the caller's membership. The last owner cannot leave. Human mode prompts unless `--yes` is supplied. JSON mode never prompts and requires `--yes`.
@@ -111,7 +111,7 @@ Both endpoints currently return an empty JSON object on success.
 Request access to a visible teamspace:
 
 ```bash
-observal team request join platform-tools \
+dev-library team request join platform-tools \
   --message 'I maintain deployments' \
   --output json
 ```
@@ -121,8 +121,8 @@ The message is optional and limited to 500 characters. JSON returns the created 
 View your own status or withdraw the sole pending request:
 
 ```bash
-observal team request mine platform-tools --output json
-observal team request withdraw platform-tools --yes --output json
+dev-library team request mine platform-tools --output json
+dev-library team request withdraw platform-tools --yes --output json
 ```
 
 `request mine` returns the standard list envelope with requests ordered newest first. `request withdraw` finds the caller's pending request and marks it cancelled. Human mode prompts unless `--yes` is supplied. JSON mode requires `--yes` and returns an empty object.
@@ -130,9 +130,9 @@ observal team request withdraw platform-tools --yes --output json
 Owners and deployment admins can list and decide requests:
 
 ```bash
-observal team request list platform-tools --status pending --output json
-observal team request approve platform-tools @alice --output json
-observal team request reject platform-tools bob@example.com \
+dev-library team request list platform-tools --status pending --output json
+dev-library team request approve platform-tools @alice --output json
+dev-library team request reject platform-tools bob@example.com \
   --reason 'Use the SRE teamspace' \
   --output json
 ```
@@ -144,10 +144,10 @@ The list returns the standard list envelope. Join, approve, and reject return th
 ## Members
 
 ```bash
-observal team members list platform-tools --output json
-observal team members add platform-tools alice@example.com --role reviewer --output json
-observal team members add platform-tools @bob --role owner --output json
-observal team members remove platform-tools @bob --yes --output json
+dev-library team members list platform-tools --output json
+dev-library team members add platform-tools alice@example.com --role reviewer --output json
+dev-library team members add platform-tools @bob --role owner --output json
+dev-library team members remove platform-tools @bob --yes --output json
 ```
 
 Roles are `member`, `reviewer`, and `owner`. Adding an existing member updates the role. The last owner cannot be removed.
@@ -161,13 +161,13 @@ Human remove prompts unless `--yes` is supplied. JSON remove requires `--yes`.
 Create and list invitations:
 
 ```bash
-observal team invite create platform-tools \
+dev-library team invite create platform-tools \
   --name onboarding \
   --expires-days 30 \
   --max-uses 20 \
   --output json
 
-observal team invite list platform-tools --output json
+dev-library team invite list platform-tools --output json
 ```
 
 `--expires-days` accepts 1 through 365. `--max-uses` accepts 1 through 10,000 or may be omitted for no use limit. Invite names accept 1 through 100 characters.
@@ -177,8 +177,8 @@ Create returns the direct invitation object, including the one-time token and UR
 A recipient can preview the token, then submit an owner-reviewed access request:
 
 ```bash
-observal team invite preview INVITE_TOKEN --output json
-observal team invite request INVITE_TOKEN \
+dev-library team invite preview INVITE_TOKEN --output json
+dev-library team invite request INVITE_TOKEN \
   --message 'I am joining the deployment rotation' \
   --output json
 ```
@@ -188,7 +188,7 @@ observal team invite request INVITE_TOKEN \
 Owners and admins can inspect invitation usage:
 
 ```bash
-observal team invite requests \
+dev-library team invite requests \
   platform-tools \
   550e8400-e29b-41d4-a716-446655440000 \
   --output json
@@ -199,7 +199,7 @@ The command returns the standard list envelope for requests associated with that
 Revoke an invitation while retaining its audit history:
 
 ```bash
-observal team invite revoke \
+dev-library team invite revoke \
   platform-tools \
   550e8400-e29b-41d4-a716-446655440000 \
   --yes \
@@ -209,7 +209,7 @@ observal team invite revoke \
 Delete an invitation only when it has no uses or request history:
 
 ```bash
-observal team invite delete \
+dev-library team invite delete \
   platform-tools \
   550e8400-e29b-41d4-a716-446655440000 \
   --yes \
@@ -233,6 +233,6 @@ The invite ID must be a UUID. Human mode prompts unless `--yes` is supplied. JSO
 
 ## Related
 
-* [`observal inbox`](inbox.md): view request and visibility decisions
-* [`observal agent`](agent.md): publish Agents to a teamspace
-* [`observal registry`](registry.md): publish components to a teamspace
+* [`dev-library inbox`](inbox.md): view request and visibility decisions
+* [`dev-library agent`](agent.md): publish Agents to a teamspace
+* [`dev-library registry`](registry.md): publish components to a teamspace

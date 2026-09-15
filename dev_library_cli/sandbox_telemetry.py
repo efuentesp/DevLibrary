@@ -3,7 +3,7 @@
 
 """Best-effort sandbox execution telemetry delivery.
 
-``observal-sandbox-run`` emits one event per execution. This module POSTs
+``dev-library-sandbox-run`` emits one event per execution. This module POSTs
 events to ``/api/v1/ingest/sandbox-exec``; on any failure it spools them to
 ``~/.observal/sandbox_spans.jsonl`` (bounded, newest kept) and retries the
 spool on the next execution.

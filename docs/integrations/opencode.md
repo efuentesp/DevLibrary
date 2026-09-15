@@ -15,7 +15,7 @@ OpenCode agent profiles are Markdown files. Project agents live in
 `.opencode/agents/`. User agents live in `~/.config/opencode/agents/`.
 
 OpenCode session telemetry uses an in-process TypeScript plugin. The plugin is
-installed by `observal auth login` or `observal doctor patch`. Agent pulls write
+installed by `dev-library auth login` or `dev-library doctor patch`. Agent pulls write
 agent profiles and update the Observal lockfile, but they do not embed the
 telemetry plugin in each agent file.
 
@@ -28,7 +28,7 @@ lines, and sends them to Observal.
 ## Supported capabilities
 
 | Capability | Support |
-|---|---|
+| --- | --- |
 | Agent profiles | Project and user scope |
 | Hook bridge | OpenCode plugin |
 | Plugin events | `session.created`, `session.idle`, `message.updated` |
@@ -53,7 +53,7 @@ uv tool install observal-cli
 ### 2. Authenticate
 
 ```bash
-observal auth login
+dev-library auth login
 ```
 
 This writes credentials to `~/.observal/config.json`. If OpenCode is detected,
@@ -62,7 +62,7 @@ login can install the Observal plugin.
 ### 3. Pull an agent into OpenCode
 
 ```bash
-observal agent pull <agent-name> --harness opencode
+dev-library agent pull <agent-name> --harness opencode
 ```
 
 OpenCode's default scope is user scope. By default, the agent is written to
@@ -71,7 +71,7 @@ OpenCode's default scope is user scope. By default, the agent is written to
 To install into the current project:
 
 ```bash
-observal agent pull <agent-name> --harness opencode --scope project
+dev-library agent pull <agent-name> --harness opencode --scope project
 ```
 
 Project agents are written to `.opencode/agents/{name}.md`.
@@ -79,7 +79,7 @@ Project agents are written to `.opencode/agents/{name}.md`.
 ### 4. Install or refresh the OpenCode plugin
 
 ```bash
-observal doctor patch --harness opencode
+dev-library doctor patch --harness opencode
 ```
 
 This installs or updates `observal-plugin.ts` when the plugin is missing, stale,
@@ -90,7 +90,7 @@ or different from the bundled source.
 ## Config paths
 
 | Purpose | Project scope | User scope |
-|---|---|---|
+| --- | --- | --- |
 | Agent profile | `.opencode/agents/{name}.md` | `~/.config/opencode/agents/{name}.md` |
 | MCP config | `opencode.json` | `~/.config/opencode/opencode.json` |
 | Skill definition | `.opencode/skills/{name}/SKILL.md` | `~/.config/opencode/skills/{name}/SKILL.md` |
@@ -109,7 +109,7 @@ Observal installs a TypeScript plugin named `observal-plugin.ts`. The plugin
 subscribes to OpenCode runtime events:
 
 | OpenCode event | Observal use |
-|---|---|
+| --- | --- |
 | `session.created` | Capture the active OpenCode agent name for the session |
 | `message.updated` | Mark the session as having new data to push |
 | `session.idle` | Fetch new messages and send them to Observal |
@@ -127,7 +127,7 @@ OpenCode exposes the active agent name in session events, not an Observal UUID.
 The Observal lockfile maps that OpenCode agent name back to the registry agent
 id and installed version.
 
-1. `observal agent pull` writes the OpenCode agent profile and records the
+1. `dev-library agent pull` writes the OpenCode agent profile and records the
    agent name, id, version, scope, and project directory in
    `~/.observal/lockfile.json`.
 2. The OpenCode plugin receives `session.created` or agent switch events and
@@ -182,7 +182,7 @@ You are an OpenCode agent with the following specialization...
 `doctor patch`, not by each agent pull.
 
 **Attribution depends on the lockfile.** If an agent profile is copied by hand
-without running `observal agent pull`, the plugin may see the OpenCode agent
+without running `dev-library agent pull`, the plugin may see the OpenCode agent
 name but have no Observal id or version to send.
 
 **Built-in OpenCode agents are ignored.** Sessions for built-in agents are not

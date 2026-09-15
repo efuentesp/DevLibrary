@@ -8,16 +8,16 @@ Safe upgrade flow for the Observal server stack.
 
 ## Quick upgrade (recommended)
 
-If you installed Observal via `observal server start` (the embedded stack), the CLI handles upgrades automatically:
+If you installed Observal via `dev-library server start` (the embedded stack), the CLI handles upgrades automatically:
 
 ```bash
-observal server upgrade --dry-run --output json
-observal server upgrade --version 0.9.0 --force --output json
+dev-library server upgrade --dry-run --output json
+dev-library server upgrade --version 0.9.0 --force --output json
 ```
 
 This pulls new Docker images, backs up PostgreSQL, recreates containers, and runs health checks. If the health check fails, it requests the previous image version again. Local shell and Docker access authorize the operation; the command does not require a reachable API or API role.
 
-See [`observal server upgrade`](../cli/server.md#observal-server-upgrade) for full details.
+See [`dev-library server upgrade`](../cli/server.md#observal-server-upgrade) for full details.
 
 ### Server-package upgrades
 
@@ -66,7 +66,7 @@ If you run a single instance and have a ~30-second maintenance window:
 3. Apply migrations out of band with `alembic upgrade head` and `python -m services.clickhouse.migrations` from `observal-server`, or run the init container once.
 4. Pull/rebuild new images: `docker compose pull && docker compose build observal-api observal-worker`.
 5. Start: `docker compose up -d`.
-6. Smoke test: `observal auth status --output json && observal ops telemetry status --output json`.
+6. Smoke test: `dev-library auth status --output json && dev-library ops telemetry status --output json`.
 
 Web UI, Postgres, ClickHouse, Redis stay up throughout. Users see a brief API outage (~15–30 s).
 
@@ -100,7 +100,7 @@ If the new version breaks:
 CLI upgrades are independent of server upgrades. Users:
 
 ```bash
-observal self upgrade
+dev-library self upgrade
 ```
 
 The CLI speaks a stable contract with the server. A newer CLI works against an older server and vice versa, within a release or two.

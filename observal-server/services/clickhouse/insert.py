@@ -203,7 +203,7 @@ async def insert_layer_snapshot(row: dict):
 async def insert_sandbox_exec_events(rows: list[dict]):
     """Batch insert sandbox execution telemetry into ClickHouse.
 
-    One row per observal-sandbox-run invocation. Best-effort like audit_log:
+    One row per dev-library-sandbox-run invocation. Best-effort like audit_log:
     a ClickHouse outage logs an error but never fails the HTTP ingest response.
     """
     optic.trace("inserting {} sandbox exec events into ClickHouse", len(rows))

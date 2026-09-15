@@ -3,7 +3,6 @@ SPDX-FileCopyrightText: 2026 Vishnu Muthiah <vishnu.muthiah04@gmail.com>
 SPDX-License-Identifier: Apache-2.0
 -->
 
-
 # Token Expiry Settings
 
 Most deployments don't need to change these. The defaults (60-minute access tokens, 30-day refresh tokens) work well for typical teams. Read on if you have compliance requirements, high-security needs, or users complaining about session behavior.
@@ -35,7 +34,7 @@ sequenceDiagram
 Pick the row that matches your environment:
 
 | Scenario | Access Token | Refresh Token | Refresh Mode | Hooks Token | Notes |
-|----------|-------------|---------------|--------------|-------------|-------|
+| ---------- | ------------- | --------------- | -------------- | ------------- | ------- |
 | **Development / local** | 60 min | 30 days | Sliding | 43200 min (30 days) | Defaults. Minimal re-auth friction. |
 | **Production (standard)** | 30 min | 14 days | Absolute | 43200 min (30 days) | Good balance of security and UX. |
 | **High-security / SOC 2** | 15 min | 24 hours | Absolute | 1440 min (1 day) | Short sessions, frequent re-auth. Set NTP sync. |
@@ -56,11 +55,10 @@ Decode a freshly-issued access token to confirm the new expiry:
 
 ```bash
 # Get a fresh token
-observal auth token | cut -d. -f2 | base64 -d 2>/dev/null | python3 -m json.tool
+dev-library auth token | cut -d. -f2 | base64 -d 2>/dev/null | python3 -m json.tool
 ```
 
 Check the `exp` claim — it should be `iat` + your configured access token TTL (in seconds).
-
 
 ## General Guidance
 

@@ -2,14 +2,14 @@
 <!-- SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# observal registry
+# dev-library registry
 
 Publish and manage registry components. The registry has five component types: MCP servers, skills, hooks, prompts, and sandboxes.
 
 ## Subcommand structure
 
 ```text
-observal registry <type> <action> [args]
+dev-library registry <type> <action> [args]
 ```
 
 | Type | Submit | List | My | Show | Install | Render | Edit |
@@ -27,12 +27,12 @@ All registry references accept a UUID, canonical `namespace/slug`, a unique lega
 ### Shared lifecycle and collaboration commands
 
 ```bash
-observal registry skill archive alice/reviewer --yes --output json
-observal registry skill unarchive alice/reviewer --yes --output json
-observal registry skill transfer-owner alice/reviewer bob --yes --output json
-observal registry skill co-authors list alice/reviewer --output json
-observal registry skill co-authors add alice/reviewer bob@example.com --output json
-observal registry skill co-authors remove alice/reviewer <user-uuid> --output json
+dev-library registry skill archive alice/reviewer --yes --output json
+dev-library registry skill unarchive alice/reviewer --yes --output json
+dev-library registry skill transfer-owner alice/reviewer bob --yes --output json
+dev-library registry skill co-authors list alice/reviewer --output json
+dev-library registry skill co-authors add alice/reviewer bob@example.com --output json
+dev-library registry skill co-authors remove alice/reviewer <user-uuid> --output json
 ```
 
 Archive, restore, and ownership transfer require explicit confirmation in JSON mode. Their JSON output is the direct server result. Co-author list returns the standard list envelope; add and remove return the direct server result.
@@ -44,11 +44,11 @@ The namespace is the publisher's username or a teamspace handle. Usernames canno
 Use the teamspace target and visibility options on submit commands:
 
 ```bash
-observal registry skill submit --skill-md ./SKILL.md --team platform-tools --visibility public
-observal registry skill submit --skill-md ./SKILL.md --team platform-tools --visibility team
-observal registry skill list --team platform-tools --search 'frontend design' --harness claude-code --output json
-observal registry skill list --namespace platform-tools --output json
-observal registry skill show platform-tools/internal-skill --output json
+dev-library registry skill submit --skill-md ./SKILL.md --team platform-tools --visibility public
+dev-library registry skill submit --skill-md ./SKILL.md --team platform-tools --visibility team
+dev-library registry skill list --team platform-tools --search 'frontend design' --harness claude-code --output json
+dev-library registry skill list --namespace platform-tools --output json
+dev-library registry skill show platform-tools/internal-skill --output json
 ```
 
 `public` teamspace items are visible to all registry users. `team` items are visible only to team members and privileged reviewers. Team owners and reviewers can change visibility after publication. A team member's new submission still follows the normal review workflow.
@@ -60,8 +60,8 @@ observal registry skill show platform-tools/internal-skill --output json
 Submit up to 200 MCP, skill, hook, prompt, and sandbox entries from one JSON file:
 
 ```bash
-observal registry bulk submit --from-file components.json --dry-run --output json
-observal registry bulk submit --from-file components.json --yes --output json
+dev-library registry bulk submit --from-file components.json --dry-run --output json
+dev-library registry bulk submit --from-file components.json --yes --output json
 ```
 
 The file is a bare array or an object with a `components` array. Each entry contains `type` plus the normal API submission fields:
@@ -101,15 +101,15 @@ Re-running a partially completed file is safe only after inspecting results. Exi
 
 MCP server registry commands for submitting, browsing, generating configuration, editing, and archiving MCP server listings.
 
-### `observal registry mcp submit`
+### `dev-library registry mcp submit`
 
 Submit an MCP server to the registry. By default, paste your server's JSON config (the same format you use in your harness). Use `--git` to analyze a git repository instead.
 
 #### Synopsis
 
 ```bash
-observal registry mcp submit [OPTIONS]
-observal registry mcp submit --git <url> [OPTIONS]
+dev-library registry mcp submit [OPTIONS]
+dev-library registry mcp submit --git <url> [OPTIONS]
 ```
 
 #### Options
@@ -149,22 +149,22 @@ observal registry mcp submit --git <url> [OPTIONS]
 
 ```bash
 # Paste config (default, recommended)
-observal registry mcp submit
+dev-library registry mcp submit
 
 # Non-interactive with piped JSON
-echo '{"command": "npx", "args": ["-y", "@example/mcp-server"]}' | observal registry mcp submit -y -n my-server -c developer-tools --output json
+echo '{"command": "npx", "args": ["-y", "@example/mcp-server"]}' | dev-library registry mcp submit -y -n my-server -c developer-tools --output json
 
 # Save as draft
-observal registry mcp submit --draft
+dev-library registry mcp submit --draft
 
 # Analyze a git repo
-observal registry mcp submit --git https://github.com/MarkusPfundstein/mcp-obsidian
+dev-library registry mcp submit --git https://github.com/MarkusPfundstein/mcp-obsidian
 
 # Non-interactive git analysis
-observal registry mcp submit --git https://github.com/sooperset/mcp-atlassian -y
+dev-library registry mcp submit --git https://github.com/sooperset/mcp-atlassian -y
 
 # Submit an existing draft for review
-observal registry mcp submit --submit my-server
+dev-library registry mcp submit --submit my-server
 ```
 
 #### Valid categories
@@ -181,12 +181,12 @@ observal registry mcp submit --submit my-server
 
 ---
 
-### `observal registry mcp list`
+### `dev-library registry mcp list`
 
 List approved MCP servers in the registry.
 
 ```bash
-observal registry mcp list [--search TERM] [--category CAT] [--limit N] [--sort name|category|version] [--output table|json] [--interactive]
+dev-library registry mcp list [--search TERM] [--category CAT] [--limit N] [--sort name|category|version] [--output table|json] [--interactive]
 ```
 
 | Option | Short | Description |
@@ -199,51 +199,51 @@ observal registry mcp list [--search TERM] [--category CAT] [--limit N] [--sort 
 | `--interactive` | `-i` | Open a fuzzy-search picker |
 
 ```bash
-observal registry mcp list --search github
-observal registry mcp list --category ai-ml --output json
-observal registry mcp list --interactive
-observal registry mcp list --sort category --limit 10
+dev-library registry mcp list --search github
+dev-library registry mcp list --category ai-ml --output json
+dev-library registry mcp list --interactive
+dev-library registry mcp list --sort category --limit 10
 ```
 
 ---
 
-### `observal registry mcp my`
+### `dev-library registry mcp my`
 
 List your own MCP servers across all statuses (draft, pending, approved, rejected).
 
 ```bash
-observal registry mcp my [--output table|json]
+dev-library registry mcp my [--output table|json]
 ```
 
 ```bash
-observal registry mcp my
-observal registry mcp my --output json
+dev-library registry mcp my
+dev-library registry mcp my --output json
 ```
 
 ---
 
-### `observal registry mcp show`
+### `dev-library registry mcp show`
 
 Show full details of an MCP server including validation results, env vars, and supported harnesses.
 
 ```bash
-observal registry mcp show <id-or-name> [--output table|json]
+dev-library registry mcp show <id-or-name> [--output table|json]
 ```
 
 ```bash
-observal registry mcp show my-server
-observal registry mcp show 3
-observal registry mcp show @fav --output json
+dev-library registry mcp show my-server
+dev-library registry mcp show 3
+dev-library registry mcp show @fav --output json
 ```
 
 ---
 
-### `observal registry mcp install`
+### `dev-library registry mcp install`
 
 Generate a harness config snippet for an MCP server. This command does not write harness configuration or record an installation. Prompts for required environment variables and headers unless non-interactive or machine output is selected.
 
 ```bash
-observal registry mcp install <id-or-name> --harness <harness> [options]
+dev-library registry mcp install <id-or-name> --harness <harness> [options]
 ```
 
 | Option | Short | Description |
@@ -258,20 +258,20 @@ observal registry mcp install <id-or-name> --harness <harness> [options]
 | `--output` | `-o` | Output the complete operation result as table or JSON |
 
 ```bash
-observal registry mcp install my-server --harness claude-code
-observal registry mcp install my-server --harness cursor --raw > .cursor/mcp.json
-observal registry mcp install 2 --harness copilot
-observal registry mcp install @db --harness kiro
+dev-library registry mcp install my-server --harness claude-code
+dev-library registry mcp install my-server --harness cursor --raw > .cursor/mcp.json
+dev-library registry mcp install 2 --harness copilot
+dev-library registry mcp install @db --harness kiro
 ```
 
 ---
 
-### `observal registry mcp edit`
+### `dev-library registry mcp edit`
 
 Edit an MCP server submission. For draft/pending/rejected listings, edits in place. For approved listings, publishes a new version with a semver bump.
 
 ```bash
-observal registry mcp edit <id-or-name> [OPTIONS]
+dev-library registry mcp edit <id-or-name> [OPTIONS]
 ```
 
 | Option | Short | Description |
@@ -292,26 +292,26 @@ Without flags, opens an interactive JSON paste prompt (same format as submit).
 
 ```bash
 # Interactive JSON paste edit
-observal registry mcp edit my-server
+dev-library registry mcp edit my-server
 
 # Update specific fields
-observal registry mcp edit my-server -d "New description" -c databases
+dev-library registry mcp edit my-server -d "New description" -c databases
 
 # Load updates from a file
-observal registry mcp edit my-server --from-file updates.json
+dev-library registry mcp edit my-server --from-file updates.json
 
 # Bump version on an approved listing
-observal registry mcp edit my-server --version 1.2.0
+dev-library registry mcp edit my-server --version 1.2.0
 ```
 
 ---
 
-### `observal registry mcp transfer-owner`
+### `dev-library registry mcp transfer-owner`
 
 Transfer ownership to another username. You stop being the owner immediately.
 
 ```bash
-observal registry mcp transfer-owner my-server @alice -y
+dev-library registry mcp transfer-owner my-server @alice -y
 ```
 
 ---
@@ -322,12 +322,12 @@ Skill registry commands. Skills are portable SKILL.md instruction packages that 
 
 Valid task types: `code-review`, `code-generation`, `testing`, `documentation`, `debugging`, `refactoring`, `deployment`, `security-audit`, `performance`, `general`.
 
-### `observal registry skill submit`
+### `dev-library registry skill submit`
 
 Submit a new skill for review. Provide `--git-url` to let the server fetch SKILL.md automatically, or use `--skill-md` to paste content directly.
 
 ```bash
-observal registry skill submit [OPTIONS]
+dev-library registry skill submit [OPTIONS]
 ```
 
 | Option | Short | Description |
@@ -341,21 +341,21 @@ observal registry skill submit [OPTIONS]
 | `--output` | `-o` | Output format: `table` or `json` |
 
 ```bash
-observal registry skill submit --git-url https://github.com/org/repo
-observal registry skill submit --from-file skill.json
-observal registry skill submit --skill-md ./SKILL.md --git-url https://github.com/org/repo --name review --description "Review code" --task-type code-review --output json
-observal registry skill submit --draft
-observal registry skill submit --submit abc123
+dev-library registry skill submit --git-url https://github.com/org/repo
+dev-library registry skill submit --from-file skill.json
+dev-library registry skill submit --skill-md ./SKILL.md --git-url https://github.com/org/repo --name review --description "Review code" --task-type code-review --output json
+dev-library registry skill submit --draft
+dev-library registry skill submit --submit abc123
 ```
 
 ---
 
-### `observal registry skill list`
+### `dev-library registry skill list`
 
 List approved skills in the registry.
 
 ```bash
-observal registry skill list [--task-type TYPE] [--target-agent AGENT] [--search TERM] [--output table|json]
+dev-library registry skill list [--task-type TYPE] [--target-agent AGENT] [--search TERM] [--output table|json]
 ```
 
 | Option | Short | Description |
@@ -366,51 +366,51 @@ observal registry skill list [--task-type TYPE] [--target-agent AGENT] [--search
 | `--output` | `-o` | Output format: `table`, `json` |
 
 ```bash
-observal registry skill list
-observal registry skill list --task-type code-review
-observal registry skill list --target-agent claude-code --output json
-observal registry skill list --search "refactor"
+dev-library registry skill list
+dev-library registry skill list --task-type code-review
+dev-library registry skill list --target-agent claude-code --output json
+dev-library registry skill list --search "refactor"
 ```
 
 ---
 
-### `observal registry skill my`
+### `dev-library registry skill my`
 
 List your own skills across all statuses (draft, pending, approved, rejected).
 
 ```bash
-observal registry skill my [--output table|json]
+dev-library registry skill my [--output table|json]
 ```
 
 ```bash
-observal registry skill my
-observal registry skill my --output json
+dev-library registry skill my
+dev-library registry skill my --output json
 ```
 
 ---
 
-### `observal registry skill show`
+### `dev-library registry skill show`
 
 Show detailed information about a skill, including validation status, task type, git source, and slash command.
 
 ```bash
-observal registry skill show <id-or-name> [--output table|json]
+dev-library registry skill show <id-or-name> [--output table|json]
 ```
 
 ```bash
-observal registry skill show my-skill
-observal registry skill show 1
-observal registry skill show @refactor-skill --output json
+dev-library registry skill show my-skill
+dev-library registry skill show 1
+dev-library registry skill show @refactor-skill --output json
 ```
 
 ---
 
-### `observal registry skill install`
+### `dev-library registry skill install`
 
 Install a skill by fetching the full skill directory from git. Clones the skill directory via sparse checkout and writes it to the appropriate harness skill path.
 
 ```bash
-observal registry skill install <id-or-name> --harness <harness> [--scope user|project] [--raw] [--no-write]
+dev-library registry skill install <id-or-name> --harness <harness> [--scope user|project] [--raw] [--no-write]
 ```
 
 | Option | Short | Description |
@@ -423,26 +423,27 @@ observal registry skill install <id-or-name> --harness <harness> [--scope user|p
 | `--output` | `-o` | Output the operation result as table or JSON |
 
 Scopes:
+
 - `user` (default): writes to `~/.<harness>/skills/<name>/` globally.
 - `project`: writes to `.agents/skills/<name>/` in the current directory, then symlinks into detected harness config directories.
 
 JSON output does not disable installation. It returns whether files were written and the installed path. Raw and no-write modes do not record the skill as installed. A failed file write or lockfile update returns a categorized failure instead of reporting success.
 
 ```bash
-observal registry skill install my-skill --harness claude-code
-observal registry skill install @sk --harness kiro --scope project
-observal registry skill install 2 --harness cursor --raw
-observal registry skill install my-skill --harness antigravity --no-write
+dev-library registry skill install my-skill --harness claude-code
+dev-library registry skill install @sk --harness kiro --scope project
+dev-library registry skill install 2 --harness cursor --raw
+dev-library registry skill install my-skill --harness antigravity --no-write
 ```
 
 ---
 
-### `observal registry skill edit`
+### `dev-library registry skill edit`
 
 Edit a draft, pending, or rejected skill submission. Acquires an edit lock to prevent concurrent modifications.
 
 ```bash
-observal registry skill edit <id-or-name> [OPTIONS]
+dev-library registry skill edit <id-or-name> [OPTIONS]
 ```
 
 | Option | Short | Description |
@@ -457,20 +458,20 @@ observal registry skill edit <id-or-name> [OPTIONS]
 | `--output` | `-o` | Output format: `table` or `json` |
 
 ```bash
-observal registry skill edit my-skill --description "Better desc"
-observal registry skill edit abc123 --from-file updates.json
-observal registry skill edit @sk --git-url https://github.com/org/new-repo
-observal registry skill edit 2 --version 2.0.0 --task-type debugging
+dev-library registry skill edit my-skill --description "Better desc"
+dev-library registry skill edit abc123 --from-file updates.json
+dev-library registry skill edit @sk --git-url https://github.com/org/new-repo
+dev-library registry skill edit 2 --version 2.0.0 --task-type debugging
 ```
 
 ---
 
-### `observal registry hook submit`
+### `dev-library registry hook submit`
 
 Submit a new hook for review. Supports inline script content via `--script`, or git-hosted hooks via `--source-url`.
 
 ```bash
-observal registry hook submit [OPTIONS]
+dev-library registry hook submit [OPTIONS]
 ```
 
 | Option | Short | Description |
@@ -486,22 +487,22 @@ observal registry hook submit [OPTIONS]
 | `--output` | `-o` | Output format: `table` or `json` |
 
 ```bash
-observal registry hook submit
-observal registry hook submit --script ./protect-files.sh
-observal registry hook submit --source-url https://github.com/org/hooks --source-path hooks/guard/
-observal registry hook submit --from-file hook.json
-observal registry hook submit --draft
-observal registry hook submit --submit abc123
+dev-library registry hook submit
+dev-library registry hook submit --script ./protect-files.sh
+dev-library registry hook submit --source-url https://github.com/org/hooks --source-path hooks/guard/
+dev-library registry hook submit --from-file hook.json
+dev-library registry hook submit --draft
+dev-library registry hook submit --submit abc123
 ```
 
 ---
 
-### `observal registry hook list`
+### `dev-library registry hook list`
 
 List approved hooks from the registry.
 
 ```bash
-observal registry hook list [--event EVENT] [--search TERM] [--output table|json]
+dev-library registry hook list [--event EVENT] [--search TERM] [--output table|json]
 ```
 
 | Option | Short | Description |
@@ -511,35 +512,35 @@ observal registry hook list [--event EVENT] [--search TERM] [--output table|json
 | `--output` | `-o` | Output format: `table`, `json` |
 
 ```bash
-observal registry hook list
-observal registry hook list --event Stop
-observal registry hook list --search guard --output json
+dev-library registry hook list
+dev-library registry hook list --event Stop
+dev-library registry hook list --search guard --output json
 ```
 
 ---
 
-### `observal registry hook show`
+### `dev-library registry hook show`
 
 Show detailed information for a single hook, including event type, handler config, and execution mode.
 
 ```bash
-observal registry hook show <id-or-name> [--output table|json]
+dev-library registry hook show <id-or-name> [--output table|json]
 ```
 
 ```bash
-observal registry hook show my-hook
-observal registry hook show 1
-observal registry hook show @guard --output json
+dev-library registry hook show my-hook
+dev-library registry hook show 1
+dev-library registry hook show @guard --output json
 ```
 
 ---
 
-### `observal registry hook install`
+### `dev-library registry hook install`
 
 Install a hook for a specific harness. Writes script files and merges hook config into the harness's settings. Existing hooks are preserved during merge.
 
 ```bash
-observal registry hook install <id-or-name> --harness <harness> [--platform PLATFORM] [--raw] [--dir DIR]
+dev-library registry hook install <id-or-name> --harness <harness> [--platform PLATFORM] [--raw] [--dir DIR]
 ```
 
 | Option | Short | Description |
@@ -551,23 +552,23 @@ observal registry hook install <id-or-name> --harness <harness> [--platform PLAT
 | `--output` | `-o` | Output the complete installation result as table or JSON |
 
 ```bash
-observal registry hook install my-hook --harness claude-code
-observal registry hook install @guard --harness kiro --dir ./project
-observal registry hook install my-hook --harness cursor --raw
-observal registry hook install my-hook --harness claude-code --platform darwin
-observal registry hook install my-hook --harness claude-code --output json
+dev-library registry hook install my-hook --harness claude-code
+dev-library registry hook install @guard --harness kiro --dir ./project
+dev-library registry hook install my-hook --harness cursor --raw
+dev-library registry hook install my-hook --harness claude-code --platform darwin
+dev-library registry hook install my-hook --harness claude-code --output json
 ```
 
 Hook installation validates every path before writing, refuses to replace malformed existing JSON, writes files atomically, and does not duplicate an existing event entry when repeated.
 
 ---
 
-### `observal registry hook edit`
+### `dev-library registry hook edit`
 
 Edit a draft, pending, or rejected hook submission. Acquires an edit lock to prevent concurrent modifications.
 
 ```bash
-observal registry hook edit <id-or-name> [OPTIONS]
+dev-library registry hook edit <id-or-name> [OPTIONS]
 ```
 
 | Option | Short | Description |
@@ -580,20 +581,20 @@ observal registry hook edit <id-or-name> [OPTIONS]
 | `--output` | `-o` | Output format: `table` or `json` |
 
 ```bash
-observal registry hook edit my-hook --description "Updated guard hook"
-observal registry hook edit my-hook --event Stop --version 1.1.0
-observal registry hook edit @guard --from-file updated-hook.json
-observal registry hook edit 1 --name new-name
+dev-library registry hook edit my-hook --description "Updated guard hook"
+dev-library registry hook edit my-hook --event Stop --version 1.1.0
+dev-library registry hook edit @guard --from-file updated-hook.json
+dev-library registry hook edit 1 --name new-name
 ```
 
 ---
 
-### `observal registry prompt submit`
+### `dev-library registry prompt submit`
 
 Submit a new prompt template for review. You can submit interactively, from a JSON file, or from a raw template file.
 
 ```bash
-observal registry prompt submit [OPTIONS]
+dev-library registry prompt submit [OPTIONS]
 ```
 
 | Option | Short | Description |
@@ -606,21 +607,21 @@ observal registry prompt submit [OPTIONS]
 If `--from-file` points to a non-JSON file, its content is used as the template and you are prompted for metadata interactively.
 
 ```bash
-observal registry prompt submit
-observal registry prompt submit --from-file prompt.json
-observal registry prompt submit --from-file template.md
-observal registry prompt submit --draft
-observal registry prompt submit --submit abc123
+dev-library registry prompt submit
+dev-library registry prompt submit --from-file prompt.json
+dev-library registry prompt submit --from-file template.md
+dev-library registry prompt submit --draft
+dev-library registry prompt submit --submit abc123
 ```
 
 ---
 
-### `observal registry prompt list`
+### `dev-library registry prompt list`
 
 List approved prompts in the registry.
 
 ```bash
-observal registry prompt list [--category CAT] [--search TERM] [--output table|json]
+dev-library registry prompt list [--category CAT] [--search TERM] [--output table|json]
 ```
 
 | Option | Short | Description |
@@ -630,50 +631,50 @@ observal registry prompt list [--category CAT] [--search TERM] [--output table|j
 | `--output` | `-o` | Output format: `table`, `json` |
 
 ```bash
-observal registry prompt list
-observal registry prompt list --category code-review
-observal registry prompt list --search "refactor" --output json
+dev-library registry prompt list
+dev-library registry prompt list --category code-review
+dev-library registry prompt list --search "refactor" --output json
 ```
 
 ---
 
-### `observal registry prompt my`
+### `dev-library registry prompt my`
 
 List your own prompts across all statuses (draft, pending, approved, rejected).
 
 ```bash
-observal registry prompt my [--output table|json]
+dev-library registry prompt my [--output table|json]
 ```
 
 ```bash
-observal registry prompt my
-observal registry prompt my --output json
+dev-library registry prompt my
+dev-library registry prompt my --output json
 ```
 
 ---
 
-### `observal registry prompt show`
+### `dev-library registry prompt show`
 
 Show detailed information about a prompt, including the template content.
 
 ```bash
-observal registry prompt show <id-or-name> [--output table|json]
+dev-library registry prompt show <id-or-name> [--output table|json]
 ```
 
 ```bash
-observal registry prompt show my-prompt
-observal registry prompt show 1
-observal registry prompt show @refactor-prompt --output json
+dev-library registry prompt show my-prompt
+dev-library registry prompt show 1
+dev-library registry prompt show @refactor-prompt --output json
 ```
 
 ---
 
-### `observal registry prompt render`
+### `dev-library registry prompt render`
 
 Render a prompt template with variable substitution. Sends key=value pairs to the server, which substitutes them into the template and returns the rendered output.
 
 ```bash
-observal registry prompt render <id-or-name> --var key=value [--var key2=value2 ...]
+dev-library registry prompt render <id-or-name> --var key=value [--var key2=value2 ...]
 ```
 
 | Option | Short | Description |
@@ -682,18 +683,18 @@ observal registry prompt render <id-or-name> --var key=value [--var key2=value2 
 | `--output` | `-o` | Output format: `table` or `json` |
 
 ```bash
-observal registry prompt render my-prompt --var lang=python
-observal registry prompt render @tpl --var file=main.py --var task=refactor
+dev-library registry prompt render my-prompt --var lang=python
+dev-library registry prompt render @tpl --var file=main.py --var task=refactor
 ```
 
 ---
 
-### `observal registry prompt edit`
+### `dev-library registry prompt edit`
 
 Edit a draft, pending, or rejected prompt submission. Acquires an edit lock to prevent concurrent modifications.
 
 ```bash
-observal registry prompt edit <id-or-name> [OPTIONS]
+dev-library registry prompt edit <id-or-name> [OPTIONS]
 ```
 
 | Option | Short | Description |
@@ -707,20 +708,20 @@ observal registry prompt edit <id-or-name> [OPTIONS]
 | `--output` | `-o` | Output format: `table` or `json` |
 
 ```bash
-observal registry prompt edit my-prompt --description "Updated desc"
-observal registry prompt edit abc123 --from-file updates.json
-observal registry prompt edit @tpl --template "New template: {{ var }}"
-observal registry prompt edit 2 --version 2.0.0 --category debugging
+dev-library registry prompt edit my-prompt --description "Updated desc"
+dev-library registry prompt edit abc123 --from-file updates.json
+dev-library registry prompt edit @tpl --template "New template: {{ var }}"
+dev-library registry prompt edit 2 --version 2.0.0 --category debugging
 ```
 
 ---
 
-### `observal registry sandbox submit`
+### `dev-library registry sandbox submit`
 
 Submit a new sandbox environment for review.
 
 ```bash
-observal registry sandbox submit [OPTIONS]
+dev-library registry sandbox submit [OPTIONS]
 ```
 
 | Option | Short | Description |
@@ -731,20 +732,20 @@ observal registry sandbox submit [OPTIONS]
 | `--output` | `-o` | Output format: `table` or `json` |
 
 ```bash
-observal registry sandbox submit
-observal registry sandbox submit --from-file sandbox.json
-observal registry sandbox submit --draft
-observal registry sandbox submit --submit abc123
+dev-library registry sandbox submit
+dev-library registry sandbox submit --from-file sandbox.json
+dev-library registry sandbox submit --draft
+dev-library registry sandbox submit --submit abc123
 ```
 
 ---
 
-### `observal registry sandbox list`
+### `dev-library registry sandbox list`
 
 List approved sandboxes in the registry.
 
 ```bash
-observal registry sandbox list [--runtime TYPE] [--search TERM] [--output table|json]
+dev-library registry sandbox list [--runtime TYPE] [--search TERM] [--output table|json]
 ```
 
 | Option | Short | Description |
@@ -754,25 +755,25 @@ observal registry sandbox list [--runtime TYPE] [--search TERM] [--output table|
 | `--output` | `-o` | Output format: `table`, `json` |
 
 ```bash
-observal registry sandbox list
-observal registry sandbox list --runtime docker
-observal registry sandbox list --search "node" --output json
+dev-library registry sandbox list
+dev-library registry sandbox list --runtime docker
+dev-library registry sandbox list --search "node" --output json
 ```
 
 ---
 
-### `observal registry sandbox show`
+### `dev-library registry sandbox show`
 
 Show detailed information about a sandbox, including runtime type, container image, and resource limits.
 
 ```bash
-observal registry sandbox show <id-or-name> [--output table|json]
+dev-library registry sandbox show <id-or-name> [--output table|json]
 ```
 
 ```bash
-observal registry sandbox show my-sandbox
-observal registry sandbox show 1
-observal registry sandbox show @dev-env --output json
+dev-library registry sandbox show my-sandbox
+dev-library registry sandbox show 1
+dev-library registry sandbox show @dev-env --output json
 ```
 
 ---
@@ -780,18 +781,18 @@ observal registry sandbox show @dev-env --output json
 Sandboxes are attached to agents by UUID and are installed when the agent is pulled. There is no standalone Sandbox install command.
 
 ```bash
-observal agent add sandbox <sandbox-uuid>
-observal agent build
+dev-library agent add sandbox <sandbox-uuid>
+dev-library agent build
 ```
 
 ---
 
-### `observal registry sandbox edit`
+### `dev-library registry sandbox edit`
 
 Edit a draft, pending, or rejected sandbox submission. Acquires an edit lock to prevent concurrent modifications.
 
 ```bash
-observal registry sandbox edit <id-or-name> [OPTIONS]
+dev-library registry sandbox edit <id-or-name> [OPTIONS]
 ```
 
 | Option | Short | Description |
@@ -805,21 +806,21 @@ observal registry sandbox edit <id-or-name> [OPTIONS]
 | `--output` | `-o` | Output format: `table` or `json` |
 
 ```bash
-observal registry sandbox edit my-sandbox --image node:20-alpine
-observal registry sandbox edit abc123 --from-file updates.json
-observal registry sandbox edit @env --runtime-type docker --version 2.0.0 --output json
+dev-library registry sandbox edit my-sandbox --image node:20-alpine
+dev-library registry sandbox edit abc123 --from-file updates.json
+dev-library registry sandbox edit @env --runtime-type docker --version 2.0.0 --output json
 ```
 
 ---
 
 ## Component versions
 
-Use `observal registry version publish` and `observal registry version list` for all five component types. Publication supports direct JSON results; history supports explicit pagination.
+Use `dev-library registry version publish` and `dev-library registry version list` for all five component types. Publication supports direct JSON results; history supports explicit pagination.
 
-See [`observal registry version`](component.md) for the complete contract.
+See [`dev-library registry version`](component.md) for the complete contract.
 
 ## Personalized recommendations
 
-Use `observal registry recommend` to rank visible components against the signed-in user's sessions and to dismiss or mark recommendations as installed.
+Use `dev-library registry recommend` to rank visible components against the signed-in user's sessions and to dismiss or mark recommendations as installed.
 
-See [`observal registry recommend`](recommend.md) for the JSON schema and feedback actions.
+See [`dev-library registry recommend`](recommend.md) for the JSON schema and feedback actions.

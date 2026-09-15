@@ -51,7 +51,7 @@ This validates the Ed25519-signed key, installs the CLI, and writes the key to `
 Verify it worked:
 
 ```bash
-observal --version
+dev-library --version
 ```
 
 ## Alternative: install with Python
@@ -83,7 +83,7 @@ Observal ships with two opt-in extras for the Python install:
 | Extra     | What it adds                                   | When to install                                              |
 | --------- | ---------------------------------------------- | ------------------------------------------------------------ |
 | `sandbox` | Docker SDK (for sandbox execution)             | If you run agents inside Observal sandboxes                  |
-| `migrate` | `pyarrow` (for `observal server migrate`) | If you move registry and telemetry data between deployments |
+| `migrate` | `pyarrow` (for `dev-library server migrate`) | If you move registry and telemetry data between deployments |
 | `all`     | Both of the above                              | If you do both                                               |
 
 Install an extra:
@@ -107,14 +107,14 @@ Four entry points land on your `PATH`:
 | Command                | Purpose                                              |
 | ---------------------- | ---------------------------------------------------- |
 | `observal`             | The main CLI                                         |
-| `observal-sandbox-run` | Sandbox runner invoked by Observal sandboxes         |
+| `dev-library-sandbox-run` | Sandbox runner invoked by Observal sandboxes         |
 
 You will almost never call the sandbox runner directly. The CLI wires it into your harness config for you.
 
 ## Upgrade
 
 ```bash
-observal self upgrade
+dev-library self upgrade
 ```
 
 ## Uninstall

@@ -3,7 +3,7 @@
 <!-- SPDX-FileCopyrightText: 2026 tsitu0 <tomsitu0102@gmail.com> -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 
-# `observal doctor`
+# `dev-library doctor`
 
 Diagnose local Observal state, repair managed telemetry instrumentation, remove managed instrumentation, and work with redacted support bundles.
 
@@ -22,7 +22,7 @@ All five workflows support `--output table|json`. JSON mode never prompts or emi
 ## Diagnose
 
 ```bash
-observal doctor --output json
+dev-library doctor --output json
 ```
 
 Doctor checks:
@@ -52,7 +52,7 @@ Human mode retains health-check behavior: unresolved issues exit nonzero. Warnin
 Apply fixable warnings and canonical lockfile metadata without prompting:
 
 ```bash
-observal doctor --yes --output json
+dev-library doctor --yes --output json
 ```
 
 Installed version pins are not changed. Only Observal-managed telemetry entries are updated.
@@ -62,13 +62,13 @@ Installed version pins are not changed. Only Observal-managed telemetry entries 
 Preview every registered harness:
 
 ```bash
-observal doctor patch --all-harnesses --dry-run --output json
+dev-library doctor patch --all-harnesses --dry-run --output json
 ```
 
 Patch selected harnesses:
 
 ```bash
-observal doctor patch --harness claude-code --harness kiro --output json
+dev-library doctor patch --harness claude-code --harness kiro --output json
 ```
 
 Exactly one target mode is required: `--all-harnesses` or one or more `--harness` options. JSON returns one result per harness:
@@ -93,19 +93,19 @@ For Pi, patch installs the bundled TypeScript extension at `~/.pi/agent/extensio
 Preview cleanup:
 
 ```bash
-observal doctor cleanup --dry-run --output json
+dev-library doctor cleanup --dry-run --output json
 ```
 
 Remove instrumentation from one harness:
 
 ```bash
-observal doctor cleanup --harness goose --yes --output json
+dev-library doctor cleanup --harness goose --yes --output json
 ```
 
 Remove instrumentation from all registered harnesses except selected entries:
 
 ```bash
-observal doctor cleanup --exclude kiro --yes --output json
+dev-library doctor cleanup --exclude kiro --yes --output json
 ```
 
 Cleanup removes only Observal-managed hooks, plugins, extensions, and legacy telemetry settings. User-owned hooks remain. Human mode confirms before writing unless `--yes` is present. JSON cleanup requires `--yes` unless it is a dry run.
@@ -115,8 +115,8 @@ Unknown harnesses, conflicting selections, malformed configuration, and write fa
 ## Support bundles
 
 ```bash
-observal doctor support bundle --output json
-observal doctor support inspect ./observal-support.tar.gz --output json
+dev-library doctor support bundle --output json
+dev-library doctor support inspect ./observal-support.tar.gz --output json
 ```
 
 See [Support bundles](support.md) for archive contents, redaction, offline behavior, and inspection limits.
@@ -133,6 +133,6 @@ See [Support bundles](support.md) for archive contents, redaction, offline behav
 
 ## Related
 
-* [`observal scan`](scan.md): read-only harness inventory
-* [`observal agent pull`](pull.md): install a complete Agent
+* [`dev-library scan`](scan.md): read-only harness inventory
+* [`dev-library agent pull`](pull.md): install a complete Agent
 * [Session tracking](../core-concepts/session-tracking.md): telemetry delivery architecture

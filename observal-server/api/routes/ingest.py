@@ -96,7 +96,7 @@ class SessionCheckpointResponse(BaseModel):
 
 
 class SandboxExecEvent(BaseModel):
-    """One sandbox execution outcome, as reported by observal-sandbox-run."""
+    """One sandbox execution outcome, as reported by dev-library-sandbox-run."""
 
     sandbox_id: str = Field(..., max_length=MAX_SHORT_STRING_LENGTH)
     image: str = Field(..., max_length=500)
@@ -162,7 +162,7 @@ async def ingest_sandbox_exec(
 ):
     """Ingest sandbox execution telemetry from the local sandbox runner.
 
-    One call per observal-sandbox-run invocation (batched when draining the
+    One call per dev-library-sandbox-run invocation (batched when draining the
     local spool). Storage is best-effort: a ClickHouse outage is logged and
     acknowledged so the runner never retries a successful batch.
     """

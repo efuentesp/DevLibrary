@@ -42,7 +42,7 @@ Controls whether visitors can create their own Observal account from the login p
 You can set this in the web UI at **Admin → Settings → Authentication → Self Registration Enabled**. If you prefer the CLI, set the same dynamic setting directly:
 
 ```bash
-observal admin set auth.self_registration_enabled true
+dev-library admin set auth.self_registration_enabled true
 ```
 
 New accounts are created with the built-in `user` role. They cannot review submissions, manage users, or change server settings unless an admin promotes them later.
@@ -50,12 +50,12 @@ New accounts are created with the built-in `user` role. They cannot review submi
 Disable it again with:
 
 ```bash
-observal admin set auth.self_registration_enabled false
+dev-library admin set auth.self_registration_enabled false
 ```
 
 ## The bootstrap flow
 
-On a fresh server with no users, the `/api/v1/auth/bootstrap` endpoint is available **to localhost only**. When you run `observal auth login`, the CLI detects the empty user table and bootstraps an admin account interactively.
+On a fresh server with no users, the `/api/v1/auth/bootstrap` endpoint is available **to localhost only**. When you run `dev-library auth login`, the CLI detects the empty user table and bootstraps an admin account interactively.
 
 This is how you create the first admin without any pre-existing credential.
 
@@ -137,7 +137,7 @@ https://observal.your-company.internal/api/v1/auth/oauth/callback
 
 ### First OAuth login
 
-The first user who logs in via OAuth is **not** automatically an admin. Bootstrap a local admin first (via `observal auth login` before enabling OAuth, or via the demo super admin), then use that admin to promote the OAuth user.
+The first user who logs in via OAuth is **not** automatically an admin. Bootstrap a local admin first (via `dev-library auth login` before enabling OAuth, or via the demo super admin), then use that admin to promote the OAuth user.
 
 ### Scope / claims
 
@@ -233,7 +233,7 @@ Four built-in roles enforced on every endpoint:
 Change a user's role:
 
 ```bash
-observal admin users
+dev-library admin users
 # GET /api/v1/admin/users/{id}/role   to inspect
 # PUT /api/v1/admin/users/{id}/role   to change
 ```
@@ -250,7 +250,7 @@ Users can generate API keys for scripts and CI. The key inherits the user's role
 export OBSERVAL_API_KEY=<key>
 export OBSERVAL_SERVER_URL=https://observal.your-company.internal
 
-observal ops traces --limit 100 --output json | jq
+dev-library ops traces --limit 100 --output json | jq
 ```
 
 Keys can be revoked via `POST /api/v1/auth/token/revoke`.
@@ -268,7 +268,7 @@ Tighten for public-facing deployments.
 
 ## Password reset
 
-Users who forget their password request a reset code via `observal auth reset-password --email <email>` or the web UI **Forgot password?** link. The server logs a 6-character code to its console:
+Users who forget their password request a reset code via `dev-library auth reset-password --email <email>` or the web UI **Forgot password?** link. The server logs a 6-character code to its console:
 
 ```
 WARNING - PASSWORD RESET CODE for alice@example.com: A7X9B2 (expires in 15 minutes)
@@ -280,8 +280,8 @@ An operator reads the log and passes the code to the user out-of-band (Slack, ph
 
 Observal includes:
 
-* **Audit logging**: every privileged action lands in ClickHouse's `audit_log`
-* **SSO-only mode** (`deployment.sso_only=true`)
+- **Audit logging**: every privileged action lands in ClickHouse's `audit_log`
+- **SSO-only mode** (`deployment.sso_only=true`)
 
 See `docs/self-hosting/sso-cli.md` for SSO CLI commands.
 
