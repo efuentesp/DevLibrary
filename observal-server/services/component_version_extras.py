@@ -88,6 +88,10 @@ SANDBOX_FIELDS = {
     "sandbox_path",
 }
 
+WORKFLOW_FIELDS = {
+    "script_content",
+}
+
 REQUIRED_FIELDS: dict[str, set[str]] = {
     "hook": {"event", "handler_type"},
     "skill": {"task_type"},
@@ -103,12 +107,14 @@ ALLOWED_FIELDS: dict[str, set[str]] = {
     "prompt": PROMPT_FIELDS,
     "mcp": MCP_FIELDS,
     "sandbox": SANDBOX_FIELDS,
+    "workflow": WORKFLOW_FIELDS,
 }
 
 # Expected types for each field. Fields not listed accept any type.
 FIELD_TYPES: dict[str, type | tuple[type, ...]] = {
     # str fields
     "event": str,
+    "script_content": str,
     "execution_mode": str,
     "handler_type": str,
     "scope": str,
