@@ -120,6 +120,7 @@ def _docker_run(
     network_policy: str,
     resource_limits: dict,
     mounts: list[str] | None = None,
+    runtime_config: dict | None = None,
 ):
     try:
         import docker
@@ -136,6 +137,8 @@ def _docker_run(
     start_time = _now_iso()
     wall_start = time.monotonic()
     container = None
+    proxy = None
+    restricted_network = None
     try:
         run_kwargs = {
             "image": image,
@@ -149,8 +152,26 @@ def _docker_run(
         if network_policy in {"none", "host", "bridge"}:
             run_kwargs["network_mode"] = network_policy
         elif network_policy == "restricted":
-            # ponytail: restricted policy is local-runner only for now; use Docker's no-network mode until policy profiles exist.
-            run_kwargs["network_mode"] = "none"
+            allowlist = [str(host) for host in (runtime_config or {}).get("egress_allowlist") or []]
+            if allowlist:
+                # Real egress control: dedicated bridge network plus a loopback
+                # allowlist proxy the container reaches via host.docker.internal.
+                from dev_library_cli.sandbox_proxy import RestrictedProxy
+
+                proxy = RestrictedProxy(allowlist)
+                proxy.start()
+                restricted_network = client.networks.create(f"observal-sbx-{uuid.uuid4().hex[:8]}", driver="bridge")
+                run_kwargs["network"] = restricted_network.name
+                run_kwargs["extra_hosts"] = {"host.docker.internal": "host-gateway"}
+                proxy_url = f"http://host.docker.internal:{proxy.port}"
+                env = dict(env or {})
+                env.setdefault("HTTP_PROXY", proxy_url)
+                env.setdefault("HTTPS_PROXY", proxy_url)
+                env.setdefault("NO_PROXY", "localhost,127.0.0.1")
+                run_kwargs["environment"] = env
+            else:
+                # No allowlist declared: total isolation is the only honest default.
+                run_kwargs["network_mode"] = "none"
         if resource_limits.get("memory_mb"):
             run_kwargs["mem_limit"] = f"{int(resource_limits['memory_mb'])}m"
         if resource_limits.get("cpu_count"):
@@ -243,6 +264,13 @@ def _docker_run(
                 container.remove(force=True)
             except Exception:
                 pass
+        if proxy is not None:
+            proxy.stop()
+        if restricted_network is not None:
+            try:
+                restricted_network.remove()
+            except Exception:
+                pass
 
 
 def _lxc_run(sandbox_id: str, image: str, command: str | None, timeout: int) -> None:
@@ -325,7 +353,7 @@ def run_sandbox(
     resource_limits = resource_limits or {}
     runtime_config = runtime_config or {}
     if runtime_type == "docker":
-        return _docker_run(sandbox_id, image, command, timeout, env, network_policy, resource_limits, mounts)
+        return _docker_run(sandbox_id, image, command, timeout, env, network_policy, resource_limits, mounts, runtime_config)
     if runtime_type == "lxc":
         return _lxc_run(sandbox_id, image, command, timeout)
     if runtime_type == "firecracker":
@@ -383,8 +411,8 @@ def _session_env_kwargs(env: dict | None, network_policy: str, resource_limits: 
     run_kwargs: dict = {"detach": True, "environment": env or {}, "stdout": True, "stderr": True}
     if network_policy in {"none", "host", "bridge"}:
         run_kwargs["network_mode"] = network_policy
-    elif network_policy == "restricted":
-        run_kwargs["network_mode"] = "none"
+    # restricted sessions get a dedicated internal network from the caller;
+    # the allowlist proxy only spans a single ephemeral run.
     if _int_or(resource_limits.get("memory_mb"), 0) > 0:
         run_kwargs["mem_limit"] = f"{_int_or(resource_limits['memory_mb'])}m"
     if _int_or(resource_limits.get("cpu_count"), 0) > 0:
@@ -444,18 +472,39 @@ def session_start(
     volume_name = f"observal-ws-{session_id[:12]}" if workspace else None
     if volume_name:
         client.volumes.create(name=volume_name)
+    restricted_network = None
+    if network_policy == "restricted":
+        # Sessions outlive a single runner process, so the ephemeral allowlist
+        # proxy cannot cover them: isolate on a dedicated internal network and
+        # say so instead of silently claiming egress control.
+        print(
+            "restricted session: dedicated internal network, no egress proxy "
+            "(the allowlist proxy covers ephemeral runs only)",
+            file=sys.stderr,
+        )
+        restricted_network = client.networks.create(
+            f"observal-sbx-{session_id[:12]}", driver="bridge", internal=True
+        )
     try:
         container = client.containers.run(
             image,
             ["tail", "-f", "/dev/null"],
             name=f"observal-session-{session_id[:12]}",
             working_dir="/workspace" if volume_name else None,
-            **_session_env_kwargs(env, network_policy, resource_limits or {}, mounts, volume_name),
+            **{
+                **_session_env_kwargs(env, network_policy, resource_limits or {}, mounts, volume_name),
+                **({"network": restricted_network.name} if restricted_network else {}),
+            },
         )
     except Exception as exc:
         if volume_name:
             try:
                 client.volumes.get(volume_name).remove(force=True)
+            except Exception:
+                pass
+        if restricted_network is not None:
+            try:
+                restricted_network.remove()
             except Exception:
                 pass
         print(f"Error starting session: {exc}", file=sys.stderr)
@@ -469,6 +518,7 @@ def session_start(
         "runtime_type": runtime_type,
         "network_policy": network_policy,
         "volume": volume_name,
+        "network": restricted_network.name if restricted_network else None,
         "started_at": _now_iso(),
         "last_used": _now_iso(),
     }
@@ -594,7 +644,7 @@ def session_files_put(session_id: str, path: str, content: str, home: Path | Non
 
 
 def _stop_session_entry(entry: dict, keep_workspace: bool) -> None:
-    """Stop containers/volumes for a registry entry; best-effort, never raises."""
+    """Stop containers/volumes/networks for a registry entry; best-effort, never raises."""
     client = _docker_client()
     try:
         client.containers.get(entry["container_id"]).remove(force=True)
@@ -604,6 +654,12 @@ def _stop_session_entry(entry: dict, keep_workspace: bool) -> None:
     if volume and not keep_workspace:
         try:
             client.volumes.get(volume).remove(force=True)
+        except Exception:
+            pass
+    network = entry.get("network")
+    if network:
+        try:
+            client.networks.get(network).remove()
         except Exception:
             pass
 

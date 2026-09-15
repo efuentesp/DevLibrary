@@ -103,9 +103,7 @@ def _invoke_runner(req_id, argv: list[str], timeout_s: int) -> None:
             )
         )
     except Exception as e:
-        _send_message(
-            _make_response(req_id, {"content": [{"type": "text", "text": f"Error: {e}"}], "isError": True})
-        )
+        _send_message(_make_response(req_id, {"content": [{"type": "text", "text": f"Error: {e}"}], "isError": True}))
 
 
 def main():
@@ -177,7 +175,10 @@ def main():
                     "type": "object",
                     "properties": {
                         "session_id": {"type": "string", "description": "Session id from sandbox_session_start_*"},
-                        "keep_workspace": {"type": "boolean", "description": "Keep the workspace volume for a future session"},
+                        "keep_workspace": {
+                            "type": "boolean",
+                            "description": "Keep the workspace volume for a future session",
+                        },
                     },
                     "required": ["session_id"],
                 },
@@ -194,7 +195,10 @@ def main():
                     "type": "object",
                     "properties": {
                         "session_id": {"type": "string"},
-                        "path": {"type": "string", "description": "Path inside the session container (e.g. /workspace/out.txt)"},
+                        "path": {
+                            "type": "string",
+                            "description": "Path inside the session container (e.g. /workspace/out.txt)",
+                        },
                     },
                     "required": ["session_id", "path"],
                 },
@@ -271,7 +275,10 @@ def main():
                     _send_message(
                         _make_response(
                             req_id,
-                            {"content": [{"type": "text", "text": "session_id and path are required"}], "isError": True},
+                            {
+                                "content": [{"type": "text", "text": "session_id and path are required"}],
+                                "isError": True,
+                            },
                         )
                     )
                     continue
@@ -289,7 +296,10 @@ def main():
                     _send_message(
                         _make_response(
                             req_id,
-                            {"content": [{"type": "text", "text": "session_id, path and content are required"}], "isError": True},
+                            {
+                                "content": [{"type": "text", "text": "session_id, path and content are required"}],
+                                "isError": True,
+                            },
                         )
                     )
                     continue

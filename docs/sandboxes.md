@@ -156,6 +156,14 @@ sandbox_session_stop(session_id)          → removes container and workspace
 ## Security notes
 
 - Docker `network_policy: "none"` maps to Docker's no-network mode.
+- `network_policy: "restricted"` is real egress control: the runner starts a
+  loopback allowlist proxy, attaches the container to a dedicated bridge
+  network, and routes HTTP(S) through `host.docker.internal`. Only hosts in
+  `runtime_config.egress_allowlist` (exact or subdomain match) are reachable;
+  an empty allowlist means total isolation. Restricted **sessions** use a
+  dedicated internal network without the proxy — the proxy spans a single
+  ephemeral run only, and the runner says so on stderr instead of silently
+  claiming egress control.
 - Docker `memory_mb` and `cpu_count` are passed to the local Docker daemon.
 - Non-Docker isolation is only as strong as the local runtime configuration.
 - No registry-side Dockerfile build service exists yet; use prebuilt image/artifact refs.

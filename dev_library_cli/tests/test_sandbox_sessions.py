@@ -196,7 +196,13 @@ def test_session_gc_stops_only_idle_sessions(tmp_path, monkeypatch, no_span):
     runner._save_sessions(
         {
             "s-old": {"container_id": "stale", "sandbox_id": "sb", "image": "i", "volume": None, "last_used": old},
-            "s-new": {"container_id": "fresh", "sandbox_id": "sb", "image": "i", "volume": None, "last_used": runner._now_iso()},
+            "s-new": {
+                "container_id": "fresh",
+                "sandbox_id": "sb",
+                "image": "i",
+                "volume": None,
+                "last_used": runner._now_iso(),
+            },
         },
         home=tmp_path,
     )
@@ -213,7 +219,15 @@ def test_session_files_roundtrip(tmp_path, monkeypatch, no_span, capsys):
     container = FakeContainer()
     monkeypatch.setattr(runner, "_docker_client", lambda: FakeClient({"c1": container}))
     runner._save_sessions(
-        {"sess-4": {"container_id": "c1", "sandbox_id": "sb", "image": "i", "volume": "v", "last_used": runner._now_iso()}},
+        {
+            "sess-4": {
+                "container_id": "c1",
+                "sandbox_id": "sb",
+                "image": "i",
+                "volume": "v",
+                "last_used": runner._now_iso(),
+            }
+        },
         home=tmp_path,
     )
 
@@ -239,7 +253,15 @@ def test_session_files_put_rejects_unsafe_paths(tmp_path, monkeypatch, no_span):
     container = FakeContainer()
     monkeypatch.setattr(runner, "_docker_client", lambda: FakeClient({"c1": container}))
     runner._save_sessions(
-        {"sess-5": {"container_id": "c1", "sandbox_id": "sb", "image": "i", "volume": None, "last_used": runner._now_iso()}},
+        {
+            "sess-5": {
+                "container_id": "c1",
+                "sandbox_id": "sb",
+                "image": "i",
+                "volume": None,
+                "last_used": runner._now_iso(),
+            }
+        },
         home=tmp_path,
     )
 
