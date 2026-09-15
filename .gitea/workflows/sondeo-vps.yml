@@ -1,0 +1,62 @@
+# SPDX-FileCopyrightText: 2026 Edgar Fuentes Perea <efuentesp@gmail.com>
+# SPDX-License-Identifier: Apache-2.0
+
+# Sondeo read-only del host forgeos-vps: descubre la configuración real del
+# stack dev-library (contenedores, imágenes, compose de Dokploy) para poder
+# escribir el workflow de deploy correcto. NO modifica nada del host.
+name: sondeo-vps
+on:
+  push:
+    branches: [main]
+    paths: ['.gitea/workflows/sondeo-vps.yml']
+
+jobs:
+  sondeo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Contenedores dev-library
+        run: |
+          {
+            echo '# Sondeo VPS — dev-library'
+            echo
+            echo '## docker ps'
+            docker ps --format '{{.Names}} | {{.Image}} | {{.Status}}' | grep -i 'dev-library\|observal' || echo '(ninguno)'
+            echo
+            echo '## labels del api y web'
+            for C in $(docker ps --format '{{.Names}}' | grep -i 'dev-library-api\|dev-library-web' | head -2); do
+              echo "### $C"
+              docker inspect "$C" --format '{{json .Config.Labels}}'
+              docker inspect "$C" --format 'image={{.Config.Image}}'
+            done
+            echo
+            echo '## compose files de Dokploy'
+            COMPOSE_DIRS=$(ls -d /etc/dokploy/compose/*/ 2>/dev/null || sudo -n ls -d /etc/dokploy/compose/*/ 2>/dev/null || true)
+            if [ -z "$COMPOSE_DIRS" ]; then echo '(sin acceso a /etc/dokploy/compose)'; fi
+            for D in $COMPOSE_DIRS; do
+              if grep -lq 'dev-library' "$D/docker-compose.yml" 2>/dev/null; then
+                echo "### $D/docker-compose.yml"
+                cat "$D/docker-compose.yml"
+              fi
+            done
+            echo
+            echo '## imágenes locales'
+            docker images --format '{{.Repository}}:{{.Tag}} {{.Size}}' | grep -i 'dev-library\|observal' || echo '(ninguna)'
+            echo
+            echo '## docker access'
+            id; docker info --format '{{.ServerVersion}}' 2>&1 | head -1
+          } > .ci-sondeo.md 2>&1
+          cat .ci-sondeo.md
+
+      - name: Publicar resultados como commit
+        run: |
+          git config user.name 'forgeos-ci'
+          git config user.email 'forgeos-ci@dark-factory.cloud'
+          git checkout -b sondeo/resultado
+          mkdir -p .ci-sondeo
+          mkdir -p .ci-sondeo
+          mv .ci-sondeo.md .ci-sondeo/sondeo-result.md
+          git add .ci-sondeo
+          git commit -m "chore(ci): sondeo read-only del stack dev-library en forgeos-vps"
+          git push origin sondeo/resultado
