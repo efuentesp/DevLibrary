@@ -226,6 +226,9 @@ async def preview_config(
         if "skills" in config:
             for sf in config["skills"]:
                 files[sf["path"]] = sf["content"]
+        if "workflows" in config:
+            for wf in config["workflows"]:
+                files[wf["path"]] = wf["content"]
         # Registry-direct skills (pi, kiro, ...) materialize as SKILL.md plus
         # extra_files under the skill directory; show them so the preview
         # matches what install writes.
