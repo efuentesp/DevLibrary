@@ -200,6 +200,16 @@ Every command available in the installed CLI. This block is generated from the T
 - `dev-library registry version`: Manage component versions
   - `dev-library registry version list`: List version history for a registry component.
   - `dev-library registry version publish`: Publish a new version for a registry component.
+- `dev-library registry workflow`: Workflow registry commands
+  - `dev-library registry workflow co-authors`: Manage co-authors for workflows
+    - `dev-library registry workflow co-authors add`: Add a co-author.
+    - `dev-library registry workflow co-authors list`: List co-authors.
+    - `dev-library registry workflow co-authors remove`: Remove a co-author.
+  - `dev-library registry workflow edit`: Edit a draft, rejected, or pending workflow submission.
+  - `dev-library registry workflow install`: Install a workflow into a harness by writing its script file.
+  - `dev-library registry workflow list`: List approved workflows in the registry.
+  - `dev-library registry workflow show`: Show detailed information about a workflow.
+  - `dev-library registry workflow submit`: Submit a new workflow for review.
 
 **`dev-library self`**: CLI self-management commands (upgrade, downgrade, rollback, status)
 

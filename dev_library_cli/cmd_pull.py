@@ -1047,6 +1047,15 @@ def register_pull(app: typer.Typer):
                 status = _write_file_checked(p, sf["content"])
                 written.append((str(p), status))
 
+        # ── Workflow scripts (single self-contained .js) ──
+        for wf in snippet.get("workflows") or []:
+            p = _resolve_path(wf["path"], target_dir, allow_home=is_user_scope)
+            if dry_run:
+                written.append((str(p), "would write"))
+            else:
+                status = _write_file_checked(p, wf["content"])
+                written.append((str(p), status))
+
         # ── Skills ────────────────────────────────────
         # Two install modes:
         #   1. git_url present → clone full skill directory from git

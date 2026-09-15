@@ -8,7 +8,6 @@ harness workflow runtimes (e.g. pi) execute. The registry versions the
 script body; install writes it to the harness's workflow directory.
 """
 
-
 import uuid
 from datetime import datetime
 from typing import Literal

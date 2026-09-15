@@ -152,7 +152,12 @@ class TestSubmitWorkflow:
             for obj in added:
                 if getattr(obj, "id", None) is None:
                     obj.id = uuid.uuid4()
-                for attr, default in (("created_at", now), ("updated_at", now), ("released_at", now), ("download_count", 0)):
+                for attr, default in (
+                    ("created_at", now),
+                    ("updated_at", now),
+                    ("released_at", now),
+                    ("download_count", 0),
+                ):
                     if getattr(obj, attr, None) is None:
                         setattr(obj, attr, default)
             for obj in added:
@@ -195,9 +200,7 @@ class TestInstallWorkflow:
         db = _db()
         listing = _listing()
         db.execute = AsyncMock(return_value=_result(listing))
-        monkeypatch.setattr(
-            workflow_routes, "resolve_visible_listing", AsyncMock(return_value=listing)
-        )
+        monkeypatch.setattr(workflow_routes, "resolve_visible_listing", AsyncMock(return_value=listing))
         app.dependency_overrides[get_db] = lambda: db
         app.dependency_overrides[get_registry_user] = lambda: _user()
 
@@ -216,9 +219,7 @@ class TestInstallWorkflow:
         app = FastAPI()
         app.include_router(workflow_routes.router)
         listing = _listing()
-        monkeypatch.setattr(
-            workflow_routes, "resolve_visible_listing", AsyncMock(return_value=listing)
-        )
+        monkeypatch.setattr(workflow_routes, "resolve_visible_listing", AsyncMock(return_value=listing))
         app.dependency_overrides[get_db] = lambda: _db()
         app.dependency_overrides[get_registry_user] = lambda: _user()
 

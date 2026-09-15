@@ -91,6 +91,7 @@ def make_co_authors_typer(entity_type: str) -> typer.Typer:
         "hooks": "registry hook",
         "prompts": "registry prompt",
         "sandboxes": "registry sandbox",
+        "workflows": "registry workflow",
     }[entity_type]
     prefix = f"dev-library {command} co-authors"
     example = "alice/my-agent" if entity_type == "agents" else "alice/my-component"

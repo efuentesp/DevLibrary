@@ -196,6 +196,7 @@ from dev_library_cli.cmd_skill import skill_app
 from dev_library_cli.cmd_support import support_app
 from dev_library_cli.cmd_team import team_app
 from dev_library_cli.cmd_transfer import add_transfer_owner_command
+from dev_library_cli.cmd_workflow import workflow_app
 
 # ═══════════════════════════════════════════════════════════
 # registry_app: Component registry parent group
@@ -218,6 +219,7 @@ registry_app.add_typer(skill_app, name="skill")
 registry_app.add_typer(hook_app, name="hook")
 registry_app.add_typer(prompt_app, name="prompt")
 registry_app.add_typer(sandbox_app, name="sandbox")
+registry_app.add_typer(workflow_app, name="workflow")
 registry_app.add_typer(models_app, name="models")
 registry_app.add_typer(version_app, name="version")
 registry_app.add_typer(recommend_app, name="recommend")
@@ -229,6 +231,7 @@ skill_app.add_typer(make_co_authors_typer("skills"), name="co-authors")
 hook_app.add_typer(make_co_authors_typer("hooks"), name="co-authors")
 prompt_app.add_typer(make_co_authors_typer("prompts"), name="co-authors")
 sandbox_app.add_typer(make_co_authors_typer("sandboxes"), name="co-authors")
+workflow_app.add_typer(make_co_authors_typer("workflows"), name="co-authors")
 agent_app.add_typer(make_co_authors_typer("agents"), name="co-authors")
 add_transfer_owner_command(mcp_app, "mcps")
 add_transfer_owner_command(skill_app, "skills")
