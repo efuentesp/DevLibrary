@@ -12,7 +12,7 @@ export type TeamspaceDetailSearch = {
 	type?: RegistryType;
 };
 
-const COMPONENT_TYPES = new Set<RegistryType>(["mcps", "skills", "hooks", "prompts", "sandboxes"]);
+const COMPONENT_TYPES = new Set<RegistryType>(["mcps", "skills", "hooks", "prompts", "sandboxes", "workflows"]);
 
 export const Route = createFileRoute("/_authed/teamspaces/$handle")({
 	component: TeamspaceDetailPage,

@@ -136,6 +136,8 @@ const COMPONENT_GROUP_BY_TYPE: Record<string, ComponentGroupKey> = {
   prompts: "prompts",
   sandbox: "sandboxes",
   sandboxes: "sandboxes",
+  workflow: "workflows",
+  workflows: "workflows",
 };
 
 // The visibility PATCH reports whether the flip pushed the agent back into the

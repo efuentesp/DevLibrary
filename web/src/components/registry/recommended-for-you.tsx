@@ -8,6 +8,7 @@ import {
   GitBranch,
   MessageSquareText,
   PlugZap,
+  Workflow,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -37,6 +38,11 @@ const TYPE_META: Record<
     label: "Sandbox",
     icon: Box,
     color: "text-component-sandbox",
+  },
+  workflow: {
+    label: "Workflow",
+    icon: Workflow,
+    color: "text-component-hook",
   },
 };
 
