@@ -1366,7 +1366,7 @@ export default function TeamspaceDetailPage() {
 			: []),
 	];
 	const activeTab = tabs.some((entry) => entry.value === tab) ? tab! : "agents";
-	const activeType: RegistryType = type ?? "mcps";
+	const activeType: RegistryType = type ?? "skills";
 	const submitComponent = useComponentSubmit(activeType);
 	const saveComponentDraft = useComponentSaveDraft(activeType);
 
