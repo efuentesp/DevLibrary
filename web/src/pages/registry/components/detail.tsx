@@ -5,10 +5,23 @@
 // SPDX-FileCopyrightText: 2026 Vishnu Muthiah <vishnu.muthiah04@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
-import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearch,
+} from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Star, ArrowLeft, History, Loader2, ArrowDownToLine, Archive, ArchiveRestore, AlertTriangle } from "lucide-react";
+import {
+  Star,
+  ArrowLeft,
+  History,
+  Loader2,
+  ArrowDownToLine,
+  Archive,
+  ArchiveRestore,
+  AlertTriangle,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   useRegistryItem,
@@ -28,7 +41,11 @@ import { getUserRole } from "@/lib/api";
 import { useOptionalAuth } from "@/hooks/use-auth";
 import { hasMinRole } from "@/hooks/use-role-guard";
 import type { RegistryType } from "@/lib/api";
-import type { FeedbackItem, RegistryItem, ComponentVersionSummary } from "@/lib/types";
+import type {
+  FeedbackItem,
+  RegistryItem,
+  ComponentVersionSummary,
+} from "@/lib/types";
 import { compactNumber } from "@/lib/utils";
 import { canonicalRouteParts, registryIdentity } from "@/lib/registry-name";
 import { tagColorClasses } from "@/lib/tag-colors";
@@ -53,7 +70,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PickerSelect } from "@/components/ui/picker-select";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/layouts/page-header";
@@ -61,7 +84,10 @@ import { DetailSkeleton } from "@/components/shared/skeleton-layouts";
 import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
 import { HarnessBadges } from "@/components/registry/harness-badges";
-import { CoAuthorInput, type CoAuthor } from "@/components/registry/co-author-input";
+import {
+  CoAuthorInput,
+  type CoAuthor,
+} from "@/components/registry/co-author-input";
 
 // The visibility PATCH reports whether the flip pushed the listing back into the
 // review queue. Read it off the response and return null when the server did not
@@ -80,10 +106,24 @@ function statusVariant(status?: string) {
 
 function formatArchiveDate(item: RegistryItem) {
   const value = item.updated_at ?? item.created_at;
-  return value ? new Date(value).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : null;
+  return value
+    ? new Date(value).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : null;
 }
 
-function ArchivedComponentBanner({ item, type, canRestore }: { item: RegistryItem; type: string; canRestore: boolean }) {
+function ArchivedComponentBanner({
+  item,
+  type,
+  canRestore,
+}: {
+  item: RegistryItem;
+  type: string;
+  canRestore: boolean;
+}) {
   const date = formatArchiveDate(item);
 
   return (
@@ -92,11 +132,15 @@ function ArchivedComponentBanner({ item, type, canRestore }: { item: RegistryIte
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
         <div className="space-y-1 text-sm">
           <p className="font-medium">
-            This {type} was archived{date ? ` on ${date}` : ""}. It is hidden from registry lists.
+            This {type} was archived{date ? ` on ${date}` : ""}. It is hidden
+            from registry lists.
           </p>
           <p className="text-xs text-dark-yellow/80">
-            Installs still work by direct reference, but users will see an archived component warning.
-            {canRestore ? " Restore it from the lifecycle panel when it should be discoverable again." : ""}
+            Installs still work by direct reference, but users will see an
+            archived component warning.
+            {canRestore
+              ? " Restore it from the lifecycle panel when it should be discoverable again."
+              : ""}
           </p>
         </div>
       </div>
@@ -121,22 +165,42 @@ export default function ComponentDetailPage({
   const id = componentId ?? params.componentId ?? "";
   const type = (componentType ?? search.type ?? "mcps") as RegistryType;
   const navigate = useNavigate();
-  const singularType = type === "sandboxes" ? "sandbox" : type.replace(/s$/, "");
+  const singularType =
+    type === "sandboxes" ? "sandbox" : type.replace(/s$/, "");
   const { isAuthenticated } = useOptionalAuth();
-  const { data: item, isLoading, isError, error, refetch } = useRegistryItem(type, id);
-  const { data: feedbackItems, refetch: refetchFeedback } = useFeedback(singularType, id);
-  const { data: feedbackSummary, refetch: refetchSummary } = useFeedbackSummary(id);
+  const {
+    data: item,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useRegistryItem(type, id);
+  const { data: feedbackItems, refetch: refetchFeedback } = useFeedback(
+    singularType,
+    id,
+  );
+  const { data: feedbackSummary, refetch: refetchSummary } =
+    useFeedbackSummary(id);
   const { data: myReview } = useMyFeedback(singularType, id, isAuthenticated);
   const { data: rawMetrics } = useRegistryMetrics(type, id, isAuthenticated);
-  const { data: versionsData, isLoading: versionsLoading } = useComponentVersions(type, id);
+  const { data: versionsData, isLoading: versionsLoading } =
+    useComponentVersions(type, id);
   const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
-  const { data: versionDetail } = useComponentVersionDetail(type, id, selectedVersion);
+  const { data: versionDetail } = useComponentVersionDetail(
+    type,
+    id,
+    selectedVersion,
+  );
   const { data: whoami } = useWhoami(isAuthenticated);
   const { data: teams = [] } = useTeams(isAuthenticated);
   const updateVisibility = useUpdateRegistryVisibility();
-  const canEdit = isAuthenticated && (item?.user_permission === "owner");
-  const owningTeam = item?.team_id ? teams.find((team) => team.id === String(item.team_id)) : undefined;
-  const personalTeam = teams.find((team) => team.is_personal && team.visibility === "private");
+  const canEdit = isAuthenticated && item?.user_permission === "owner";
+  const owningTeam = item?.team_id
+    ? teams.find((team) => team.id === String(item.team_id))
+    : undefined;
+  const personalTeam = teams.find(
+    (team) => team.is_personal && team.visibility === "private",
+  );
   const teamRole = owningTeam?.role;
   // Mirror the server rule in PATCH /registry/{type}/{id}/visibility exactly.
   // Admins are privileged; a global REVIEWER is not, because a team-private
@@ -150,15 +214,23 @@ export default function ComponentDetailPage({
           ? teamRole === "owner" || teamRole === "reviewer"
           : !!whoami?.id && whoami.id === String(item.submitted_by))),
   );
-  const canTransferOwnership = !!(whoami?.id && item?.submitted_by && whoami.id === String(item.submitted_by));
-  const currentVisibility = (item?.visibility as string | undefined) ?? (item?.is_private ? "team" : "public");
-  const visibilityOptions = owningTeam?.visibility === "private"
-    ? [{ value: "team", label: "Team members only" }]
-    : [
-        { value: "public", label: "Public" },
-        { value: "team", label: "Team members only" },
-      ];
-  const showVisibilityControl = canChangeVisibility && Boolean(item?.team_id || personalTeam);
+  const canTransferOwnership = !!(
+    whoami?.id &&
+    item?.submitted_by &&
+    whoami.id === String(item.submitted_by)
+  );
+  const currentVisibility =
+    (item?.visibility as string | undefined) ??
+    (item?.is_private ? "team" : "public");
+  const visibilityOptions =
+    owningTeam?.visibility === "private"
+      ? [{ value: "team", label: "Team members only" }]
+      : [
+          { value: "public", label: "Public" },
+          { value: "team", label: "Team members only" },
+        ];
+  const showVisibilityControl =
+    canChangeVisibility && Boolean(item?.team_id || personalTeam);
   const [confirmPublicOpen, setConfirmPublicOpen] = useState(false);
 
   // Co-authors
@@ -172,7 +244,10 @@ export default function ComponentDetailPage({
     const token = sessionStorage.getItem("observal_access_token");
     const headers: Record<string, string> = {};
     if (token) headers["Authorization"] = `Bearer ${token}`;
-    fetch(`/api/v1/${type}/${id}/co-authors`, { headers, signal: controller.signal })
+    fetch(`/api/v1/${type}/${id}/co-authors`, {
+      headers,
+      signal: controller.signal,
+    })
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => {
         if (!controller.signal.aborted) setCoAuthors(data);
@@ -183,9 +258,16 @@ export default function ComponentDetailPage({
 
   const versions = versionsData?.items ?? [];
   // VersionDropdown expects AgentVersionSummary shape; ComponentVersionSummary is compatible
-  const versionsForDropdown = versions.filter((v) => v.status === "approved") as unknown as import("@/lib/types").AgentVersionSummary[];
-  const latestApprovedVersion = versions.find((v) => v.status === "approved")?.version;
-  const effectiveVersion = selectedVersion ?? latestApprovedVersion ?? (item?.version as string | undefined);
+  const versionsForDropdown = versions.filter(
+    (v) => v.status === "approved",
+  ) as unknown as import("@/lib/types").AgentVersionSummary[];
+  const latestApprovedVersion = versions.find(
+    (v) => v.status === "approved",
+  )?.version;
+  const effectiveVersion =
+    selectedVersion ??
+    latestApprovedVersion ??
+    (item?.version as string | undefined);
   // Overlay version-specific description when a version is selected
   const effectiveItem: RegistryItem | undefined = item
     ? versionDetail
@@ -258,9 +340,13 @@ export default function ComponentDetailPage({
 
   const avgRating = feedbackSummary?.average_rating;
   const totalReviews = feedbackSummary?.total_reviews ?? 0;
-  const metricsEntries: [string, string][] = isAuthenticated && rawMetrics && typeof rawMetrics === "object"
-    ? Object.entries(rawMetrics as Record<string, unknown>).map(([k, v]) => [k, typeof v === "number" ? v.toLocaleString() : String(v ?? "")])
-    : [];
+  const metricsEntries: [string, string][] =
+    isAuthenticated && rawMetrics && typeof rawMetrics === "object"
+      ? Object.entries(rawMetrics as Record<string, unknown>).map(([k, v]) => [
+          k,
+          typeof v === "number" ? v.toLocaleString() : String(v ?? ""),
+        ])
+      : [];
 
   return (
     <>
@@ -272,7 +358,12 @@ export default function ComponentDetailPage({
           { label: isLoading ? "..." : componentName },
         ]}
         actionButtonsLeft={
-          <Button variant="ghost" size="sm" className="h-7 px-2 gap-1 text-muted-foreground" asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 gap-1 text-muted-foreground"
+            asChild
+          >
             <Link to="/components">
               <ArrowLeft className="h-3.5 w-3.5" />
               <span className="text-xs">Back</span>
@@ -297,7 +388,11 @@ export default function ComponentDetailPage({
         ) : (
           <div className="animate-in space-y-6">
             {item.status === "archived" && (
-              <ArchivedComponentBanner item={item} type={singularType} canRestore={canEdit} />
+              <ArchivedComponentBanner
+                item={item}
+                type={singularType}
+                canRestore={canEdit}
+              />
             )}
 
             {/* Header */}
@@ -309,13 +404,19 @@ export default function ComponentDetailPage({
                   nameClassName="text-2xl font-display font-bold tracking-tight"
                   handleClassName="text-sm text-muted-foreground"
                 />
-                <span className={`rounded-full px-2.5 py-0.5 text-2xs font-medium ${tagColorClasses(singularType)}`}>
+                <span
+                  className={`rounded-full px-2.5 py-0.5 text-2xs font-medium ${tagColorClasses(singularType)}`}
+                >
                   {singularType}
                 </span>
                 {item.status && (
                   <Badge
                     variant={statusVariant(item.status)}
-                    className={item.status === "archived" ? "bg-light-yellow text-dark-yellow" : undefined}
+                    className={
+                      item.status === "archived"
+                        ? "bg-light-yellow text-dark-yellow"
+                        : undefined
+                    }
                   >
                     {item.status}
                   </Badge>
@@ -339,7 +440,8 @@ export default function ComponentDetailPage({
                     inputClassName="h-7 px-2 text-xs"
                     disabled={
                       updateVisibility.isPending ||
-                      (owningTeam?.visibility === "private" && currentVisibility === "team")
+                      (owningTeam?.visibility === "private" &&
+                        currentVisibility === "team")
                     }
                   />
                 )}
@@ -350,11 +452,15 @@ export default function ComponentDetailPage({
                     onSelect={setSelectedVersion}
                   />
                 ) : effectiveVersion ? (
-                  <Badge variant="secondary" className="text-xs">v{effectiveVersion}</Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    v{effectiveVersion}
+                  </Badge>
                 ) : null}
               </div>
               {effectiveItem?.description && (
-                <p className="text-sm text-foreground/80 leading-relaxed max-w-2xl">{effectiveItem.description as string}</p>
+                <p className="text-sm text-foreground/80 leading-relaxed max-w-2xl">
+                  {effectiveItem.description as string}
+                </p>
               )}
               {avgRating != null && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -366,266 +472,336 @@ export default function ComponentDetailPage({
                       />
                     ))}
                   </div>
-                  <span className="text-xs">{avgRating.toFixed(1)} ({totalReviews} review{totalReviews !== 1 ? "s" : ""})</span>
+                  <span className="text-xs">
+                    {avgRating.toFixed(1)} ({totalReviews} review
+                    {totalReviews !== 1 ? "s" : ""})
+                  </span>
                 </div>
               )}
             </div>
 
             {/* Grid: Main + Sidebar */}
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
-            {/* Tabs */}
-            <Tabs defaultValue="overview" className="min-w-0">
-              <TabsList>
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="reviews">
-                  Reviews
-                  {totalReviews > 0 && (
-                    <span className="ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full">
-                      {totalReviews}
-                    </span>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="versions">
-                  Versions
-                  {versions.length > 0 && (
-                    <span className="ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full">
-                      {versions.length}
-                    </span>
-                  )}
-                </TabsTrigger>
-                {canEdit && <TabsTrigger value="edit">Edit</TabsTrigger>}
-              </TabsList>
+              {/* Tabs */}
+              <Tabs defaultValue="overview" className="min-w-0">
+                <TabsList>
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="reviews">
+                    Reviews
+                    {totalReviews > 0 && (
+                      <span className="ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full">
+                        {totalReviews}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger value="versions">
+                    Versions
+                    {versions.length > 0 && (
+                      <span className="ml-1.5 text-[10px] bg-muted px-1.5 py-0.5 rounded-full">
+                        {versions.length}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                  {canEdit && <TabsTrigger value="edit">Edit</TabsTrigger>}
+                </TabsList>
 
-              <TabsContent value="overview" forceMount className="mt-6 data-[state=inactive]:hidden">
-                <div className="space-y-6 w-full min-h-[400px]">
-                  <ComponentMetadata item={effectiveItem ?? item} />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="reviews" forceMount className="mt-6 data-[state=inactive]:hidden">
-                <div className="space-y-6 w-full min-h-[400px]">
-                {isAuthenticated && (
-                  <>
-                    <ReviewForm
-                      listingId={id}
-                      listingType={singularType}
-                      onSuccess={() => {
-                        refetchFeedback();
-                        refetchSummary();
-                      }}
-                    />
-                    <Separator />
-                  </>
-                )}
-
-                {!feedbackItems || feedbackItems.length === 0 ? (
-                  <EmptyState
-                    icon={Star}
-                    title="No reviews yet"
-                    description={
-                      isAuthenticated
-                        ? `Be the first to review this ${singularType}.`
-                        : "Log in to leave a review."
-                    }
-                  />
-                ) : (
-                  <div className="space-y-4">
-                    {feedbackItems
-                      .filter((fb: FeedbackItem) => !isAuthenticated || !myReview || fb.id !== myReview.id)
-                      .map((fb: FeedbackItem) => (
-                      <div key={fb.id} className="rounded-md border border-border p-4 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-3.5 w-3.5 ${
-                                  i < fb.rating
-                                    ? "fill-current text-warning"
-                                    : "text-muted-foreground/30"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-xs text-muted-foreground">
-                            {fb.username ?? fb.user ?? "Anonymous"}
-                            {fb.created_at && ` · ${new Date(fb.created_at).toLocaleDateString()}`}
-                          </span>
-                        </div>
-                        {fb.comment && (
-                          <p className="text-sm text-muted-foreground leading-relaxed">{fb.comment}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="versions" forceMount className="mt-6 data-[state=inactive]:hidden">
-                <div className="space-y-4 w-full min-h-[400px]">
-                  {versionsLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : versions.length === 0 ? (
-                    <EmptyState
-                      icon={History}
-                      title="No versions yet"
-                      description="Release a new version from the Edit tab to start tracking version history."
-                    />
-                  ) : (
-                    <div className="space-y-2">
-                      {versions.map((v: ComponentVersionSummary) => (
-                        <div
-                          key={v.id}
-                          className="flex items-start justify-between gap-4 rounded-md border border-border px-4 py-3"
-                        >
-                          <div className="space-y-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-mono text-sm font-medium">v{v.version}</span>
-                              <Badge variant={statusVariant(v.status)} className="text-[10px]">
-                                {v.status}
-                              </Badge>
-                            </div>
-                            {v.description && (
-                              <p className="text-xs text-muted-foreground truncate max-w-xl">{v.description}</p>
-                            )}
-                            {v.changelog && (
-                              <p className="text-xs text-muted-foreground/70 italic truncate max-w-xl">{v.changelog}</p>
-                            )}
-                          </div>
-                          {v.released_at && (
-                            <div className="shrink-0 text-right space-y-0.5">
-                              <p className="text-xs text-muted-foreground">
-                                {new Date(v.released_at).toLocaleDateString()}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-
-              {canEdit && (
-                <TabsContent value="edit" forceMount className="mt-6 data-[state=inactive]:hidden">
-                  <div className="w-full min-h-[400px]">
-                    <ComponentEditForm
-                      listingId={id}
-                      type={type}
-                      currentVersion={effectiveVersion ?? "1.0.0"}
-                      item={effectiveItem ?? item}
-                      onSuccess={() => refetch()}
-                    />
+                <TabsContent
+                  value="overview"
+                  forceMount
+                  className="mt-6 data-[state=inactive]:hidden"
+                >
+                  <div className="space-y-6 w-full min-h-[400px]">
+                    <ComponentMetadata item={effectiveItem ?? item} />
                   </div>
                 </TabsContent>
-              )}
-            </Tabs>
 
-            {/* Sidebar */}
-            <aside className="hidden lg:block space-y-5">
-              {/* Install command (MCPs, Skills, Hooks only) */}
-              {(singularType === "mcp" || singularType === "skill" || singularType === "hook") && (
-                <ComponentInstallCommand componentType={singularType} componentName={componentRef} />
-              )}
+                <TabsContent
+                  value="reviews"
+                  forceMount
+                  className="mt-6 data-[state=inactive]:hidden"
+                >
+                  <div className="space-y-6 w-full min-h-[400px]">
+                    {isAuthenticated && (
+                      <>
+                        <ReviewForm
+                          listingId={id}
+                          listingType={singularType}
+                          onSuccess={() => {
+                            refetchFeedback();
+                            refetchSummary();
+                          }}
+                        />
+                        <Separator />
+                      </>
+                    )}
 
-              {/* Stats */}
-              <div className="border border-border rounded-md p-4 space-y-4">
-                <h3 className="text-xs font-semibold font-display uppercase tracking-wider text-muted-foreground">
-                  Stats
-                </h3>
-                <div className="space-y-3">
-                  {effectiveVersion && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Version</span>
-                      <span className="font-mono font-medium">{effectiveVersion}</span>
-                    </div>
-                  )}
-                  {item.created_at && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Created</span>
-                      <span className="font-mono font-medium text-xs">{new Date(item.created_at).toLocaleDateString()}</span>
-                    </div>
-                  )}
-                  {(item as Record<string, unknown>).download_count != null && (item as Record<string, unknown>).download_count !== 0 && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="inline-flex items-center gap-2 text-muted-foreground">
-                        <ArrowDownToLine className="h-3.5 w-3.5" />
-                        Downloads
-                      </span>
-                      <span className="font-mono font-medium">
-                        {compactNumber((item as Record<string, unknown>).download_count as number)}
-                      </span>
-                    </div>
-                  )}
-                  {metricsEntries.map(([key, val]) => (
-                    <div key={key} className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground capitalize">{key.replace(/_/g, " ")}</span>
-                      <span className="font-mono font-medium">{val}</span>
-                    </div>
-                  ))}
-                  {avgRating != null && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="inline-flex items-center gap-2 text-muted-foreground">
-                        <Star className="h-3.5 w-3.5" />
-                        Rating
-                      </span>
-                      <span className="font-mono font-medium">
-                        {avgRating.toFixed(1)}{" "}
-                        <span className="text-xs text-muted-foreground font-normal">({totalReviews})</span>
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
+                    {!feedbackItems || feedbackItems.length === 0 ? (
+                      <EmptyState
+                        icon={Star}
+                        title="No reviews yet"
+                        description={
+                          isAuthenticated
+                            ? `Be the first to review this ${singularType}.`
+                            : "Log in to leave a review."
+                        }
+                      />
+                    ) : (
+                      <div className="space-y-4">
+                        {feedbackItems
+                          .filter(
+                            (fb: FeedbackItem) =>
+                              !isAuthenticated ||
+                              !myReview ||
+                              fb.id !== myReview.id,
+                          )
+                          .map((fb: FeedbackItem) => (
+                            <div
+                              key={fb.id}
+                              className="rounded-md border border-border p-4 space-y-2"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1">
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`h-3.5 w-3.5 ${
+                                        i < fb.rating
+                                          ? "fill-current text-warning"
+                                          : "text-muted-foreground/30"
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-xs text-muted-foreground">
+                                  {fb.username ?? fb.user ?? "Anonymous"}
+                                  {fb.created_at &&
+                                    ` · ${new Date(fb.created_at).toLocaleDateString()}`}
+                                </span>
+                              </div>
+                              {fb.comment && (
+                                <p className="text-sm text-muted-foreground leading-relaxed">
+                                  {fb.comment}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
 
-              {/* harness Compatibility */}
-              {Array.isArray(item.supported_harnesses) && (item.supported_harnesses as string[]).length > 0 && (
-                <div className="border border-border rounded-md p-4 space-y-3">
-                  <h3 className="text-xs font-semibold font-display uppercase tracking-wider text-muted-foreground">
-                    harness Compatibility
-                  </h3>
-                  <HarnessBadges supportedHarnesses={item.supported_harnesses as string[]} max={7} />
-                </div>
-              )}
+                <TabsContent
+                  value="versions"
+                  forceMount
+                  className="mt-6 data-[state=inactive]:hidden"
+                >
+                  <div className="space-y-4 w-full min-h-[400px]">
+                    {versionsLoading ? (
+                      <div className="flex items-center justify-center py-12">
+                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                      </div>
+                    ) : versions.length === 0 ? (
+                      <EmptyState
+                        icon={History}
+                        title="No versions yet"
+                        description="Release a new version from the Edit tab to start tracking version history."
+                      />
+                    ) : (
+                      <div className="space-y-2">
+                        {versions.map((v: ComponentVersionSummary) => (
+                          <div
+                            key={v.id}
+                            className="flex items-start justify-between gap-4 rounded-md border border-border px-4 py-3"
+                          >
+                            <div className="space-y-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-mono text-sm font-medium">
+                                  v{v.version}
+                                </span>
+                                <Badge
+                                  variant={statusVariant(v.status)}
+                                  className="text-[10px]"
+                                >
+                                  {v.status}
+                                </Badge>
+                              </div>
+                              {v.description && (
+                                <p className="text-xs text-muted-foreground truncate max-w-xl">
+                                  {v.description}
+                                </p>
+                              )}
+                              {v.changelog && (
+                                <p className="text-xs text-muted-foreground/70 italic truncate max-w-xl">
+                                  {v.changelog}
+                                </p>
+                              )}
+                            </div>
+                            {v.released_at && (
+                              <div className="shrink-0 text-right space-y-0.5">
+                                <p className="text-xs text-muted-foreground">
+                                  {new Date(v.released_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </TabsContent>
 
-              {/* Publisher */}
-              {!!item.owner && (
-                <div className="border border-border rounded-md p-4 space-y-2">
-                  <h3 className="text-xs font-semibold font-display uppercase tracking-wider text-muted-foreground">
-                    Publisher
-                  </h3>
-                  <p className="text-sm">{String(item.owner)}</p>
-                </div>
-              )}
+                {canEdit && (
+                  <TabsContent
+                    value="edit"
+                    forceMount
+                    className="mt-6 data-[state=inactive]:hidden"
+                  >
+                    <div className="w-full min-h-[400px]">
+                      <ComponentEditForm
+                        listingId={id}
+                        type={type}
+                        currentVersion={effectiveVersion ?? "1.0.0"}
+                        item={effectiveItem ?? item}
+                        onSuccess={() => refetch()}
+                      />
+                    </div>
+                  </TabsContent>
+                )}
+              </Tabs>
 
-              {(canEdit || coAuthors.length > 0) && (
+              {/* Sidebar */}
+              <aside className="hidden lg:block space-y-5">
+                {/* Install command (MCPs, Skills, Hooks only) */}
+                {(singularType === "mcp" ||
+                  singularType === "skill" ||
+                  singularType === "hook") && (
+                  <ComponentInstallCommand
+                    componentType={singularType}
+                    componentName={componentRef}
+                  />
+                )}
+
+                {/* Stats */}
                 <div className="border border-border rounded-md p-4 space-y-4">
                   <h3 className="text-xs font-semibold font-display uppercase tracking-wider text-muted-foreground">
-                    Danger zone
+                    Stats
                   </h3>
+                  <div className="space-y-3">
+                    {effectiveVersion && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Version</span>
+                        <span className="font-mono font-medium">
+                          {effectiveVersion}
+                        </span>
+                      </div>
+                    )}
+                    {item.created_at && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Created</span>
+                        <span className="font-mono font-medium text-xs">
+                          {new Date(item.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                    {(item as Record<string, unknown>).download_count != null &&
+                      (item as Record<string, unknown>).download_count !==
+                        0 && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="inline-flex items-center gap-2 text-muted-foreground">
+                            <ArrowDownToLine className="h-3.5 w-3.5" />
+                            Downloads
+                          </span>
+                          <span className="font-mono font-medium">
+                            {compactNumber(
+                              (item as Record<string, unknown>)
+                                .download_count as number,
+                            )}
+                          </span>
+                        </div>
+                      )}
+                    {metricsEntries.map(([key, val]) => (
+                      <div
+                        key={key}
+                        className="flex items-center justify-between text-sm"
+                      >
+                        <span className="text-muted-foreground capitalize">
+                          {key.replace(/_/g, " ")}
+                        </span>
+                        <span className="font-mono font-medium">{val}</span>
+                      </div>
+                    ))}
+                    {avgRating != null && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="inline-flex items-center gap-2 text-muted-foreground">
+                          <Star className="h-3.5 w-3.5" />
+                          Rating
+                        </span>
+                        <span className="font-mono font-medium">
+                          {avgRating.toFixed(1)}{" "}
+                          <span className="text-xs text-muted-foreground font-normal">
+                            ({totalReviews})
+                          </span>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-                  <CoAuthorInput
-                    entityType={type}
-                    entityId={id}
-                    coAuthors={coAuthors}
-                    onChange={setCoAuthors}
-                    canManage={canEdit}
-                    canTransferOwnership={canTransferOwnership}
-                    onTransferOwnership={() => refetch()}
-                  />
-
-                  {canEdit && (
-                    <div className="border-t border-border pt-3 space-y-2">
-                      <p className="text-sm font-medium">Lifecycle</p>
-                      <ComponentArchiveButton type={type} item={item} onSuccess={() => refetch()} />
+                {/* harness Compatibility */}
+                {Array.isArray(item.supported_harnesses) &&
+                  (item.supported_harnesses as string[]).length > 0 && (
+                    <div className="border border-border rounded-md p-4 space-y-3">
+                      <h3 className="text-xs font-semibold font-display uppercase tracking-wider text-muted-foreground">
+                        harness Compatibility
+                      </h3>
+                      <HarnessBadges
+                        supportedHarnesses={
+                          item.supported_harnesses as string[]
+                        }
+                        max={7}
+                      />
                     </div>
                   )}
-                </div>
-              )}
-            </aside>
+
+                {/* Publisher */}
+                {!!item.owner && (
+                  <div className="border border-border rounded-md p-4 space-y-2">
+                    <h3 className="text-xs font-semibold font-display uppercase tracking-wider text-muted-foreground">
+                      Publisher
+                    </h3>
+                    <p className="text-sm">{String(item.owner)}</p>
+                  </div>
+                )}
+
+                {(canEdit || coAuthors.length > 0) && (
+                  <div className="border border-border rounded-md p-4 space-y-4">
+                    <h3 className="text-xs font-semibold font-display uppercase tracking-wider text-muted-foreground">
+                      Danger zone
+                    </h3>
+
+                    <CoAuthorInput
+                      entityType={type}
+                      entityId={id}
+                      coAuthors={coAuthors}
+                      onChange={setCoAuthors}
+                      canManage={canEdit}
+                      canTransferOwnership={canTransferOwnership}
+                      onTransferOwnership={() => refetch()}
+                    />
+
+                    {canEdit && (
+                      <div className="border-t border-border pt-3 space-y-2">
+                        <p className="text-sm font-medium">Lifecycle</p>
+                        <ComponentArchiveButton
+                          type={type}
+                          item={item}
+                          onSuccess={() => refetch()}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </aside>
             </div>
           </div>
         )}
@@ -636,13 +812,17 @@ export default function ComponentDetailPage({
           <AlertDialogHeader>
             <AlertDialogTitle>Make {componentName} public?</AlertDialogTitle>
             <AlertDialogDescription>
-              Everyone who can reach this registry will be able to find and install this {singularType}, not just the
-              members of its teamspace. Publishing publicly also returns it to the review queue, so it leaves the
-              catalog until a reviewer approves it. Approval is manual, so it will not be immediate.
+              Everyone who can reach this registry will be able to find and
+              install this {singularType}, not just the members of its
+              teamspace. Publishing publicly also returns it to the review
+              queue, so it leaves the catalog until a reviewer approves it.
+              Approval is manual, so it will not be immediate.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={updateVisibility.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={updateVisibility.isPending}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={(event) => {
                 event.preventDefault();
@@ -651,7 +831,10 @@ export default function ComponentDetailPage({
               disabled={updateVisibility.isPending}
             >
               {updateVisibility.isPending ? (
-                <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />Publishing...</>
+                <>
+                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
+                  Publishing...
+                </>
               ) : (
                 "Make public"
               )}
@@ -693,18 +876,28 @@ function ComponentArchiveButton({
       <Button
         variant="outline"
         size="sm"
-        className={isArchived ? "h-8" : "h-8 border-dark-yellow/40 bg-light-yellow text-dark-yellow hover:bg-light-yellow/80"}
+        className={
+          isArchived
+            ? "h-8"
+            : "h-8 border-dark-yellow/40 bg-light-yellow text-dark-yellow hover:bg-light-yellow/80"
+        }
         onClick={() => setOpen(true)}
         disabled={isBusy}
       >
-        {isArchived ? <ArchiveRestore className="mr-1 h-3.5 w-3.5" /> : <Archive className="mr-1 h-3.5 w-3.5" />}
+        {isArchived ? (
+          <ArchiveRestore className="mr-1 h-3.5 w-3.5" />
+        ) : (
+          <Archive className="mr-1 h-3.5 w-3.5" />
+        )}
         {isArchived ? "Restore" : "Archive"}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{isArchived ? `Restore ${item.name}?` : `Archive ${item.name}?`}</DialogTitle>
+            <DialogTitle>
+              {isArchived ? `Restore ${item.name}?` : `Archive ${item.name}?`}
+            </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             {isArchived
@@ -712,14 +905,29 @@ function ComponentArchiveButton({
               : "Archived components stop appearing in registry lists and insight suggestions. Direct installs and agent pulls still work, but users will see a warning."}
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
             <Button
               variant={isArchived ? "default" : "outline"}
-              className={isArchived ? undefined : "border-dark-yellow/40 bg-light-yellow text-dark-yellow hover:bg-light-yellow/80"}
+              className={
+                isArchived
+                  ? undefined
+                  : "border-dark-yellow/40 bg-light-yellow text-dark-yellow hover:bg-light-yellow/80"
+              }
               onClick={submit}
               disabled={isBusy}
             >
-              {isBusy ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />Saving...</> : isArchived ? "Restore" : "Archive"}
+              {isBusy ? (
+                <>
+                  <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
+                  Saving...
+                </>
+              ) : isArchived ? (
+                "Restore"
+              ) : (
+                "Archive"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -729,40 +937,127 @@ function ComponentArchiveButton({
 }
 
 function ComponentMetadata({ item }: { item: RegistryItem }) {
-  const fields: { label: string; value: string; mono?: boolean; href?: string }[] = [];
-  if ("git_url" in item && item.git_url != null) fields.push({ label: "Source", value: String(item.git_url), href: String(item.git_url) });
-  if ("command" in item && item.command != null) fields.push({ label: "Command", value: String(item.command), mono: true });
-  if ("url" in item && item.url != null) fields.push({ label: "URL", value: String(item.url), href: String(item.url) });
-  if ("transport" in item && item.transport != null) fields.push({ label: "Transport", value: String(item.transport) });
-  if ("framework" in item && item.framework != null) fields.push({ label: "Framework", value: String(item.framework) });
-  if ("docker_image" in item && item.docker_image != null) fields.push({ label: "Docker Image", value: String(item.docker_image), mono: true });
-  if ("hook_type" in item && item.hook_type != null) fields.push({ label: "Hook Type", value: String(item.hook_type) });
-  if ("trigger_event" in item && item.trigger_event != null) fields.push({ label: "Trigger Event", value: String(item.trigger_event) });
-  if ("runtime" in item && item.runtime != null) fields.push({ label: "Runtime", value: String(item.runtime) });
-  if ("runtime_type" in item && item.runtime_type != null) fields.push({ label: "Runtime", value: String(item.runtime_type) });
-  if ("image" in item && item.image != null) fields.push({ label: "Image / Artifact", value: String(item.image), mono: true });
-  if ("network_policy" in item && item.network_policy != null) fields.push({ label: "Network Policy", value: String(item.network_policy) });
-  if ("entrypoint" in item && item.entrypoint != null) fields.push({ label: "Entrypoint", value: String(item.entrypoint), mono: true });
-  if ("source_url" in item && item.source_url != null) fields.push({ label: "Source URL", value: String(item.source_url), href: String(item.source_url) });
-  if ("sandbox_path" in item && item.sandbox_path != null) fields.push({ label: "Sandbox Path", value: String(item.sandbox_path), mono: true });
+  const fields: {
+    label: string;
+    value: string;
+    mono?: boolean;
+    href?: string;
+  }[] = [];
+  if ("git_url" in item && item.git_url != null)
+    fields.push({
+      label: "Source",
+      value: String(item.git_url),
+      href: String(item.git_url),
+    });
+  if ("command" in item && item.command != null)
+    fields.push({ label: "Command", value: String(item.command), mono: true });
+  if ("url" in item && item.url != null)
+    fields.push({
+      label: "URL",
+      value: String(item.url),
+      href: String(item.url),
+    });
+  if ("transport" in item && item.transport != null)
+    fields.push({ label: "Transport", value: String(item.transport) });
+  if ("framework" in item && item.framework != null)
+    fields.push({ label: "Framework", value: String(item.framework) });
+  if ("docker_image" in item && item.docker_image != null)
+    fields.push({
+      label: "Docker Image",
+      value: String(item.docker_image),
+      mono: true,
+    });
+  if ("hook_type" in item && item.hook_type != null)
+    fields.push({ label: "Hook Type", value: String(item.hook_type) });
+  if ("trigger_event" in item && item.trigger_event != null)
+    fields.push({ label: "Trigger Event", value: String(item.trigger_event) });
+  if ("runtime" in item && item.runtime != null)
+    fields.push({ label: "Runtime", value: String(item.runtime) });
+  if ("runtime_type" in item && item.runtime_type != null)
+    fields.push({ label: "Runtime", value: String(item.runtime_type) });
+  if ("image" in item && item.image != null)
+    fields.push({
+      label: "Image / Artifact",
+      value: String(item.image),
+      mono: true,
+    });
+  if ("network_policy" in item && item.network_policy != null)
+    fields.push({
+      label: "Network Policy",
+      value: String(item.network_policy),
+    });
+  if ("entrypoint" in item && item.entrypoint != null)
+    fields.push({
+      label: "Entrypoint",
+      value: String(item.entrypoint),
+      mono: true,
+    });
+  if ("source_url" in item && item.source_url != null)
+    fields.push({
+      label: "Source URL",
+      value: String(item.source_url),
+      href: String(item.source_url),
+    });
+  if ("sandbox_path" in item && item.sandbox_path != null)
+    fields.push({
+      label: "Sandbox Path",
+      value: String(item.sandbox_path),
+      mono: true,
+    });
 
-  const workflowScript = "script_content" in item && item.script_content != null && !("task_type" in item) ? String(item.script_content) : null;
-  const setupInstructions = "setup_instructions" in item && item.setup_instructions ? String(item.setup_instructions) : null;
-  const changelog = "changelog" in item && item.changelog ? String(item.changelog) : null;
-  const skillMd = "skill_md_content" in item && item.skill_md_content ? String(item.skill_md_content) : null;
-  const promptTemplate = "template" in item && item.template ? String(item.template) : null;
-  const promptText = "prompt_text" in item && item.prompt_text ? String(item.prompt_text) : null;
+  const workflowScript =
+    "script_content" in item &&
+    item.script_content != null &&
+    !("task_type" in item)
+      ? String(item.script_content)
+      : null;
+  const setupInstructions =
+    "setup_instructions" in item && item.setup_instructions
+      ? String(item.setup_instructions)
+      : null;
+  const changelog =
+    "changelog" in item && item.changelog ? String(item.changelog) : null;
+  const skillMd =
+    "skill_md_content" in item && item.skill_md_content
+      ? String(item.skill_md_content)
+      : null;
+  const promptTemplate =
+    "template" in item && item.template ? String(item.template) : null;
+  const promptText =
+    "prompt_text" in item && item.prompt_text ? String(item.prompt_text) : null;
   const markdownContent = skillMd || promptTemplate || promptText;
-  const envVars = "environment_variables" in item && Array.isArray(item.environment_variables) ? item.environment_variables as { name: string; description?: string; required?: boolean }[] : [];
-  const resourceLimits = "resource_limits" in item && item.resource_limits ? JSON.stringify(item.resource_limits, null, 2) : null;
-  const runtimeConfig = "runtime_config" in item && item.runtime_config ? JSON.stringify(item.runtime_config, null, 2) : null;
+  const envVars =
+    "environment_variables" in item && Array.isArray(item.environment_variables)
+      ? (item.environment_variables as {
+          name: string;
+          description?: string;
+          required?: boolean;
+        }[])
+      : [];
+  const resourceLimits =
+    "resource_limits" in item && item.resource_limits
+      ? JSON.stringify(item.resource_limits, null, 2)
+      : null;
+  const runtimeConfig =
+    "runtime_config" in item && item.runtime_config
+      ? JSON.stringify(item.runtime_config, null, 2)
+      : null;
 
-  const hasContent = fields.length > 0 || markdownContent || setupInstructions || changelog || envVars.length > 0 || resourceLimits || runtimeConfig;
+  const hasContent =
+    fields.length > 0 ||
+    markdownContent ||
+    setupInstructions ||
+    changelog ||
+    envVars.length > 0 ||
+    resourceLimits ||
+    runtimeConfig;
 
   if (!hasContent) {
     return (
       <div className="rounded-md border border-dashed border-border p-8 text-center">
-        <p className="text-sm text-muted-foreground">No additional details available for this component.</p>
+        <p className="text-sm text-muted-foreground">
+          No additional details available for this component.
+        </p>
       </div>
     );
   }
@@ -772,12 +1067,26 @@ function ComponentMetadata({ item }: { item: RegistryItem }) {
       {fields.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
           {fields.map((f) => (
-            <div key={f.label} className="rounded-md border border-border p-3 space-y-1">
+            <div
+              key={f.label}
+              className="rounded-md border border-border p-3 space-y-1"
+            >
               <span className="text-xs text-muted-foreground">{f.label}</span>
               {f.href ? (
-                <p><a href={f.href} className="text-sm text-primary hover:underline break-all" target="_blank" rel="noopener noreferrer">{f.value}</a></p>
+                <p>
+                  <a
+                    href={f.href}
+                    className="text-sm text-primary hover:underline break-all"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {f.value}
+                  </a>
+                </p>
               ) : (
-                <p className={f.mono ? "font-mono text-sm" : "text-sm"}>{f.value}</p>
+                <p className={f.mono ? "font-mono text-sm" : "text-sm"}>
+                  {f.value}
+                </p>
               )}
             </div>
           ))}
@@ -785,26 +1094,49 @@ function ComponentMetadata({ item }: { item: RegistryItem }) {
       )}
       {resourceLimits && resourceLimits !== "{}" && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Resource Limits</h3>
-          <pre className="rounded-md border border-border bg-muted/20 p-3 text-xs overflow-auto">{resourceLimits}</pre>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Resource Limits
+          </h3>
+          <pre className="rounded-md border border-border bg-muted/20 p-3 text-xs overflow-auto">
+            {resourceLimits}
+          </pre>
         </div>
       )}
       {runtimeConfig && runtimeConfig !== "{}" && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Runtime Config</h3>
-          <pre className="rounded-md border border-border bg-muted/20 p-3 text-xs overflow-auto">{runtimeConfig}</pre>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Runtime Config
+          </h3>
+          <pre className="rounded-md border border-border bg-muted/20 p-3 text-xs overflow-auto">
+            {runtimeConfig}
+          </pre>
         </div>
       )}
       {envVars.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Environment Variables</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Environment Variables
+          </h3>
           <div className="rounded-md border border-border divide-y divide-border">
             {envVars.map((ev) => (
-              <div key={ev.name} className="px-3 py-2 flex items-start justify-between gap-3 text-sm">
-                <code className="font-mono text-xs shrink-0 pt-0.5">{ev.name}</code>
+              <div
+                key={ev.name}
+                className="px-3 py-2 flex items-start justify-between gap-3 text-sm"
+              >
+                <code className="font-mono text-xs shrink-0 pt-0.5">
+                  {ev.name}
+                </code>
                 <div className="min-w-0 flex flex-wrap items-start justify-end gap-2 text-right">
-                  {ev.description && <span className="min-w-0 break-words text-xs leading-relaxed text-muted-foreground">{ev.description}</span>}
-                  {ev.required && <Badge variant="secondary" className="shrink-0 text-[10px]">required</Badge>}
+                  {ev.description && (
+                    <span className="min-w-0 break-words text-xs leading-relaxed text-muted-foreground">
+                      {ev.description}
+                    </span>
+                  )}
+                  {ev.required && (
+                    <Badge variant="secondary" className="shrink-0 text-[10px]">
+                      required
+                    </Badge>
+                  )}
                 </div>
               </div>
             ))}
@@ -813,10 +1145,14 @@ function ComponentMetadata({ item }: { item: RegistryItem }) {
       )}
       {setupInstructions && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Setup Instructions</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Setup Instructions
+          </h3>
           <div className="rounded-md border border-border bg-muted/20 p-4 overflow-y-auto max-h-[400px]">
             <div className="prose prose-sm dark:prose-invert max-w-none text-foreground/90 leading-relaxed">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{setupInstructions}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {setupInstructions}
+              </ReactMarkdown>
             </div>
           </div>
         </div>
@@ -828,17 +1164,23 @@ function ComponentMetadata({ item }: { item: RegistryItem }) {
           </h3>
           <div className="rounded-md border border-border bg-muted/20 p-4 overflow-y-auto max-h-[360px]">
             <div className="prose prose-sm dark:prose-invert max-w-none text-foreground/90 leading-relaxed">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdownContent}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {markdownContent}
+              </ReactMarkdown>
             </div>
           </div>
         </div>
       )}
       {changelog && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Changelog</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Changelog
+          </h3>
           <div className="rounded-md border border-border bg-muted/20 p-4 overflow-y-auto max-h-[300px]">
             <div className="prose prose-sm dark:prose-invert max-w-none text-foreground/90 leading-relaxed">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{changelog}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {changelog}
+              </ReactMarkdown>
             </div>
           </div>
         </div>

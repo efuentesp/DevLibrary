@@ -408,7 +408,9 @@ export function SubmitComponentDialog({
 		(d?.network_policy as string) ?? "none",
 	);
 	const [entrypoint, setEntrypoint] = useState((d?.entrypoint as string) ?? "");
-	const [workflowScript, setWorkflowScript] = useState((d?.script_content as string) ?? "");
+	const [workflowScript, setWorkflowScript] = useState(
+		(d?.script_content as string) ?? "",
+	);
 	const [sandboxResourceLimits, setSandboxResourceLimits] = useState(
 		d?.resource_limits && typeof d.resource_limits === "object"
 			? JSON.stringify(d.resource_limits, null, 2)

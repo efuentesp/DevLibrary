@@ -207,7 +207,14 @@ function groupComponents(
       groups[getComponentGroup(component)].push(component);
       return groups;
     },
-    { mcps: [], skills: [], hooks: [], prompts: [], sandboxes: [], workflows: [] },
+    {
+      mcps: [],
+      skills: [],
+      hooks: [],
+      prompts: [],
+      sandboxes: [],
+      workflows: [],
+    },
   );
 }
 

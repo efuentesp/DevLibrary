@@ -1,4 +1,3 @@
-
 // SPDX-FileCopyrightText: 2026 Aryan Iyappan <aryaniyappan2006@gmail.com>
 // SPDX-FileCopyrightText: 2026 Harishankar <harishankar0301@gmail.com>
 // SPDX-FileCopyrightText: 2026 Hari Srinivasan <harisrini21@gmail.com>
@@ -328,7 +327,11 @@ async function request<T = unknown>(
 							: JSON.stringify(parsed.error);
 				}
 			} catch {
-				if (detail.length > 200 || detail.includes("Traceback") || detail.includes("Error:")) {
+				if (
+					detail.length > 200 ||
+					detail.includes("Traceback") ||
+					detail.includes("Error:")
+				) {
 					detail = `Request failed (${response.status})`;
 				}
 			}
@@ -391,12 +394,13 @@ export const auth = {
 	init: (body: { email: string; name: string; password?: string }) =>
 		post<AuthResponse>("/auth/init", body),
 	login: (body: { email: string; password: string }) =>
-		post<AuthResponse & { must_change_password?: boolean }>(
-			"/auth/login",
-			body,
-		),
-	register: (body: { email: string; name: string; username?: string; password: string }) =>
-		post<AuthResponse>("/auth/register", body),
+		post<AuthResponse & { must_change_password?: boolean }>("/auth/login", body),
+	register: (body: {
+		email: string;
+		name: string;
+		username?: string;
+		password: string;
+	}) => post<AuthResponse>("/auth/register", body),
 	whoami: () =>
 		get<{
 			id: string;
@@ -416,9 +420,7 @@ export const auth = {
 		put<{ avatar_url: string | null }>("/auth/profile/avatar", body),
 	deleteAvatar: () => del<{ avatar_url: null }>("/auth/profile/avatar"),
 	ssoErrorDiagnostics: (corrId: string) =>
-		get<E2eStatusResult>(
-			`/auth/sso/diagnostics/${encodeURIComponent(corrId)}`,
-		),
+		get<E2eStatusResult>(`/auth/sso/diagnostics/${encodeURIComponent(corrId)}`),
 };
 
 // ── Registry (all 8 types) ─────────────────────────────────────────
@@ -489,9 +491,12 @@ export const registry = {
 	deletedAgents: () => get<RegistryItem[]>("/agents/deleted"),
 	archive: (id: string) => patch(`/agents/${id}/archive`),
 	unarchive: (id: string) => patch(`/agents/${id}/unarchive`),
-	restoreDeletedAgent: (id: string, body?: { name?: string }) => patch(`/agents/${id}/restore`, body ?? {}),
-	archiveComponent: (type: RegistryType, id: string) => patch(`/${type}/${id}/archive`),
-	unarchiveComponent: (type: RegistryType, id: string) => patch(`/${type}/${id}/unarchive`),
+	restoreDeletedAgent: (id: string, body?: { name?: string }) =>
+		patch(`/agents/${id}/restore`, body ?? {}),
+	archiveComponent: (type: RegistryType, id: string) =>
+		patch(`/${type}/${id}/archive`),
+	unarchiveComponent: (type: RegistryType, id: string) =>
+		patch(`/${type}/${id}/unarchive`),
 	draft: (body: unknown, type?: RegistryType) =>
 		post<RegistryItem>(`/${type ?? "agents"}/draft`, body),
 	updateDraft: (id: string, body: unknown, type?: RegistryType) =>
@@ -502,8 +507,17 @@ export const registry = {
 		post(`/${type ?? "agents"}/${id}/submit`),
 	submit: (type: RegistryType, body: unknown) =>
 		post<RegistryItem>(`/${type}/submit`, body),
-	updateVisibility: (type: RegistryType, id: string, visibility: "public" | "team") =>
-		patch<{ id: string; qualified_name: string; team_id: string | null; visibility: "public" | "team" }>(
+	updateVisibility: (
+		type: RegistryType,
+		id: string,
+		visibility: "public" | "team",
+	) =>
+		patch<{
+			id: string;
+			qualified_name: string;
+			team_id: string | null;
+			visibility: "public" | "team";
+		}>(
 			`/registry/${type === "agents" ? "agent" : type.slice(0, -1)}/${id}/visibility`,
 			{ visibility },
 		),
@@ -561,7 +575,9 @@ export const review = {
 	 * team role before asking.
 	 */
 	listForTeam: (teamId: string, params?: Record<string, string>) =>
-		get<ReviewItem[]>(`/review?${new URLSearchParams({ ...params, team_id: teamId })}`),
+		get<ReviewItem[]>(
+			`/review?${new URLSearchParams({ ...params, team_id: teamId })}`,
+		),
 	get: (id: string) => get<ReviewItem>(`/review/${id}`),
 	approve: (id: string) => post(`/review/${id}/approve`),
 	reject: (id: string, body: { reason: string }) =>
@@ -598,32 +614,43 @@ export const teams = {
 	list: () => get<Team[]>("/teams"),
 	listAll: () => get<Team[]>("/teams/all"),
 	get: (id: string) => get<Team>(`/teams/${id}`),
-	byHandle: (handle: string) => get<Team>(`/teams/by-handle/${encodeURIComponent(handle)}`),
-	create: (body: { name: string; handle?: string; description?: string; visibility?: "public" | "private" }) =>
-		post<Team>("/teams", body),
+	byHandle: (handle: string) =>
+		get<Team>(`/teams/by-handle/${encodeURIComponent(handle)}`),
+	create: (body: {
+		name: string;
+		handle?: string;
+		description?: string;
+		visibility?: "public" | "private";
+	}) => post<Team>("/teams", body),
 	claimPersonal: () => post<Team>("/teams/claim-personal"),
-	update: (id: string, body: TeamUpdateBody) =>
-		put<Team>(`/teams/${id}`, body),
+	update: (id: string, body: TeamUpdateBody) => put<Team>(`/teams/${id}`, body),
 	updateVisibility: (id: string, visibility: "public" | "private") =>
 		patch<Team>(`/teams/${id}/visibility`, { visibility }),
-	visibilityRequests: () => get<TeamVisibilityRequest[]>("/teams/visibility-requests"),
-	approveVisibility: (id: string) => post<Team>(`/teams/${id}/visibility-request/approve`),
+	visibilityRequests: () =>
+		get<TeamVisibilityRequest[]>("/teams/visibility-requests"),
+	approveVisibility: (id: string) =>
+		post<Team>(`/teams/${id}/visibility-request/approve`),
 	rejectVisibility: (id: string, reason?: string) =>
-		post<Team>(`/teams/${id}/visibility-request/reject`, reason ? { reason } : {}),
+		post<Team>(
+			`/teams/${id}/visibility-request/reject`,
+			reason ? { reason } : {},
+		),
 	delete: (id: string) => del(`/teams/${id}`),
 	members: (id: string) => get<TeamMember[]>(`/teams/${id}/members`),
-	upsertMember: (
-		id: string,
-		body: TeamMemberUpsertBody,
-	) => post<TeamMember>(`/teams/${id}/members`, body),
-	removeMember: (id: string, userId: string) => del(`/teams/${id}/members/${userId}`),
+	upsertMember: (id: string, body: TeamMemberUpsertBody) =>
+		post<TeamMember>(`/teams/${id}/members`, body),
+	removeMember: (id: string, userId: string) =>
+		del(`/teams/${id}/members/${userId}`),
 	leave: (id: string) => post(`/teams/${id}/leave`),
 	invites: (id: string) => get<TeamInvite[]>(`/teams/${id}/invites`),
-	createInvite: (id: string, body: { name?: string; expires_in_days?: number; max_uses?: number | null }) =>
-		post<TeamInviteCreated>(`/teams/${id}/invites`, body),
+	createInvite: (
+		id: string,
+		body: { name?: string; expires_in_days?: number; max_uses?: number | null },
+	) => post<TeamInviteCreated>(`/teams/${id}/invites`, body),
 	revokeInvite: (teamId: string, inviteId: string) =>
 		post<TeamInvite>(`/teams/${teamId}/invites/${inviteId}/revoke`),
-	deleteInvite: (teamId: string, inviteId: string) => del(`/teams/${teamId}/invites/${inviteId}`),
+	deleteInvite: (teamId: string, inviteId: string) =>
+		del(`/teams/${teamId}/invites/${inviteId}`),
 	inviteRequests: (teamId: string, inviteId: string) =>
 		get<TeamJoinRequest[]>(`/teams/${teamId}/invites/${inviteId}/requests`),
 	previewInvite: (token: string) =>
@@ -633,12 +660,22 @@ export const teams = {
 	requestJoin: (id: string, body: { message?: string; invite_token?: string }) =>
 		post<TeamJoinRequest>(`/teams/${id}/join-requests`, body),
 	joinRequests: (id: string, status?: TeamJoinRequestStatus) =>
-		get<TeamJoinRequest[]>(`/teams/${id}/join-requests${status ? `?status=${status}` : ""}`),
-	myJoinRequests: (id: string) => get<TeamJoinRequest[]>(`/teams/${id}/join-requests/mine`),
+		get<TeamJoinRequest[]>(
+			`/teams/${id}/join-requests${status ? `?status=${status}` : ""}`,
+		),
+	myJoinRequests: (id: string) =>
+		get<TeamJoinRequest[]>(`/teams/${id}/join-requests/mine`),
 	approveJoinRequest: (id: string, requestId: string) =>
 		post<TeamJoinRequest>(`/teams/${id}/join-requests/${requestId}/approve`),
-	rejectJoinRequest: (id: string, requestId: string, body?: { reason?: string }) =>
-		post<TeamJoinRequest>(`/teams/${id}/join-requests/${requestId}/reject`, body ?? {}),
+	rejectJoinRequest: (
+		id: string,
+		requestId: string,
+		body?: { reason?: string },
+	) =>
+		post<TeamJoinRequest>(
+			`/teams/${id}/join-requests/${requestId}/reject`,
+			body ?? {},
+		),
 	cancelJoinRequest: (id: string, requestId: string) =>
 		del(`/teams/${id}/join-requests/${requestId}`),
 };
@@ -649,9 +686,7 @@ export const dashboard = {
 		get<OverviewStats>(`/overview/stats${range ? `?range=${range}` : ""}`),
 	topMcps: () => get<TopItem[]>("/overview/top-mcps"),
 	topAgents: (limit?: number) =>
-		get<TopAgentItem[]>(
-			`/overview/top-agents${limit ? `?limit=${limit}` : ""}`,
-		),
+		get<TopAgentItem[]>(`/overview/top-agents${limit ? `?limit=${limit}` : ""}`),
 	leaderboard: (window?: LeaderboardWindow, limit?: number, user?: string) => {
 		const params = new URLSearchParams();
 		if (window) params.set("window", window);
@@ -715,11 +750,14 @@ export const feedback = {
 	summary: (id: string) => get<FeedbackSummary>(`/feedback/summary/${id}`),
 	mine: (type: string, id: string) =>
 		get<FeedbackItem>(`/feedback/mine/${type}/${id}`),
-	update: (feedbackId: string, body: {
-		rating?: number;
-		comment?: string;
-		anonymous?: boolean;
-	}) => put<FeedbackItem>(`/feedback/${feedbackId}`, body),
+	update: (
+		feedbackId: string,
+		body: {
+			rating?: number;
+			comment?: string;
+			anonymous?: boolean;
+		},
+	) => put<FeedbackItem>(`/feedback/${feedbackId}`, body),
 	remove: (feedbackId: string) => del<void>(`/feedback/${feedbackId}`),
 };
 
@@ -729,8 +767,10 @@ export const admin = {
 		get<AdminSetting[] | Record<string, string>>("/admin/settings"),
 	settingsSchema: () => get<AdminSettingSection[]>("/admin/settings/schema"),
 	usagePingStatus: () => get<UsagePingStatus>("/admin/usage-ping/status"),
-	usagePingPreview: () => get<UsagePingAdminResponse>("/admin/usage-ping/preview"),
-	sendUsagePing: () => post<UsagePingAdminResponse>("/admin/usage-ping/send", {}),
+	usagePingPreview: () =>
+		get<UsagePingAdminResponse>("/admin/usage-ping/preview"),
+	sendUsagePing: () =>
+		post<UsagePingAdminResponse>("/admin/usage-ping/send", {}),
 	updateSetting: (key: string, body: unknown) =>
 		put<unknown>(`/admin/settings/${key}`, body),
 	deleteSetting: (key: string) => del(`/admin/settings/${key}`),
@@ -747,9 +787,14 @@ export const admin = {
 			error?: string;
 			hint?: string;
 		}>("/admin/insights/test-connection", body ?? {}),
-	insightsModelProviders: () => get<import("./types").LiteLLMProviderList>("/admin/insights/models/providers"),
+	insightsModelProviders: () =>
+		get<import("./types").LiteLLMProviderList>(
+			"/admin/insights/models/providers",
+		),
 	insightsModels: (provider: string) =>
-		get<import("./types").LiteLLMModelList>(`/admin/insights/models?provider=${encodeURIComponent(provider)}`),
+		get<import("./types").LiteLLMModelList>(
+			`/admin/insights/models?provider=${encodeURIComponent(provider)}`,
+		),
 	purgeTracesAndInsights: () =>
 		post<{
 			project_id: string;
@@ -798,21 +843,17 @@ export const admin = {
 			"/admin/resources/apply",
 			{},
 		),
-	getTracePrivacy: () =>
-		get<{ trace_privacy: boolean }>("/admin/trace-privacy"),
+	getTracePrivacy: () => get<{ trace_privacy: boolean }>("/admin/trace-privacy"),
 	setTracePrivacy: (enabled: boolean) =>
 		put<{ trace_privacy: boolean }>("/admin/trace-privacy", {
 			trace_privacy: enabled,
 		}),
 	getRegisteredAgentsOnly: () =>
-		get<{ registered_agents_only: boolean }>(
-			"/admin/registered-agents-only",
-		),
+		get<{ registered_agents_only: boolean }>("/admin/registered-agents-only"),
 	setRegisteredAgentsOnly: (enabled: boolean) =>
-		put<{ registered_agents_only: boolean }>(
-			"/admin/registered-agents-only",
-			{ registered_agents_only: enabled },
-		),
+		put<{ registered_agents_only: boolean }>("/admin/registered-agents-only", {
+			registered_agents_only: enabled,
+		}),
 	auditLog: (params?: Record<string, string>) => {
 		const qs = params ? `?${new URLSearchParams(params)}` : "";
 		return get<AuditLogEntry[]>(`/admin/audit-log${qs}`);
@@ -843,12 +884,12 @@ export const admin = {
 		post<{ detail: string; delay_seconds: number }>("/admin/restart", {}),
 	validateOidc: () => post<ValidateResult>("/admin/sso/validate-oidc", {}),
 	validateSaml: () => post<ValidateResult>("/admin/sso/validate-saml", {}),
-	e2eOidcStart: () =>
-		post<E2eStartResult>("/admin/sso/e2e/oidc/start", {}),
-	e2eSamlStart: () =>
-		post<E2eStartResult>("/admin/sso/e2e/saml/start", {}),
+	e2eOidcStart: () => post<E2eStartResult>("/admin/sso/e2e/oidc/start", {}),
+	e2eSamlStart: () => post<E2eStartResult>("/admin/sso/e2e/saml/start", {}),
 	e2eStatus: (sessionId: string) =>
-		get<E2eStatusResult>(`/admin/sso/e2e/status/${encodeURIComponent(sessionId)}`),
+		get<E2eStatusResult>(
+			`/admin/sso/e2e/status/${encodeURIComponent(sessionId)}`,
+		),
 	scimTokens: () =>
 		get<
 			{
@@ -1134,16 +1175,28 @@ export const inbox = {
 };
 
 export const insights = {
-	status: () => get<{ available: boolean; reason: string | null }>("/insights/status"),
+	status: () =>
+		get<{ available: boolean; reason: string | null }>("/insights/status"),
 	sessionCount: (agentId: string, agentVersion?: string) =>
-		get<{ session_count: number; agent_version?: string; agent_version_id?: string }>(
+		get<{
+			session_count: number;
+			agent_version?: string;
+			agent_version_id?: string;
+		}>(
 			`/agents/${agentId}/insights/session-count${agentVersion ? `?agent_version=${encodeURIComponent(agentVersion)}` : ""}`,
 		),
-	generate: (agentId: string, periodDays?: number, agentVersion?: string, comparisonAgentVersion?: string) =>
+	generate: (
+		agentId: string,
+		periodDays?: number,
+		agentVersion?: string,
+		comparisonAgentVersion?: string,
+	) =>
 		post<InsightReportListItem>(`/agents/${agentId}/insights/reports`, {
 			...(periodDays ? { period_days: periodDays } : {}),
 			...(agentVersion ? { agent_version: agentVersion } : {}),
-			...(comparisonAgentVersion ? { comparison_agent_version: comparisonAgentVersion } : {}),
+			...(comparisonAgentVersion
+				? { comparison_agent_version: comparisonAgentVersion }
+				: {}),
 		}),
 	listReports: (agentId: string) =>
 		get<InsightReportListItem[]>(`/agents/${agentId}/insights/reports`),
@@ -1151,23 +1204,37 @@ export const insights = {
 		get<InsightReport>(`/agents/${agentId}/insights/reports/${reportId}`),
 	getReportById: (reportId: string) =>
 		get<InsightReport>(`/insights/reports/${reportId}`),
-	applySuggestions: (agentId: string, reportId: string, selection?: { config_indices?: number[]; feature_indices?: number[]; pattern_indices?: number[] }) =>
+	applySuggestions: (
+		agentId: string,
+		reportId: string,
+		selection?: {
+			config_indices?: number[];
+			feature_indices?: number[];
+			pattern_indices?: number[];
+		},
+	) =>
 		post<{ applied: boolean; report_id: string; items: InsightAppliedItems }>(
 			`/agents/${agentId}/insights/reports/${reportId}/apply`,
 			selection ?? {},
 		),
 	exportHtml: async (agentId: string, reportId: string): Promise<void> => {
 		let token = getAccessToken();
-		let res = await fetch(`${API}/agents/${agentId}/insights/reports/${reportId}/export/html`, {
-			headers: token ? { Authorization: `Bearer ${token}` } : {},
-		});
+		let res = await fetch(
+			`${API}/agents/${agentId}/insights/reports/${reportId}/export/html`,
+			{
+				headers: token ? { Authorization: `Bearer ${token}` } : {},
+			},
+		);
 		if (res.status === 401) {
 			const refreshed = await _tryRefreshToken();
 			if (refreshed) {
 				token = getAccessToken();
-				res = await fetch(`${API}/agents/${agentId}/insights/reports/${reportId}/export/html`, {
-					headers: token ? { Authorization: `Bearer ${token}` } : {},
-				});
+				res = await fetch(
+					`${API}/agents/${agentId}/insights/reports/${reportId}/export/html`,
+					{
+						headers: token ? { Authorization: `Bearer ${token}` } : {},
+					},
+				);
 			}
 		}
 		if (!res.ok) throw new Error("Export failed");
@@ -1189,8 +1256,7 @@ export const exec = {
 		get<ExecUsageByCategory[]>(
 			`/exec/usage-by-category${range ? `?range=${range}` : ""}`,
 		),
-	platformCoverage: () =>
-		get<ExecPlatformCoverage[]>("/exec/platform-coverage"),
+	platformCoverage: () => get<ExecPlatformCoverage[]>("/exec/platform-coverage"),
 	platforms: () => get<ExecPlatformScore[]>("/exec/platforms"),
 	velocity: () => get<ExecVelocityResponse>("/exec/velocity"),
 	topAgents: (limit?: number) =>
@@ -1205,8 +1271,7 @@ export const exec = {
 		),
 	costSummary: (range?: string) =>
 		get<ExecCostSummary>(`/exec/cost-summary${range ? `?range=${range}` : ""}`),
-	roiProjections: () =>
-		get<ExecROIProjectionsResponse>("/exec/roi-projections"),
+	roiProjections: () => get<ExecROIProjectionsResponse>("/exec/roi-projections"),
 	strategicInsights: () =>
 		get<ExecStrategicInsightsResponse>("/exec/strategic-insights"),
 	developerBreakdown: (limit?: number) =>

@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: 2026 Lokesh Selvam <lokeshselvam7025@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -29,14 +28,18 @@ type TopTab = "agents" | "components";
 type SubTab = "leaderboard" | "users";
 
 function componentRouteType(type: string) {
-  return ({
-    mcp: "mcps",
-    skill: "skills",
-    hook: "hooks",
-    prompt: "prompts",
-    sandbox: "sandboxes",
-    workflow: "workflows",
-  } as const)[type] ?? "mcps";
+  return (
+    (
+      {
+        mcp: "mcps",
+        skill: "skills",
+        hook: "hooks",
+        prompt: "prompts",
+        sandbox: "sandboxes",
+        workflow: "workflows",
+      } as const
+    )[type] ?? "mcps"
+  );
 }
 
 interface UserAggregate {
@@ -59,18 +62,23 @@ export default function LeaderboardPage() {
     return () => clearTimeout(timer);
   }, [userFilterInput]);
 
-  const { data: leaderboard, isLoading: agentsLoading, isError: agentsError } = useLeaderboard(
-    window,
-    50,
-    userFilter || undefined,
-  );
-  const { data: componentLeaderboard, isLoading: componentsLoading, isError: componentsError } =
-    useComponentLeaderboard(window, 50);
+  const {
+    data: leaderboard,
+    isLoading: agentsLoading,
+    isError: agentsError,
+  } = useLeaderboard(window, 50, userFilter || undefined);
+  const {
+    data: componentLeaderboard,
+    isLoading: componentsLoading,
+    isError: componentsError,
+  } = useComponentLeaderboard(window, 50);
 
   if (agentsError && componentsError) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-sm text-muted-foreground">Failed to load leaderboard data. Check your connection and try again.</p>
+        <p className="text-sm text-muted-foreground">
+          Failed to load leaderboard data. Check your connection and try again.
+        </p>
       </div>
     );
   }
@@ -78,7 +86,9 @@ export default function LeaderboardPage() {
   const rankedComponents = useMemo(
     () =>
       componentLeaderboard
-        ? [...componentLeaderboard].sort((a, b) => b.download_count - a.download_count)
+        ? [...componentLeaderboard].sort(
+            (a, b) => b.download_count - a.download_count,
+          )
         : [],
     [componentLeaderboard],
   );
@@ -101,7 +111,9 @@ export default function LeaderboardPage() {
         });
       }
     }
-    return [...map.values()].sort((a, b) => b.totalDownloads - a.totalDownloads);
+    return [...map.values()].sort(
+      (a, b) => b.totalDownloads - a.totalDownloads,
+    );
   }, [leaderboard]);
 
   const componentUserAggregates = useMemo<UserAggregate[]>(() => {
@@ -121,7 +133,9 @@ export default function LeaderboardPage() {
         });
       }
     }
-    return [...map.values()].sort((a, b) => b.totalDownloads - a.totalDownloads);
+    return [...map.values()].sort(
+      (a, b) => b.totalDownloads - a.totalDownloads,
+    );
   }, [componentLeaderboard]);
 
   return (
@@ -135,10 +149,7 @@ export default function LeaderboardPage() {
       />
 
       <div className="page-body w-full mx-auto space-y-5">
-        <Tabs
-          value={topTab}
-          onValueChange={(v) => setTopTab(v as TopTab)}
-        >
+        <Tabs value={topTab} onValueChange={(v) => setTopTab(v as TopTab)}>
           <div className="flex items-center justify-between flex-wrap gap-4">
             <TabsList>
               <TabsTrigger value="agents">Agents</TabsTrigger>
@@ -160,7 +171,10 @@ export default function LeaderboardPage() {
 
           {/* ── Agents tab ───────────────────────────────────── */}
           <TabsContent value="agents">
-            <Tabs value={agentSubTab} onValueChange={(v) => setAgentSubTab(v as SubTab)}>
+            <Tabs
+              value={agentSubTab}
+              onValueChange={(v) => setAgentSubTab(v as SubTab)}
+            >
               <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
                 <TabsList>
                   <TabsTrigger value="leaderboard">
@@ -208,7 +222,9 @@ export default function LeaderboardPage() {
                         to={registryItemPath(item, "agents", item.id)}
                         className="flex items-center gap-4 rounded-md px-3 py-3 transition-colors hover:bg-accent/40 group"
                       >
-                        <span className={`w-8 text-right font-mono font-semibold tabular-nums ${i < 3 ? "text-warning" : "text-muted-foreground"}`}>
+                        <span
+                          className={`w-8 text-right font-mono font-semibold tabular-nums ${i < 3 ? "text-warning" : "text-muted-foreground"}`}
+                        >
                           {i + 1}
                         </span>
                         <div className="flex-1 min-w-0">
@@ -239,11 +255,16 @@ export default function LeaderboardPage() {
                         </span>
                         <span className="w-20 text-right">
                           {item.version ? (
-                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                            <Badge
+                              variant="secondary"
+                              className="text-[10px] px-1.5 py-0"
+                            >
                               {item.version}
                             </Badge>
                           ) : (
-                            <span className="text-sm text-muted-foreground">-</span>
+                            <span className="text-sm text-muted-foreground">
+                              -
+                            </span>
                           )}
                         </span>
                       </Link>
@@ -275,7 +296,9 @@ export default function LeaderboardPage() {
                         key={user.email}
                         className="flex items-center gap-4 rounded-md px-3 py-3 transition-colors hover:bg-accent/40"
                       >
-                        <span className={`w-8 text-right font-mono font-semibold tabular-nums ${i < 3 ? "text-warning" : "text-muted-foreground"}`}>
+                        <span
+                          className={`w-8 text-right font-mono font-semibold tabular-nums ${i < 3 ? "text-warning" : "text-muted-foreground"}`}
+                        >
                           {i + 1}
                         </span>
                         <div className="flex-1 min-w-0">
@@ -305,7 +328,10 @@ export default function LeaderboardPage() {
 
           {/* ── Components tab ────────────────────────────────── */}
           <TabsContent value="components">
-            <Tabs value={componentSubTab} onValueChange={(v) => setComponentSubTab(v as SubTab)}>
+            <Tabs
+              value={componentSubTab}
+              onValueChange={(v) => setComponentSubTab(v as SubTab)}
+            >
               <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
                 <TabsList>
                   <TabsTrigger value="leaderboard">
@@ -341,10 +367,16 @@ export default function LeaderboardPage() {
                     {rankedComponents.map((item, i) => (
                       <Link
                         key={item.id}
-                        to={registryItemPath(item, componentRouteType(item.component_type), item.id)}
+                        to={registryItemPath(
+                          item,
+                          componentRouteType(item.component_type),
+                          item.id,
+                        )}
                         className="flex items-center gap-4 rounded-md px-3 py-3 transition-colors hover:bg-accent/40 group"
                       >
-                        <span className={`w-8 text-right font-mono font-semibold tabular-nums ${i < 3 ? "text-warning" : "text-muted-foreground"}`}>
+                        <span
+                          className={`w-8 text-right font-mono font-semibold tabular-nums ${i < 3 ? "text-warning" : "text-muted-foreground"}`}
+                        >
                           {i + 1}
                         </span>
                         <div className="flex-1 min-w-0">
@@ -357,7 +389,10 @@ export default function LeaderboardPage() {
                           </span>
                         </div>
                         <span className="w-20 text-right">
-                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                          <Badge
+                            variant="secondary"
+                            className="text-[10px] px-1.5 py-0"
+                          >
                             {item.component_type}
                           </Badge>
                         </span>
@@ -404,7 +439,9 @@ export default function LeaderboardPage() {
                         key={user.email}
                         className="flex items-center gap-4 rounded-md px-3 py-3 transition-colors hover:bg-accent/40"
                       >
-                        <span className={`w-8 text-right font-mono font-semibold tabular-nums ${i < 3 ? "text-warning" : "text-muted-foreground"}`}>
+                        <span
+                          className={`w-8 text-right font-mono font-semibold tabular-nums ${i < 3 ? "text-warning" : "text-muted-foreground"}`}
+                        >
                           {i + 1}
                         </span>
                         <div className="flex-1 min-w-0">

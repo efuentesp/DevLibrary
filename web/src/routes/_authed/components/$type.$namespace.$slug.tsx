@@ -9,11 +9,22 @@ import { DetailSkeleton } from "@/components/shared/skeleton-layouts";
 import { ErrorState } from "@/components/shared/error-state";
 import { NotFoundState } from "@/components/shared/not-found-state";
 
-const ComponentDetail = lazy(() => import("@/pages/registry/components/detail"));
+const ComponentDetail = lazy(
+  () => import("@/pages/registry/components/detail"),
+);
 
-const COMPONENT_ROUTE_TYPES = ["mcps", "skills", "hooks", "prompts", "sandboxes", "workflows"] as const;
+const COMPONENT_ROUTE_TYPES = [
+  "mcps",
+  "skills",
+  "hooks",
+  "prompts",
+  "sandboxes",
+  "workflows",
+] as const;
 
-function isComponentRouteType(value: string): value is (typeof COMPONENT_ROUTE_TYPES)[number] {
+function isComponentRouteType(
+  value: string,
+): value is (typeof COMPONENT_ROUTE_TYPES)[number] {
   return (COMPONENT_ROUTE_TYPES as readonly string[]).includes(value);
 }
 
@@ -30,7 +41,8 @@ function CanonicalComponentRoute() {
     valid ? (type as RegistryType) : "mcps",
     valid ? `${namespace}/${slug}` : undefined,
   );
-  const status = (resolve.error as (Error & { status?: number }) | null)?.status;
+  const status = (resolve.error as (Error & { status?: number }) | null)
+    ?.status;
 
   if (!valid) {
     return <NotFoundState title="Component not found" />;
@@ -45,16 +57,26 @@ function CanonicalComponentRoute() {
   if (resolve.isError && status !== 404) {
     return (
       <div className="p-6 w-full">
-        <ErrorState message={resolve.error?.message} onRetry={() => resolve.refetch()} />
+        <ErrorState
+          message={resolve.error?.message}
+          onRetry={() => resolve.refetch()}
+        />
       </div>
     );
   }
   if (!resolve.data) {
     return <NotFoundState title="Component not found" />;
   }
-  return <ComponentDetail componentId={resolve.data.id} componentType={type as RegistryType} />;
+  return (
+    <ComponentDetail
+      componentId={resolve.data.id}
+      componentType={type as RegistryType}
+    />
+  );
 }
 
-export const Route = createFileRoute("/_authed/components/$type/$namespace/$slug")({
+export const Route = createFileRoute(
+  "/_authed/components/$type/$namespace/$slug",
+)({
   component: CanonicalComponentRoute,
 });

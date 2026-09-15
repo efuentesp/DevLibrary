@@ -204,10 +204,15 @@ function PromptConfigSection({ detail }: { detail: ReviewItem }) {
 function WorkflowConfigSection({ detail }: { detail: ReviewItem }) {
 	return (
 		<dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
-			<DetailField label="Supported Harnesses" value={detail.supported_harnesses} />
+			<DetailField
+				label="Supported Harnesses"
+				value={detail.supported_harnesses}
+			/>
 			{detail.script_content && (
 				<div className="col-span-full">
-					<dt className="text-xs font-medium text-muted-foreground">Workflow Script</dt>
+					<dt className="text-xs font-medium text-muted-foreground">
+						Workflow Script
+					</dt>
 					<dd className="mt-0.5">
 						<pre className="max-h-80 overflow-auto rounded bg-muted p-2 text-[11px] font-mono leading-relaxed break-words">
 							{detail.script_content}
