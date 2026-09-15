@@ -325,6 +325,7 @@ class SandboxVersion(Base):
     # New: monorepo path + validation
     sandbox_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     validated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    validation_results: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     is_editing: Mapped[bool] = mapped_column(Boolean, default=False)
     editing_since: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     editing_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)

@@ -357,6 +357,17 @@ export interface ReviewItem {
 	allowed_mounts?: string[];
 	sandbox_path?: string;
 	validated_at?: string;
+	validation_results?: {
+		status?: string;
+		registry?: string;
+		repository?: string;
+		reference?: string;
+		digest?: string | null;
+		size_bytes?: number;
+		architectures?: string[];
+		checked_at?: string;
+		detail?: string | null;
+	};
 
 	// Agent-specific
 	prompt?: string;

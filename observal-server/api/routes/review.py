@@ -491,6 +491,8 @@ _DETAIL_FIELDS: dict[str, list[str]] = {
         "allowed_mounts",
         "entrypoint",
         "supported_harnesses",
+        "validated_at",
+        "validation_results",
         "rejection_reason",
         "bundle_id",
     ],
@@ -710,6 +712,19 @@ async def approve(
     await db.commit()
     await db.refresh(listing)
     await invalidate_namespace("dashboard")
+
+    # Sandbox approvals kick off async image validation: the registry check
+    # never blocks the approval response, and an enqueue failure is only a
+    # warning — validated_at simply stays unset until the next approval.
+    if listing_type == "sandbox" and pending_ver is not None:
+        try:
+            from services.redis import _get_arq_pool
+
+            pool = await _get_arq_pool()
+            await pool.enqueue_job("validate_sandbox_version", str(pending_ver.id))
+        except Exception as exc:
+            optic.warning("sandbox validation enqueue failed for {}: {}", listing.id, exc)
+
     asyncio.create_task(redis_publish("reviews:updated", {"listing_id": str(listing.id), "action": "approved"}))  # noqa: RUF006
     return {"type": listing_type, "id": str(listing.id), "name": listing.name, "status": listing.status.value}
 
