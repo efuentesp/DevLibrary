@@ -94,9 +94,9 @@ export function PreviewPanel({
 	validationResult,
 }: PreviewPanelProps) {
 	const { data: harnessList } = useHarnesses();
-	const [harness, setHarness] = useState("claude-code");
+	const [harness, setHarness] = useState("pi");
 	const [modalOpen, setModalOpen] = useState(false);
-	const [modalHarness, setModalHarness] = useState("claude-code");
+	const [modalHarness, setModalHarness] = useState("pi");
 	const [fullConfigs, setFullConfigs] = useState<Record<
 		string,
 		Record<string, string>

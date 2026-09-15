@@ -254,7 +254,8 @@ class TestActiveIdeDetection:
         (tmp_path / ".codex").mkdir()
         (tmp_path / ".pi" / "agent").mkdir(parents=True)
 
-        assert _detect_active_harnesses() == ["cursor", "codex", "pi"]
+        # Detection iterates HARNESS_REGISTRY insertion order: pi first now.
+        assert _detect_active_harnesses() == ["pi", "codex", "cursor"]
 
     def test_pi_layer_manifest_includes_isolated_agent_profiles(self, tmp_path, monkeypatch):
         from dev_library_cli.layer import build_layer_manifest

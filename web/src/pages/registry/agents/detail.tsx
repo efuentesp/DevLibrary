@@ -330,7 +330,9 @@ function PromptSection({ prompt }: { prompt: string }) {
 }
 
 function AgentVersionContents({ components }: { components: ComponentLink[] }) {
-  const [activeTab, setActiveTab] = useState<ComponentGroupKey>(COMPONENT_TYPES[0].value);
+  const [activeTab, setActiveTab] = useState<ComponentGroupKey>(
+    COMPONENT_TYPES[0].value,
+  );
   const groupedComponents = useMemo(
     () => groupComponents(components),
     [components],
