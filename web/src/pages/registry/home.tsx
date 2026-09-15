@@ -383,6 +383,13 @@ export default function RegistryHome() {
             </Link>
             <Link
               to="/components"
+              search={{ type: "workflows" }}
+              className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              Workflows
+            </Link>
+            <Link
+              to="/components"
               search={{ type: "hooks" }}
               className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
             >
