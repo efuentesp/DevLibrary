@@ -331,7 +331,7 @@ async def install_agent(
     resolved_agent_id = agent.id
 
     if current_user is not None:
-        from services.download_tracker import record_agent_download
+        from services.download_tracker import record_agent_download, record_component_download
 
         await record_agent_download(
             agent_id=resolved_agent_id,
@@ -341,6 +341,17 @@ async def install_agent(
             request=request,
             db=db,
         )
+        # Per-component adoption records: every pull increments the latest
+        # version's download_count; unique_agents only grows for new agents.
+        for comp in install_components:
+            await record_component_download(
+                component_type=comp.component_type,
+                component_id=comp.component_id,
+                version_ref=comp.resolved_version or "latest",
+                agent_id=resolved_agent_id,
+                source="api",
+                db=db,
+            )
         await db.commit()
 
         emit_registry_event(

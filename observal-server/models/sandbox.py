@@ -275,16 +275,6 @@ class SandboxListing(Base):
         self.latest_version.allowed_mounts = value
 
 
-class SandboxDownload(Base):
-    __tablename__ = "sandbox_downloads"
-
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    listing_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("sandbox_listings.id"), nullable=False)
-    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    harness: Mapped[str] = mapped_column(String(50), nullable=False)
-    downloaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC))
-
-
 class SandboxVersion(Base):
     __tablename__ = "sandbox_versions"
     __table_args__ = (

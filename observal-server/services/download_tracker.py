@@ -13,6 +13,23 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.agent import Agent
 from models.download import AgentDownloadRecord, ComponentDownloadRecord
+from models.hook import HookListing, HookVersion
+from models.mcp import McpListing, McpVersion
+from models.prompt import PromptListing, PromptVersion
+from models.sandbox import SandboxListing, SandboxVersion
+from models.skill import SkillListing, SkillVersion
+from models.workflow import WorkflowListing, WorkflowVersion
+
+# Listing/version model pairs whose adoption counters
+# record_component_download maintains.
+_COMPONENT_MODELS: dict[str, tuple[type, type]] = {
+    "mcp": (McpListing, McpVersion),
+    "skill": (SkillListing, SkillVersion),
+    "hook": (HookListing, HookVersion),
+    "prompt": (PromptListing, PromptVersion),
+    "sandbox": (SandboxListing, SandboxVersion),
+    "workflow": (WorkflowListing, WorkflowVersion),
+}
 
 
 def _anonymous_fingerprint(request: Request) -> str:
@@ -64,7 +81,25 @@ async def record_component_download(
     source: str,
     db: AsyncSession,
 ) -> None:
-    """Record a component download (not deduplicated)."""
+    """Record a component download and maintain listing adoption counters.
+
+    Every agent pull adds a record; the latest version's download_count
+    always increments, and the listing's unique_agents only when this agent
+    had never pulled this component before.
+    """
+    prior_pull = (
+        await db.execute(
+            select(ComponentDownloadRecord.id)
+            .where(
+                ComponentDownloadRecord.component_type == component_type,
+                ComponentDownloadRecord.component_id == component_id,
+                ComponentDownloadRecord.agent_id == agent_id,
+            )
+            .limit(1)
+        )
+    ).first()
+    is_new_agent = prior_pull is None
+
     db.add(
         ComponentDownloadRecord(
             component_type=component_type,
@@ -75,6 +110,19 @@ async def record_component_download(
         )
     )
     await db.flush()
+
+    models = _COMPONENT_MODELS.get(component_type)
+    if models is None:
+        return
+    listing_model, _version_model = models
+    listing = await db.get(listing_model, component_id)
+    if listing is None:
+        return
+    latest = getattr(listing, "latest_version", None)
+    if latest is not None and hasattr(latest, "download_count"):
+        latest.download_count = (latest.download_count or 0) + 1
+    if is_new_agent and hasattr(listing, "unique_agents"):
+        listing.unique_agents = (listing.unique_agents or 0) + 1
 
 
 async def _update_agent_counts(agent_id: uuid.UUID, db: AsyncSession) -> None:
