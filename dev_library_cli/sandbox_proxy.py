@@ -108,7 +108,9 @@ class _ProxyHandler(BaseHTTPRequestHandler):
         body = self.rfile.read(length) if length > 0 else b""
         request_line = f"{self.command} {target.path or '/'}{f'?{target.query}' if target.query else ''} HTTP/1.1\r\n"
         headers = "".join(
-            f"{key}: {value}\r\n" for key, value in self.headers.items() if key.lower() not in {"proxy-connection", "connection"}
+            f"{key}: {value}\r\n"
+            for key, value in self.headers.items()
+            if key.lower() not in {"proxy-connection", "connection"}
         )
         upstream.sendall((request_line + headers + "\r\n").encode() + body)
 

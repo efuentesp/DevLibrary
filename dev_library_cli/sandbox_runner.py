@@ -353,7 +353,9 @@ def run_sandbox(
     resource_limits = resource_limits or {}
     runtime_config = runtime_config or {}
     if runtime_type == "docker":
-        return _docker_run(sandbox_id, image, command, timeout, env, network_policy, resource_limits, mounts, runtime_config)
+        return _docker_run(
+            sandbox_id, image, command, timeout, env, network_policy, resource_limits, mounts, runtime_config
+        )
     if runtime_type == "lxc":
         return _lxc_run(sandbox_id, image, command, timeout)
     if runtime_type == "firecracker":
@@ -482,9 +484,7 @@ def session_start(
             "(the allowlist proxy covers ephemeral runs only)",
             file=sys.stderr,
         )
-        restricted_network = client.networks.create(
-            f"observal-sbx-{session_id[:12]}", driver="bridge", internal=True
-        )
+        restricted_network = client.networks.create(f"observal-sbx-{session_id[:12]}", driver="bridge", internal=True)
     try:
         container = client.containers.run(
             image,
