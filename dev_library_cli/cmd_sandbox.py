@@ -9,6 +9,8 @@
 from __future__ import annotations
 
 import json as _json
+import os
+import sys
 from contextlib import nullcontext
 
 import typer
@@ -432,6 +434,88 @@ def sandbox_show(
             ],
             border_style="red",
         )
+    )
+
+
+@sandbox_app.command(name="run")
+def sandbox_run(
+    sandbox_ref: str = typer.Argument(..., help="Sandbox ID, name, row number, or @alias"),
+    command: list[str] | None = typer.Argument(None, help="Command tokens (defaults to the sandbox entrypoint)"),
+    timeout: int | None = typer.Option(None, "--timeout", help="Execution timeout in seconds (defaults to the registered limit)"),
+    network_policy: str | None = typer.Option(None, "--network-policy", help="Override the registered network policy"),
+    env: list[str] | None = typer.Option(None, "--env", help="Extra KEY=value environment entry (repeatable)"),
+):
+    """Run a registered sandbox locally, without an agent.
+
+    Fetches the sandbox spec from the registry and executes it through the
+    same local runner the sandbox MCP uses, so `agent pull` behavior is
+    reproduced exactly (env allowlist, mounts, limits, telemetry). Exits
+    with the container's exit code and requires the matching local runtime
+    (a Docker daemon for docker sandboxes).
+
+    Bare KEY entries in the registered env allowlist (and bare --env KEY)
+    resolve from your shell environment and are skipped when unset.
+
+    Examples:
+        dev-library registry sandbox run python-pytest
+        dev-library registry sandbox run python-pytest -- pytest -q tests/
+        dev-library registry sandbox run @env --timeout 120 --env API_TOKEN
+    """
+    if network_policy is not None and network_policy not in VALID_SANDBOX_NETWORK_POLICIES:
+        fail(
+            ErrorCategory.VALIDATION,
+            f"Unknown network policy: {network_policy}.",
+            operation="Run sandbox",
+            resource="network policy",
+            remediation=f"Choose from: {', '.join(VALID_SANDBOX_NETWORK_POLICIES)}.",
+        )
+
+    resolved = client.resolve_registry_reference("sandbox", sandbox_ref)
+    item = client.get(f"/api/v1/sandboxes/{resolved}")
+
+    limits = dict(item.get("resource_limits") or {})
+    if timeout is not None:
+        limits["timeout"] = timeout
+    registered_timeout = limits.get("timeout", 300)
+    try:
+        effective_timeout = int(registered_timeout)
+    except (TypeError, ValueError):
+        fail(
+            ErrorCategory.VALIDATION,
+            f"The registered sandbox timeout is invalid: {registered_timeout!r}.",
+            operation="Run sandbox",
+            resource="resource limits",
+            remediation="Fix the sandbox resource_limits.timeout value and retry.",
+        )
+
+    resolved_env: dict[str, str] = {}
+    for entry in list(item.get("env_vars") or []) + list(env or []):
+        key, separator, value = entry.partition("=")
+        if separator:
+            resolved_env[key] = value
+        elif os.environ.get(key):
+            resolved_env[key] = os.environ[key]
+
+    command_str = " ".join(command) if command else (item.get("entrypoint") or "bash")
+    name = item.get("qualified_name") or item.get("name") or resolved
+    print(
+        f"Running {name} ({item.get('runtime_type', 'docker')}: {item.get('image', '')}) — {command_str}",
+        file=sys.stderr,
+    )
+
+    from dev_library_cli.sandbox_runner import run_sandbox
+
+    run_sandbox(
+        sandbox_id=str(item.get("id") or resolved),
+        image=item.get("image", ""),
+        command=command_str,
+        timeout=effective_timeout,
+        env=resolved_env,
+        runtime_type=item.get("runtime_type", "docker"),
+        network_policy=network_policy or item.get("network_policy", "none"),
+        resource_limits=limits,
+        runtime_config=dict(item.get("runtime_config") or {}),
+        mounts=list(item.get("allowed_mounts") or []),
     )
 
 

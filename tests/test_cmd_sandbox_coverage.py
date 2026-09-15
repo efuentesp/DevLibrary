@@ -203,3 +203,89 @@ def test_removed_install_command_is_not_registered() -> None:
     result = runner.invoke(app, ["registry", "sandbox", "install", "runner"])
 
     assert result.exit_code == 2
+
+
+def _run_spec(**overrides) -> dict:
+    spec = _item(
+        resource_limits={"timeout": 30, "memory_mb": 256},
+        network_policy="none",
+        entrypoint="pytest",
+        runtime_config={},
+        env_vars=["FOO=1", "LOCAL_KEY"],
+        allowed_mounts=["./data:/data:ro"],
+    )
+    spec.update(overrides)
+    return spec
+
+
+def test_run_executes_local_runner_with_registry_spec(monkeypatch) -> None:
+    monkeypatch.setattr(sandbox.client, "resolve_registry_reference", MagicMock(return_value="sandbox-1"))
+    monkeypatch.setattr(sandbox.client, "get", MagicMock(return_value=_run_spec()))
+    monkeypatch.setenv("LOCAL_KEY", "shell-value")
+    executed: dict = {}
+    monkeypatch.setattr(
+        "dev_library_cli.sandbox_runner.run_sandbox",
+        lambda **kwargs: executed.update(kwargs),
+    )
+
+    result = runner.invoke(app, ["registry", "sandbox", "run", "runner", "--env", "EXTRA=9", "--", "pytest", "-q"])
+
+    assert result.exit_code == 0
+    assert executed["sandbox_id"] == "sandbox-1"
+    assert executed["image"] == "python:3.13"
+    assert executed["command"] == "pytest -q"
+    assert executed["runtime_type"] == "docker"
+    assert executed["network_policy"] == "none"
+    assert executed["timeout"] == 30
+    assert executed["env"] == {"FOO": "1", "LOCAL_KEY": "shell-value", "EXTRA": "9"}
+    assert executed["mounts"] == ["./data:/data:ro"]
+    assert executed["resource_limits"] == {"timeout": 30, "memory_mb": 256}
+
+
+def test_run_defaults_to_registered_entrypoint_and_timeout_flag(monkeypatch) -> None:
+    monkeypatch.setattr(sandbox.client, "resolve_registry_reference", MagicMock(return_value="sandbox-1"))
+    monkeypatch.setattr(sandbox.client, "get", MagicMock(return_value=_run_spec()))
+    executed: dict = {}
+    monkeypatch.setattr(
+        "dev_library_cli.sandbox_runner.run_sandbox",
+        lambda **kwargs: executed.update(kwargs),
+    )
+
+    result = runner.invoke(app, ["registry", "sandbox", "run", "runner", "--timeout", "15", "--network-policy", "host"])
+
+    assert result.exit_code == 0
+    assert executed["command"] == "pytest"
+    assert executed["timeout"] == 15
+    assert executed["network_policy"] == "host"
+    assert executed["resource_limits"]["timeout"] == 15
+
+
+def test_run_skips_bare_env_keys_missing_from_shell(monkeypatch) -> None:
+    monkeypatch.setattr(sandbox.client, "resolve_registry_reference", MagicMock(return_value="sandbox-1"))
+    monkeypatch.setattr(sandbox.client, "get", MagicMock(return_value=_run_spec()))
+    monkeypatch.delenv("LOCAL_KEY", raising=False)
+    executed: dict = {}
+    monkeypatch.setattr(
+        "dev_library_cli.sandbox_runner.run_sandbox",
+        lambda **kwargs: executed.update(kwargs),
+    )
+
+    result = runner.invoke(app, ["registry", "sandbox", "run", "runner"])
+
+    assert result.exit_code == 0
+    assert executed["env"] == {"FOO": "1"}
+
+
+def test_run_rejects_unknown_network_policy(monkeypatch) -> None:
+    result = runner.invoke(app, ["registry", "sandbox", "run", "runner", "--network-policy", "wide-open"])
+
+    assert result.exit_code == 7
+
+
+def test_run_rejects_corrupt_registered_timeout(monkeypatch) -> None:
+    monkeypatch.setattr(sandbox.client, "resolve_registry_reference", MagicMock(return_value="sandbox-1"))
+    monkeypatch.setattr(sandbox.client, "get", MagicMock(return_value=_run_spec(resource_limits={"timeout": "soon"})))
+
+    result = runner.invoke(app, ["registry", "sandbox", "run", "runner"])
+
+    assert result.exit_code == 7

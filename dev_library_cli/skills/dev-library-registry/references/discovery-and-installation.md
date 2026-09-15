@@ -37,6 +37,18 @@ dev-library registry prompt show NAMESPACE/SLUG --output json
 dev-library registry sandbox show NAMESPACE/SLUG --output json
 ```
 
+## Trying a sandbox locally
+
+`registry sandbox run` executes a registered sandbox through the same local runner an installed agent uses — no agent or harness required. Requires the matching local runtime (a Docker daemon for docker sandboxes). Exit code mirrors the container.
+
+```bash
+dev-library registry sandbox run python-pytest                      # runs the registered entrypoint
+dev-library registry sandbox run python-pytest -- pytest -q tests/   # explicit command after --
+dev-library registry sandbox run @env --timeout 120 --env API_TOKEN   # bare KEY resolves from the shell, skipped when unset
+```
+
+Registered `env_vars` and `allowed_mounts` apply automatically; `--timeout` and `--network-policy` override the registered values for this run.
+
 ## Personalized recommendations
 
 Use recommendations for open-ended requests such as "what should I install?" or "what am I missing?"
