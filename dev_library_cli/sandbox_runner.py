@@ -4,7 +4,7 @@
 # SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
 # SPDX-License-Identifier: Apache-2.0
 
-"""dev-library-sandbox-run: local sandbox executor."""
+"""observal-sandbox-run: local sandbox executor."""
 
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ import tempfile
 import time
 import uuid
 from datetime import UTC, datetime
+from typing import NoReturn
 
 from dev_library_cli.config import load as load_config
 
@@ -29,15 +30,58 @@ def _now_iso() -> str:
 
 
 def _send_span(server_url: str, access_token: str, span: dict):
-    """No-op: structured span telemetry was removed in favor of JSONL sessions."""
-    return
+    """Deliver execution telemetry through the spooling sender; never raises."""
+    try:
+        from dev_library_cli.sandbox_telemetry import send_and_spool
+
+        send_and_spool([span], server_url=server_url or None, access_token=access_token or None)
+    except Exception:
+        pass
+
+
+def _exec_span(
+    *,
+    sandbox_id: str,
+    image: str,
+    command: str | None,
+    runtime_type: str,
+    exit_code: int,
+    status: str,
+    start_time: str,
+    latency_ms: int,
+    output: str,
+    container_id: str | None = None,
+    oom_killed: bool = False,
+    timed_out: bool = False,
+) -> dict:
+    """Build one event matching the /api/v1/ingest/sandbox-exec contract."""
+    import os
+
+    return {
+        "sandbox_id": sandbox_id,
+        "image": image,
+        "runtime_type": runtime_type,
+        "command": (command or "")[:512],
+        "exit_code": exit_code,
+        "oom_killed": oom_killed,
+        "timed_out": timed_out,
+        "status": status,
+        "latency_ms": latency_ms,
+        "container_id": container_id,
+        "agent_id": os.environ.get("OBSERVAL_AGENT_ID") or None,
+        "session_id": os.environ.get("OBSERVAL_SESSION_ID") or None,
+        "harness": os.environ.get("OBSERVAL_HARNESS", ""),
+        "output": output,
+        "start_time": start_time,
+        "end_time": _now_iso(),
+    }
 
 
 def _truncate(text: str) -> str:
     return text[:MAX_LOG_BYTES] + "\n... [truncated at 64KB]" if len(text) > MAX_LOG_BYTES else text
 
 
-def _missing_runtime(name: str) -> None:
+def _missing_runtime(name: str) -> NoReturn:
     print(f"local-runtime-missing: {name} is not installed or not on PATH", file=sys.stderr)
     sys.exit(127)
 
@@ -64,15 +108,18 @@ def _docker_run(
     env: dict | None,
     network_policy: str,
     resource_limits: dict,
+    mounts: list[str] | None = None,
 ):
     try:
         import docker
     except ImportError:
         print(
-            "local-runtime-missing: Docker SDK not found. Install: pip install 'dev-library-cli[sandbox]'",
+            "local-runtime-missing: Docker SDK not found. Reinstall the CLI: pip install 'dev-library-cli'",
             file=sys.stderr,
         )
         sys.exit(127)
+
+    from requests.exceptions import RequestException  # docker-py transport errors for container.wait deadlines
 
     client = docker.from_env()
     start_time = _now_iso()
@@ -97,9 +144,47 @@ def _docker_run(
             run_kwargs["mem_limit"] = f"{int(resource_limits['memory_mb'])}m"
         if resource_limits.get("cpu_count"):
             run_kwargs["nano_cpus"] = int(float(resource_limits["cpu_count"]) * 1_000_000_000)
+        if mounts:
+            # Docker accepts "host_path:container_path[:ro|:rw]" bind specs directly.
+            run_kwargs["volumes"] = mounts
 
         container = client.containers.run(**run_kwargs)
-        result = container.wait(timeout=timeout)
+        try:
+            result = container.wait(timeout=timeout)
+        except RequestException:
+            # docker-py surfaces container.wait() deadlines as requests transport
+            # errors. Only report a timeout when the container actually outlived
+            # the deadline; otherwise let the generic handler report the failure.
+            container.reload()
+            if container.attrs.get("State", {}).get("Running"):
+                wall_ms = int((time.monotonic() - wall_start) * 1000)
+                container_id = container.short_id
+                access_token = os.environ.get("OBSERVAL_KEY", "")
+                server_url = os.environ.get("OBSERVAL_SERVER", "")
+                if not access_token or not server_url:
+                    cfg = load_config()
+                    access_token = access_token or cfg.get("access_token", "")
+                    server_url = server_url or cfg.get("server_url", "")
+                _send_span(
+                    server_url,
+                    access_token,
+                    _exec_span(
+                        sandbox_id=sandbox_id,
+                        image=image,
+                        command=command,
+                        runtime_type="docker",
+                        exit_code=124,
+                        status="timeout",
+                        start_time=start_time,
+                        latency_ms=wall_ms,
+                        output="",
+                        container_id=container_id,
+                        timed_out=True,
+                    ),
+                )
+                print(f"Sandbox timed out after {timeout}s (container killed)", file=sys.stderr)
+                sys.exit(124)
+            raise
         wall_ms = int((time.monotonic() - wall_start) * 1000)
 
         exit_code = result.get("StatusCode", -1)
@@ -123,26 +208,19 @@ def _docker_run(
         _send_span(
             server_url,
             access_token,
-            {
-                "span_id": str(uuid.uuid4()),
-                "trace_id": str(uuid.uuid4()),
-                "parent_span_id": None,
-                "type": "sandbox_exec",
-                "name": f"sandbox:{image}",
-                "method": "",
-                "input": json.dumps({"image": image, "command": command, "sandbox_id": sandbox_id}),
-                "output": logs,
-                "error": None if exit_code == 0 else f"exit_code={exit_code}",
-                "start_time": start_time,
-                "end_time": _now_iso(),
-                "latency_ms": wall_ms,
-                "status": "success" if exit_code == 0 else "error",
-                "harness": "",
-                "metadata": {},
-                "container_id": container_id,
-                "exit_code": exit_code,
-                "oom_killed": oom_killed,
-            },
+            _exec_span(
+                sandbox_id=sandbox_id,
+                image=image,
+                command=command,
+                runtime_type="docker",
+                exit_code=exit_code,
+                status="success" if exit_code == 0 else "error",
+                start_time=start_time,
+                latency_ms=wall_ms,
+                output=logs,
+                container_id=container_id,
+                oom_killed=oom_killed,
+            ),
         )
         sys.exit(exit_code)
     except Exception as e:
@@ -230,12 +308,13 @@ def run_sandbox(
     network_policy: str = "none",
     resource_limits: dict | None = None,
     runtime_config: dict | None = None,
+    mounts: list[str] | None = None,
 ):
     """Dispatch to the configured local sandbox runtime."""
     resource_limits = resource_limits or {}
     runtime_config = runtime_config or {}
     if runtime_type == "docker":
-        return _docker_run(sandbox_id, image, command, timeout, env, network_policy, resource_limits)
+        return _docker_run(sandbox_id, image, command, timeout, env, network_policy, resource_limits, mounts)
     if runtime_type == "lxc":
         return _lxc_run(sandbox_id, image, command, timeout)
     if runtime_type == "firecracker":
@@ -247,13 +326,14 @@ def run_sandbox(
 
 
 def main():
-    """CLI entry point for dev-library-sandbox-run."""
+    """CLI entry point for observal-sandbox-run."""
     args = sys.argv[1:]
     sandbox_id = ""
     image = ""
     command = None
     timeout = 300
     env = {}
+    mounts: list[str] = []
     runtime_type = "docker"
     network_policy = "none"
     resource_limits = {}
@@ -274,20 +354,35 @@ def main():
             command = args[i + 1]
             i += 2
         elif args[i] == "--timeout" and i + 1 < len(args):
-            timeout = int(args[i + 1])
+            try:
+                timeout = int(args[i + 1])
+            except ValueError:
+                print(f"Invalid --timeout value: {args[i + 1]!r}", file=sys.stderr)
+                sys.exit(2)
             i += 2
         elif args[i] == "--network-policy" and i + 1 < len(args):
             network_policy = args[i + 1]
             i += 2
         elif args[i] == "--resource-limits" and i + 1 < len(args):
-            resource_limits = json.loads(args[i + 1] or "{}")
+            try:
+                resource_limits = json.loads(args[i + 1] or "{}")
+            except json.JSONDecodeError:
+                print(f"Invalid --resource-limits JSON: {args[i + 1]!r}", file=sys.stderr)
+                sys.exit(2)
             i += 2
         elif args[i] == "--runtime-config" and i + 1 < len(args):
-            runtime_config = json.loads(args[i + 1] or "{}")
+            try:
+                runtime_config = json.loads(args[i + 1] or "{}")
+            except json.JSONDecodeError:
+                print(f"Invalid --runtime-config JSON: {args[i + 1]!r}", file=sys.stderr)
+                sys.exit(2)
             i += 2
         elif args[i] == "--env" and i + 1 < len(args):
             k, _, v = args[i + 1].partition("=")
             env[k] = v.strip("\"'")
+            i += 2
+        elif args[i] == "--mount" and i + 1 < len(args):
+            mounts.append(args[i + 1])
             i += 2
         elif args[i] == "--":
             command = " ".join(args[i + 1 :])
@@ -297,12 +392,14 @@ def main():
 
     if not image and runtime_type in {"docker", "lxc", "wasm"} and not runtime_config.get("module"):
         print(
-            "Usage: dev-library-sandbox-run --sandbox-id <id> --image <image> [--runtime-type docker|lxc|firecracker|wasm] [--command <cmd>] [--timeout <s>]",
+            "Usage: observal-sandbox-run --sandbox-id <id> --image <image> [--runtime-type docker|lxc|firecracker|wasm] [--command <cmd>] [--timeout <s>]",
             file=sys.stderr,
         )
         sys.exit(1)
 
-    run_sandbox(sandbox_id, image, command, timeout, env, runtime_type, network_policy, resource_limits, runtime_config)
+    run_sandbox(
+        sandbox_id, image, command, timeout, env, runtime_type, network_policy, resource_limits, runtime_config, mounts
+    )
 
 
 if __name__ == "__main__":

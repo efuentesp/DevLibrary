@@ -8,7 +8,7 @@ Sandboxes are versioned execution environments registered in Observal. When an a
 ## Runtime support
 
 | Runtime | Artifact field | Local requirement | Notes |
-|---------|----------------|-------------------|-------|
+| --------- | ---------------- | ------------------- | ------- |
 | `docker` | `image` | Docker daemon + Python Docker SDK | Supports any Docker/OCI image the local daemon can pull and run, for example `python:3.12-slim` or `ghcr.io/org/runner:1.0.0`. |
 | `lxc` | `image` | local `lxc`/LXD CLI | Uses LXC/LXD image refs, not arbitrary OCI image refs. |
 | `firecracker` | `runtime_config` | local `firecracker` binary | Requires `runtime_config.config_path` or `kernel_image_path` + `rootfs_path`. |
@@ -21,7 +21,7 @@ Docker is the common path. The other runtimes are local-runtime dispatchers: Obs
 A sandbox version stores:
 
 | Field | Description |
-|-------|-------------|
+| ------- | ------------- |
 | `runtime_type` | `docker`, `lxc`, `firecracker`, or `wasm` |
 | `image` | Docker/OCI image, LXC image ref, or WASM module path/ref |
 | `resource_limits` | JSON object such as `{"timeout": 60, "memory_mb": 512, "cpu_count": 1}` |
@@ -137,3 +137,13 @@ observal-sandbox-run \
 - Docker `memory_mb` and `cpu_count` are passed to the local Docker daemon.
 - Non-Docker isolation is only as strong as the local runtime configuration.
 - No registry-side Dockerfile build service exists yet; use prebuilt image/artifact refs.
+
+## Telemetry
+
+Every `observal-sandbox-run` invocation reports one event to
+`POST /api/v1/ingest/sandbox-exec` (exit code, OOM kill, timeout, latency,
+ container id, 4KB output preview). Delivery is best-effort with a local
+spool (`~/.observal/sandbox_spans.jsonl`) that retries on the next
+execution when the server is unreachable; executions never block on
+telemetry. Events land in the ClickHouse `sandbox_exec_events` table with
+the authenticated user stamped server-side.

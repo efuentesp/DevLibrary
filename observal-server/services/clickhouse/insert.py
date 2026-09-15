@@ -14,6 +14,14 @@ def _dumps(obj: dict) -> str:
     return orjson.dumps(obj, default=str).decode()
 
 
+def _int_or(value, default: int) -> int:
+    """Best-effort int coercion for telemetry fields; garbage defaults instead of raising."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
 async def insert_audit_log(events: list[dict]):
     """Batch insert audit log events into ClickHouse."""
     optic.trace("inserting {} audit log events into ClickHouse", len(events))
@@ -190,3 +198,45 @@ async def insert_layer_snapshot(row: dict):
     except Exception as e:
         optic.error("failed to insert layer snapshot: {}", e)
         raise
+
+
+async def insert_sandbox_exec_events(rows: list[dict]):
+    """Batch insert sandbox execution telemetry into ClickHouse.
+
+    One row per observal-sandbox-run invocation. Best-effort like audit_log:
+    a ClickHouse outage logs an error but never fails the HTTP ingest response.
+    """
+    optic.trace("inserting {} sandbox exec events into ClickHouse", len(rows))
+    if not rows:
+        return
+    lines = []
+    for r in rows:
+        row = {
+            "event_id": r["event_id"],
+            "user_id": r.get("user_id", ""),
+            "harness": r.get("harness", ""),
+            "sandbox_id": r["sandbox_id"],
+            "agent_id": r.get("agent_id") or None,
+            "session_id": r.get("session_id") or None,
+            "runtime_type": r.get("runtime_type", "docker"),
+            "image": r["image"],
+            "command": r.get("command", ""),
+            "exit_code": _int_or(r.get("exit_code"), 0),
+            "oom_killed": 1 if r.get("oom_killed") else 0,
+            "timed_out": 1 if r.get("timed_out") else 0,
+            "status": r.get("status", "success"),
+            "latency_ms": _int_or(r.get("latency_ms"), 0),
+            "container_id": r.get("container_id") or None,
+            "output_preview": r.get("output_preview", ""),
+            "start_time": _client._normalize_ts(r["start_time"]),
+            "end_time": _client._normalize_ts(r.get("end_time") or r["start_time"]),
+        }
+        lines.append(_dumps(row))
+    try:
+        r = await _client._query(
+            "INSERT INTO sandbox_exec_events SETTINGS async_insert=0 FORMAT JSONEachRow",
+            data="\n".join(lines),
+        )
+        r.raise_for_status()
+    except Exception as exc:
+        optic.error("failed to insert {} sandbox exec events into ClickHouse: {}", len(rows), exc)
