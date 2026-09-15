@@ -346,7 +346,7 @@ HARNESS_REGISTRY: dict[str, dict] = {
     },
     "pi": {
         "display_name": "Pi",
-        "capabilities": {"skills", "hooks", "mcp_servers"},
+        "capabilities": {"skills", "hooks", "mcp_servers", "workflows"},
         "session_parser": "pi",
         "scopes": ["project", "user"],
         "default_scope": "user",
@@ -366,6 +366,10 @@ HARNESS_REGISTRY: dict[str, dict] = {
             "user": "~/.pi/agent/skills/{name}/SKILL.md",
         },
         "skill_format": "yaml_frontmatter",
+        "workflows": {
+            "project": ".pi/workflows/{name}.js",
+            "user": "~/.pi/agent/workflows/{name}.js",
+        },
         "hook_type": "extension",
         "hooks": {
             "user": "~/.pi/agent/settings.json",

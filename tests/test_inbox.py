@@ -31,6 +31,7 @@ from models.sandbox import SandboxListing
 from models.skill import SkillListing
 from models.team import Team, TeamMembership, TeamRole
 from models.user import User, UserRole
+from models.workflow import WorkflowListing, WorkflowVersion
 from services.inbox import delivery, recipients, visibility
 from services.inbox.registry import Subject, spec_for
 
@@ -48,6 +49,8 @@ _TABLES = [
     Agent.__table__,
     McpListing.__table__,
     SkillListing.__table__,
+    WorkflowListing.__table__,
+    WorkflowVersion.__table__,
     HookListing.__table__,
     PromptListing.__table__,
     SandboxListing.__table__,

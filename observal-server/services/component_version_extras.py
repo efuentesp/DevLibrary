@@ -92,6 +92,7 @@ REQUIRED_FIELDS: dict[str, set[str]] = {
     "prompt": {"category", "template"},
     "mcp": set(),
     "sandbox": set(),
+    "workflow": set(),
 }
 
 ALLOWED_FIELDS: dict[str, set[str]] = {

@@ -35,6 +35,7 @@ HARNESS_CAPABILITY_NAMES: list[str] = [
     "hooks",
     "mcp_servers",
     "prompts",
+    "workflows",
 ]
 
 HARNESS_CAPABILITIES: dict[str, set[str]] = get_harness_capability_matrix()

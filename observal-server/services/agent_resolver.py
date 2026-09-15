@@ -19,9 +19,10 @@ from models.mcp import ListingStatus, McpListing
 from models.prompt import PromptListing
 from models.sandbox import SandboxListing
 from models.skill import SkillListing
+from models.workflow import WorkflowListing
 from services.shared.utils import registry_item_slug
 
-ComponentType = Literal["mcp", "skill", "hook", "prompt", "sandbox"]
+ComponentType = Literal["mcp", "skill", "hook", "prompt", "sandbox", "workflow"]
 
 # Maps component_type string to its ORM model
 _LISTING_MODELS: dict[str, type] = {
@@ -30,6 +31,7 @@ _LISTING_MODELS: dict[str, type] = {
     "hook": HookListing,
     "prompt": PromptListing,
     "sandbox": SandboxListing,
+    "workflow": WorkflowListing,
 }
 
 

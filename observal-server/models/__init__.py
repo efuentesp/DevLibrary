@@ -37,6 +37,7 @@ from models.usage_ping import UsagePingState
 from models.user import User, UserRole
 from models.user_group import UserGroup
 from models.user_profile import RecommendationFeedback, UserWorkProfile
+from models.workflow import WorkflowDownload, WorkflowListing
 
 __all__ = [
     "Agent",
@@ -93,4 +94,6 @@ __all__ = [
     "UserGroup",
     "UserRole",
     "UserWorkProfile",
+    "WorkflowDownload",
+    "WorkflowListing",
 ]

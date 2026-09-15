@@ -46,7 +46,9 @@ def test_team_list_all_uses_all_endpoint():
 
 
 def test_team_create_posts_handle_and_name():
-    with patch("dev_library_cli.cmd_team.client.post", return_value={"id": "t9", "name": "X", "handle": "x"}) as mock_post:
+    with patch(
+        "dev_library_cli.cmd_team.client.post", return_value={"id": "t9", "name": "X", "handle": "x"}
+    ) as mock_post:
         result = runner.invoke(app, ["team", "create", "X", "--handle", "x", "--description", "d"])
     assert result.exit_code == 0, result.output
     body = mock_post.call_args.kwargs["json_data"]
@@ -74,7 +76,8 @@ def test_team_show_resolves_handle_to_id():
 def test_team_show_accepts_uuid_directly():
     uid = "11111111-1111-1111-1111-111111111111"
     with patch(
-        "dev_library_cli.cmd_team.client.get", side_effect=[{"name": "SRE", "handle": "sre", "role": "owner"}, _members()]
+        "dev_library_cli.cmd_team.client.get",
+        side_effect=[{"name": "SRE", "handle": "sre", "role": "owner"}, _members()],
     ) as mock_get:
         result = runner.invoke(app, ["team", "show", uid])
     assert result.exit_code == 0, result.output

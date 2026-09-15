@@ -28,6 +28,7 @@ from models.prompt import PromptListing, PromptVersion
 from models.sandbox import SandboxListing, SandboxVersion
 from models.skill import SkillListing, SkillVersion
 from models.user import User
+from models.workflow import WorkflowListing, WorkflowVersion
 from schemas.mcp import ReviewActionRequest
 from services.cache import invalidate_namespace
 from services.editing_lock import is_actively_editing
@@ -41,6 +42,7 @@ router = APIRouter(prefix="/api/v1/review", tags=["review"])
 LISTING_MODELS = {
     "mcp": McpListing,
     "skill": SkillListing,
+    "workflow": WorkflowListing,
     "hook": HookListing,
     "prompt": PromptListing,
     "sandbox": SandboxListing,
@@ -49,6 +51,7 @@ LISTING_MODELS = {
 VERSION_MODELS = {
     "mcp": McpVersion,
     "skill": SkillVersion,
+    "workflow": WorkflowVersion,
     "hook": HookVersion,
     "prompt": PromptVersion,
     "sandbox": SandboxVersion,
@@ -465,6 +468,14 @@ _DETAIL_FIELDS: dict[str, list[str]] = {
         "model_hints",
         "tags",
         "supported_harnesses",
+        "rejection_reason",
+        "bundle_id",
+    ],
+    "workflow": [
+        "target_agents",
+        "supported_harnesses",
+        "script_content",
+        "changelog",
         "rejection_reason",
         "bundle_id",
     ],

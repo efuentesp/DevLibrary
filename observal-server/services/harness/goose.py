@@ -45,7 +45,9 @@ def _goose_hooks_config(platform: str = "") -> dict:
     treats ``matcher`` as a regular expression, not a glob.
     """
     command = (
-        "python -m dev_library_cli.hooks.session_push --harness goose" if platform == "win32" else _GOOSE_SESSION_PUSH_CMD
+        "python -m dev_library_cli.hooks.session_push --harness goose"
+        if platform == "win32"
+        else _GOOSE_SESSION_PUSH_CMD
     )
     return {
         "hooks": {

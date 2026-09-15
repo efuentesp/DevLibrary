@@ -454,7 +454,9 @@ def _rewrite_kiro_hooks(content: dict, agent_id: str | None = None) -> dict:
     # Replace only DevLibrary hooks, preserve any user-added hooks
     for event, desired_entries in desired_hooks.items():
         existing = hooks.get(event, [])
-        cleaned = [h for h in existing if not any(s in h.get("command", "") for s in ("observal_cli", "dev_library_cli"))]
+        cleaned = [
+            h for h in existing if not any(s in h.get("command", "") for s in ("observal_cli", "dev_library_cli"))
+        ]
         hooks[event] = cleaned + desired_entries
 
     content["hooks"] = hooks

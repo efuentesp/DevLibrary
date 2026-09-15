@@ -91,6 +91,7 @@ def build_agent_manifest(resolved: ResolvedAgent) -> dict:
         "hook": "hooks",
         "prompt": "prompts",
         "sandbox": "sandboxes",
+        "workflow": "workflows",
     }
 
     grouped: dict[str, list[ManifestComponent]] = {}

@@ -48,6 +48,7 @@ from models.sandbox import SandboxListing, SandboxVersion
 from models.skill import SkillListing, SkillVersion
 from models.team import Team, TeamMembership, TeamRole
 from models.user import User, UserRole
+from models.workflow import WorkflowListing, WorkflowVersion
 
 # The default queue walks agents plus all five component types, so every one of
 # those tables has to exist even when a case only seeds MCPs.
@@ -59,6 +60,8 @@ _TABLES = [
     McpVersion.__table__,
     McpValidationResult.__table__,
     SkillListing.__table__,
+    WorkflowListing.__table__,
+    WorkflowVersion.__table__,
     SkillVersion.__table__,
     HookListing.__table__,
     HookVersion.__table__,

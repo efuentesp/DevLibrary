@@ -176,7 +176,10 @@ def test_detect_hooks_installed(tmp_path):
             "PreInvocation": [
                 {
                     "hooks": [
-                        {"type": "command", "command": "wsl.exe python3 -m dev_library_cli.hooks.antigravity_session_push"}
+                        {
+                            "type": "command",
+                            "command": "wsl.exe python3 -m dev_library_cli.hooks.antigravity_session_push",
+                        }
                     ]
                 }
             ]
