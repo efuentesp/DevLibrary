@@ -632,12 +632,12 @@ async def test_trends_rejects_null_aggregate_days():
 
 
 @pytest.mark.asyncio
-async def test_placeholder_dashboard_endpoints_return_exact_empty_payloads():
+async def test_empty_state_dashboard_endpoints_return_exact_empty_payloads():
     admin = _user(UserRole.admin)
 
     tokens = await dashboard.token_stats(range_="90d")
     harnesses = await dashboard.harness_usage(admin)
-    sandboxes = await dashboard.sandbox_metrics(admin)
+    sandboxes = await dashboard.sandbox_metrics(range_="90d", current_user=admin)
     graphrag = await dashboard.graphrag_metrics(admin)
     latency = await dashboard.latency_heatmap(admin)
     traces = await dashboard.unannotated_traces(admin)
@@ -652,16 +652,21 @@ async def test_placeholder_dashboard_endpoints_return_exact_empty_payloads():
         "over_time": [],
     }
     assert harnesses.model_dump() == {"harnesses": []}
+    # sandbox-metrics is no longer a placeholder: with ClickHouse unreachable it
+    # degrades to a zeroed aggregate of the new schema.
     assert sandboxes.model_dump() == {
         "total_runs": 0,
-        "oom_count": 0,
-        "oom_rate": 0.0,
+        "success_count": 0,
+        "error_count": 0,
         "timeout_count": 0,
         "timeout_rate": 0.0,
-        "avg_exit_code": None,
-        "recent_runs": [],
-        "cpu_over_time": [],
-        "memory_over_time": [],
+        "oom_count": 0,
+        "oom_rate": 0.0,
+        "avg_latency_ms": None,
+        "p95_latency_ms": None,
+        "runs_over_time": [],
+        "top_sandboxes": [],
+        "recent_failures": [],
     }
     assert graphrag.model_dump() == {
         "total_queries": 0,

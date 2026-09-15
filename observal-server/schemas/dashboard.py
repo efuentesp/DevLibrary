@@ -117,32 +117,51 @@ class HarnessUsage(BaseModel):
 
 
 class SandboxRun(BaseModel):
-    span_id: str
-    name: str
-    exit_code: int | None
-    duration_ms: int | None
-    memory_mb: float | None
-    cpu_ms: int | None
-    oom: bool
-    timestamp: str
+    """One sandbox execution outcome from sandbox_exec_events."""
+
+    event_id: str
+    sandbox_id: str
+    image: str
+    runtime_type: str
+    command: str
+    status: str
+    exit_code: int
+    oom_killed: bool
+    timed_out: bool
+    latency_ms: int
+    harness: str
+    agent_id: str | None = None
+    start_time: str
+    output_preview: str = ""
 
 
-class DateAvg(BaseModel):
+class SandboxTrendPoint(BaseModel):
     date: str
-    avg_cpu: float | None = None
-    avg_memory: float | None = None
+    runs: int
+    failures: int
+
+
+class SandboxTopItem(BaseModel):
+    sandbox_id: str
+    image: str
+    runs: int
+    failure_rate: float
+    avg_latency_ms: float
 
 
 class SandboxStats(BaseModel):
     total_runs: int
-    oom_count: int
-    oom_rate: float
+    success_count: int
+    error_count: int
     timeout_count: int
     timeout_rate: float
-    avg_exit_code: float | None
-    recent_runs: list[SandboxRun]
-    cpu_over_time: list[DateAvg]
-    memory_over_time: list[DateAvg]
+    oom_count: int
+    oom_rate: float
+    avg_latency_ms: float | None
+    p95_latency_ms: float | None
+    runs_over_time: list[SandboxTrendPoint]
+    top_sandboxes: list[SandboxTopItem]
+    recent_failures: list[SandboxRun]
 
 
 # --- GraphRAG metrics ---

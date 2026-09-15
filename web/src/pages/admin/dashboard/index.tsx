@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: 2026 Lokesh Selvam <lokeshselvam7025@gmail.com>
 // SPDX-License-Identifier: Apache-2.0
 
-
 import { Suspense } from "react";
 import { useLocation, useSearch } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -14,13 +13,26 @@ import { InvestmentsTab } from "./components/investments-tab";
 import { InsightsTab } from "./components/insights-tab";
 import { DepartmentsTab } from "./components/departments-tab";
 import { VelocityTab } from "./components/velocity-tab";
-import { useExecAdoption, useExecAgentCounts, useExecConfig } from "@/hooks/use-api";
+import { SandboxTab } from "./components/sandbox-tab";
+import {
+  useExecAdoption,
+  useExecAgentCounts,
+  useExecConfig,
+} from "@/hooks/use-api";
 import { RefreshCw, Calendar, Rocket, Download } from "lucide-react";
 import { useState, useCallback } from "react";
 import { DashboardRangeContext } from "./context";
 
-const TABS = ["adoption", "cost", "investments", "insights", "departments", "velocity"] as const;
-type TabId = typeof TABS[number];
+const TABS = [
+  "adoption",
+  "cost",
+  "investments",
+  "insights",
+  "departments",
+  "velocity",
+  "sandboxes",
+] as const;
+type TabId = (typeof TABS)[number];
 
 const RANGES = [
   { value: "7d", label: "7 days" },
@@ -36,35 +48,49 @@ function OnboardingWizard({ onDismiss }: { onDismiss: () => void }) {
           <Rocket className="h-5 w-5 text-primary" />
         </div>
         <div className="flex-1">
-          <h3 className="text-base font-semibold mb-1">Welcome to the Executive Dashboard</h3>
+          <h3 className="text-base font-semibold mb-1">
+            Welcome to the Executive Dashboard
+          </h3>
           <p className="text-sm text-muted-foreground mb-4">
             Set up these three things to unlock the full dashboard experience:
           </p>
           <ol className="space-y-3">
             <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">1</span>
+              <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                1
+              </span>
               <div>
-                <p className="text-sm font-medium">Assign departments to users</p>
+                <p className="text-sm font-medium">
+                  Assign departments to users
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  Go to Users &rarr; click a user &rarr; set their department. Or configure SSO groups for automatic mapping.
+                  Go to Users &rarr; click a user &rarr; set their department.
+                  Or configure SSO groups for automatic mapping.
                 </p>
               </div>
             </li>
             <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">2</span>
+              <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                2
+              </span>
               <div>
                 <p className="text-sm font-medium">Set cost baselines</p>
                 <p className="text-xs text-muted-foreground">
-                  Open the Cost Intelligence tab and enter what tasks cost before AI. This enables savings calculations and ROI projections.
+                  Open the Cost Intelligence tab and enter what tasks cost
+                  before AI. This enables savings calculations and ROI
+                  projections.
                 </p>
               </div>
             </li>
             <li className="flex items-start gap-3">
-              <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">3</span>
+              <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                3
+              </span>
               <div>
                 <p className="text-sm font-medium">Categorize your agents</p>
                 <p className="text-xs text-muted-foreground">
-                  In the Agent Builder, assign categories (Code Review, Testing, etc.) so the dashboard can group usage and costs.
+                  In the Agent Builder, assign categories (Code Review, Testing,
+                  etc.) so the dashboard can group usage and costs.
                 </p>
               </div>
             </li>
@@ -89,12 +115,16 @@ function ExportDropdown({ activeTab }: { activeTab: string }) {
     // Collect visible table data from the DOM
     const tables = document.querySelectorAll("table");
     if (tables.length === 0) {
-      alert("No table data on this tab. Switch to Departments, Velocity, or Investments for exportable data.");
+      alert(
+        "No table data on this tab. Switch to Departments, Velocity, or Investments for exportable data.",
+      );
       return;
     }
     const rows: string[] = [];
     tables.forEach((table) => {
-      const headers = Array.from(table.querySelectorAll("thead th")).map((th) => th.textContent?.trim() ?? "");
+      const headers = Array.from(table.querySelectorAll("thead th")).map(
+        (th) => th.textContent?.trim() ?? "",
+      );
       if (headers.length > 0) rows.push(headers.join(","));
       table.querySelectorAll("tbody tr").forEach((tr) => {
         const cells = Array.from(tr.querySelectorAll("td")).map((td) => {
@@ -152,16 +182,22 @@ function ExportDropdown({ activeTab }: { activeTab: string }) {
 }
 
 function DashboardContent() {
-  const { tab: tabParam, range: rangeParam } = useSearch({ from: "/_authed/_admin/dashboard" });
+  const { tab: tabParam, range: rangeParam } = useSearch({
+    from: "/_authed/_admin/dashboard",
+  });
   const { pathname } = useLocation();
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState<TabId>(() =>
-    tabParam && TABS.includes(tabParam as TabId) ? (tabParam as TabId) : "adoption"
+    tabParam && TABS.includes(tabParam as TabId)
+      ? (tabParam as TabId)
+      : "adoption",
   );
 
   const [activeRange, setActiveRange] = useState(() =>
-    rangeParam && ["7d", "30d", "90d"].includes(rangeParam) ? rangeParam : "30d"
+    rangeParam && ["7d", "30d", "90d"].includes(rangeParam)
+      ? rangeParam
+      : "30d",
   );
 
   const [refreshing, setRefreshing] = useState(false);
@@ -176,25 +212,30 @@ function DashboardContent() {
   const { data: agents } = useExecAgentCounts();
   const { data: config } = useExecConfig();
 
-  const showOnboarding = !wizardDismissed && (
-    (adoption?.departments_covered ?? 0) === 0 &&
-    !config &&
-    (agents?.total ?? 0) === 0
+  const showOnboarding =
+    !wizardDismissed &&
+    (adoption?.departments_covered ?? 0) === 0 && !config &&
+    (agents?.total ?? 0) === 0;
+
+  const handleTabChange = useCallback(
+    (value: string) => {
+      setActiveTab(value as TabId);
+      const params = new URLSearchParams(window.location.search);
+      params.set("tab", value);
+      window.history.replaceState(null, "", `${pathname}?${params.toString()}`);
+    },
+    [pathname],
   );
 
-  const handleTabChange = useCallback((value: string) => {
-    setActiveTab(value as TabId);
-    const params = new URLSearchParams(window.location.search);
-    params.set("tab", value);
-    window.history.replaceState(null, "", `${pathname}?${params.toString()}`);
-  }, [pathname]);
-
-  const handleRangeChange = useCallback((value: string) => {
-    setActiveRange(value);
-    const params = new URLSearchParams(window.location.search);
-    params.set("range", value);
-    window.history.replaceState(null, "", `${pathname}?${params.toString()}`);
-  }, [pathname]);
+  const handleRangeChange = useCallback(
+    (value: string) => {
+      setActiveRange(value);
+      const params = new URLSearchParams(window.location.search);
+      params.set("range", value);
+      window.history.replaceState(null, "", `${pathname}?${params.toString()}`);
+    },
+    [pathname],
+  );
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -251,20 +292,27 @@ function DashboardContent() {
               disabled={refreshing}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md border border-border hover:bg-muted/50 transition-colors disabled:opacity-50"
             >
-              <RefreshCw className={`h-3 w-3 ${refreshing ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-3 w-3 ${refreshing ? "animate-spin" : ""}`}
+              />
               Refresh
             </button>
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full"
+        >
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="adoption">AI Adoption</TabsTrigger>
             <TabsTrigger value="cost">Cost Intelligence</TabsTrigger>
             <TabsTrigger value="investments">Investments</TabsTrigger>
             <TabsTrigger value="insights">AI Insights</TabsTrigger>
             <TabsTrigger value="departments">Departments</TabsTrigger>
             <TabsTrigger value="velocity">Velocity</TabsTrigger>
+            <TabsTrigger value="sandboxes">Sandboxes</TabsTrigger>
           </TabsList>
 
           <TabsContent value="adoption">
@@ -289,6 +337,10 @@ function DashboardContent() {
 
           <TabsContent value="velocity">
             <VelocityTab />
+          </TabsContent>
+
+          <TabsContent value="sandboxes">
+            <SandboxTab range={activeRange} />
           </TabsContent>
         </Tabs>
       </div>

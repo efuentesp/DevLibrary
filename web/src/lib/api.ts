@@ -23,6 +23,7 @@ import type {
 	FeedbackItem,
 	FeedbackSummary,
 	HarnessUsageData,
+	SandboxStatsData,
 	AdminUser,
 	AdminSetting,
 	AdminSettingSection,
@@ -709,6 +710,10 @@ export const dashboard = {
 	tokenStats: (range?: string) =>
 		get<TokenStats>(`/dashboard/tokens${range ? `?range=${range}` : ""}`),
 	harnessUsage: () => get<HarnessUsageData>("/dashboard/harness-usage"),
+	sandboxMetrics: (range?: string) =>
+		get<SandboxStatsData>(
+			`/dashboard/sandbox-metrics${range ? `?range=${range}` : ""}`,
+		),
 	sessions: (params?: {
 		status?: string;
 		platform?: string;
