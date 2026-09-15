@@ -102,7 +102,6 @@ import {
   type CoAuthor,
 } from "@/components/registry/co-author-input";
 import { compactNumber } from "@/lib/utils";
-import { DIMENSION_META } from "@/components/dashboard/score-overview";
 
 const FEATURE_LABELS: Record<string, string> = {
   skills: "Slash-command skills",
@@ -331,7 +330,7 @@ function PromptSection({ prompt }: { prompt: string }) {
 }
 
 function AgentVersionContents({ components }: { components: ComponentLink[] }) {
-  const [activeTab, setActiveTab] = useState<ComponentGroupKey>("mcps");
+  const [activeTab, setActiveTab] = useState<ComponentGroupKey>(COMPONENT_TYPES[0].value);
   const groupedComponents = useMemo(
     () => groupComponents(components),
     [components],

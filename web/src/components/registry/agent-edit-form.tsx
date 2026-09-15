@@ -120,10 +120,10 @@ export function AgentEditForm({
   const [description, setDescription] = useState(initialDescription);
   const [modelName, setModelName] = useState(initialModelName);
   const [modelsByHarness, setModelsByIde] = useState<Record<string, string>>(initialModelsByIde);
-  const [activeTab, setActiveTab] = useState<RegistryType>("mcps");
+  const [activeTab, setActiveTab] = useState<RegistryType>(COMPONENT_TYPES[0].value);
   const [selectedComponents, setSelectedComponents] = useState<
     Record<string, RegistryItem[]>
-  >({ mcps: [], skills: [], hooks: [], prompts: [], sandboxes: [] });
+  >({ mcps: [], skills: [], hooks: [], prompts: [], sandboxes: [], workflows: [] });
   const [prompt, setPrompt] = useState<string>(initialPrompt);
   const [successCriteria, setSuccessCriteria] = useState<SuccessCriteria | null>(
     vd?.success_criteria ?? null
