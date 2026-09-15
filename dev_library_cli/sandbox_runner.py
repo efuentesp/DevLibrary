@@ -8,21 +8,32 @@
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import shlex
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 import time
 import uuid
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import NoReturn
 
 from dev_library_cli.config import load as load_config
 
 MAX_LOG_BYTES = 64 * 1024  # 64KB truncation limit for logs
+
+
+def _int_or(value, default: int = 0) -> int:
+    """Best-effort int coercion for externally sourced values."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
 
 
 def _now_iso() -> str:
@@ -325,6 +336,335 @@ def run_sandbox(
     sys.exit(2)
 
 
+# ── Persistent sessions ─────────────────────────────────────────────
+#
+# A session is a kept-alive container (tail -f /dev/null) with an optional
+# named volume mounted at /workspace, so consecutive session_exec calls share
+# filesystem state. The registry lives in ~/.observal/sandbox_sessions.json so
+# sessions survive MCP/harness restarts; idle sessions are garbage collected.
+
+DEFAULT_SESSION_TTL_SECONDS = 1800
+
+
+def _sessions_path(home: Path | None = None) -> Path:
+    base = home if home is not None else Path.home()
+    return base / ".observal" / "sandbox_sessions.json"
+
+
+def _load_sessions(home: Path | None = None) -> dict:
+    try:
+        data = json.loads(_sessions_path(home).read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def _save_sessions(sessions: dict, home: Path | None = None) -> None:
+    path = _sessions_path(home)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(".json.tmp")
+    temporary.write_text(json.dumps(sessions), encoding="utf-8")
+    temporary.replace(path)
+
+
+def _docker_client():
+    try:
+        import docker
+    except ImportError:
+        print(
+            "local-runtime-missing: Docker SDK not found. Reinstall the CLI: pip install 'dev-library-cli'",
+            file=sys.stderr,
+        )
+        sys.exit(127)
+    return docker.from_env()
+
+
+def _session_env_kwargs(env: dict | None, network_policy: str, resource_limits: dict, mounts, volume_name: str | None):
+    run_kwargs: dict = {"detach": True, "environment": env or {}, "stdout": True, "stderr": True}
+    if network_policy in {"none", "host", "bridge"}:
+        run_kwargs["network_mode"] = network_policy
+    elif network_policy == "restricted":
+        run_kwargs["network_mode"] = "none"
+    if _int_or(resource_limits.get("memory_mb"), 0) > 0:
+        run_kwargs["mem_limit"] = f"{_int_or(resource_limits['memory_mb'])}m"
+    if _int_or(resource_limits.get("cpu_count"), 0) > 0:
+        try:
+            run_kwargs["nano_cpus"] = int(float(resource_limits["cpu_count"]) * 1_000_000_000)
+        except (TypeError, ValueError):
+            pass
+    volumes = list(mounts or [])
+    if volume_name:
+        volumes.append(f"{volume_name}:/workspace:rw")
+    if volumes:
+        run_kwargs["volumes"] = volumes
+    return run_kwargs
+
+
+def _parse_iso(value: str) -> datetime:
+    """Parse a registry timestamp; naive stamps are treated as UTC (see _now_iso)."""
+    parsed = datetime.fromisoformat(value)
+    return parsed.replace(tzinfo=UTC) if parsed.tzinfo is None else parsed
+
+
+def _session_ttl() -> int:
+    try:
+        return max(60, int(os.environ.get("OBSERVAL_SANDBOX_SESSION_TTL", DEFAULT_SESSION_TTL_SECONDS)))
+    except ValueError:
+        return DEFAULT_SESSION_TTL_SECONDS
+
+
+def _gc_opportunistic(home: Path | None = None) -> None:
+    """Stop idle sessions on every session action; never raises."""
+    try:
+        session_gc(_session_ttl(), home=home)
+    except Exception:
+        pass
+
+
+def session_start(
+    *,
+    sandbox_id: str,
+    image: str,
+    runtime_type: str = "docker",
+    env: dict | None = None,
+    network_policy: str = "none",
+    resource_limits: dict | None = None,
+    mounts: list[str] | None = None,
+    workspace: bool = True,
+    home: Path | None = None,
+) -> NoReturn:
+    """Start a kept-alive container and register the session."""
+    if runtime_type != "docker":
+        print(f"Persistent sessions require the docker runtime (requested: {runtime_type}).", file=sys.stderr)
+        sys.exit(2)
+
+    _gc_opportunistic(home)
+    client = _docker_client()
+    session_id = str(uuid.uuid4())
+    volume_name = f"observal-ws-{session_id[:12]}" if workspace else None
+    if volume_name:
+        client.volumes.create(name=volume_name)
+    try:
+        container = client.containers.run(
+            image,
+            ["tail", "-f", "/dev/null"],
+            name=f"observal-session-{session_id[:12]}",
+            working_dir="/workspace" if volume_name else None,
+            **_session_env_kwargs(env, network_policy, resource_limits or {}, mounts, volume_name),
+        )
+    except Exception as exc:
+        if volume_name:
+            try:
+                client.volumes.get(volume_name).remove(force=True)
+            except Exception:
+                pass
+        print(f"Error starting session: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    sessions = _load_sessions(home)
+    sessions[session_id] = {
+        "container_id": container.short_id,
+        "sandbox_id": sandbox_id,
+        "image": image,
+        "runtime_type": runtime_type,
+        "network_policy": network_policy,
+        "volume": volume_name,
+        "started_at": _now_iso(),
+        "last_used": _now_iso(),
+    }
+    _save_sessions(sessions, home)
+    print(session_id)
+    sys.exit(0)
+
+
+def _get_session_container(sessions: dict, session_id: str, home: Path | None = None):
+    entry = sessions.get(session_id)
+    if entry is None:
+        print(f"Unknown session: {session_id}", file=sys.stderr)
+        sys.exit(1)
+    try:
+        return entry, _docker_client().containers.get(entry["container_id"])
+    except Exception:
+        sessions.pop(session_id, None)
+        _save_sessions(sessions, home)
+        print(f"Session container is gone (it was stopped or removed): {session_id}", file=sys.stderr)
+        sys.exit(1)
+
+
+def session_exec(session_id: str, command: str, timeout: int = 300, home: Path | None = None) -> NoReturn:
+    """Run a command inside a session container; filesystem state persists."""
+    _gc_opportunistic(home)
+    sessions = _load_sessions(home)
+    entry, container = _get_session_container(sessions, session_id, home)
+    start_time = _now_iso()
+    wall_start = time.monotonic()
+    try:
+        exit_code, (stdout, stderr) = container.exec_run(["sh", "-lc", command], demux=True)
+    except Exception as exc:
+        print(f"Error executing in session: {exc}", file=sys.stderr)
+        sys.exit(1)
+    wall_ms = _int_or((time.monotonic() - wall_start) * 1000)
+
+    text = ""
+    for stream in (stdout, stderr):
+        if isinstance(stream, bytes):
+            text += stream.decode("utf-8", errors="replace")
+        elif isinstance(stream, str):
+            text += stream
+    print(_truncate(text), end="")
+
+    sessions[session_id]["last_used"] = _now_iso()
+    _save_sessions(sessions, home)
+
+    _send_span(
+        os.environ.get("OBSERVAL_SERVER", ""),
+        os.environ.get("OBSERVAL_KEY", ""),
+        _exec_span(
+            sandbox_id=str(entry.get("sandbox_id") or session_id),
+            image=str(entry.get("image") or ""),
+            command=command,
+            runtime_type="docker",
+            exit_code=_int_or(exit_code),
+            status="success" if exit_code == 0 else "error",
+            start_time=start_time,
+            latency_ms=wall_ms,
+            output=_truncate(text),
+            container_id=str(entry.get("container_id") or "") or None,
+        ),
+    )
+    sys.exit(_int_or(exit_code))
+
+
+def _session_target(entry: dict, path: str) -> str:
+    """Resolve a user path inside the session, rooted at /workspace when present."""
+    target = path.lstrip("/")
+    if not target or ".." in Path(target).parts:
+        print(f"Refusing unsafe path: {path!r}", file=sys.stderr)
+        sys.exit(2)
+    base = "/workspace" if entry.get("volume") else ""
+    return f"{base}/{target}" if base else f"/{target}"
+
+
+def session_files_get(session_id: str, path: str, home: Path | None = None) -> NoReturn:
+    """Print a single file's content from a session container."""
+    sessions = _load_sessions(home)
+    entry, container = _get_session_container(sessions, session_id, home)
+    full_path = _session_target(entry, path)
+    try:
+        stream, _stat = container.get_archive(full_path)
+        tar_bytes = b"".join(chunk for chunk in stream)
+        with tarfile.open(fileobj=io.BytesIO(tar_bytes)) as archive:
+            member = next(iter(archive.getmembers()), None)
+            if member is None or not member.isfile():
+                raise ValueError(f"not a regular file: {path}")
+            fileobj = archive.extractfile(member)
+            if fileobj is None:
+                raise ValueError(f"cannot extract: {path}")
+            content = fileobj.read()
+    except Exception as exc:
+        print(f"Error reading {path!r}: {exc}", file=sys.stderr)
+        sys.exit(1)
+    print(content.decode("utf-8", errors="replace"), end="")
+    sessions[session_id]["last_used"] = _now_iso()
+    _save_sessions(sessions, home)
+    sys.exit(0)
+
+
+def session_files_put(session_id: str, path: str, content: str, home: Path | None = None) -> NoReturn:
+    """Write a single file into a session container (workspace path)."""
+    sessions = _load_sessions(home)
+    entry, container = _get_session_container(sessions, session_id, home)
+    full_path = _session_target(entry, path)
+    directory, _, name = full_path[1:].rpartition("/")
+    payload = io.BytesIO()
+    with tarfile.open(fileobj=payload, mode="w") as archive:
+        info = tarfile.TarInfo(name=name)
+        data = content.encode("utf-8")
+        info.size = len(data)
+        info.mtime = _int_or(time.time())
+        archive.addfile(info, io.BytesIO(data))
+    try:
+        container.put_archive(f"/{directory}", io.BytesIO(payload.getvalue()))
+    except Exception as exc:
+        print(f"Error writing {path!r}: {exc}", file=sys.stderr)
+        sys.exit(1)
+    sessions[session_id]["last_used"] = _now_iso()
+    _save_sessions(sessions, home)
+    sys.exit(0)
+
+
+def _stop_session_entry(entry: dict, keep_workspace: bool) -> None:
+    """Stop containers/volumes for a registry entry; best-effort, never raises."""
+    client = _docker_client()
+    try:
+        client.containers.get(entry["container_id"]).remove(force=True)
+    except Exception:
+        pass
+    volume = entry.get("volume")
+    if volume and not keep_workspace:
+        try:
+            client.volumes.get(volume).remove(force=True)
+        except Exception:
+            pass
+
+
+def session_stop(session_id: str, keep_workspace: bool = False, home: Path | None = None) -> NoReturn:
+    """Stop a session: remove container, drop the workspace volume unless kept."""
+    sessions = _load_sessions(home)
+    entry = sessions.get(session_id)
+    if entry is None:
+        print(f"Unknown session: {session_id}", file=sys.stderr)
+        sys.exit(1)
+    _stop_session_entry(entry, keep_workspace)
+    sessions.pop(session_id, None)
+    _save_sessions(sessions, home)
+    print(f"stopped {session_id}")
+    sys.exit(0)
+
+
+def session_list(home: Path | None = None) -> NoReturn:
+    """Print the live session registry as JSON."""
+    sessions = _load_sessions(home)
+    now = datetime.now(UTC)
+    listing = []
+    for session_id, entry in sessions.items():
+        try:
+            idle = int((now - _parse_iso(entry["last_used"])).total_seconds())
+        except (KeyError, ValueError):
+            idle = -1
+        listing.append(
+            {
+                "session_id": session_id,
+                "sandbox_id": entry.get("sandbox_id"),
+                "image": entry.get("image"),
+                "started_at": entry.get("started_at"),
+                "last_used": entry.get("last_used"),
+                "idle_seconds": idle,
+            }
+        )
+    print(json.dumps(listing, indent=2))
+    sys.exit(0)
+
+
+def session_gc(ttl_seconds: int = DEFAULT_SESSION_TTL_SECONDS, home: Path | None = None) -> list[str]:
+    """Stop sessions idle for longer than the TTL; returns stopped ids."""
+    sessions = _load_sessions(home)
+    now = datetime.now(UTC)
+    stopped: list[str] = []
+    for session_id, entry in list(sessions.items()):
+        try:
+            idle = (now - _parse_iso(entry["last_used"])).total_seconds()
+        except (KeyError, ValueError):
+            continue
+        if idle > ttl_seconds:
+            _stop_session_entry(entry, keep_workspace=False)
+            sessions.pop(session_id, None)
+            stopped.append(session_id)
+    if stopped:
+        _save_sessions(sessions, home)
+    return stopped
+
+
 def main():
     """CLI entry point for observal-sandbox-run."""
     args = sys.argv[1:]
@@ -338,6 +678,11 @@ def main():
     network_policy = "none"
     resource_limits = {}
     runtime_config = {}
+    action = None
+    session_id = ""
+    path = ""
+    content = ""
+    keep_workspace = False
 
     i = 0
     while i < len(args):
@@ -384,11 +729,72 @@ def main():
         elif args[i] == "--mount" and i + 1 < len(args):
             mounts.append(args[i + 1])
             i += 2
+        elif args[i] == "--action" and i + 1 < len(args):
+            action = args[i + 1]
+            i += 2
+        elif args[i] == "--session-id" and i + 1 < len(args):
+            session_id = args[i + 1]
+            i += 2
+        elif args[i] == "--path" and i + 1 < len(args):
+            path = args[i + 1]
+            i += 2
+        elif args[i] == "--content" and i + 1 < len(args):
+            content = args[i + 1]
+            i += 2
+        elif args[i] == "--keep-workspace":
+            keep_workspace = True
+            i += 1
         elif args[i] == "--":
             command = " ".join(args[i + 1 :])
             break
         else:
             i += 1
+
+    if action:
+        valid_actions = {"start", "exec", "stop", "list", "files-get", "files-put", "gc"}
+        if action not in valid_actions:
+            print(f"Unknown --action: {action}. Choose from: {', '.join(sorted(valid_actions))}", file=sys.stderr)
+            sys.exit(2)
+        if action == "start":
+            if not image:
+                print("session start requires --image", file=sys.stderr)
+                sys.exit(1)
+            session_start(
+                sandbox_id=sandbox_id or "adhoc",
+                image=image,
+                runtime_type=runtime_type,
+                env=env,
+                network_policy=network_policy,
+                resource_limits=resource_limits,
+                mounts=mounts,
+                workspace=True,
+            )
+        if action == "exec":
+            if not session_id or not command:
+                print("exec requires --session-id and --command", file=sys.stderr)
+                sys.exit(1)
+            session_exec(session_id, command, timeout)
+        if action == "stop":
+            if not session_id:
+                print("stop requires --session-id", file=sys.stderr)
+                sys.exit(1)
+            session_stop(session_id, keep_workspace=keep_workspace)
+        if action == "list":
+            session_list()
+        if action == "files-get":
+            if not session_id or not path:
+                print("files-get requires --session-id and --path", file=sys.stderr)
+                sys.exit(1)
+            session_files_get(session_id, path)
+        if action == "files-put":
+            if not session_id or not path:
+                print("files-put requires --session-id, --path and --content", file=sys.stderr)
+                sys.exit(1)
+            session_files_put(session_id, path, content)
+        if action == "gc":
+            stopped = session_gc(_session_ttl())
+            print(json.dumps({"stopped": stopped}))
+            sys.exit(0)
 
     if not image and runtime_type in {"docker", "lxc", "wasm"} and not runtime_config.get("module"):
         print(

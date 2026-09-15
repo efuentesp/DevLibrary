@@ -131,6 +131,28 @@ observal-sandbox-run \
   --command "--help"
 ```
 
+## Persistent sessions
+
+Ephemeral runs lose all state between calls. Sessions keep a container alive
+so consecutive commands share filesystem state:
+
+```text
+sandbox_session_start_python_pytest()   → session_id (container + /workspace volume)
+run_sandbox_python_pytest(command="pytest -q", session_id="…")
+sandbox_file_write(session_id, "src/main.py", content)
+sandbox_file_read(session_id, "out/report.txt")
+sandbox_session_stop(session_id)          → removes container and workspace
+```
+
+- Sessions survive MCP and harness restarts (registry in
+  `~/.observal/sandbox_sessions.json`).
+- Idle sessions are garbage collected automatically (~30 min default;
+  override with `OBSERVAL_SANDBOX_SESSION_TTL` seconds).
+- `sandbox_session_stop(session_id, keep_workspace=true)` keeps the volume
+  for a future session.
+- Docker runtime only; session exec emits the same telemetry as ephemeral runs.
+- Manual runner access: `observal-sandbox-run --action start|exec|stop|list|files-get|files-put|gc`.
+
 ## Security notes
 
 - Docker `network_policy: "none"` maps to Docker's no-network mode.
