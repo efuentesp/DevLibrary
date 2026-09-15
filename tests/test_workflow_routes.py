@@ -261,3 +261,61 @@ class TestHarnessRegistry:
 
         assert "workflows" in HARNESS_REGISTRY["pi"]["capabilities"]
         assert HARNESS_REGISTRY["pi"]["workflows"]["project"] == ".pi/workflows/{name}.js"
+
+
+class TestAgentConfigEmission:
+    """Workflow components emit .js files through generate_agent_config (pi)."""
+
+    def _agent(self, *components):
+        from types import SimpleNamespace
+
+        return SimpleNamespace(
+            id="a1",
+            name="probe",
+            slug="probe",
+            namespace="n",
+            description="d",
+            prompt="p",
+            model_name="",
+            external_mcps=[],
+            models_by_harness={},
+            required_capabilities=[],
+            supported_harnesses=[],
+            components=list(components),
+            versions=[],
+            is_private=False,
+            team_id=None,
+        )
+
+    def test_pi_agent_with_workflow_emits_workflow_file(self):
+        from types import SimpleNamespace
+
+        from services.harness import generate_agent_config
+
+        comp = SimpleNamespace(component_type="workflow", component_id="w1", order_index=0, config_override=None)
+        wf = SimpleNamespace(id="w1", slug="cosmic-sizing", name="cosmic-sizing", description="COSMIC", script_content="// body")
+        cfg = generate_agent_config(
+            self._agent(comp), "pi", component_names={"w1": "cosmic-sizing"}, workflow_listings={"w1": wf}
+        )
+        assert cfg["workflows"] == [
+            {"path": "~/.pi/agent/agents/probe/workflows/cosmic-sizing.js", "content": "// body"}
+        ]
+        assert "## Workflows" in cfg["agent_profile"]["content"]
+
+    def test_pi_agent_without_workflows_emits_no_workflow_key(self):
+        from services.harness import generate_agent_config
+
+        cfg = generate_agent_config(self._agent(), "pi", component_names={})
+        assert "workflows" not in cfg
+
+    def test_workflow_without_script_is_skipped(self):
+        from types import SimpleNamespace
+
+        from services.harness import generate_agent_config
+
+        comp = SimpleNamespace(component_type="workflow", component_id="w1", order_index=0, config_override=None)
+        wf = SimpleNamespace(id="w1", slug="empty-wf", name="empty-wf", description="d", script_content=None)
+        cfg = generate_agent_config(
+            self._agent(comp), "pi", component_names={"w1": "empty-wf"}, workflow_listings={"w1": wf}
+        )
+        assert cfg.get("workflows", []) == []

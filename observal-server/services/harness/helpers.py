@@ -443,6 +443,34 @@ def _build_skill_configs(
     return skills
 
 
+def _build_workflow_configs(
+    agent: Agent,
+    workflow_listings: dict | None = None,
+) -> list[dict]:
+    """Build workflow metadata from registry workflow components.
+
+    Each entry carries the sanitized slug and the full script body so a
+    harness adapter can emit a self-contained .js file per workflow.
+    """
+    workflow_listings = workflow_listings or {}
+    workflows: list[dict] = []
+    for comp in agent.components:
+        if comp.component_type != "workflow":
+            continue
+        listing = workflow_listings.get(comp.component_id)
+        if not listing:
+            continue
+        slug = getattr(listing, "slug", None) or str(listing.id)
+        workflows.append(
+            {
+                "name": _sanitize_name(slug),
+                "description": getattr(listing, "description", "") or "",
+                "script_content": getattr(listing, "script_content", None),
+            }
+        )
+    return workflows
+
+
 def _generate_skill(skill: dict, harness: str, scope: str = "project") -> dict:
     """Generate an harness-specific skill file entry.
 
@@ -715,6 +743,7 @@ def _build_rules_content(
         "hook": ("Hooks", "hook"),
         "prompt": ("Prompts", "prompt"),
         "sandbox": ("Sandboxes", "sandbox"),
+        "workflow": ("Workflows", "workflow"),
     }
 
     for comp_type, (heading, _singular) in type_labels.items():

@@ -163,9 +163,7 @@ async def preview_config(
     # caller cannot see is reported the same way as one that does not exist, so the
     # response is not an existence oracle for team-private listings.
     requested = set(mcp_ids) | set(skill_ids) | set(hook_ids) | set(prompt_ids) | set(sandbox_ids) | set(workflow_ids)
-    resolved = (
-        set(mcp_map) | set(skill_map) | set(hook_map) | set(prompt_map) | set(sandbox_map) | set(workflow_map)
-    )
+    resolved = set(mcp_map) | set(skill_map) | set(hook_map) | set(prompt_map) | set(sandbox_map) | set(workflow_map)
     if missing := requested - resolved:
         raise HTTPException(
             status_code=404,
@@ -205,6 +203,7 @@ async def preview_config(
                 hook_listings=hook_map,
                 prompt_listings=prompt_map,
                 sandbox_listings=sandbox_map,
+                workflow_listings=workflow_map,
             )
         except Exception:
             continue

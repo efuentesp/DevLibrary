@@ -26,6 +26,7 @@ from models.prompt import PromptListing
 from models.sandbox import SandboxListing, SandboxVersion
 from models.skill import SkillListing
 from models.user import User, UserRole
+from models.workflow import WorkflowListing
 from schemas.agent import (
     AgentInstallRequest,
     AgentInstallResponse,
@@ -142,6 +143,20 @@ async def install_agent(
         )
         skill_rows = (await db.execute(skill_stmt)).scalars().all()
         skill_listings_map = {row.id: row for row in skill_rows}
+
+    # Pre-load workflow listings for workflow file generation
+    workflow_comp_ids = [c.component_id for c in install_components if c.component_type == "workflow"]
+    workflow_listings_map = {}
+    if workflow_comp_ids:
+        workflow_stmt = apply_publish_scope(
+            apply_visibility_filter(
+                select(WorkflowListing).where(WorkflowListing.id.in_(workflow_comp_ids)), WorkflowListing, current_user
+            ),
+            WorkflowListing,
+            component_target_team_id,
+        )
+        workflow_rows = (await db.execute(workflow_stmt)).scalars().all()
+        workflow_listings_map = {row.id: row for row in workflow_rows}
 
     # Pre-load hook listings for hook config generation
     hook_comp_ids = [c.component_id for c in install_components if c.component_type == "hook"]
@@ -308,6 +323,7 @@ async def install_agent(
         hook_listings=hook_listings_map,
         prompt_listings=prompt_listings_map,
         sandbox_listings=sandbox_listings_map,
+        workflow_listings=workflow_listings_map,
     )
 
     # Capture agent.id before any DB operations that might expire the ORM

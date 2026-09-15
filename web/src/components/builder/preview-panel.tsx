@@ -171,7 +171,12 @@ export function PreviewPanel({
 			);
 			const previewPrompt =
 				prompt && Object.keys(pendingComponentBodies ?? {}).length > 0
-					? buildMarkdownBody(description, pendingOnly, prompt, pendingComponentBodies)
+					? buildMarkdownBody(
+							description,
+							pendingOnly,
+							prompt,
+							pendingComponentBodies,
+						)
 					: (prompt ?? "");
 			const res = await registry.previewConfig({
 				name: name || "untitled",
