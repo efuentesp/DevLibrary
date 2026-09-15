@@ -441,7 +441,9 @@ def sandbox_show(
 def sandbox_run(
     sandbox_ref: str = typer.Argument(..., help="Sandbox ID, name, row number, or @alias"),
     command: list[str] | None = typer.Argument(None, help="Command tokens (defaults to the sandbox entrypoint)"),
-    timeout: int | None = typer.Option(None, "--timeout", help="Execution timeout in seconds (defaults to the registered limit)"),
+    timeout: int | None = typer.Option(
+        None, "--timeout", help="Execution timeout in seconds (defaults to the registered limit)"
+    ),
     network_policy: str | None = typer.Option(None, "--network-policy", help="Override the registered network policy"),
     env: list[str] | None = typer.Option(None, "--env", help="Extra KEY=value environment entry (repeatable)"),
 ):
